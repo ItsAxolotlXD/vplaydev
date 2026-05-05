@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-primary: var(--primary-color, #9333ea);
+}
+
+@layer base {
+  .btn-3d {
+    @apply transition-all duration-75 relative isolate;
+    transform: translate(0, 0);
+  }
+  .btn-3d:active {
+    transform: translate(8px, 8px) !important;
+    box-shadow: 0px 0px 0px 0px transparent !important;
+  }
+}
+
+.card-3d {
+  @apply transition-all duration-300 relative isolate border-2;
+  transform: translate(0, 0);
+}
+
+.btn-purple-3d {
+  @apply bg-purple-600/90 text-white font-black uppercase tracking-widest px-8 py-4 rounded-2xl transition-all duration-75 relative isolate backdrop-blur-md;
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0px 0px #4c1d95, 4px 4px 10px 0px rgba(0,0,0,0.3);
+}
+.btn-purple-3d:hover {
+  @apply bg-purple-500/90;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px 0px #4c1d95, 5px 5px 12px 0px rgba(0,0,0,0.3);
+}
+.btn-purple-3d:active {
+  transform: translate(3px, 3px) !important;
+  box-shadow: 0px 0px 0px 0px transparent !important;
+}
+
+.btn-white-3d {
+  @apply bg-white/90 text-slate-900 font-black uppercase tracking-widest px-8 py-4 rounded-2xl transition-all duration-75 relative isolate backdrop-blur-md;
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0px 0px #cbd5e1, 4px 4px 10px 0px rgba(0,0,0,0.1);
+}
+.btn-white-3d:hover {
+  @apply bg-slate-50/90;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px 0px #cbd5e1, 5px 5px 12px 0px rgba(0,0,0,0.1);
+}
+.btn-white-3d:active {
+  transform: translate(3px, 3px) !important;
+  box-shadow: 0px 0px 0px 0px transparent !important;
+}
+
+.btn-3d-slate {
+  @apply bg-slate-50/80 border-slate-200 text-slate-600 transition-all duration-75 relative isolate backdrop-blur-md;
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0px 0px #e2e8f0, 4px 4px 8px 0px rgba(0,0,0,0.05);
+}
+.btn-3d-slate:hover {
+  @apply bg-slate-100/90;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px 0px #e2e8f0, 5px 5px 10px 0px rgba(0,0,0,0.05);
+}
+.btn-3d-slate:active {
+  transform: translate(3px, 3px) !important;
+  box-shadow: 0px 0px 0px 0px transparent !important;
+}
+
+.btn-vibrant-3d {
+  @apply bg-[#a855f7]/90 border-[#a855f7]/20 text-white transition-all duration-75 relative isolate backdrop-blur-md;
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0px 0px #6b21a8, 4px 4px 10px 0px rgba(0,0,0,0.3);
+}
+.btn-vibrant-3d:hover {
+  @apply bg-[#9333ea]/90;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px 0px #6b21a8, 5px 5px 12px 0px rgba(0,0,0,0.3);
+}
+.btn-vibrant-3d:active {
+  transform: translate(3px, 3px) !important;
+  box-shadow: 0px 0px 0px 0px transparent !important;
+}
+
+.btn-3d-dark {
+  @apply bg-slate-900/80 border-white/5 text-slate-400 transition-all duration-75 relative isolate backdrop-blur-md;
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0px 0px rgba(0,0,0,0.5), 4px 4px 10px 0px rgba(0,0,0,0.8);
+}
+.btn-3d-dark:hover {
+  @apply bg-slate-800/90;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px 0px rgba(0,0,0,0.5), 5px 5px 12px 0px rgba(0,0,0,0.8);
+}
+.btn-3d-dark:active {
+  transform: translate(3px, 3px) !important;
+  box-shadow: 0px 0px 0px 0px transparent !important;
+}
+
+.popup-3d-dark {
+  @apply bg-slate-900/90 border-2 border-white/10 rounded-[40px] backdrop-blur-2xl;
+  box-shadow: 4px 4px 0px 0px rgba(0,0,0,0.5), 20px 20px 40px 0px rgba(0,0,0,0.4);
+}
+
+.popup-3d-light {
+  @apply bg-white/90 border-2 border-slate-200 rounded-[40px] backdrop-blur-2xl;
+  box-shadow: 4px 4px 0px 0px #cbd5e1, 20px 20px 40px 0px rgba(0,0,0,0.1);
+}
+
+
+@layer base {
+  button, 
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    cursor: pointer;
+  }
+}
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
