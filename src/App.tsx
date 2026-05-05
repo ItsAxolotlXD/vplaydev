@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode } from "react";
-import { Search, User, Tv, Calendar, Home, Play, Pause, Radio, Info, Sun, Moon, Maximize, Settings, Volume2, VolumeX, CheckCircle2, Shield, LogOut, LogIn, Heart, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Mic, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Users, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, FlaskConical as Flask } from "lucide-react";
+import { Search, User, Tv, Calendar, Home, Play, Pause, Radio, Info, Sun, Moon, Maximize, Settings, Volume2, VolumeX, CheckCircle2, Shield, LogOut, LogIn, Heart, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Mic, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Users, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, FlaskConical as Flask } from "lucide-react";
 import Hls from "hls.js";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import { auth, db, handleFirestoreError, OperationType } from "./firebase";
@@ -16,6 +16,24 @@ import { channels, Channel } from "./channels";
 // Test connection as per critical directive
 // Test connection removed
 
+const EXPERIMENTS = [
+  {
+    id: "revamp_processing_loading_circle",
+    name: "Revamp Process Animation",
+    desc: "Sử dụng vòng lặp tải (loading circle) hoàn toàn mới và đã được cập nhật trong ứng dụng."
+  },
+  {
+    id: "PiP_experimental",
+    name: "Picture in Picture",
+    desc: "Hiển thị hình phát thu nhỏ của kênh đang xem khi chuyển sang trang khác hoặc cuộn xuống."
+  }
+];
+
+const TREATMENTS = [
+  { id: "treatment1", name: "Rotating Balls", desc: "Animation with rotating elements." },
+  { id: "treatment3", name: "Chasing Snake", desc: "Clean and simple loading chasing effect." }
+];
+
 const SettingsIcon = ({ className }: { className?: string }) => (
   <Settings className={`${className} flex-shrink-0`} />
 );
@@ -26,10 +44,9 @@ const SplashScreen = ({ isDark, onEnter, duration = 5000, featureFlags, loadingT
       return "https://upload.wikimedia.org/wikipedia/commons/3/3f/Windows-loading-cargando.gif";
     }
     switch (loadingTreatment) {
-      case "treatment1": return "https://upload.wikimedia.org/wikipedia/commons/3/3f/Windows-loading-cargando.gif?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original";
-      case "treatment2": return "https://cdn.pixabay.com/animation/2025/10/01/12/56/12-56-37-235_512.gif";
-      case "treatment3": return "https://cdn.pixabay.com/animation/2025/09/06/21/34/21-34-46-885_512.gif";
-      default: return "https://cdn.pixabay.com/animation/2023/10/08/03/19/03-19-26-213_512.gif";
+      case "treatment1": return "https://static.wikia.nocookie.net/ftv/images/6/63/Search_uci.png/revision/latest?cb=20260411084053&path-prefix=vi";
+      case "treatment3": return "https://static.wikia.nocookie.net/ftv/images/7/7f/Processing_loading.gif/revision/latest?cb=20260408134707&path-prefix=vi";
+      default: return "https://static.wikia.nocookie.net/ftv/images/7/7f/Processing_loading.gif/revision/latest?cb=20260408134707&path-prefix=vi";
     }
   };
 
@@ -94,7 +111,8 @@ const SplashScreen = ({ isDark, onEnter, duration = 5000, featureFlags, loadingT
               src={loadingUrl} 
               alt="Loading" 
               className={`w-12 h-12 ${
-                !featureFlags?.revamp_processing_loading_circle && isDark ? "filter brightness-0 invert" : 
+                (!featureFlags?.revamp_processing_loading_circle && isDark) ? "filter brightness-0 invert" : 
+                ((loadingTreatment === "treatment3") && isDark) ? "filter brightness-0 invert" :
                 ((loadingTreatment === "treatment1" || loadingTreatment === "treatment3") && !isDark && featureFlags?.revamp_processing_loading_circle) ? "filter grayscale brightness-0" : ""
               }`} 
               referrerPolicy="no-referrer"
@@ -126,7 +144,6 @@ const baseTabs = [
   { name: "Trang chủ", icon: Home, id: "Trang chủ" },
   { name: "Phát sóng", icon: Tv, id: "Phát sóng" },
   { name: "Bảo tàng lưu trữ", icon: Calendar, id: "Lưu trữ" },
-  { name: "Experimental", icon: Flask, id: "Experimental" },
   { name: "Quản trị", icon: Shield, id: "Quản trị" },
   { name: "Cài đặt", icon: Settings, id: "Cài đặt" },
 ];
@@ -158,7 +175,7 @@ function LiquidModal({ isOpen, onClose, children, isDark, title, description, li
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.8, opacity: 0, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className={`relative w-full max-w-sm overflow-hidden ${
+            className={`relative w-full max-w-md overflow-hidden ${
               isDark 
                 ? "popup-3d-dark" 
                 : "popup-3d-light"
@@ -166,7 +183,7 @@ function LiquidModal({ isOpen, onClose, children, isDark, title, description, li
               liquidGlass ? "backdrop-blur-3xl" : "backdrop-blur-none"
             }`}
           >
-            <div className="p-8 text-center">
+            <div className="p-10 text-center">
               {title && <h3 className={`text-2xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h3>}
               {description && <p className={`${isDark ? "text-white/60" : "text-black/60"} text-sm leading-relaxed mb-6 font-medium`}>{description}</p>}
               {children}
@@ -276,19 +293,19 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
       <motion.button
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
         onClick={onClick}
-        className={`w-full aspect-video p-5 md:p-6 flex items-center justify-center border relative overflow-hidden transition-all duration-300 card-3d z-10 ${
+        className={`w-full aspect-video p-5 md:p-6 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 ${
           isActive
-            ? `bg-[#a855f7] border-[#a855f7] ring-4 ring-purple-500 shadow-[2px_2px_0_0_#6b21a8,4px_4px_10px_0_rgba(0,0,0,0.3)] backdrop-blur-md !translate-x-[-2px] !translate-y-[-2px]`
+            ? `btn-vibrant-3d`
             : isDark ? "btn-3d-dark" : "btn-3d-slate"
         } ${
           liquidGlass 
-            ? `rounded-[32px] ${
+            ? `rounded-3xl ${
                 liquidGlass === "tinted" 
-                  ? `${isActive ? "bg-[#a855f7]/90" : "bg-white/80"} backdrop-blur-md border-white/20` 
-                  : `${isActive ? "bg-[#a855f7]/40" : "bg-white/5"} backdrop-blur-2xl border-white/10`
+                  ? `${isActive ? "bg-purple-600/90" : "bg-white/80"} backdrop-blur-md border-white/20` 
+                  : `${isActive ? "bg-purple-600/40" : "bg-white/5"} backdrop-blur-2xl border-white/10`
               }` 
-            : "rounded-[32px] backdrop-blur-none"
-        } active:translate-x-[4px] active:translate-y-[4px] active:shadow-none`}
+            : "rounded-3xl backdrop-blur-none"
+        }`}
       >
         {isMaintenance && (
           <div className="absolute top-2 left-2 bg-amber-500 text-white text-[8px] font-bold px-2 py-0.5 rounded-full z-20 shadow-lg">
@@ -399,15 +416,19 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-semibold uppercase tracking-widest mb-2">
               <img 
                 src="https://static.wikia.nocookie.net/ftv/images/d/d9/SMR26.png/revision/latest?cb=20260427024320&path-prefix=vi"
-                alt="SMR26"
+                alt="26M6"
                 className="w-4 h-4 object-contain"
                 referrerPolicy="no-referrer"
               />
               {slides[slideIndex].tag}
             </div>
-            <h1 className="text-3xl md:text-5xl font-semibold tracking-tighter text-white uppercase leading-tight max-w-2xl">
+            <motion.h1 
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="text-3xl md:text-5xl font-bold tracking-tighter text-white uppercase leading-tight max-w-2xl"
+            >
               {slides[slideIndex].title}
-            </h1>
+            </motion.h1>
             <p className="text-white/70 text-sm md:text-base font-medium max-w-xl leading-relaxed">
               {slides[slideIndex].desc}
             </p>
@@ -432,7 +453,13 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
             <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500">
               <Sparkles size={18} />
             </div>
-            <h1 className={`text-3xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>Gợi ý cho bạn</h1>
+            <motion.h1 
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              className={`text-3xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
+            >
+              Gợi ý cho bạn
+            </motion.h1>
           </div>
           <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[9px] ml-11">TOP TRENDING & RECOMMENDED FOR YOU</p>
         </div>
@@ -493,12 +520,16 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
                 Quyền lợi tối thượng
               </div>
               
-              <h2 className={`text-5xl md:text-7xl font-semibold tracking-tight leading-[0.95] ${isDark ? "text-white" : "text-slate-900"}`}>
+              <motion.h2 
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              className={`text-5xl md:text-7xl font-bold tracking-tight leading-[0.95] ${isDark ? "text-white" : "text-slate-900"}`}
+            >
                 Xem mượt hơn, <br /> 
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-amber-400">
                   Riêng tư hơn
                 </span>
-              </h2>
+              </motion.h2>
               
               <p className={`text-lg md:text-xl font-medium leading-relaxed max-w-2xl mx-auto xl:mx-0 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
                 Đăng nhập để trải nghiệm hệ sinh thái Vplay 4K hoàn toàn miễn phí. <br className="hidden md:block" />
@@ -522,16 +553,13 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
             </div>
 
             <div className="flex flex-col gap-6 shrink-0 w-full xl:w-[420px] relative z-10">
-                 <motion.button 
+                 <button 
                   onClick={onLogin}
-                  whileHover={{ scale: 1.02, y: -5 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full h-24 relative group/login overflow-hidden bg-white text-black font-semibold rounded-[36px] transition-all shadow-[0_30px_70px_rgba(255,255,255,0.15)] flex items-center justify-center gap-4 text-2xl"
+                  className="w-full h-24 btn-white-3d flex items-center justify-center gap-4 text-2xl !rounded-[36px]"
                 >
-                   <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 opacity-0 group-hover/login:opacity-10 transition-opacity" />
                    ĐĂNG NHẬP NGAY
-                   <ArrowRight className="w-8 h-8 group-hover/login:translate-x-3 transition-transform" />
-                </motion.button>
+                   <ArrowRight className="w-8 h-8 group-hover:translate-x-3 transition-transform" />
+                </button>
                
                <div className="flex items-center justify-center gap-6">
                   <div className="flex -space-x-3">
@@ -558,7 +586,13 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
             <div className="p-3 w-fit rounded-2xl bg-blue-500/10 text-blue-500">
               <Monitor size={28} />
             </div>
-            <h3 className={`text-3xl font-semibold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>XEM VPLAY MỌI NƠI</h3>
+          <motion.h3 
+            initial={{ opacity: 0, x: -40 }}
+            animate={{ opacity: 1, x: 0 }}
+            className={`text-3xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
+          >
+            XEM VPLAY MỌI NƠI
+          </motion.h3>
             <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-xs">
               Ứng dụng nền tảng Web mang lại trải nghiệm xem truyền hình mượt mà trên cả máy tính, máy tính bảng và điện thoại mà không cần cài đặt.
             </p>
@@ -574,7 +608,13 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
             <div className="p-3 w-fit rounded-2xl bg-amber-500/10 text-amber-500">
               <Zap size={28} />
             </div>
-            <h3 className={`text-3xl font-semibold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>TỐC ĐỘ 4K SIÊU NHANH</h3>
+          <motion.h3 
+            initial={{ opacity: 0, x: -40 }}
+            animate={{ opacity: 1, x: 0 }}
+            className={`text-3xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
+          >
+            TỐC ĐỘ 4K SIÊU NHANH
+          </motion.h3>
             <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-xs">
               Sử dụng CDN đa khu vực giúp luồng phát video đạt chất lượng 4K AI sắc nét với độ trễ tối thiểu, không giật lag ngay cả giờ cao điểm.
             </p>
@@ -593,14 +633,20 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
               <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
                 <Heart size={18} fill="currentColor" />
               </div>
-              <h3 className={`text-3xl font-semibold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>Truy cập nhanh</h3>
+            <motion.h3 
+              initial={{ opacity: 0, x: -40 }}
+              animate={{ opacity: 1, x: 0 }}
+              className={`text-3xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
+            >
+              Truy cập nhanh
+            </motion.h3>
             </div>
             <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[9px] ml-11">QUICK ACCESS TO SAVED CHANNELS</p>
           </div>
           <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6">
             {favoriteChannels.map(ch => (
               <ChannelCard 
-                key={ch.name} 
+                key={`${ch.name}-${ch.stream}`} 
                 ch={ch} 
                 className="hover:scale-105"
                 onClick={() => {
@@ -624,7 +670,13 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
             <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500">
               <Sparkles size={18} />
             </div>
-            <h1 className={`text-3xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>Gợi ý cho bạn</h1>
+            <motion.h1 
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              className={`text-3xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
+            >
+              Gợi ý cho bạn
+            </motion.h1>
           </div>
           <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[9px] ml-11">TOP TRENDING & RECOMMENDED FOR YOU</p>
         </div>
@@ -1096,7 +1148,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
             {filteredMultiviewChannels.length > 0 ? (
               filteredMultiviewChannels.map(c => (
                 <button
-                  key={c.name}
+                  key={`${c.name}-${c.stream}`}
                   onClick={() => {
                     if (showChannelSelector) {
                       setMultiviewChannels(prev => {
@@ -1282,7 +1334,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                   <div className="flex flex-wrap items-center justify-center gap-4">
                     <button 
                       onClick={() => window.location.reload()}
-                      className="px-8 py-3 bg-white hover:bg-slate-100 text-black rounded-xl text-sm font-bold uppercase tracking-wider transition-all active:translate-y-1 shadow-[2px_2px_0_0_#cbd5e1,4px_4px_10px_0_rgba(0,0,0,0.1)] active:shadow-none flex items-center gap-2 backdrop-blur-md"
+                      className="btn-white-3d px-8 py-3 text-sm flex items-center gap-2 h-14"
                     >
                       <RotateCcw size={16} />
                       Tải lại trang
@@ -1471,9 +1523,13 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-4">
-            <h2 className={`text-4xl font-bold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-950"}`}>
+            <motion.h2 
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              className={`text-4xl font-bold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-950"}`}
+            >
               {active.name}
-            </h2>
+            </motion.h2>
             {isMaintenance ? (
               <div className="bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] px-3 py-1 rounded-full font-bold tracking-widest flex items-center gap-2">
                 <div className="h-1.5 w-1.5 rounded-full bg-amber-500"></div>
@@ -1654,17 +1710,24 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
             </div>
           ))}
           {filteredChannels.length === 0 && (
-            <div className="text-center py-20">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-800/50 mb-4">
-                <img 
-                  src="https://static.wikia.nocookie.net/ftv/images/6/63/Search_uci.png/revision/latest?cb=20260411084053&path-prefix=vi" 
-                  alt="Search" 
-                  className="h-10 w-10 object-contain" 
-                  referrerPolicy="no-referrer" 
+            <div className="text-center py-20 flex flex-col items-center justify-center">
+              <div className="w-16 h-16 rounded-full mb-6">
+                 <img 
+                  src={featureFlags?.revamp_processing_loading_circle 
+                    ? (loadingTreatment === "treatment1" ? "https://static.wikia.nocookie.net/ftv/images/6/63/Search_uci.png/revision/latest?cb=20260411084053&path-prefix=vi" : "https://static.wikia.nocookie.net/ftv/images/7/7f/Processing_loading.gif/revision/latest?cb=20260408134707&path-prefix=vi")
+                    : "https://upload.wikimedia.org/wikipedia/commons/3/3f/Windows-loading-cargando.gif"
+                  } 
+                  alt="Loading" 
+                  className={`w-12 h-12 ${
+                    (!featureFlags?.revamp_processing_loading_circle && isDark) ? "filter brightness-0 invert" : 
+                    ((loadingTreatment === "treatment3") && isDark) ? "filter brightness-0 invert" :
+                    ((loadingTreatment === "treatment1" || loadingTreatment === "treatment3") && !isDark && featureFlags?.revamp_processing_loading_circle) ? "filter grayscale brightness-0" : ""
+                  }`} 
+                  referrerPolicy="no-referrer"
                 />
               </div>
-              <h3 className="text-xl font-bold text-slate-400">Không tìm thấy kênh nào</h3>
-              <p className="text-slate-500">Thử tìm kiếm với từ khóa khác</p>
+              <h3 className={`text-xl font-bold ${isDark ? "text-slate-400" : "text-slate-600"}`}>Đang tìm kiếm...</h3>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-2">Đang nỗ lực tải kết quả mới nhất</p>
             </div>
           )}
         </div>
@@ -1719,11 +1782,19 @@ function SearchPopup({
     { name: "Đăng xuất", type: "button", icon: LogOut, action: onLogout },
     { name: "Sắp xếp A-Z", type: "toggle", icon: Filter, action: () => setSortOrder("az") },
     { name: "Sắp xếp Z-A", type: "toggle", icon: Filter, action: () => setSortOrder("za") },
+    { name: "/force launch loading", type: "command", icon: Zap, action: () => {} },
+    { name: "/force launch oobe", type: "command", icon: Zap, action: () => {} },
+    { name: "/help", type: "command", icon: Info, action: () => {} },
+    { name: "/bypass", type: "command", icon: Shield, action: () => {} },
+    { name: "devmode", type: "command", icon: Terminal, action: () => {} },
   ];
 
-  const filteredSystem = systemItems.filter(item => 
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const isHelpCommand = searchQuery.trim().toLowerCase() === "/help";
+  const filteredSystem = isHelpCommand 
+    ? systemItems.filter(item => ["command", "setting", "button", "tab"].includes(item.type))
+    : systemItems.filter(item => 
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
 
   const favoriteChannels = channels.filter(ch => favorites.includes(ch.name));
 
@@ -1746,11 +1817,11 @@ function SearchPopup({
               <div className="space-y-2">
                 <div className="px-4 py-2 flex items-center gap-2">
                   <Heart className="w-3 h-3 text-red-500 fill-red-500" />
-                  <p className={`text-[10px] font-bold uppercase tracking-widest text-black/60`}>Kênh yêu thích</p>
+                  <p className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-white/40" : "text-black/60"}`}>Kênh yêu thích</p>
                 </div>
                 {favoriteChannels.map(ch => (
                   <button
-                    key={ch.name}
+                    key={`search-fav-${ch.name}-${ch.stream}`}
                     onClick={() => { setActiveChannel(ch); onClose(); }}
                     className={`w-full flex items-center gap-4 p-3 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] group hover:bg-black/5`}
                   >
@@ -1758,14 +1829,14 @@ function SearchPopup({
                       <img src={ch.logo} alt={ch.name} className="w-6 h-6 object-contain" referrerPolicy="no-referrer" />
                     </div>
                     <div className="flex-1 text-left">
-                      <p className={`font-bold text-sm text-black`}>{ch.name}</p>
+                      <p className={`font-bold text-sm ${isDark ? "text-white" : "text-black"}`}>{ch.name}</p>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-black/30" />
+                    <ChevronRight className={`w-4 h-4 ${isDark ? "text-white/20" : "text-black/30"}`} />
                   </button>
                 ))}
               </div>
             )}
-            <div className="py-8 text-center space-y-3 text-black">
+            <div className={`py-8 text-center space-y-3 ${isDark ? "text-white" : "text-black"}`}>
               <img 
                 src="https://static.wikia.nocookie.net/ftv/images/6/63/Search_uci.png/revision/latest?cb=20260411084053&path-prefix=vi" 
                 alt="Search" 
@@ -1780,7 +1851,7 @@ function SearchPopup({
             {filteredSystem.length > 0 && (
               <div className="space-y-1 mb-4">
                 <div className="px-4 py-2">
-                  <p className={`text-[10px] font-bold uppercase tracking-widest text-black/60`}>Hệ thống & Cài đặt</p>
+                  <p className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-white/40" : "text-black/60"}`}>Hệ thống & Cài đặt</p>
                 </div>
                 {filteredSystem.map(item => (
                   <button
@@ -1788,14 +1859,14 @@ function SearchPopup({
                     onClick={() => { item.action(); onClose(); }}
                     className={`w-full flex items-center gap-4 p-3 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] group hover:bg-black/5`}
                   >
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-transform group-hover:rotate-3 bg-slate-100 border-slate-200 text-purple-600`}>
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-transform group-hover:rotate-3 ${isDark ? "bg-white/5 border-white/10 text-purple-400" : "bg-slate-100 border-slate-200 text-purple-600"}`}>
                       <item.icon className="w-6 h-6 fill-current" />
                     </div>
                     <div className="flex-1 text-left">
-                      <p className={`font-bold text-sm text-black`}>{item.name}</p>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-black/60">{item.type === "tab" ? "Chuyển Tab" : "Cài đặt"}</p>
+                      <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>{item.name}</p>
+                      <p className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? "text-white/40" : "text-black/60"}`}>{item.type === "tab" ? "Chuyển Tab" : "Cài đặt"}</p>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-black/30" />
+                    <ChevronRight className={`w-4 h-4 ${isDark ? "text-white/20" : "text-black/30"}`} />
                   </button>
                 ))}
               </div>
@@ -1804,36 +1875,38 @@ function SearchPopup({
             {filteredChannels.length > 0 && (
               <div className="space-y-1">
                 <div className="px-4 py-2">
-                  <p className={`text-[10px] font-bold uppercase tracking-widest text-black/60`}>Kênh truyền hình</p>
+                  <p className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-white/40" : "text-black/60"}`}>Kênh truyền hình</p>
                 </div>
                 {filteredChannels.map(ch => (
                   <button
-                    key={ch.name}
+                    key={`search-ch-${ch.name}-${ch.stream}`}
                     onClick={() => { setActiveChannel(ch); onClose(); }}
                     className={`w-full flex items-center gap-4 p-3 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] group hover:bg-black/5`}
                   >
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-transform group-hover:rotate-3 bg-slate-100 border-slate-200`}>
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-transform group-hover:rotate-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-100 border-slate-200"}`}>
                       <img src={ch.logo} alt={ch.name} className="w-8 h-8 object-contain" referrerPolicy="no-referrer" />
                     </div>
                     <div className="flex-1 text-left">
-                      <p className={`font-bold text-sm text-black`}>{ch.name}</p>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-black/60">{ch.category}</p>
+                      <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>{ch.name}</p>
+                      <p className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? "text-white/40" : "text-black/60"}`}>{ch.category}</p>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-black/30" />
+                    <ChevronRight className={`w-4 h-4 ${isDark ? "text-white/20" : "text-black/30"}`} />
                   </button>
                 ))}
               </div>
             )}
           </>
         ) : (
-          <div className="py-12 text-center opacity-40 space-y-3 text-black">
-            <img 
-              src="https://static.wikia.nocookie.net/ftv/images/6/63/Search_uci.png/revision/latest?cb=20260411084053&path-prefix=vi" 
-              alt="Search" 
-              className="w-12 h-12 mx-auto object-contain" 
-              referrerPolicy="no-referrer" 
-            />
-            <p className="text-sm font-medium">Không tìm thấy kết quả nào cho "{searchQuery}"</p>
+          <div className={`py-12 text-center flex flex-col items-center justify-center space-y-4 ${isDark ? "text-white" : "text-black"}`}>
+            <div className="w-12 h-12 relative flex items-center justify-center">
+               <img 
+                src="https://static.wikia.nocookie.net/ftv/images/7/7f/Processing_loading.gif/revision/latest?cb=20260408134707&path-prefix=vi" 
+                alt="Loading" 
+                className={`w-10 h-10 ${isDark ? "filter brightness-0 invert" : "filter grayscale brightness-0 opacity-40"}`} 
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 italic">Đang tìm kiếm dữ liệu...</p>
           </div>
         )}
       </div>
@@ -1927,7 +2000,7 @@ function MiniPlayer({
       <div className="absolute top-0 left-0 right-0 p-3 bg-gradient-to-b from-black/60 to-transparent z-10 flex items-center justify-between opacity-0 hover:opacity-100 transition-opacity">
         <div className="flex items-center gap-2">
           <img src={channel.logo} className="w-4 h-4 object-contain" referrerPolicy="no-referrer" />
-          <span className="text-[10px] font-black text-white uppercase tracking-widest truncate max-w-[120px]">{channel.name}</span>
+          <span className="text-[10px] font-bold text-white uppercase tracking-widest truncate max-w-[120px]">{channel.name}</span>
         </div>
         <button onClick={onClose} className="p-1 rounded-full bg-black/40 text-white hover:bg-red-500 transition-colors">
           <X size={14} />
@@ -1936,137 +2009,6 @@ function MiniPlayer({
       <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted />
       <div className="absolute inset-0 pointer-events-none border-2 border-white/5 rounded-[inherit]" />
     </motion.div>
-  );
-}
-
-function ExperimentalContent({ isDark, featureFlags, setFeatureFlags, liquidGlass, loadingTreatment, setLoadingTreatment }: { 
-  isDark: boolean, 
-  featureFlags: { [key: string]: boolean },
-  setFeatureFlags: (val: { [key: string]: boolean } | ((prev: { [key: string]: boolean }) => { [key: string]: boolean })) => void,
-  liquidGlass: "glassy" | "tinted",
-  loadingTreatment: string,
-  setLoadingTreatment: (val: string) => void
-}) {
-  const experiments = [
-    {
-      id: "revamp_processing_loading_circle",
-      name: "Revamp Process Animation",
-      desc: "Sử dụng vòng lặp tải (loading circle) hoàn toàn mới và đã được cập nhật trong ứng dụng."
-    },
-    {
-      id: "PiP_experimental",
-      name: "Picture in Picture",
-      desc: "Hiển thị hình phát thu nhỏ của kênh đang xem khi chuyển sang trang khác hoặc cuộn xuống."
-    }
-  ];
-
-  const treatments = [
-    { id: "treatment1", name: "Classic Spinner", desc: "Animation with classic spinning effect." },
-    { id: "treatment2", name: "Wavy Blue", desc: "Modern wavy blue loading animation." },
-    { id: "treatment3", name: "Basic Spinner", desc: "Clean and simple loading spinner." }
-  ];
-
-  return (
-    <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-12 pb-32">
-      <div className={`p-8 rounded-[40px] border-2 transition-all shadow-xl rotate-[-1deg] ${
-        isDark ? "bg-amber-500/10 border-amber-500/20 text-amber-500" : "bg-amber-50 border-amber-200 text-amber-700"
-      }`}>
-        <div className="flex items-start gap-5">
-          <div className={`p-3 rounded-2xl ${isDark ? "bg-amber-500/20" : "bg-amber-100"}`}>
-            <AlertCircle size={28} className="shrink-0" />
-          </div>
-          <div className="space-y-2">
-            <h4 className="text-xl font-black uppercase tracking-tighter">Cảnh báo rủi ro</h4>
-            <p className="text-sm font-bold leading-relaxed opacity-90">Các tính năng thử nghiệm có thể chưa ổn định và có thể gây lỗi treo ứng dụng. Chúng tôi khuyến nghị bạn nên sử dụng cẩn thận trên các thiết bị có cấu hình yếu.</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4 px-2">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center text-white shadow-[0_4px_12px_rgba(147,51,234,0.3)] rotate-3">
-            <Flask size={28} />
-          </div>
-          <div>
-            <h2 className={`text-4xl font-black tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-900"}`}>Experimental Labs</h2>
-            <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"} font-black uppercase tracking-widest`}>BETA FEATURES & CUTTING-EDGE TECH</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-10">
-        {experiments.map((exp) => (
-          <div key={exp.id} className="space-y-6">
-            <button 
-              onClick={() => setFeatureFlags(prev => ({ ...prev, [exp.id]: !prev[exp.id] }))}
-              className={`w-full flex flex-col md:flex-row items-center justify-between p-8 rounded-[40px] border-2 transition-all text-left group card-3d ${
-                featureFlags[exp.id] 
-                  ? "bg-purple-600/90 border-purple-500 text-white shadow-[2px_2px_0_0_#4c1d95,4px_4px_12px_0_rgba(0,0,0,0.3)] backdrop-blur-md -translate-y-0.5" 
-                  : isDark ? "btn-3d-dark" : "btn-3d-slate"
-              }`}
-            >
-              <div className="space-y-2 mb-6 md:mb-0">
-                <div className="flex items-center gap-3">
-                  <h4 className="font-black text-2xl uppercase tracking-tighter flex items-center gap-2">
-                    {exp.name}
-                  </h4>
-                  {featureFlags[exp.id] && <CheckCircle2 size={24} className="text-white" />}
-                </div>
-                <p className={`text-sm ${featureFlags[exp.id] ? "text-white/80" : "text-slate-500"} font-bold max-w-lg leading-relaxed`}>{exp.desc}</p>
-                <div className="pt-2">
-                  <span className={`px-3 py-1 rounded-xl text-[10px] font-black font-mono border-2 ${featureFlags[exp.id] ? "bg-amber-400 border-amber-500 text-amber-950" : "bg-amber-100 border-amber-200 text-amber-800"}`}>
-                    REF_ID: {exp.id}
-                  </span>
-                </div>
-              </div>
-              <div className={`w-16 h-9 rounded-full transition-all relative shrink-0 ${featureFlags[exp.id] ? "bg-white/20" : "bg-slate-700/20"}`}>
-                  <motion.div 
-                    animate={{ x: featureFlags[exp.id] ? 32 : 6 }}
-                    className={`absolute top-1.5 w-6 h-6 rounded-full shadow-md ${featureFlags[exp.id] ? "bg-white" : "bg-slate-400"}`}
-                  />
-              </div>
-            </button>
-
-            {exp.id === "revamp_processing_loading_circle" && featureFlags[exp.id] && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className={`p-8 rounded-[40px] border-2 ${isDark ? "bg-slate-900/80 border-white/10" : "bg-white border-slate-200"} space-y-8 shadow-2xl relative overflow-hidden`}
-              >
-                <div className="absolute top-0 right-0 p-8 opacity-5">
-                   <Settings size={120} />
-                </div>
-                <div className="flex items-center gap-3 relative z-10">
-                  <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500">
-                    <Settings size={20} className="animate-spin-slow" />
-                  </div>
-                  <h5 className={`text-sm font-black uppercase tracking-widest ${isDark ? "text-white" : "text-slate-900"}`}>Ngoại hình vòng lặp tải</h5>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
-                  {treatments.map((t) => (
-                    <button
-                      key={t.id}
-                      onClick={() => setLoadingTreatment(t.id)}
-                      className={`p-6 rounded-[32px] border-2 transition-all text-left space-y-2 flex flex-col justify-between h-full ${
-                        loadingTreatment === t.id 
-                          ? "bg-purple-600/90 border-purple-500 text-white shadow-[0_4px_12px_rgba(147,51,234,0.3)] backdrop-blur-md translate-y-[-2px]" 
-                          : isDark ? "bg-white/5 border-white/5 hover:bg-white/10 text-slate-300" : "bg-slate-50 border-slate-100 hover:bg-slate-200 text-slate-600"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-black uppercase tracking-tight leading-tight">{t.name}</span>
-                        {loadingTreatment === t.id && <CheckCircle2 size={16} />}
-                      </div>
-                      <p className={`text-[10px] leading-relaxed font-bold ${loadingTreatment === t.id ? "text-white/70" : "text-slate-500"}`}>{t.desc}</p>
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -2163,10 +2105,9 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment }: {
         return "https://upload.wikimedia.org/wikipedia/commons/3/3f/Windows-loading-cargando.gif";
       }
       switch (loadingTreatment) {
-        case "treatment1": return "https://upload.wikimedia.org/wikipedia/commons/3/3f/Windows-loading-cargando.gif?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original";
-        case "treatment2": return "https://cdn.pixabay.com/animation/2025/10/01/12/56/12-56-37-235_512.gif";
-        case "treatment3": return "https://cdn.pixabay.com/animation/2025/09/06/21/34/21-34-46-885_512.gif";
-        default: return "https://cdn.pixabay.com/animation/2023/10/08/03/19/03-19-26-213_512.gif";
+        case "treatment1": return "https://static.wikia.nocookie.net/ftv/images/6/63/Search_uci.png/revision/latest?cb=20260411084053&path-prefix=vi";
+        case "treatment3": return "https://static.wikia.nocookie.net/ftv/images/7/7f/Processing_loading.gif/revision/latest?cb=20260408134707&path-prefix=vi";
+        default: return "https://static.wikia.nocookie.net/ftv/images/7/7f/Processing_loading.gif/revision/latest?cb=20260408134707&path-prefix=vi";
       }
     };
 
@@ -2179,6 +2120,7 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment }: {
           alt="Loading" 
           className={`w-14 h-14 ${
             (!featureFlags?.revamp_processing_loading_circle && isDark) ? "filter brightness-0 invert" : 
+            ((loadingTreatment === "treatment3") && isDark) ? "filter brightness-0 invert" :
             ((loadingTreatment === "treatment1" || loadingTreatment === "treatment3") && !isDark && featureFlags?.revamp_processing_loading_circle) ? "filter grayscale brightness-0" : ""
           }`}
         />
@@ -2191,6 +2133,23 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment }: {
 
   const logs = [
     {
+      id: 'dev-26601',
+      version: 'Vplay Dev - Build 26601',
+      tag: '✨',
+      type: '',
+      sections: [
+        {
+          title: '🎨 Giao diện & Trải nghiệm',
+          items: [
+            'Cập nhật giao diện Giao diện & Trải nghiệm với phong cách nút bấm lớn',
+            'Tối ưu hóa màu sắc Search Box và Sidebar cho cả hai chế độ sáng/tối (Search Box: Xám/Dark Gray, Sidebar: Đen/Trắng)',
+            'Điều chỉnh kiểu chữ và định dạng văn bản trong phần Cài đặt: font Bold, không in hoa',
+            'Sắp xếp lại layout mỗi option một dòng trong mục Giao diện'
+          ],
+          color: 'text-purple-500'
+        }
+      ]
+    }, {
       id: 'dev-26510',
       version: 'Vplay Dev - Build 26510',
       tag: '🧪',
@@ -2333,30 +2292,31 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment }: {
 
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-12 max-w-4xl mx-auto w-full pb-32">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={onBack}
-            className={`p-2 rounded-xl transition-all ${isDark ? "bg-white/5 hover:bg-white/10 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-900"}`}
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <h2 className={`text-3xl font-semibold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Changelogs</h2>
-        </div>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={onBack}
+                className={`btn-3d-slate btn-3d-square w-14 h-14`}
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <h2 className={`text-3xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Changelogs</h2>
+            </div>
 
-          <div className={`relative group min-w-[240px] rounded-full overflow-hidden transition-all ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
-            <Search className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isDark ? "text-white/20 group-focus-within:text-purple-400" : "text-slate-400 group-focus-within:text-purple-600"}`} size={14} />
-            <input 
-              value={logSearchQuery}
-              onChange={e => setLogSearchQuery(e.target.value)}
-              placeholder="Tìm kiếm..."
-              className={`w-full pl-10 pr-4 py-3 text-xs bg-transparent focus:outline-none transition-all ${
-                isDark ? "text-white placeholder-white/20" : "text-slate-900 placeholder-slate-400"
-              }`}
-            />
-            <div className={`absolute bottom-0 left-0 h-[2px] w-full transition-all duration-300 ${isDark ? "bg-white/10" : "bg-slate-200"} group-focus-within:bg-purple-500 group-focus-within:shadow-[0_0_8px_rgba(168,85,247,0.4)]`} />
+            <div className={`relative group min-w-[280px] transition-all`}>
+              <div className={`flex items-center ${isDark ? "btn-3d-dark" : "btn-3d-slate"} px-4 py-3 h-14`}>
+                <Search className={`mr-3 transition-colors ${isDark ? "text-white/20 group-focus-within:text-purple-400" : "text-slate-400 group-focus-within:text-purple-600"}`} size={16} />
+                <input 
+                  value={logSearchQuery}
+                  onChange={e => setLogSearchQuery(e.target.value)}
+                  placeholder="Tìm kiếm version..."
+                  className={`flex-1 text-sm bg-transparent focus:outline-none transition-all ${
+                    isDark ? "text-white placeholder-white/20" : "text-slate-900 placeholder-slate-400"
+                  }`}
+                />
+              </div>
+            </div>
           </div>
-      </div>
 
       <div className="space-y-16">
         {/* KHÁC BIỆT GIỮA CÁC PHIÊN BẢN vplay beta */}
@@ -2448,6 +2408,8 @@ function SettingsContent({
   setIsSidebarRight,
   isSidebarLocked,
   setIsSidebarLocked,
+  sidebarDisplay,
+  setSidebarDisplay,
   isPinningEnabled,
   setIsPinningEnabled,
   user,
@@ -2458,7 +2420,9 @@ function SettingsContent({
   onUpdateLogsClick,
   onResetOnboarding,
   favorites,
-  bypassed
+  bypassed,
+  loadingTreatment,
+  setLoadingTreatment
 }: { 
   isDark: boolean, 
   setIsDark: (val: boolean) => void, 
@@ -2474,6 +2438,8 @@ function SettingsContent({
   setIsSidebarRight: (val: boolean) => void,
   isSidebarLocked: boolean,
   setIsSidebarLocked: (val: boolean) => void,
+  sidebarDisplay: "float" | "attach",
+  setSidebarDisplay: (val: "float" | "attach") => void,
   isPinningEnabled: boolean,
   setIsPinningEnabled: (val: boolean) => void,
   user: FirebaseUser | null,
@@ -2484,7 +2450,9 @@ function SettingsContent({
   onUpdateLogsClick: () => void,
   onResetOnboarding: () => void,
   favorites: string[],
-  bypassed?: boolean
+  bypassed?: boolean,
+  loadingTreatment: string,
+  setLoadingTreatment: (val: string) => void
 }) {
   const [name, setName] = useState(userData?.displayName || user?.displayName || "");
   const [avatar, setAvatar] = useState(userData?.photoURL || user?.photoURL || "");
@@ -2503,56 +2471,24 @@ function SettingsContent({
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const MAX_WIDTH = 256;
-        const MAX_HEIGHT = 256;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > height) {
-          if (width > MAX_WIDTH) {
-            height *= MAX_WIDTH / width;
-            width = MAX_WIDTH;
-          }
-        } else {
-          if (height > MAX_HEIGHT) {
-            width *= MAX_HEIGHT / height;
-            height = MAX_HEIGHT;
-          }
-        }
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
-          setAvatar(dataUrl);
-        }
-      };
-      img.src = event.target?.result as string;
+      setAvatar(event.target?.result as string);
     };
     reader.readAsDataURL(file);
   };
 
   const handleSave = async () => {
     if (!user && !bypassed) return;
+    const authUser = auth.currentUser;
+    if (!authUser && !bypassed) return;
+
     setSaving(true);
     try {
-      const isDataUrl = avatar.startsWith('data:');
-      const profileUpdates: any = { displayName: name };
-      if (!isDataUrl) {
-        profileUpdates.photoURL = avatar;
+      const profileUpdates: any = { displayName: name, photoURL: avatar };
+      if (authUser) {
+        await updateProfile(authUser, { displayName: name, photoURL: avatar });
+        await setDoc(doc(db, "users", authUser.uid), profileUpdates, { merge: true });
       }
-      await updateProfile(user, profileUpdates);
-      
-      await setDoc(doc(db, "users", user.uid), {
-        displayName: name,
-        photoURL: avatar
-      }, { merge: true });
-      
-      setUserData({ ...userData, displayName: name, photoURL: avatar });
+      setUserData({ ...userData, ...profileUpdates });
       onAlert("Thành công", "Đã cập nhật hồ sơ của bạn!");
     } catch (e: any) {
       console.error(e);
@@ -2561,423 +2497,508 @@ function SettingsContent({
     setSaving(false);
   };
 
-  const toggleFlag = (id: string) => {
-    setFeatureFlags(prev => ({ ...prev, [id]: !prev[id] }));
-  };
-
   return (
-    <div className="max-w-6xl mx-auto px-4 md:px-6 pb-32 space-y-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch lg:items-start">
-        {/* Left Column - Information Section (Large card) */}
-        <div className={`p-8 rounded-[40px] border flex flex-col justify-between relative overflow-hidden h-full ${isDark ? "border-white/5 bg-slate-900/50 shadow-2xl" : "border-black/5 bg-white shadow-xl"} ${liquidGlass ? "backdrop-blur-xl" : ""}`}>
-           <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-500/10 to-pink-500/5 blur-[100px] -mr-32 -mt-32" />
-           
-           <div className="space-y-8 relative z-10">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-500">
-                  <Info size={22} />
-                </div>
-                <div>
-                  <h3 className={`font-bold text-xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Thông tin</h3>
-                  <p className="text-[9px] opacity-30 font-black tracking-widest uppercase">System Core Version</p>
-                </div>
+    <div className="max-w-6xl mx-auto px-4 md:px-0 pb-32 space-y-8">
+      {/* 1. Information Section (Top - Full Width) */}
+      <div className={`p-8 md:p-12 rounded-[48px] border relative overflow-hidden transition-all ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-purple-500/20 to-cyan-500/10 blur-[120px] -mr-32 -mt-32" />
+        
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-500">
+                <Info size={28} />
               </div>
-
-              <div className="flex flex-col items-center py-2">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-purple-600/10 blur-3xl rounded-full scale-125" />
-                  <img 
-                    src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi"
-                    className="w-32 h-32 object-contain relative z-10 drop-shadow-2xl"
-                    alt="Vplay App Logo"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-                <div className="text-center mt-6 space-y-1">
-                  <h2 className="text-2xl font-black italic tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500">
-                    SUMMER 2026
-                  </h2>
-                  <p className={`text-[10px] font-bold tracking-[0.4em] ${isDark ? "text-white/40" : "text-slate-400"}`}>STABLE UPDATE v4.0</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-3">
-                 <div className={`p-4 rounded-2xl border flex items-center justify-between group transition-all hover:border-purple-500/30 ${isDark ? "bg-white/5 border-white/5" : "bg-slate-50 border-slate-100"}`}>
-                   <div className="flex items-center gap-3">
-                     <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500">
-                        <Activity size={18} />
-                     </div>
-                     <div>
-                       <p className="text-[10px] font-bold opacity-40 uppercase tracking-wider">Release Version</p>
-                       <p className={`text-sm font-black ${isDark ? "text-white" : "text-slate-900"}`}>SMR - 2026.04</p>
-                     </div>
-                   </div>
-                   <span className="px-3 py-1 bg-green-500/20 text-green-500 text-[10px] font-black rounded-lg">STABLE</span>
-                 </div>
-
-                 <div className={`p-4 rounded-2xl border flex items-center justify-between group transition-all hover:border-amber-500/30 ${isDark ? "bg-white/5 border-white/5" : "bg-slate-50 border-slate-100"}`}>
-                   <div className="flex items-center gap-3">
-                     <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
-                        <Shield size={18} />
-                     </div>
-                     <div>
-                       <p className="text-[10px] font-bold opacity-40 uppercase tracking-wider">Build Signature</p>
-                       <p className={`text-sm font-black ${isDark ? "text-white" : "text-slate-900"}`}>AIS-26510-PROD</p>
-                     </div>
-                   </div>
-                   <div className="flex items-center gap-1.5">
-                     <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                     <span className="text-amber-500 text-[10px] font-black">ENCRYPTED</span>
-                   </div>
-                 </div>
-              </div>
-           </div>
-        </div>
-
-        {/* Right Column - Profile and Community */}
-        <div className="flex flex-col gap-8">
-          {/* Profile Section */}
-          <div className={`p-10 rounded-[48px] border flex flex-col ${isDark ? "border-white/5 bg-slate-900 shadow-2xl" : "border-black/5 bg-white shadow-xl"} ${liquidGlass ? "backdrop-blur-xl" : ""}`}>
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 rounded-2xl bg-purple-500/20 text-purple-500">
-                <User size={24} />
-              </div>
-              <h3 className={`font-bold text-2xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Hồ sơ</h3>
+              <h3 className={`font-bold text-3xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Thông tin hệ thống</h3>
             </div>
+            
+            <div className="flex items-center gap-8 py-4">
+              <div className="relative">
+                <div className="absolute inset-0 bg-purple-600/20 blur-3xl rounded-full" />
+                <img 
+                  src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi"
+                  className="w-40 h-40 object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(168,85,247,0.4)]"
+                  alt="Vplay App Logo"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-4xl font-bold italic tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-cyan-400">
+                  Vplay 2026
+                </h2>
+                <div className="flex flex-col gap-1">
+                  <span className={`text-[10px] font-bold tracking-[0.4em] ${isDark ? "text-white/40" : "text-slate-400"}`}>June 2026 Update</span>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 bg-amber-500/20 text-amber-500 text-[9px] font-bold rounded-md uppercase">26M6</span>
+                    <span className="px-2 py-0.5 bg-cyan-500/20 text-cyan-500 text-[9px] font-bold rounded-md uppercase">Build 26601</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-            {!user && !bypassed ? (
-              <div className="flex flex-col items-center justify-center text-center gap-6 py-4">
-                <div className={`w-24 h-24 rounded-full flex items-center justify-center border-4 ${isDark ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-white shadow-inner"}`}>
-                  <User className="w-12 h-12 text-slate-400 opacity-20" />
+          <div className="grid grid-cols-1 gap-4">
+             <div className={`p-6 rounded-3xl border flex items-center justify-between group transition-all hover:border-purple-500/30 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+               <div className="flex items-center gap-4">
+                 <div className="w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center text-green-500">
+                    <Activity size={24} />
+                 </div>
+                 <div>
+                   <p className="text-[10px] font-bold opacity-40 tracking-wider">Phiên bản phát hành</p>
+                   <p className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>June 2026 Update</p>
+                 </div>
+               </div>
+               <span className="px-4 py-2 bg-amber-500 text-slate-900 text-[10px] font-bold rounded-xl shadow-lg shadow-amber-500/30">26M6</span>
+             </div>
+
+             <div className="grid grid-cols-2 gap-4">
+                <div className={`p-6 rounded-3xl border flex items-center gap-4 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+                   <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                      <Terminal size={20} />
+                   </div>
+                   <div>
+                     <p className="text-[10px] font-bold opacity-40 tracking-wider">Nhánh</p>
+                     <p className={`text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Dev</p>
+                   </div>
                 </div>
-                <div className="space-y-1">
-                  <p className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Chưa đăng nhập</p>
-                  <p className="text-xs text-slate-500 font-medium">Đăng nhập để đồng bộ dữ liệu của bạn</p>
+                <div className={`p-6 rounded-3xl border flex items-center gap-4 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+                   <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+                      <Zap size={20} />
+                   </div>
+                   <div>
+                     <p className="text-[10px] font-bold opacity-40 tracking-wider">Bản dựng</p>
+                     <p className={`text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>26601</p>
+                   </div>
                 </div>
+             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+        {/* Profile Section */}
+        <div className={`p-10 rounded-[48px] border flex flex-col transition-all ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+          <div className="flex items-center gap-4 mb-10">
+            <div className="p-3 rounded-2xl bg-purple-500/20 text-purple-500">
+              <User size={24} />
+            </div>
+            <h3 className={`font-bold text-2xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Hồ sơ cá nhân</h3>
+          </div>
+
+          {!user && !bypassed ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center gap-8 py-4">
+              <div className={`w-32 h-32 rounded-[40px] flex items-center justify-center border-4 ${isDark ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-white shadow-inner"}`}>
+                <User className="w-16 h-16 text-slate-400 opacity-20" />
+              </div>
+              <div className="space-y-2">
+                <p className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Chưa đăng nhập</p>
+                <p className="text-sm text-slate-500 font-medium">Đăng nhập để đồng bộ dữ liệu của bạn</p>
+              </div>
               <button 
                 onClick={onLogin}
-                className="btn-purple-3d w-full"
+                className="btn-vibrant-3d w-full py-4 text-base flex items-center justify-center gap-3"
               >
-                Đăng nhập ngay
+                <LogIn size={20} /> ĐĂNG NHẬP NGAY
               </button>
-              </div>
-            ) : (
-              <div className="space-y-8">
-                <div className="flex flex-col md:flex-row items-center gap-8">
-                  <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                    <div className="absolute inset-0 bg-purple-500/20 blur-xl rounded-full scale-125" />
-                    {avatar ? (
-                      <img src={avatar} alt="Avatar" className="w-24 h-24 rounded-full object-cover border-4 border-white/10 relative z-10 shadow-2xl" referrerPolicy="no-referrer" />
-                    ) : (
-                      <div className={`w-24 h-24 rounded-full flex items-center justify-center border-4 relative z-10 ${isDark ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-white shadow-inner"}`}>
-                        <User className="w-12 h-12 text-slate-400 opacity-20" />
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-black/60 rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
-                      <Camera className="text-white w-6 h-6" />
+            </div>
+          ) : (
+            <div className="space-y-8">
+              <div className="flex flex-col md:flex-row items-center gap-8">
+                <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                  <div className="absolute inset-0 bg-purple-500/20 blur-xl rounded-full scale-125" />
+                  {avatar ? (
+                    <img src={avatar} alt="Avatar" className="w-28 h-28 rounded-[32px] object-cover border-4 border-white/10 relative z-10 shadow-2xl" referrerPolicy="no-referrer" />
+                  ) : (
+                    <div className={`w-28 h-28 rounded-[32px] flex items-center justify-center border-4 relative z-10 ${isDark ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-white shadow-inner"}`}>
+                      <User className="w-14 h-14 text-slate-400 opacity-20" />
                     </div>
-                    <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
+                  )}
+                  <div className="absolute inset-0 bg-black/60 rounded-[32px] flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
+                    <Camera className="text-white w-8 h-8" />
                   </div>
-                  
-                  <div className="flex-1 space-y-4 w-full">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-30 ml-2">Display Name</label>
-                      <div className={`relative group rounded-[20px] overflow-hidden transition-all ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
-                        <input 
-                          value={name} 
-                          onChange={e => setName(e.target.value)} 
-                          placeholder="Tên của bạn..."
-                          className={`w-full px-6 py-4 text-sm font-bold bg-transparent outline-none transition-all ${
-                            isDark ? "text-white placeholder-white/20" : "text-slate-900 placeholder-slate-400"
-                          }`} 
-                        />
-                        <div className={`absolute bottom-0 left-0 h-[2px] w-full transition-all duration-300 ${isDark ? "bg-white/10" : "bg-slate-200"} group-focus-within:bg-purple-500 group-focus-within:shadow-[0_0_10px_rgba(168,85,247,0.5)]`} />
-                      </div>
+                  <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
+                </div>
+                
+                <div className="flex-1 space-y-4 w-full">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-30 ml-2">Tên hiển thị</label>
+                    <div className={`relative group rounded-[24px] overflow-hidden transition-all ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
+                      <input 
+                        value={name} 
+                        onChange={e => setName(e.target.value)} 
+                        placeholder="Tên của bạn..."
+                        className={`w-full px-6 py-4 text-base font-bold bg-transparent outline-none transition-all ${
+                          isDark ? "text-white placeholder-white/20" : "text-slate-900 placeholder-slate-400"
+                        }`} 
+                      />
                     </div>
-                    <div className="flex gap-3">
-                      <button 
-                        onClick={handleSave} 
-                        disabled={saving}
-                        className="btn-purple-3d flex-1 text-[10px] disabled:opacity-50 disabled:active:top-[4px]"
-                      >
-                        {saving ? "..." : "Lưu thay đổi"}
-                      </button>
-                      <button 
-                        onClick={() => signOut(auth)}
-                        className={`p-4 rounded-2xl border transition-all active:translate-y-1 ${isDark ? "bg-red-500/10 border-red-500/10 text-red-500" : "bg-red-50 border-red-100 text-red-600 shadow-[2px_2px_0_0_rgba(239,68,68,0.2),4px_4px_8px_0_rgba(239,68,68,0.1)] active:shadow-none backdrop-blur-md"}`}
-                      >
-                        <LogOut size={20} />
-                      </button>
-                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={handleSave} 
+                      disabled={saving}
+                      className="btn-purple-3d flex-1 text-xs py-3.5 disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      <CheckCircle2 size={16} /> {saving ? "Đang lưu..." : "Lưu thay đổi"}
+                    </button>
+                    <button 
+                      onClick={() => signOut(auth)}
+                      className={`p-3.5 rounded-2xl border transition-all active:translate-y-1 ${isDark ? "bg-red-500/10 border-red-500/10 text-red-500" : "bg-red-50 border-red-100 text-red-600 shadow-xl"}`}
+                    >
+                      <LogOut size={20} />
+                    </button>
                   </div>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
 
-          {/* Community Section */}
-          <div className={`p-10 rounded-[48px] border flex flex-col justify-between ${isDark ? "border-white/5 bg-slate-900 shadow-2xl" : "border-black/5 bg-white shadow-xl"} ${liquidGlass ? "backdrop-blur-xl" : ""}`}>
-            <div className="space-y-10">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-purple-500/20 text-purple-500">
-                    <Users size={24} />
+        {/* Community Section */}
+        <div className={`p-10 rounded-[48px] border flex flex-col justify-between transition-all ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+          <div className="space-y-10">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-2xl bg-blue-500/20 text-blue-500">
+                <Users size={24} />
+              </div>
+              <h3 className={`font-bold text-2xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Cộng đồng</h3>
+            </div>
+
+            <div className="space-y-4">
+              <a 
+                href="https://discord.gg/CNKFTUBSty" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className={`flex items-center justify-between p-6 rounded-[32px] border transition-all active:scale-[0.98] group ${
+                  isDark ? "bg-black/20 border-white/5 hover:bg-black/30 shadow-2xl" : "bg-slate-100/50 border-slate-100 hover:bg-slate-100 shadow-xl"
+                }`}
+              >
+                <div className="flex items-center gap-5">
+                  <div className="w-16 h-16 rounded-[24px] bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <MessageSquare size={32} />
                   </div>
                   <div>
-                    <h3 className={`font-bold text-2xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Cộng đồng</h3>
-                    <p className="text-[10px] opacity-40 font-mono tracking-[0.3em]">JOIN THE COMMUNITY</p>
+                    <h4 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>THE WAVES</h4>
+                    <p className={`text-[10px] opacity-60 font-bold tracking-[0.2em] leading-none mt-2`}>Official Discord</p>
                   </div>
                 </div>
-              </div>
+                <ChevronRight size={24} className="text-slate-500 group-hover:translate-x-2 transition-transform" />
+              </a>
 
-              <div className="space-y-4">
-                <a 
-                  href="https://discord.gg/CNKFTUBSty" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className={`flex items-center justify-between p-6 rounded-[32px] border transition-all active:scale-[0.98] group ${
-                    isDark ? "bg-white/5 border-white/5 hover:bg-white/10" : "bg-slate-50 border-slate-100 hover:bg-slate-100 shadow-sm outline-none"
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 shadow-inner">
-                      <MessageSquare size={28} />
+              <div className="grid grid-cols-2 gap-4">
+                {[1, 2].map(num => (
+                  <a 
+                    key={num}
+                    href={`https://www.youtube.com/@ota${num === 1 ? 'one' : 'two'}fr253`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className={`flex items-center gap-4 p-5 rounded-[28px] border text-xs font-bold transition-all group ${
+                      isDark ? "bg-black/20 border-white/5 hover:bg-black/30 text-slate-300" : "bg-slate-100/50 border-slate-100 hover:bg-slate-100 text-slate-600 shadow-sm"
+                    }`}
+                  >
+                    <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white shrink-0 shadow-lg group-hover:scale-110 transition-transform">
+                      <Play size={14} fill="currentColor" />
                     </div>
-                    <div>
-                      <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>The Waves</h4>
-                      <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"} font-black uppercase tracking-[0.2em] leading-none mt-2`}>Cộng đồng Discord chính thức</p>
-                    </div>
-                  </div>
-                  <ChevronRight size={24} className="text-slate-500 group-hover:translate-x-2 transition-transform" />
-                </a>
-
-                <div className="grid grid-cols-2 gap-4">
-                  {[1, 2, 3, 4].map(num => (
-                    <a 
-                      key={num}
-                      href={`https://www.youtube.com/@ota${num === 1 ? 'one' : num === 2 ? 'two' : num === 3 ? 'three' : 'four'}fr253`} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className={`flex items-center gap-3 p-5 rounded-[28px] border text-xs font-black transition-all group ${
-                        isDark ? "bg-white/5 border-white/5 hover:bg-white/10 text-slate-300" : "bg-slate-50 border-slate-100 hover:bg-slate-100 text-slate-600 shadow-sm"
-                      }`}
-                    >
-                      <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white shrink-0 shadow-lg group-hover:scale-110 transition-transform">
-                        <Play size={12} fill="currentColor" />
-                      </div>
-                      <span className="uppercase tracking-widest">Youtube #{num}</span>
-                    </a>
-                  ))}
-                </div>
+                    <span className="tracking-widest">YT #{num}</span>
+                  </a>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Appearance & Experience - Full Width */}
-      <div className={`p-10 rounded-[48px] border flex flex-col transition-all w-full mt-8 ${isDark ? "border-white/5 bg-slate-900 shadow-2xl" : "border-black/5 bg-white shadow-xl"} ${liquidGlass ? "backdrop-blur-xl" : ""}`}>
-        <div className="flex items-center gap-4 mb-10">
-          <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-500">
-            <Palette size={28} />
+      {/* Appearance & Experience */}
+      <div className={`p-10 md:p-14 rounded-[64px] border flex flex-col transition-all w-full mt-12 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+        <div className="flex items-center gap-4 mb-16">
+          <div className="p-4 rounded-3xl bg-purple-500/10 text-purple-500">
+            <Palette size={32} />
           </div>
           <div>
-            <h3 className={`font-bold text-3xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Giao diện & Trải nghiệm</h3>
-            <p className="text-[10px] text-slate-500 font-black tracking-[0.3em] uppercase mt-1">Customize your vision</p>
+            <h3 className={`font-bold text-4xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Giao diện & Trải nghiệm</h3>
           </div>
         </div>
 
-        <div className="space-y-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            {/* Theme & Animation */}
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 px-1">
-                  <Sun size={14} className="text-amber-500" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Chủ đề hệ thống</span>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <button 
-                    onClick={() => setIsDark(false)}
-                    className={`p-6 rounded-[32px] border transition-all flex flex-col gap-3 group ${!isDark ? "btn-vibrant-3d shadow-none" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
-                  >
-                    <Sun size={24} className={!isDark ? "text-white" : "text-slate-400 group-hover:text-amber-500"} />
-                    <span className="text-sm font-black uppercase tracking-widest">Sáng</span>
-                  </button>
-                  <button 
-                    onClick={() => setIsDark(true)}
-                    className={`p-6 rounded-[32px] border transition-all flex flex-col gap-3 group ${isDark ? "btn-vibrant-3d shadow-none" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
-                  >
-                    <Moon size={24} className={isDark ? "text-white" : "text-slate-400 group-hover:text-purple-400"} />
-                    <span className="text-sm font-black uppercase tracking-widest">Tối</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 px-1">
-                  <Zap size={14} className="text-purple-500" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Chuyển động</span>
-                </div>
-                <button 
-                  onClick={() => setFeatureFlags(prev => ({ ...prev, disable_animation: !prev.disable_animation }))}
-                  className={`w-full p-6 rounded-[32px] border transition-all flex items-center justify-between group ${featureFlags.disable_animation ? "btn-vibrant-3d shadow-none" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
-                >
-                  <div className="flex items-center gap-4">
-                    <Zap size={24} className={featureFlags.disable_animation ? "text-white" : "text-slate-400 group-hover:text-purple-500"} />
-                    <div className="text-left">
-                      <p className="text-sm font-black uppercase tracking-wider">Giảm chuyển động</p>
-                      <p className={`text-[10px] font-bold ${featureFlags.disable_animation ? "text-white/60" : "text-slate-500"}`}>Khuyên dùng cho các thiết bị cấu hình yếu</p>
-                    </div>
-                  </div>
-                  <div className={`w-12 h-7 rounded-full transition-all relative ${featureFlags.disable_animation ? "bg-white/20" : isDark ? "bg-white/10" : "bg-slate-200"}`}>
-                     <motion.div 
-                       animate={{ x: featureFlags.disable_animation ? 24 : 4 }}
-                       className={`absolute top-1 w-5 h-5 rounded-full shadow-md ${featureFlags.disable_animation ? "bg-white" : "bg-slate-400"}`}
-                     />
-                  </div>
-                </button>
+        <div className="space-y-16">
+          {/* 1. Chủ đề hệ thống */}
+          <div className="space-y-8">
+            <div className="flex items-center gap-3 px-1">
+              <Sun size={24} className="text-amber-500" />
+              <div>
+                <span className="text-xl font-bold opacity-80 uppercase tracking-wider">Chủ đề hệ thống</span>
+                <p className="text-sm text-slate-500 font-bold mt-1">Chọn cách hiển thị phù hợp cho mắt của bạn</p>
               </div>
             </div>
-
-            {/* Layout & Glass */}
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 px-1">
-                  <Monitor size={14} className="text-blue-500" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Kiểu giao diện</span>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <button 
-                    onClick={() => setUseSidebar(true)}
-                    className={`p-6 rounded-[32px] border transition-all flex flex-col gap-3 group ${useSidebar ? "btn-vibrant-3d shadow-none" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
-                  >
-                    <Monitor size={24} className={useSidebar ? "text-white" : "text-slate-400 group-hover:text-blue-400"} />
-                    <span className="text-sm font-black uppercase tracking-widest">Desktop</span>
-                  </button>
-                  <button 
-                    onClick={() => setUseSidebar(false)}
-                    className={`p-6 rounded-[32px] border transition-all flex flex-col gap-3 group ${!useSidebar ? "btn-vibrant-3d shadow-none" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
-                  >
-                    <Navigation size={24} className={!useSidebar ? "text-white" : "text-slate-400 group-hover:text-purple-400"} />
-                    <span className="text-sm font-black uppercase tracking-widest">Touch Mode</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className={`space-y-4 ${useSidebar ? "opacity-30 grayscale cursor-not-allowed" : ""}`}>
-                <div className="flex items-center gap-2 px-1">
-                  <Droplet size={14} className="text-cyan-500" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Liquid Glass Effect</span>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <button 
-                    onClick={() => !useSidebar && setLiquidGlass("glassy")}
-                    className={`p-6 rounded-[32px] border transition-all flex flex-col gap-3 ${liquidGlass === "glassy" ? "btn-vibrant-3d shadow-none" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
-                  >
-                    <Droplet size={24} className={liquidGlass === "glassy" ? "text-white" : "text-slate-400"} />
-                    <span className="text-sm font-black uppercase tracking-widest">Glassy</span>
-                  </button>
-                  <button 
-                    onClick={() => !useSidebar && setLiquidGlass("tinted")}
-                    className={`p-6 rounded-[32px] border transition-all flex flex-col gap-3 ${liquidGlass === "tinted" ? "btn-vibrant-3d shadow-none" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
-                  >
-                    <div className={`w-3 h-3 rounded-full mt-2 ${liquidGlass === "tinted" ? "bg-white shadow-[0_0_10px_white]" : "bg-slate-600"}`} />
-                    <span className="text-sm font-black uppercase tracking-widest">Tinted</span>
-                  </button>
-                </div>
-              </div>
+            <div className="grid grid-cols-2 gap-8">
+              <button 
+                onClick={() => setIsDark(false)}
+                className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${!isDark ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+              >
+                <Sun size={28} className={!isDark ? "text-white" : "text-slate-400 group-hover:text-amber-500"} />
+                <span className="text-xl font-bold opacity-80 group-hover:opacity-100 transition-opacity">Sáng</span>
+              </button>
+              <button 
+                onClick={() => setIsDark(true)}
+                className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${isDark ? "btn-vibrant-3d" : !isDark ? "btn-3d-slate" : "btn-3d-dark"}`}
+              >
+                <Moon size={28} className={isDark ? "text-white" : "text-slate-400 group-hover:text-purple-400"} />
+                <span className="text-xl font-bold opacity-80 group-hover:opacity-100 transition-opacity">Tối</span>
+              </button>
             </div>
           </div>
 
-          {/* Sidebar Advanced (Desktop Only) */}
-          <div className="pt-10 border-t border-white/5 space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 px-1">
-                  <LayoutTemplate size={14} className="text-indigo-500" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Vị trí Sidebar</span>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <button 
-                    onClick={() => setIsSidebarRight(false)}
-                    className={`p-6 rounded-[32px] border transition-all flex flex-col gap-3 group ${!isSidebarRight ? "btn-vibrant-3d shadow-none" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
-                  >
-                    <LayoutTemplate size={24} className={!isSidebarRight ? "text-white" : "text-slate-400"} />
-                    <span className="text-sm font-black uppercase tracking-widest">Bên Trái</span>
-                  </button>
-                  <button 
-                    onClick={() => setIsSidebarRight(true)}
-                    className={`p-6 rounded-[32px] border transition-all flex flex-col gap-3 group ${isSidebarRight ? "btn-vibrant-3d shadow-none" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
-                  >
-                    <LayoutPanelLeft size={24} className={isSidebarRight ? "text-white" : "text-slate-400"} />
-                    <span className="text-sm font-black uppercase tracking-widest">Bên Phải</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 px-1">
-                  <Pin size={14} className="text-pink-500" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Ghim Kênh</span>
-                </div>
-                <button 
-                  onClick={() => setIsPinningEnabled(!isPinningEnabled)}
-                  className={`w-full p-6 rounded-[32px] border transition-all flex items-center justify-between group ${isPinningEnabled ? "btn-vibrant-3d shadow-none" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
-                >
-                  <div className="flex items-center gap-4">
-                    <Pin size={24} className={isPinningEnabled ? "text-white" : "text-slate-400 group-hover:text-pink-500"} />
-                    <div className="text-left">
-                      <p className="text-sm font-black uppercase tracking-wider">Hiển thị kênh ghim</p>
-                      <p className={`text-[10px] font-bold ${isPinningEnabled ? "text-white/60" : "text-slate-500"}`}>Truy cập nhanh kênh yêu thích trên Sidebar</p>
-                    </div>
-                  </div>
-                  <div className={`w-12 h-7 rounded-full transition-all relative ${isPinningEnabled ? "bg-white/20" : isDark ? "bg-white/10" : "bg-slate-200"}`}>
-                     <motion.div 
-                       animate={{ x: isPinningEnabled ? 24 : 4 }}
-                       className={`absolute top-1 w-5 h-5 rounded-full shadow-md ${isPinningEnabled ? "bg-white" : "bg-slate-400"}`}
-                     />
-                  </div>
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 px-1">
-                  <Lock size={14} className="text-amber-500" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Kích thước Sidebar</span>
-                </div>
-                <button 
-                  onClick={() => setIsSidebarLocked(!isSidebarLocked)}
-                  className={`w-full p-6 rounded-[32px] border transition-all flex items-center justify-between group ${isSidebarLocked ? "btn-vibrant-3d shadow-none" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
-                >
-                  <div className="flex items-center gap-4">
-                    <Lock size={24} className={isSidebarLocked ? "text-white" : "text-slate-400 group-hover:text-amber-500"} />
-                    <div className="text-left">
-                      <p className="text-sm font-black uppercase tracking-wider">Khóa sidebar</p>
-                      <p className={`text-[10px] font-bold ${isSidebarLocked ? "text-white/60" : "text-slate-500"}`}>Khóa kích thước mặc định (280px)</p>
-                    </div>
-                  </div>
-                  <div className={`w-12 h-7 rounded-full transition-all relative ${isSidebarLocked ? "bg-white/20" : isDark ? "bg-white/10" : "bg-slate-200"}`}>
-                     <motion.div 
-                       animate={{ x: isSidebarLocked ? 24 : 4 }}
-                       className={`absolute top-1 w-5 h-5 rounded-full shadow-md ${isSidebarLocked ? "bg-white" : "bg-slate-400"}`}
-                     />
-                  </div>
-                </button>
+          {/* 2. Kiểu giao diện */}
+          <div className="space-y-8">
+            <div className="flex items-center gap-3 px-1">
+              <Monitor size={24} className="text-blue-500" />
+              <div>
+                <span className="text-xl font-bold opacity-80 uppercase tracking-wider">Giao diện điều hướng</span>
+                <p className="text-sm text-slate-500 font-bold mt-1">Chọn điều hướng hiển thị tốt nhất trên thiết bị của bạn</p>
               </div>
             </div>
+          <div className="grid grid-cols-2 gap-8">
+            <button 
+              onClick={() => setUseSidebar(true)}
+              className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${useSidebar ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+            >
+              <Monitor size={28} className={useSidebar ? "text-white" : "text-slate-400 group-hover:text-blue-400"} />
+              <span className="text-xl font-bold">Desktop</span>
+            </button>
+            <button 
+              onClick={() => setUseSidebar(false)}
+              className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${!useSidebar ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+            >
+              <Navigation size={28} className={!useSidebar ? "text-white" : "text-slate-400 group-hover:text-purple-400"} />
+              <span className="text-xl font-bold">Touch</span>
+            </button>
           </div>
+          </div>
+
+          <AnimatePresence mode="popLayout">
+            {/* 2a. Position & Display (Desktop only) */}
+            {useSidebar && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="space-y-16"
+              >
+                <div className="space-y-8">
+                  <div className="flex items-center gap-3 px-1">
+                    <Layout size={24} className="text-indigo-500" />
+                    <div>
+                      <span className="text-xl font-bold opacity-80 uppercase tracking-wider">Vị trí Sidebar</span>
+                      <p className="text-sm text-slate-500 font-bold mt-1">Chọn vị trí đặt Sidebar thuận tiện cho bạn - trái hoặc phải</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-8">
+                    <button 
+                      onClick={() => setIsSidebarRight(false)}
+                      className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${!isSidebarRight ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+                    >
+                      <ArrowLeft size={28} className={!isSidebarRight ? "text-white" : "text-slate-400 group-hover:text-amber-500"} />
+                      <span className="text-xl font-bold">Bên trái</span>
+                    </button>
+                    <button 
+                      onClick={() => setIsSidebarRight(true)}
+                      className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${isSidebarRight ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+                    >
+                      <ArrowRight size={28} className={isSidebarRight ? "text-white" : "text-slate-400 group-hover:text-purple-400"} />
+                      <span className="text-xl font-bold">Bên phải</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-8">
+                  <div className="flex items-center gap-3 px-1">
+                    <Layers size={24} className="text-cyan-500" />
+                    <div>
+                      <span className="text-xl font-bold opacity-80 uppercase tracking-wider">Hiển thị Sidebar</span>
+                      <p className="text-sm text-slate-500 font-bold mt-1">Chọn cách Sidebar hiển thị - lơ lửng hay chạm góc</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-8">
+                    <button 
+                      onClick={() => setSidebarDisplay("float")}
+                      className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${sidebarDisplay === "float" ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+                    >
+                      <Layers size={28} className={sidebarDisplay === "float" ? "text-white" : "text-slate-400 group-hover:text-indigo-400"} />
+                      <span className="text-xl font-bold">Lơ lửng</span>
+                    </button>
+                    <button 
+                      onClick={() => setSidebarDisplay("attach")}
+                      className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${sidebarDisplay === "attach" ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+                    >
+                      <Square size={28} className={sidebarDisplay === "attach" ? "text-white" : "text-slate-400 group-hover:text-indigo-400"} />
+                      <span className="text-xl font-bold">Chạm góc</span>
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* 2b. Liquid Glass */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="space-y-8"
+              >
+                <div className="flex items-center gap-3 px-1">
+                  <Droplet size={24} className="text-cyan-500" />
+                  <div>
+                    <span className="text-xl font-bold opacity-80 uppercase tracking-wider">Hiệu ứng Liquid Glass</span>
+                    <p className="text-sm text-slate-500 font-bold mt-1">Cá nhân hóa hiệu ứng phản xạ kính trên giao diện</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-8">
+                  <button 
+                    onClick={() => setLiquidGlass("glassy")}
+                    className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${liquidGlass === "glassy" ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+                  >
+                    <Droplet size={28} className={liquidGlass === "glassy" ? "text-white" : "text-slate-400 group-hover:text-cyan-500"} />
+                    <span className="text-xl font-bold">Glassy</span>
+                  </button>
+                  <button 
+                    onClick={() => setLiquidGlass("tinted")}
+                    className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${liquidGlass === "tinted" ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+                  >
+                    <Droplet size={28} className={liquidGlass === "tinted" ? "text-white" : "text-slate-400 group-hover:text-cyan-500"} />
+                    <span className="text-xl font-bold">Tinted</span>
+                  </button>
+                </div>
+              </motion.div>
+          </AnimatePresence>
+
+          {/* Regular toggles grouped into one container with iOS-style dividers */}
+          <div className={`rounded-[32px] overflow-hidden border-2 transition-all ${isDark ? "bg-white/5 border-white/10 shadow-xl" : "bg-slate-50 border-slate-200 shadow-sm"}`}>
+            {/* 5. Ghim kênh (Truy cập nhanh) */}
+            <div className={`flex items-center justify-between p-8 transition-all hover:bg-black/5`}>
+              <div className="flex items-center gap-5">
+                <div className="p-4 rounded-2xl bg-pink-500/10 text-pink-500">
+                  <Pin size={28} />
+                </div>
+                <div className="text-left">
+                  <p className="text-lg font-bold">Truy cập nhanh</p>
+                  <p className={`text-sm font-bold opacity-60 ${isDark ? "text-white" : "text-slate-500"}`}>Hiển thị các kênh thêm vào danh sách yêu thích trên Sidebar để truy cập nhanh</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsPinningEnabled(!isPinningEnabled)}
+                className={`w-16 h-8 rounded-full transition-all relative border-2 shrink-0 ${isPinningEnabled ? "bg-purple-600/30 border-purple-600/40" : "bg-transparent border-slate-700/30"}`}
+              >
+                <motion.div 
+                  animate={{ 
+                    x: isPinningEnabled ? 30 : 4,
+                  }}
+                  initial={false}
+                  transition={{ type: "spring", damping: 20, stiffness: 200 }}
+                  className={`absolute top-[3px] h-[22px] w-[30px] rounded-full shadow-sm transition-colors ${isPinningEnabled ? "bg-white" : "bg-white"}`}
+                />
+              </button>
+            </div>
+
+            <div className={`h-[1px] mx-8 ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
+
+            {/* 6. Giảm chuyển động */}
+            <div className={`flex items-center justify-between p-8 transition-all hover:bg-black/5`}>
+              <div className="flex items-center gap-5">
+                <div className="p-4 rounded-2xl bg-purple-500/10 text-purple-500">
+                  <Zap size={28} />
+                </div>
+                <div className="text-left">
+                  <p className="text-lg font-bold">Giảm chuyển động</p>
+                  <p className={`text-sm font-bold opacity-60 ${isDark ? "text-white" : "text-slate-500"}`}>Giảm các hiệu ứng chuyển động để tối ưu hóa hiệu suất thiết bị</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setFeatureFlags(prev => ({ ...prev, disable_animation: !prev.disable_animation }))}
+                className={`w-16 h-8 rounded-full transition-all relative border-2 shrink-0 ${featureFlags.disable_animation ? "bg-purple-600/30 border-purple-600/40" : "bg-transparent border-slate-700/30"}`}
+              >
+                <motion.div 
+                  animate={{ 
+                    x: featureFlags.disable_animation ? 30 : 4,
+                  }}
+                  initial={false}
+                  transition={{ type: "spring", damping: 20, stiffness: 200 }}
+                  className={`absolute top-[3px] h-[22px] w-[30px] rounded-full shadow-sm transition-colors ${featureFlags.disable_animation ? "bg-white" : "bg-white"}`}
+                />
+              </button>
+            </div>
+          </div>
+
+          {/* Experimental separated block */}
+          {EXPERIMENTS.length > 0 && (
+            <div className="space-y-8 pt-8">
+              <div className="flex items-center gap-3 px-1">
+                <Flask size={24} className="text-purple-500" />
+                <div>
+                  <span className="text-xl font-bold opacity-80 uppercase tracking-wider">Experimental Labs</span>
+                  <p className="text-sm text-slate-500 font-bold mt-1">Trải nghiệm các tính năng thử nghiệm mới nhất</p>
+                </div>
+              </div>
+              <div className={`rounded-[32px] overflow-hidden border-2 transition-all ${isDark ? "bg-white/5 border-white/10 shadow-xl" : "bg-slate-50 border-slate-200 shadow-sm"}`}>
+                {EXPERIMENTS.map((exp, idx) => (
+                  <div key={`exp-settings-${exp.id}`}>
+                    <div className={`flex items-center justify-between p-8 transition-all hover:bg-black/5`}>
+                      <div className="flex items-center gap-5">
+                        <div className={`p-4 rounded-2xl ${isDark ? "bg-white/5 text-white" : "bg-slate-200 text-slate-600"}`}>
+                          <Flask size={28} />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-lg font-bold">{exp.name}</p>
+                          <p className={`text-sm font-bold opacity-60 ${isDark ? "text-white" : "text-slate-500"}`}>{exp.desc || "Nâng cấp trải nghiệm hệ thống với các tính năng thử nghiệm mới nhất"}</p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setFeatureFlags(prev => ({ ...prev, [exp.id]: !prev[exp.id] }))}
+                        className={`w-16 h-8 rounded-full transition-all relative border-2 shrink-0 ${featureFlags[exp.id] ? "bg-purple-600/30 border-purple-600/40" : "bg-transparent border-slate-700/30"}`}
+                      >
+                        <motion.div 
+                          animate={{ 
+                            x: featureFlags[exp.id] ? 30 : 4,
+                          }}
+                          initial={false}
+                          transition={{ type: "spring", damping: 20, stiffness: 200 }}
+                          className={`absolute top-[3px] h-[22px] w-[30px] rounded-full shadow-sm transition-colors ${featureFlags[exp.id] ? "bg-white" : "bg-white"}`}
+                        />
+                      </button>
+                    </div>
+
+                    {/* Experimental Treatment Selection if active */}
+                    {exp.id === "revamp_processing_loading_circle" && featureFlags[exp.id] && (
+                      <div className={`p-8 ${isDark ? "bg-black/20" : "bg-white/40"} space-y-6`}>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {TREATMENTS.map(t => (
+                              <button 
+                                key={`settings-treatment-${t.id}`}
+                                onClick={() => setLoadingTreatment(t.id)}
+                                className={`p-4 text-left rounded-2xl border-2 transition-all group ${
+                                  loadingTreatment === t.id 
+                                    ? "bg-purple-500/10 border-purple-500 text-purple-500" 
+                                    : isDark ? "bg-white/5 border-white/10 text-slate-400" : "bg-white border-slate-200 text-slate-500"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="font-bold text-sm">{t.name}</span>
+                                  {loadingTreatment === t.id && <CheckCircle2 size={16} />}
+                                </div>
+                                <p className="text-[10px] font-bold opacity-60 leading-tight">{t.desc}</p>
+                              </button>
+                            ))}
+                         </div>
+                      </div>
+                    )}
+                    {idx < EXPERIMENTS.length - 1 && <div className={`h-[1px] mx-8 ${isDark ? "bg-white/10" : "bg-slate-200"}`} />}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="pt-12 text-center pb-24">
-        <button 
-          onClick={onResetOnboarding}
-          className={`text-[10px] font-black uppercase tracking-[0.3em] transition-all hover:opacity-100 ${isDark ? "text-white/20 hover:text-white" : "text-black/20 hover:text-black"}`}
-        >
-          Đặt lại hướng dẫn người dùng
-        </button>
-      </div>
+<div className="pt-12 text-center pb-24" />
     </div>
   );
 }
@@ -3129,6 +3150,16 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
       { (
         <div className="space-y-4">
           
+        <button 
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={loading}
+          className="w-full h-16 btn-white-3d flex items-center justify-center gap-4 text-sm"
+        >
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/smartlock/icon_google.svg" className="w-5 h-5" alt="Google" />
+          Tiếp tục với Google
+        </button>
+
         <div className="flex items-center gap-4 py-2">
           <div className={`flex-1 h-[1px] ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
           <span className="text-[10px] font-bold uppercase opacity-30">Hoặc</span>
@@ -3224,7 +3255,7 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
         <button 
           type="submit" 
           disabled={loading} 
-          className="btn-purple-3d w-full mt-2 disabled:opacity-50 disabled:active:top-0"
+          className="btn-purple-3d w-full mt-2 h-16 text-lg font-black tracking-widest disabled:opacity-50 disabled:active:top-0"
         >
           {loading ? "..." : (isForgotPassword ? "Xác nhận" : (isLogin ? "Đăng nhập" : "Đăng ký"))}
         </button>
@@ -3283,7 +3314,7 @@ function SearchBar({ isDark, query, setQuery, onClose, liquidGlass }: { isDark: 
   const textColor = isGlassy ? "text-white" : "text-black";
 
   return (
-    <div className={`flex items-center gap-1 md:gap-4 px-0 md:px-6 py-2 h-14 md:h-16 w-full max-w-4xl relative group rounded-2xl overflow-hidden transition-all ${isGlassy ? "bg-white/5" : "bg-black/5"}`}>
+    <div className={`flex items-center gap-1 md:gap-4 px-0 md:px-6 py-2 h-14 md:h-16 w-full max-w-4xl relative group rounded-2xl overflow-hidden transition-all ${isGlassy ? "bg-white/5" : isDark ? "bg-slate-800" : "bg-slate-200"}`}>
       <div className="flex items-center gap-1 md:gap-2 flex-1">
         <Search className={`h-6 w-6 ${iconColor} flex-shrink-0 transition-colors ${isDark ? "group-focus-within:text-slate-100" : "group-focus-within:text-slate-600"}`} />
         <input
@@ -3779,6 +3810,10 @@ function App() {
     const saved = localStorage.getItem("vplay_sidebar_locked");
     return saved === null ? true : saved === "true";
   });
+  const [sidebarDisplay, setSidebarDisplay] = useState<"float" | "attach">(() => {
+    const saved = localStorage.getItem("vplay_sidebar_display");
+    return (saved as "float" | "attach") || "float";
+  });
   const [sidebarWidth, setSidebarWidth] = useState(() => {
     const saved = localStorage.getItem("vplay_sidebar_width");
     return saved ? parseInt(saved, 10) : 280;
@@ -3792,6 +3827,10 @@ function App() {
       localStorage.setItem("vplay_sidebar_width", "280");
     }
   }, [isSidebarLocked]);
+
+  useEffect(() => {
+    localStorage.setItem("vplay_sidebar_display", sidebarDisplay);
+  }, [sidebarDisplay]);
 
   useEffect(() => {
     localStorage.setItem("vplay_sidebar_width", sidebarWidth.toString());
@@ -3926,6 +3965,16 @@ function App() {
   const [devError, setDevError] = useState(false);
 
   useEffect(() => {
+    if (searchQuery.toLowerCase() === "/force launch loading") {
+      setShowSplash(true);
+      setSearchQuery("");
+      setIsSearchOpen(false);
+    }
+    if (searchQuery.toLowerCase() === "/force launch oobe") {
+      setShowOnboarding(true);
+      setSearchQuery("");
+      setIsSearchOpen(false);
+    }
     if (searchQuery.toLowerCase() === "devmode") {
       setShowDevSettings(true);
       setSearchQuery("");
@@ -4092,12 +4141,12 @@ function App() {
     >
       <div className={`${
         isDark 
-          ? "bg-slate-900/40 text-white" 
-          : "bg-white/40 text-black"
+          ? "bg-gradient-to-br from-rose-950 via-purple-950 to-red-950 text-white" 
+          : "bg-gradient-to-br from-rose-50 via-purple-50 to-red-50 text-black"
       } min-h-screen flex transition-all duration-500 overflow-x-hidden ${useSidebar ? "flex-row" : "flex-col"} ${featureFlags.disable_animation ? "reduce-animations" : ""}`}
       style={{
-        paddingLeft: useSidebar && !isMobile && !isSidebarRight ? (isSidebarExpanded ? sidebarWidth + 24 : 104) : 0,
-        paddingRight: useSidebar && !isMobile && isSidebarRight ? (isSidebarExpanded ? sidebarWidth + 24 : 104) : 0,
+        paddingLeft: useSidebar && !isMobile && !isSidebarRight ? (isSidebarExpanded ? sidebarWidth + (sidebarDisplay === "float" ? 24 : 0) : (sidebarDisplay === "float" ? 104 : 80)) : 0,
+        paddingRight: useSidebar && !isMobile && isSidebarRight ? (isSidebarExpanded ? sidebarWidth + (sidebarDisplay === "float" ? 24 : 0) : (sidebarDisplay === "float" ? 104 : 80)) : 0,
       }}
       >
       {/* Global Immersive Background Blur */}
@@ -4268,15 +4317,31 @@ function App() {
           </button>
         </LiquidModal>
 
+
         <div className="flex-1 overflow-y-auto pb-32 flex flex-col">
+          {/* Large Tab Header */}
+          <div className="px-4 md:px-12 pt-12 pb-4">
+            <motion.h1 
+              key={`title-${displayTab}`}
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              className={`text-4xl md:text-6xl font-bold tracking-tighter ${isDark ? "text-white" : "text-black"}`}
+            >
+              {displayTab === "Update Logs" ? "Cập nhật" : displayTab}
+            </motion.h1>
+          </div>
+
           <AnimatePresence mode="wait">
             <motion.div
               key={displayTab}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
-              className="h-full flex flex-col"
+              initial={{ opacity: 0, y: 30, scale: 0.98, filter: "blur(10px)" }}
+              animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -30, scale: 1.02, filter: "blur(10px)" }}
+              transition={{ 
+                duration: 0.6, 
+                ease: [0.23, 1, 0.32, 1] 
+              }}
+              className="h-full flex flex-col pt-4 md:pt-8"
             >
               {displayTab === "Trang chủ" && (
                 <HomeContent 
@@ -4317,23 +4382,9 @@ function App() {
               {displayTab === "Lưu trữ" && (
                 <EventsContent isDark={isDark} liquidGlass={liquidGlass} />
               )}
-              {displayTab === "Experimental" && (
-                <ExperimentalContent 
-                  isDark={isDark} 
-                  featureFlags={featureFlags} 
-                  setFeatureFlags={setFeatureFlags} 
-                  liquidGlass={liquidGlass} 
-                  loadingTreatment={loadingTreatment}
-                  setLoadingTreatment={setLoadingTreatment}
-                />
-              )}
               {displayTab === "Cài đặt" && (
                 <div className="flex-1 overflow-x-hidden md:overflow-y-auto">
-                  <div className="p-4 md:p-8 space-y-8 max-w-4xl mx-auto w-full">
-                    <div className="flex items-center gap-4 mb-10">
-                      <Settings className={`w-10 h-10 ${isDark ? "text-white" : "text-slate-900"}`} />
-                      <h2 className={`text-3xl font-semibold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Cài đặt</h2>
-                    </div>
+                  <div className="p-4 md:p-8 space-y-12 max-w-6xl mx-auto w-full">
                     <SettingsContent 
                       isDark={isDark} 
                       setIsDark={setIsDark} 
@@ -4349,6 +4400,8 @@ function App() {
                       setIsSidebarRight={setIsSidebarRight}
                       isSidebarLocked={isSidebarLocked}
                       setIsSidebarLocked={setIsSidebarLocked}
+                      sidebarDisplay={sidebarDisplay}
+                      setSidebarDisplay={setSidebarDisplay}
                       isPinningEnabled={isPinningEnabled}
                       setIsPinningEnabled={setIsPinningEnabled}
                       user={user}
@@ -4357,9 +4410,11 @@ function App() {
                       onAlert={(title, msg) => setCustomAlert({ title, message: msg })}
                       onLogin={handleLogin}
                       onUpdateLogsClick={() => setActiveTab("Update Logs")}
-                      favorites={favorites}
                       onResetOnboarding={handleResetOnboarding}
+                      favorites={favorites}
                       bypassed={bypassed}
+                      loadingTreatment={loadingTreatment}
+                      setLoadingTreatment={setLoadingTreatment}
                     />
                   </div>
                 </div>
@@ -4415,14 +4470,18 @@ function App() {
               }}
               exit={{ x: isSidebarRight ? sidebarWidth : -sidebarWidth }}
               transition={{ type: "spring", damping: 30, stiffness: 300, width: { duration: 0 } }}
-              className={`fixed z-50 h-[calc(100%-48px)] flex flex-col transition-all duration-0 overflow-visible ${
-                isSidebarRight ? "right-6" : "left-6"
+              className={`fixed z-50 flex flex-col transition-all duration-0 overflow-visible ${
+                isSidebarRight 
+                  ? (sidebarDisplay === "float" && !isMobile ? "right-6" : "right-0") 
+                  : (sidebarDisplay === "float" && !isMobile ? "left-6" : "left-0")
               } ${
                 isMobile 
                   ? "top-0 h-full !rounded-none !m-0 !left-0 !right-0 transition-none" 
-                  : "top-6 !rounded-[32px] border shadow-2xl backdrop-blur-md"
+                  : sidebarDisplay === "float" 
+                    ? "top-6 h-[calc(100%-48px)] !rounded-[32px] border shadow-2xl backdrop-blur-md" 
+                    : `top-0 h-full border-y-0 ${isSidebarRight ? "border-r-0 border-l" : "border-l-0 border-r"} shadow-2xl backdrop-blur-md`
               } ${
-                isDark ? "bg-[#11141d]/85 border-white/5 shadow-black/50" : "bg-white/85 border-slate-200 shadow-slate-200"
+                isDark ? "bg-[#11141d]/85 border-white/5 shadow-black/50" : "bg-[#f2f2f7]/95 border-slate-200 shadow-xl"
               }`}
             >
               {/* Resize Handle */}
@@ -4468,7 +4527,7 @@ function App() {
                       >
                         <button 
                           onClick={() => setIsSidebarExpanded(false)}
-                          className={`p-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white" : "hover:bg-slate-100 text-slate-800"}`}
+                          className={`p-2 rounded-xl transition-all ${isDark ? "hover:bg-white/10 text-white" : "hover:bg-black/5 text-black"}`}
                         >
                           <Menu size={28} />
                         </button>
@@ -4495,7 +4554,7 @@ function App() {
                     x: isSidebarExpanded || isSidebarSearchOpen ? 0 : (isSidebarRight ? "auto" : 0)
                   }}
                   className={`relative group flex items-center gap-3 h-[50px] rounded-full overflow-hidden transition-all ${
-                    isDark ? "bg-white/5 hover:bg-white/10" : "bg-slate-50 hover:bg-slate-100"
+                    isDark ? "bg-[#1c1c1e] hover:bg-[#2c2c2e]" : "bg-[#e5e5e7] hover:bg-[#d1d1d6]"
                   } ${!isSidebarExpanded && !isSidebarSearchOpen ? "cursor-pointer justify-center px-0" : "px-4"}`}
                   onClick={() => {
                     if (!isSidebarExpanded && !isSidebarSearchOpen) {
@@ -4505,7 +4564,7 @@ function App() {
                 >
                   <Search 
                     size={20} 
-                    className={`${isDark ? "text-slate-500" : "text-slate-400"} group-focus-within:text-purple-400 transition-colors flex-shrink-0`} 
+                    className={`${isDark ? "text-white/40" : "text-black/60"} group-focus-within:text-purple-400 transition-colors flex-shrink-0`} 
                   />
                   {(isSidebarExpanded || isSidebarSearchOpen) && (
                     <motion.div
@@ -4531,7 +4590,7 @@ function App() {
                             setSearchQuery(val);
                           }
                         }}
-                        className={`bg-transparent border-none outline-none text-sm font-semibold w-full ${isDark ? "text-white placeholder-slate-600" : "text-slate-900 placeholder-slate-400"}`}
+                        className={`bg-transparent border-none outline-none text-sm font-semibold w-full ${isDark ? "text-white placeholder-white/30" : "text-black placeholder-black/30"}`}
                       />
                       {searchQuery && (
                         <button onClick={() => setSearchQuery("")} className="text-slate-500 hover:text-white p-1">
@@ -4582,7 +4641,7 @@ function App() {
                               <div className="p-2 space-y-1">
                                 {searchResults.map(ch => (
                                   <button
-                                    key={ch.name}
+                                    key={`side-search-${ch.name}-${ch.stream}`}
                                     onClick={() => {
                                       handleChannelSelect(ch);
                                       setSearchQuery("");
@@ -4619,15 +4678,15 @@ function App() {
                   const isActive = activeTab === (tab.id || tab.name);
                   return (
                     <button
-                      key={tab.name}
+                      key={`side-nav-${tab.id || tab.name}`}
                       onClick={() => {
                         setActiveTab(tab.id || tab.name);
                         if (isMobile) setIsSidebarExpanded(false);
                       }}
                       className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all relative group h-[50px] overflow-hidden ${
                         isActive 
-                          ? (isDark ? "bg-[#1d2230] text-white" : "bg-slate-100 text-slate-900") 
-                          : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:bg-slate-50")
+                          ? (isDark ? "bg-[#1d2230] text-white" : "bg-black/5 text-black") 
+                          : (isDark ? "text-white/60 hover:text-white" : "text-black hover:bg-black/5")
                       } ${!isSidebarExpanded ? "justify-center" : ""}`}
                     >
                       {isActive && (
@@ -4636,7 +4695,7 @@ function App() {
                           className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-purple-500 rounded-r-full" 
                         />
                       )}
-                      <Icon size={24} className={`flex-shrink-0 transition-all ${isActive ? "text-purple-500" : "group-hover:scale-110"}`} />
+                      <Icon size={24} className={`flex-shrink-0 transition-all ${isActive ? "text-purple-500" : (isDark ? "text-white" : "text-black")} group-hover:scale-110`} />
                       {isSidebarExpanded && (
                         <span className="font-bold text-base whitespace-nowrap">{tab.name}</span>
                       )}
@@ -4652,19 +4711,19 @@ function App() {
                       <span className="px-5 text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Ghim Kênh</span>
                     )}
                     <div className="space-y-1">
-                      {favorites.map(favId => {
+                      {Array.from(new Set(favorites)).map(favId => {
                         const channel = channels.find(c => c.name === favId);
                         if (!channel) return null;
                         return (
                           <button
-                            key={favId}
+                            key={`side-pin-${favId}`}
                             onClick={() => {
                               setActiveTab("Phát sóng");
                               setActiveChannel(channel);
                               if (isMobile) setIsSidebarExpanded(false);
                             }}
                             className={`w-full flex items-center gap-4 px-4 py-2 rounded-xl transition-all group h-[48px] ${
-                              isDark ? "text-slate-400 hover:text-white hover:bg-white/5" : "text-slate-600 hover:bg-slate-50"
+                              isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5"
                             } ${!isSidebarExpanded ? "justify-center" : ""}`}
                           >
                             <img 
@@ -4689,25 +4748,25 @@ function App() {
                 {isSidebarExpanded && (
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2">
-                       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap">
-                         SMR26 - Build 26504
+                       <span className="text-[10px] font-bold text-slate-500 tracking-widest whitespace-nowrap">
+                         26M6 - Build 26601
                        </span>
-                       <div className="px-1.5 py-0.5 rounded bg-cyan-400 text-[9px] font-bold text-slate-900 uppercase flex items-center gap-1 shadow-sm">
-                         <Zap size={8} fill="currentColor" /> DEV
+                       <div className="px-1.5 py-0.5 rounded bg-cyan-400 text-[9px] font-bold text-slate-900 flex items-center gap-1 shadow-sm">
+                         <Zap size={8} fill="currentColor" /> Dev
                        </div>
                     </div>
                   </div>
                 )}
                 
-                <button
+                  <button
                   onClick={() => {
                     setActiveTab("Cài đặt");
                     if (isMobile) setIsSidebarExpanded(false);
                   }}
                   className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all w-full h-[50px] relative overflow-hidden ${
                     activeTab === "Cài đặt"
-                      ? (isDark ? "bg-[#1d2230] text-white" : "bg-slate-100 text-slate-900")
-                      : (isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:bg-slate-50")
+                      ? (isDark ? "bg-[#1d2230] text-white" : "bg-black/5 text-black")
+                      : (isDark ? "text-white/60 hover:text-white" : "text-black hover:bg-black/5")
                   } ${!isSidebarExpanded ? "justify-center" : ""}`}
                 >
                   {activeTab === "Cài đặt" && (
@@ -4716,7 +4775,7 @@ function App() {
                       className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-purple-500 rounded-r-full" 
                     />
                   )}
-                  <SettingsIcon className={`w-6 h-6 ${activeTab === "Cài đặt" ? "text-purple-500" : ""}`} />
+                  <SettingsIcon className={`w-6 h-6 ${activeTab === "Cài đặt" ? "text-purple-500" : (isDark ? "text-white" : "text-black")}`} />
                   {isSidebarExpanded && <span className="font-bold text-base">Cài đặt</span>}
                 </button>
               </div>
@@ -4765,7 +4824,7 @@ function App() {
                     const isGlassy = liquidGlass === "glassy";
 
                     return (
-                      <div key={tab.name} className="relative">
+                      <div key={`mob-nav-${tab.id || tab.name}`} className="relative">
                         <button
                           onMouseEnter={(e) => {
                             setHoveredTab(tab.name);

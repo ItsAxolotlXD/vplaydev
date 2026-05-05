@@ -23,88 +23,92 @@
 }
 
 .btn-purple-3d {
-  @apply bg-purple-600/90 text-white font-black uppercase tracking-widest px-8 py-4 rounded-2xl transition-all duration-75 relative isolate backdrop-blur-md;
+  @apply bg-purple-600 border-2 border-purple-400 text-white font-bold uppercase tracking-widest px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] transition-all duration-75 relative isolate backdrop-blur-md;
   transform: translate(0, 0);
-  box-shadow: 2px 2px 0px 0px #4c1d95, 4px 4px 10px 0px rgba(0,0,0,0.3);
+  box-shadow: 4px 4px 0px 0px #4c1d95;
 }
 .btn-purple-3d:hover {
-  @apply bg-purple-500/90;
+  @apply bg-purple-500;
   transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px 0px #4c1d95, 5px 5px 12px 0px rgba(0,0,0,0.3);
+  box-shadow: 5px 5px 0px 0px #4c1d95;
 }
 .btn-purple-3d:active {
-  transform: translate(3px, 3px) !important;
+  transform: translate(4px, 4px) !important;
   box-shadow: 0px 0px 0px 0px transparent !important;
 }
 
 .btn-white-3d {
-  @apply bg-white/90 text-slate-900 font-black uppercase tracking-widest px-8 py-4 rounded-2xl transition-all duration-75 relative isolate backdrop-blur-md;
+  @apply bg-white border-2 border-slate-200 text-slate-900 font-bold uppercase tracking-widest px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] transition-all duration-75 relative isolate backdrop-blur-md;
   transform: translate(0, 0);
-  box-shadow: 2px 2px 0px 0px #cbd5e1, 4px 4px 10px 0px rgba(0,0,0,0.1);
+  box-shadow: 4px 4px 0px 0px #e2e8f0;
 }
 .btn-white-3d:hover {
-  @apply bg-slate-50/90;
+  @apply bg-slate-50;
   transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px 0px #cbd5e1, 5px 5px 12px 0px rgba(0,0,0,0.1);
+  box-shadow: 5px 5px 0px 0px #e2e8f0;
 }
 .btn-white-3d:active {
-  transform: translate(3px, 3px) !important;
+  transform: translate(4px, 4px) !important;
   box-shadow: 0px 0px 0px 0px transparent !important;
 }
 
 .btn-3d-slate {
-  @apply bg-slate-50/80 border-slate-200 text-slate-600 transition-all duration-75 relative isolate backdrop-blur-md;
+  @apply bg-slate-100 border-2 border-slate-200 text-slate-600 px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] font-bold transition-all duration-75 relative isolate backdrop-blur-md;
   transform: translate(0, 0);
-  box-shadow: 2px 2px 0px 0px #e2e8f0, 4px 4px 8px 0px rgba(0,0,0,0.05);
+  box-shadow: 4px 4px 0px 0px #e2e8f0;
 }
 .btn-3d-slate:hover {
-  @apply bg-slate-100/90;
+  @apply bg-slate-50;
   transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px 0px #e2e8f0, 5px 5px 10px 0px rgba(0,0,0,0.05);
+  box-shadow: 5px 5px 0px 0px #e2e8f0;
 }
 .btn-3d-slate:active {
-  transform: translate(3px, 3px) !important;
+  transform: translate(4px, 4px) !important;
   box-shadow: 0px 0px 0px 0px transparent !important;
 }
 
 .btn-vibrant-3d {
-  @apply bg-[#a855f7]/90 border-[#a855f7]/20 text-white transition-all duration-75 relative isolate backdrop-blur-md;
+  @apply bg-purple-600 border-2 border-purple-400 text-white px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] font-bold transition-all duration-75 relative isolate backdrop-blur-md;
   transform: translate(0, 0);
-  box-shadow: 2px 2px 0px 0px #6b21a8, 4px 4px 10px 0px rgba(0,0,0,0.3);
+  box-shadow: 4px 4px 0px 0px #4c1d95;
 }
 .btn-vibrant-3d:hover {
-  @apply bg-[#9333ea]/90;
+  @apply bg-purple-500;
   transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px 0px #6b21a8, 5px 5px 12px 0px rgba(0,0,0,0.3);
+  box-shadow: 5px 5px 0px 0px #4c1d95;
 }
 .btn-vibrant-3d:active {
-  transform: translate(3px, 3px) !important;
+  transform: translate(4px, 4px) !important;
   box-shadow: 0px 0px 0px 0px transparent !important;
 }
 
 .btn-3d-dark {
-  @apply bg-slate-900/80 border-white/5 text-slate-400 transition-all duration-75 relative isolate backdrop-blur-md;
+  @apply bg-slate-900 border-2 border-white/20 text-slate-200 px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] font-bold transition-all duration-75 relative isolate backdrop-blur-md;
   transform: translate(0, 0);
-  box-shadow: 2px 2px 0px 0px rgba(0,0,0,0.5), 4px 4px 10px 0px rgba(0,0,0,0.8);
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 0.5);
 }
 .btn-3d-dark:hover {
-  @apply bg-slate-800/90;
+  @apply bg-slate-800 border-white/30;
   transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px 0px rgba(0,0,0,0.5), 5px 5px 12px 0px rgba(0,0,0,0.8);
+  box-shadow: 5px 5px 0px 0px rgba(0, 0, 0, 0.5);
 }
 .btn-3d-dark:active {
-  transform: translate(3px, 3px) !important;
+  transform: translate(4px, 4px) !important;
   box-shadow: 0px 0px 0px 0px transparent !important;
 }
 
+.btn-3d-square {
+  @apply !px-0 flex items-center justify-center aspect-square;
+}
+
 .popup-3d-dark {
-  @apply bg-slate-900/90 border-2 border-white/10 rounded-[40px] backdrop-blur-2xl;
-  box-shadow: 4px 4px 0px 0px rgba(0,0,0,0.5), 20px 20px 40px 0px rgba(0,0,0,0.4);
+  @apply bg-slate-900/90 border-2 border-white/10 rounded-[32px] backdrop-blur-2xl;
+  box-shadow: 6px 6px 0px 0px rgba(0,0,0,0.8);
 }
 
 .popup-3d-light {
-  @apply bg-white/90 border-2 border-slate-200 rounded-[40px] backdrop-blur-2xl;
-  box-shadow: 4px 4px 0px 0px #cbd5e1, 20px 20px 40px 0px rgba(0,0,0,0.1);
+  @apply bg-white/90 border-2 border-slate-200 rounded-[32px] backdrop-blur-2xl;
+  box-shadow: 6px 6px 0px 0px #cbd5e1;
 }
 
 
