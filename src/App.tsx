@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode } from "react";
-import { Search, User, Tv, Calendar, Home, Play, Pause, Radio, Info, Sun, Moon, Maximize, Settings, Volume2, VolumeX, CheckCircle2, Shield, LogOut, LogIn, Heart, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Mic, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Users, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Folder, FlaskConical as Flask } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode } from "react";
+import { Search, User, Tv, Calendar, Home, Play, Pause, Radio, Info, Sun, Moon, Maximize, Settings, Volume2, VolumeX, CheckCircle2, Shield, LogOut, LogIn, Heart, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Mic, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Users, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, FolderOpen, FlaskConical as Flask } from "lucide-react";
 import Hls from "hls.js";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import { auth, db, handleFirestoreError, OperationType } from "./firebase";
@@ -144,9 +144,9 @@ const Sparkles2 = ({ className }: { className?: string }) => (
 
 const baseTabs = [
   { name: "Trang chủ", icon: Home, id: "Trang chủ" },
-  { name: "Tìm kiếm", icon: Search, id: "Tìm kiếm" },
+  { name: "Khám phá", icon: Search, id: "Khám phá" },
   { name: "Phát sóng", icon: Tv, id: "Phát sóng" },
-  { name: "Lưu trữ", icon: Folder, id: "Lưu trữ" },
+  { name: "Lưu trữ", icon: FolderOpen, id: "Lưu trữ" },
   { name: "Thử nghiệm", icon: Flask, id: "Experimental" },
   { name: "Quản trị", icon: Shield, id: "Quản trị" },
   { name: "Cài đặt", icon: Settings, id: "Cài đặt" },
@@ -486,98 +486,37 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
         </div>
       </div>
 
-      {/* Premium Guest Loyalty Banner */}
+      {/* Premium Guest Loyalty Banner - Replaced with Explore Style */}
       {!user && !bypassed && (
-        <motion.div
-          initial={{ opacity: 0, y: 60 }}
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          className={`relative overflow-hidden group/banner rounded-[64px] border border-white/20 p-1 md:p-1.5 transition-all duration-700 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] ${isDark ? "bg-white/5" : "bg-black/5"}`}
+          className={`p-10 md:p-16 rounded-[64px] relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-10 shadow-2xl transition-all border ${isDark ? "bg-purple-600/10 border-white/5" : "bg-purple-50 border-purple-100"}`}
         >
-          <div className={`relative overflow-hidden rounded-[58px] p-10 md:p-16 flex flex-col xl:flex-row items-center gap-12 md:gap-20 transition-all duration-700 ${isDark ? "bg-slate-900/90" : "bg-white/90"}`}>
-            {/* Animated Background Gradients */}
-            <div className="absolute inset-0 z-0 opacity-0 group-hover/banner:opacity-100 transition-opacity duration-1000">
-               <motion.div 
-                 animate={{ 
-                    scale: [1, 1.2, 1],
-                    x: [0, 100, 0],
-                    rotate: [0, 10, 0]
-                 }}
-                 transition={{ duration: 20, repeat: Infinity }}
-                 className="absolute top-[-50%] right-[-10%] w-full h-full bg-purple-500/20 blur-[150px] rounded-full" 
-               />
-               <motion.div 
-                 animate={{ 
-                    scale: [1, 1.3, 1],
-                    x: [0, -80, 0],
-                    rotate: [0, -15, 0]
-                 }}
-                 transition={{ duration: 25, repeat: Infinity }}
-                 className="absolute bottom-[-50%] left-[-10%] w-full h-full bg-blue-500/20 blur-[150px] rounded-full" 
-               />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/10 blur-[100px] -mr-48 -mt-48" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 blur-[80px] -ml-32 -mb-32" />
+          
+          <div className="relative z-10 space-y-6 text-center md:text-left flex-1">
+            <div className={`inline-flex items-center gap-3 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] ${isDark ? "bg-purple-500/20 text-purple-400" : "bg-purple-100 text-purple-600"}`}>
+              <Crown size={14} /> VIP Membership
             </div>
-
-            <div className="flex-1 space-y-8 relative z-10 text-center xl:text-left">
-              <div className="inline-flex items-center gap-3 px-6 py-2 rounded-2xl bg-purple-500 text-white font-semibold text-xs uppercase tracking-[0.3em] shadow-[0_10px_30px_rgba(168,85,247,0.4)]">
-                <Crown size={16} /> 
-                Quyền lợi tối thượng
-              </div>
-              
-              <motion.h2 
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              className={`text-5xl md:text-7xl font-bold tracking-tight leading-[0.95] ${isDark ? "text-white" : "text-slate-900"}`}
+            <h2 className={`text-4xl md:text-6xl font-bold tracking-tight leading-[0.95] ${isDark ? "text-white" : "text-slate-900"}`}>
+              Khám phá nhiều hơn <br /> 
+              <span className="text-purple-500">với Vplay Beta</span>
+            </h2>
+            <p className={`max-w-xl font-medium text-base md:text-lg leading-relaxed ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+              Đăng nhập ngay để đồng bộ các kênh yêu thích của bạn, nhận được đề xuất chính xác nhất từ hệ thống AI và trải nghiệm tốc độ truyền tải vượt trội.
+            </p>
+          </div>
+          
+          <div className="relative z-10 shrink-0 w-full md:w-auto">
+            <button 
+              onClick={onLogin} 
+              className="w-full md:w-auto btn-vibrant-3d px-16 py-7 text-xl font-black tracking-widest !rounded-[40px] !border-none !bg-purple-600 hover:!bg-purple-500 shadow-[0_20px_50px_rgba(147,51,234,0.3)]"
             >
-                Xem mượt hơn, <br /> 
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-amber-400">
-                  Riêng tư hơn
-                </span>
-              </motion.h2>
-              
-              <p className={`text-lg md:text-xl font-medium leading-relaxed max-w-2xl mx-auto xl:mx-0 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                Đăng nhập để trải nghiệm hệ sinh thái Vplay 4K hoàn toàn miễn phí. <br className="hidden md:block" />
-                Lưu kênh yêu thích, nhận đề xuất cá nhân hóa và đồng bộ trên mọi thiết bị.
-              </p>
-
-              <div className="flex flex-wrap items-center justify-center xl:justify-start gap-10 pt-4">
-                 {[
-                   { icon: Heart, text: "Yêu thích", color: "text-red-500" },
-                   { icon: Sparkles, text: "Gợi ý AI", color: "text-amber-500" },
-                   { icon: Zap, text: "Tốc độ Pro", color: "text-blue-500" }
-                 ].map((feat, i) => (
-                   <div key={feat.text} className="flex items-center gap-3">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${feat.color} bg-white/5 border border-white/10 backdrop-blur-xl shadow-lg`}>
-                         <feat.icon size={20} fill={feat.text === "Yêu thích" ? "currentColor" : "none"} />
-                      </div>
-                      <span className={`text-sm font-semibold uppercase tracking-widest ${isDark ? "text-white/60" : "text-slate-500"}`}>{feat.text}</span>
-                   </div>
-                 ))}
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-6 shrink-0 w-full xl:w-[420px] relative z-10">
-                 <button 
-                  onClick={onLogin}
-                  className="w-full h-24 btn-white-3d flex items-center justify-center gap-4 text-2xl !rounded-[36px]"
-                >
-                   ĐĂNG NHẬP NGAY
-                   <ArrowRight className="w-8 h-8 group-hover:translate-x-3 transition-transform" />
-                </button>
-               
-               <div className="flex items-center justify-center gap-6">
-                  <div className="flex -space-x-3">
-                     {[1,2,3,4].map(i => (
-                       <div key={i} className={`w-10 h-10 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center text-[10px] font-bold text-white`}>
-                          U{i}
-                       </div>
-                     ))}
-                  </div>
-                  <div className="text-[11px] font-bold text-slate-500 uppercase tracking-widest leading-none">
-                     <span className="text-purple-400">+100K</span> NGƯỜI DÙNG <br /> ĐÃ THAM GIA
-                  </div>
-               </div>
-            </div>
+              ĐĂNG NHẬP
+            </button>
           </div>
         </motion.div>
       )}
@@ -701,6 +640,204 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
             />
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ExploreContent({
+  isDark,
+  searchQuery,
+  setSearchQuery,
+  setActiveChannel,
+  favorites,
+  toggleFavorite,
+  liquidGlass,
+  user,
+  onLogin,
+  onLogout,
+  setActiveTab,
+  setIsDark,
+  setLiquidGlass,
+  setSortOrder,
+  bypassed,
+  loadingTreatment
+}: {
+  isDark: boolean,
+  searchQuery: string,
+  setSearchQuery: (q: string) => void,
+  setActiveChannel: (ch: Channel) => void,
+  favorites: string[],
+  toggleFavorite: (ch: Channel) => void,
+  liquidGlass: "glassy" | "tinted",
+  user: any,
+  onLogin: () => void,
+  onLogout: () => void,
+  setActiveTab: (tab: string) => void,
+  setIsDark: (val: boolean) => void,
+  setLiquidGlass: (val: "glassy" | "tinted") => void,
+  setSortOrder: (val: "az" | "za") => void,
+  bypassed: boolean,
+  loadingTreatment: string
+}) {
+  const [randomRows, setRandomRows] = useState<Channel[][]>([]);
+  const [randomSettings, setRandomSettings] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Generate 3 rows of random suggested channels
+    const shuffled = [...channels].sort(() => 0.5 - Math.random());
+    setRandomRows([
+      shuffled.slice(0, 6),
+      shuffled.slice(6, 12),
+      shuffled.slice(12, 18)
+    ]);
+
+    // Recommended settings options
+    const settingsOptions = [
+       { name: "Chế độ tối", icon: Moon, action: () => setIsDark(!isDark), desc: "Tùy chỉnh giao diện bảo vệ mắt" },
+       { name: "Hiệu ứng kính", icon: Layers, action: () => setLiquidGlass(liquidGlass === "glassy" ? "tinted" : "glassy"), desc: "Bật/Tắt hiệu cực mờ Liquid Glass" },
+       { name: "Sắp xếp A-Z", icon: Filter, action: () => setSortOrder("az"), desc: "Sắp xếp kênh theo thứ tự bảng chữ cái" },
+       { name: "Sidebar Float", icon: Columns, action: () => {}, desc: "Thay đổi giao diện thanh điều hướng" },
+       { name: "Phòng thí nghiệm", icon: Flask, action: () => setActiveTab("Experimental"), desc: "Trải nghiệm các tính năng thử nghiệm mới" },
+       { name: "Cập nhật", icon: Zap, action: () => setActiveTab("Update Logs"), desc: "Xem nhật ký thay đổi của hệ thống" }
+    ];
+    setRandomSettings([...settingsOptions].sort(() => 0.5 - Math.random()).slice(0, 3));
+  }, [isDark, liquidGlass, setIsDark, setLiquidGlass, setSortOrder, setActiveTab]);
+
+  return (
+    <div className="flex-1 flex flex-col pt-4 overflow-y-auto scrollbar-hide pb-32">
+      {/* Trending Searches */}
+      <div className="max-w-4xl mx-auto w-full px-4 mb-16">
+        <SearchBar 
+          isDark={isDark} 
+          query={searchQuery} 
+          setQuery={setSearchQuery} 
+          onClose={() => setSearchQuery("")} 
+          liquidGlass={liquidGlass}
+        />
+        <div className="flex flex-wrap items-center gap-2 mt-5 px-3">
+            <div className="flex items-center gap-2 mr-2">
+                <TrendingUp size={12} className="text-purple-500" />
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Xu hướng:</span>
+            </div>
+            {["VTV3", "HBO", "K+ Action", "Bóng đá", "Phim Mới", "Discovery", "Hoạt Hình"].sort(() => 0.5 - Math.random()).slice(0, 5).map(kw => (
+                <button 
+                    key={kw} 
+                    onClick={() => setSearchQuery(kw)}
+                    className={`text-[10px] font-bold px-4 py-1.5 rounded-full border transition-all ${isDark ? "border-white/10 hover:bg-white/10 text-white/60 hover:text-white" : "border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-900"}`}
+                >
+                    {kw}
+                </button>
+            ))}
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto w-full px-4 md:px-8 space-y-20">
+        {searchQuery.trim() !== "" ? (
+          <div className="max-w-4xl mx-auto w-full">
+            <SearchPopup 
+              isDark={isDark} 
+              searchQuery={searchQuery} 
+              setActiveChannel={setActiveChannel} 
+              onClose={() => setSearchQuery("")} 
+              favorites={favorites}
+              liquidGlass={liquidGlass}
+              setActiveTab={setActiveTab}
+              setIsDark={setIsDark}
+              setLiquidGlass={setLiquidGlass}
+              onLogin={onLogin}
+              onLogout={onLogout}
+              setSortOrder={setSortOrder}
+              loadingTreatment={loadingTreatment}
+              asContent
+            />
+          </div>
+        ) : (
+          <>
+            {!user && !bypassed && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`p-10 rounded-[48px] relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-10 shadow-2xl ${isDark ? "bg-purple-600/10 border border-white/5" : "bg-purple-50 border border-purple-100"}`}
+              >
+                <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 blur-3xl -mr-32 -mt-32" />
+                <div className="relative z-10 space-y-4 text-center md:text-left">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 text-purple-500 text-[10px] font-bold uppercase tracking-widest">
+                    <Crown size={12} /> Membership
+                  </div>
+                  <h2 className={`text-3xl md:text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Khám phá nhiều hơn với Vplay</h2>
+                  <p className={`max-w-md font-medium text-sm md:text-base ${isDark ? "text-slate-400" : "text-slate-500"}`}>Đăng nhập ngay để đồng bộ các kênh yêu thích của bạn và nhận được đề xuất chính xác nhất từ hệ thống AI.</p>
+                </div>
+                <button 
+                  onClick={onLogin} 
+                  className="relative z-10 btn-vibrant-3d px-12 py-5 text-lg font-black tracking-widest shrink-0 !rounded-[32px] !border-none !bg-purple-600 hover:!bg-purple-500"
+                >
+                  ĐĂNG NHẬP
+                </button>
+              </motion.div>
+            )}
+
+            {randomRows.map((row, idx) => (
+              <div key={idx} className="space-y-8">
+                <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${idx === 0 ? "bg-amber-500/10 text-amber-500" : idx === 1 ? "bg-blue-500/10 text-blue-500" : "bg-purple-500/10 text-purple-500"}`}>
+                        {idx === 0 ? <Sparkles size={20} /> : idx === 1 ? <TrendingUp size={20} /> : <Zap size={20} />}
+                    </div>
+                    <div>
+                      <h3 className={`text-2xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
+                          {idx === 0 ? "Kênh nổi bật" : idx === 1 ? "Gợi ý hàng đầu" : "Có thể bạn thích"}
+                      </h3>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-40">RANDOM SUGGESTIONS ROW {idx + 1}</p>
+                    </div>
+                  </div>
+                  <button className={`text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full border ${isDark ? "border-white/10 hover:bg-white/5 text-white/40" : "border-black/5 hover:bg-black/5 text-black/40"}`}>Xem tất cả</button>
+                </div>
+                <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-6">
+                  {row.map((ch, i) => (
+                    <ChannelCard 
+                      key={`${ch.name}-${idx}-${i}`}
+                      ch={ch}
+                      isDark={isDark}
+                      favorites={favorites}
+                      toggleFavorite={toggleFavorite}
+                      liquidGlass={liquidGlass}
+                      onClick={() => setActiveChannel(ch)}
+                      className="hover:scale-105"
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            <div className="space-y-8">
+               <div className="flex items-center gap-3 px-2">
+                  <div className="w-10 h-10 rounded-2xl bg-slate-500/10 flex items-center justify-center text-slate-500">
+                     <Sliders size={20} />
+                  </div>
+                  <div>
+                    <h3 className={`text-2xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>Tối ưu trải nghiệm</h3>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-40">QUICK SETTINGS RECOMMENDATIONS</p>
+                  </div>
+               </div>
+               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  {randomSettings.map((s, i) => (
+                    <button 
+                      key={i}
+                      onClick={s.action}
+                      className={`p-8 rounded-[48px] border text-left group transition-all hover:scale-[1.02] active:scale-[0.98] ${isDark ? "bg-white/5 border-white/5 hover:bg-white/10" : "bg-slate-50 border-slate-100 hover:bg-white shadow-sm hover:shadow-xl"}`}
+                    >
+                       <div className={`p-4 w-fit rounded-2xl mb-6 transition-transform group-hover:rotate-6 ${isDark ? "bg-white/10 text-purple-400 font-bold" : "bg-purple-100 text-purple-600 font-bold"}`}>
+                          <s.icon size={28} />
+                       </div>
+                       <h4 className={`text-xl font-black mb-2 tracking-tight ${isDark ? "text-white uppercase" : "text-slate-900 uppercase"}`}>{s.name}</h4>
+                       <p className={`text-sm font-medium opacity-50 ${isDark ? "text-white" : "text-slate-900"}`}>{s.desc}</p>
+                    </button>
+                  ))}
+               </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -1759,7 +1896,8 @@ function SearchPopup({
   onLogin,
   onLogout,
   setSortOrder,
-  loadingTreatment
+  loadingTreatment,
+  asContent
 }: {
   isDark: boolean,
   searchQuery: string,
@@ -1773,9 +1911,10 @@ function SearchPopup({
   onLogin: () => void,
   onLogout: () => void,
   setSortOrder: (val: "az" | "za") => void,
-  loadingTreatment: string
+  loadingTreatment: string,
+  asContent?: boolean
 }) {
-  if (searchQuery.trim() === "") return null;
+  if (searchQuery.trim() === "" && !asContent) return null;
 
   const filteredChannels = channels.filter(ch => 
     ch.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1784,8 +1923,8 @@ function SearchPopup({
 
   const systemItems = [
     { name: "Trang chủ", type: "tab", icon: Home, action: () => setActiveTab("Trang chủ") },
-    { name: "Truyền hình", type: "tab", icon: Tv, action: () => setActiveTab("Truyền hình") },
-    { name: "Phát thanh", type: "tab", icon: Radio, action: () => setActiveTab("Phát thanh") },
+    { name: "Phát sóng", type: "tab", icon: Tv, action: () => setActiveTab("Phát sóng") },
+    { name: "Khám phá", type: "tab", icon: Search, action: () => setActiveTab("Khám phá") },
     { name: "Cài đặt", type: "tab", icon: SettingsIcon, action: () => setActiveTab("Cài đặt") },
     { name: "Hồ sơ", type: "tab", icon: User, action: () => setActiveTab("Hồ sơ") },
     { name: "Chế độ tối", type: "setting", icon: Moon, action: () => setIsDark(!isDark) },
@@ -1812,15 +1951,15 @@ function SearchPopup({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40, scale: 0.8, rotateX: -15 }}
-      animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
-      exit={{ opacity: 0, y: 40, scale: 0.8, rotateX: -15 }}
+      initial={asContent ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.8, rotateX: -15 }}
+      animate={asContent ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+      exit={asContent ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.8, rotateX: -15 }}
       transition={{ type: "spring", damping: 20, stiffness: 300 }}
-      className={`absolute bottom-full mb-8 w-[90vw] md:w-full max-w-[400px] overflow-hidden ${
+      className={`${asContent ? "relative w-full" : "absolute bottom-full mb-8 w-[90vw] md:w-full max-w-[400px]"} overflow-hidden ${
         isDark ? "popup-3d-dark" : "popup-3d-light"
       } ${
         liquidGlass ? "backdrop-blur-xl" : "backdrop-blur-none"
-      }`}
+      } ${asContent ? "rounded-[48px] border border-white/10" : ""}`}
     >
       <div className="p-4 space-y-1 max-h-[60vh] overflow-y-auto">
         {searchQuery.trim() === "" ? (
@@ -2511,8 +2650,8 @@ function SettingsContent({
   setLoadingTreatment
 }: { 
   isDark: boolean, 
-  setIsDark: (val: boolean) => void, 
-  isDev: boolean, 
+  setIsDark: (val: boolean) => void,
+  isDev: boolean,
   setIsDev: (val: boolean) => void,
   featureFlags: { [key: string]: boolean },
   setFeatureFlags: (val: { [key: string]: boolean } | ((prev: { [key: string]: boolean }) => { [key: string]: boolean })) => void,
@@ -2528,132 +2667,136 @@ function SettingsContent({
   setSidebarDisplay: (val: "float" | "attach") => void,
   isPinningEnabled: boolean,
   setIsPinningEnabled: (val: boolean) => void,
-  user: FirebaseUser | null,
+  user: any,
   userData: any,
-  setUserData: any,
+  setUserData: (val: any) => void,
   onAlert: (title: string, msg: string) => void,
   onLogin: () => void,
   onUpdateLogsClick: () => void,
   onResetOnboarding: () => void,
   favorites: string[],
-  bypassed?: boolean,
+  bypassed: boolean,
   loadingTreatment: string,
   setLoadingTreatment: (val: string) => void
 }) {
-  const [name, setName] = useState(userData?.displayName || user?.displayName || "");
-  const [avatar, setAvatar] = useState(userData?.photoURL || user?.photoURL || "");
+  const [name, setName] = useState(user?.displayName || userData?.name || "Vplay User");
+  const [avatar, setAvatar] = useState(user?.photoURL || userData?.avatar || "");
   const [saving, setSaving] = useState(false);
-  const [flagSearch, setFlagSearch] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setName(userData?.displayName || user?.displayName || "");
-    setAvatar(userData?.photoURL || user?.photoURL || "");
-  }, [user, userData]);
+    if (user) {
+      setName(user.displayName || "Vplay User");
+      setAvatar(user.photoURL || "");
+    }
+  }, [user]);
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setAvatar(event.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSave = async () => {
-    if (!user && !bypassed) return;
-    const authUser = auth.currentUser;
-    if (!authUser && !bypassed) return;
-
     setSaving(true);
     try {
-      const profileUpdates: any = { displayName: name, photoURL: avatar };
-      if (authUser) {
-        await updateProfile(authUser, { displayName: name, photoURL: avatar });
-        await setDoc(doc(db, "users", authUser.uid), profileUpdates, { merge: true });
+      if (user) {
+        await updateProfile(user, {
+          displayName: name,
+          photoURL: avatar
+        });
       }
-      setUserData({ ...userData, ...profileUpdates });
-      onAlert("Thành công", "Đã cập nhật hồ sơ của bạn!");
-    } catch (e: any) {
-      console.error(e);
-      onAlert("Lỗi", "Không thể cập nhật hồ sơ: " + e.message);
+      
+      const userRef = doc(db, "users", user ? user.uid : "bypassed");
+      await setDoc(userRef, {
+        name,
+        avatar,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+      
+      setUserData({ name, avatar });
+      onAlert("Thành công", "Đã cập nhật thông tin cá nhân của bạn!");
+    } catch (err: any) {
+      onAlert("Lỗi", "Không thể lưu thông tin: " + err.message);
     }
     setSaving(false);
   };
-
   return (
-    <div className="max-w-6xl mx-auto px-4 md:px-0 pb-32 space-y-8">
+    <div className="max-w-6xl mx-auto px-2 md:px-0 pb-32 space-y-6 md:space-y-8">
       {/* 1. Information Section (Top - Full Width) */}
-      <div className={`p-8 md:p-12 rounded-[48px] border relative overflow-hidden transition-all ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-purple-500/20 to-cyan-500/10 blur-[120px] -mr-32 -mt-32" />
+      <div className={`p-6 md:p-12 rounded-[32px] md:rounded-[48px] border relative overflow-hidden transition-all ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+        <div className="absolute top-0 right-0 w-64 md:w-96 h-64 md:h-96 bg-gradient-to-br from-purple-500/20 to-cyan-500/10 blur-[80px] md:blur-[120px] -mr-20 -mt-20 md:-mr-32 md:-mt-32" />
         
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-500">
-                <Info size={28} />
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+          <div className="space-y-4 md:space-y-6">
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="p-2.5 md:p-3 rounded-xl md:rounded-2xl bg-purple-500/10 text-purple-500">
+                <Info size={24} className="md:w-7 md:h-7" />
               </div>
-              <h3 className={`font-bold text-3xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Thông tin hệ thống</h3>
+              <h3 className={`font-bold text-2xl md:text-3xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Thông tin hệ thống</h3>
             </div>
             
-            <div className="flex items-center gap-8 py-4">
+            <div className="flex items-center gap-6 md:gap-8 py-2 md:py-4">
               <div className="relative">
                 <div className="absolute inset-0 bg-purple-600/20 blur-3xl rounded-full" />
                 <img 
                   src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi"
-                  className="w-40 h-40 object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(168,85,247,0.4)]"
+                  className="w-28 h-28 md:w-40 md:h-40 object-contain relative z-10 drop-shadow-[0_10px_30px_rgba(168,85,247,0.4)]"
                   alt="Vplay App Logo"
                   referrerPolicy="no-referrer"
                 />
               </div>
-              <div className="space-y-2">
-                <h2 className="text-4xl font-bold italic tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-cyan-400">
+              <div className="space-y-1 md:space-y-2">
+                <h2 className="text-3xl md:text-4xl font-bold italic tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-cyan-400">
                   Vplay 2026
                 </h2>
-                <div className="flex flex-col gap-1">
-                  <span className={`text-[10px] font-bold tracking-[0.4em] ${isDark ? "text-white/40" : "text-slate-400"}`}>June 2026 Update</span>
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 bg-amber-500/20 text-amber-500 text-[9px] font-bold rounded-md uppercase">26M6</span>
-                    <span className="px-2 py-0.5 bg-cyan-500/20 text-cyan-500 text-[9px] font-bold rounded-md uppercase">Build 26601</span>
+                <div className="flex flex-col gap-0.5 md:gap-1">
+                  <span className={`text-[9px] md:text-[10px] font-bold tracking-[0.4em] ${isDark ? "text-white/40" : "text-slate-400"}`}>June 2026 Update</span>
+                  <div className="flex items-center gap-1.5 md:gap-2">
+                    <span className="px-1.5 py-0.5 bg-amber-500/20 text-amber-500 text-[8px] md:text-[9px] font-bold rounded-md uppercase">26M6</span>
+                    <span className="px-1.5 py-0.5 bg-cyan-500/20 text-cyan-500 text-[8px] md:text-[9px] font-bold rounded-md uppercase">Build 26601</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4">
-             <div className={`p-6 rounded-3xl border flex items-center justify-between group transition-all hover:border-purple-500/30 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
-               <div className="flex items-center gap-4">
-                 <div className="w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center text-green-500">
-                    <Activity size={24} />
+          <div className="grid grid-cols-1 gap-3 md:gap-4">
+             <div className={`p-5 md:p-6 rounded-2xl md:rounded-3xl border flex items-center justify-between group transition-all hover:border-purple-500/30 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+               <div className="flex items-center gap-3 md:gap-4">
+                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-green-500/10 flex items-center justify-center text-green-500">
+                    <Activity size={20} className="md:w-6 md:h-6" />
                  </div>
                  <div>
-                   <p className="text-[10px] font-bold opacity-40 tracking-wider">Phiên bản phát hành</p>
-                   <p className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>June 2026 Update</p>
+                   <p className="text-[9px] md:text-[10px] font-bold opacity-40 tracking-wider">Phiên bản phát hành</p>
+                   <p className={`text-base md:text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>June 2026 Update</p>
                  </div>
                </div>
-               <span className="px-4 py-2 bg-amber-500 text-slate-900 text-[10px] font-bold rounded-xl shadow-lg shadow-amber-500/30">26M6</span>
+               <span className="px-3 py-1.5 bg-amber-500 text-slate-900 text-[9px] md:text-[10px] font-bold rounded-lg md:rounded-xl shadow-lg shadow-amber-500/30">26M6</span>
              </div>
 
-             <div className="grid grid-cols-2 gap-4">
-                <div className={`p-6 rounded-3xl border flex items-center gap-4 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
-                   <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
-                      <Terminal size={20} />
+             <div className="grid grid-cols-2 gap-3 md:gap-4">
+                <div className={`p-4 md:p-6 rounded-2xl md:rounded-3xl border flex items-center gap-3 md:gap-4 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                      <Terminal size={18} className="md:w-5 md:h-5" />
                    </div>
                    <div>
-                     <p className="text-[10px] font-bold opacity-40 tracking-wider">Nhánh</p>
-                     <p className={`text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Dev</p>
+                     <p className="text-[8px] md:text-[10px] font-bold opacity-40 tracking-wider">Nhánh</p>
+                     <p className={`text-sm md:text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Dev</p>
                    </div>
                 </div>
-                <div className={`p-6 rounded-3xl border flex items-center gap-4 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
-                   <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
-                      <Zap size={20} />
+                <div className={`p-4 md:p-6 rounded-2xl md:rounded-3xl border flex items-center gap-3 md:gap-4 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+                      <Zap size={18} className="md:w-5 md:h-5" />
                    </div>
                    <div>
-                     <p className="text-[10px] font-bold opacity-40 tracking-wider">Bản dựng</p>
-                     <p className={`text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>26601</p>
+                     <p className="text-[8px] md:text-[10px] font-bold opacity-40 tracking-wider">Bản dựng</p>
+                     <p className={`text-sm md:text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>26601</p>
                    </div>
                 </div>
              </div>
@@ -2661,14 +2804,14 @@ function SettingsContent({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 items-stretch">
         {/* Profile Section */}
-        <div className={`p-10 rounded-[48px] border flex flex-col transition-all ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
-          <div className="flex items-center gap-4 mb-10">
-            <div className="p-3 rounded-2xl bg-purple-500/20 text-purple-500">
-              <User size={24} />
+        <div className={`p-6 md:p-10 rounded-[32px] md:rounded-[48px] border flex flex-col transition-all ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+          <div className="flex items-center gap-4 mb-6 md:mb-10">
+            <div className="p-2.5 md:p-3 rounded-xl md:rounded-2xl bg-purple-500/20 text-purple-500">
+              <User size={20} className="md:w-6 md:h-6" />
             </div>
-            <h3 className={`font-bold text-2xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Hồ sơ cá nhân</h3>
+            <h3 className={`font-bold text-xl md:text-2xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Hồ sơ cá nhân</h3>
           </div>
 
           {!user && !bypassed ? (
@@ -3041,7 +3184,6 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
     
     if ((username === "special_guest" && password === "specialguest123") || (username === "vplaybeta" && password === "vplaybeta")) {
       setLoading(true);
-      // Simulate login for special guest
       setTimeout(() => {
         setIsDev(true);
         setUserData({
@@ -3109,16 +3251,6 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
     }
   };
 
-  const getTitle = () => {
-    if (isForgotPassword) return "Quên mật khẩu";
-    return isLogin ? "Đăng nhập" : "Đăng ký";
-  };
-
-  const getDescription = () => {
-    if (isForgotPassword) return "Nhập email hoặc tên đăng nhập để nhận liên kết đặt lại mật khẩu.";
-    return "Tận hưởng và trải nghiệm đầy đủ các tính năng của Vplay ngay hôm nay!";
-  };
-
   const inputClasses = `w-full px-6 py-3.5 bg-transparent outline-none transition-all ${
     isDark 
       ? "text-white placeholder-white/20" 
@@ -3158,142 +3290,217 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
   };
 
   return (
-    <LiquidModal 
-      isOpen={isOpen} 
-      onClose={onClose} 
-      isDark={isDark} 
-      title={getTitle()}
-      description={getDescription()}
-      liquidGlass={liquidGlass}
-    >
-      { (
-        <div className="space-y-4">
-          
-        <button 
-          type="button"
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          className="w-full h-16 btn-white-3d flex items-center justify-center gap-4 text-sm"
-        >
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/smartlock/icon_google.svg" className="w-5 h-5" alt="Google" />
-          Tiếp tục với Google
-        </button>
-
-        <div className="flex items-center gap-4 py-2">
-          <div className={`flex-1 h-[1px] ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
-          <span className="text-[10px] font-bold uppercase opacity-30">Hoặc</span>
-          <div className={`flex-1 h-[1px] ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4 text-left">
-        {error && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-xs font-medium text-center"
-          >
-            {error}
-          </motion.div>
-        )}
-        {success && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-3 bg-green-500/10 border border-green-500/20 text-green-600 rounded-2xl text-xs font-medium text-center"
-          >
-            {success}
-          </motion.div>
-        )}
-        <div className="space-y-1">
-          <label className={labelClasses}>Tên đăng nhập / Email</label>
-          <div className={inputContainerClasses}>
-            <input 
-              required 
-              value={username} 
-              onChange={e => setUsername(e.target.value)} 
-              className={inputClasses} 
-              placeholder="Nhập tên đăng nhập hoặc email..." 
-            />
-            <div className={`absolute bottom-0 left-0 h-[2px] w-full transition-all duration-300 ${isDark ? "bg-white/10" : "bg-slate-200"} group-focus-within:bg-purple-500 group-focus-within:shadow-[0_0_10px_rgba(168,85,247,0.5)]`} />
-          </div>
-        </div>
-        {!isForgotPassword && (
+    <div className={`fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 ${isOpen ? "visible" : "invisible"}`}>
+      <AnimatePresence>
+        {isOpen && (
           <>
-            <div className="space-y-1">
-              <label className={labelClasses}>Mật khẩu</label>
-              <div className={inputContainerClasses}>
-                <input 
-                  required 
-                  type={showPassword ? "text" : "password"} 
-                  value={password} 
-                  onChange={e => setPassword(e.target.value)} 
-                  className={inputClasses} 
-                  placeholder="Nhập mật khẩu..." 
-                />
-                <button 
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 hover:text-purple-500 transition-colors z-10"
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-                <div className={`absolute bottom-0 left-0 h-[2px] w-full transition-all duration-300 ${isDark ? "bg-white/10" : "bg-slate-200"} group-focus-within:bg-purple-500 group-focus-within:shadow-[0_0_10px_rgba(168,85,247,0.5)]`} />
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={onClose}
+              className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
+            />
+            <motion.div
+              layoutId="auth-modal"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className={`relative w-full max-w-5xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.5)] flex flex-col md:flex-row min-h-[400px] md:min-h-[580px] ${
+                liquidGlass === "glassy" ? "rounded-[48px] backdrop-blur-[100px] bg-white/10 border border-white/20" : isDark ? "rounded-[48px] bg-slate-900 border border-white/5" : "rounded-[48px] bg-white"
+              }`}
+            >
+              {/* Image/Visual Side */}
+              <div className="w-full md:w-[45%] bg-gradient-to-br from-purple-600 to-indigo-900 p-8 md:p-12 relative flex flex-col justify-between overflow-hidden">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/20 blur-[100px] -mr-32 -mt-32" />
+                <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/20 blur-[100px] -ml-32 -mb-32" />
+                
+                <div className="relative z-10 space-y-6">
+                  <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 shadow-xl">
+                    <img 
+                      src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi"
+                      className="w-10 h-10 object-contain"
+                      alt="Vplay"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <h2 className="text-4xl font-bold text-white tracking-tighter leading-none">
+                      {isLogin ? "Chào mừng trở lại!" : "Tham gia mạng lưới Vplay"}
+                    </h2>
+                    <p className="text-white/60 text-base font-medium leading-relaxed max-w-xs">
+                      {isLogin ? "Trải nghiệm thế giới giải trí 4K không giới hạn ngay trong tầm tay bạn." : "Đăng ký tài khoản để đồng bộ hóa và nhận đề xuất cá nhân hóa từ AI."}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="relative z-10">
+                   <div className={`p-6 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl space-y-4`}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-500">
+                           <Sparkles size={20} />
+                        </div>
+                        <h4 className="text-white font-bold text-sm">Thông báo tài khoản Vplay Beta</h4>
+                      </div>
+                      <p className="text-white/70 text-xs leading-relaxed font-medium">
+                        Vplay Beta không hỗ trợ hệ thống đăng nhập, chỉ có ở phiên bản chính thức. Bạn sẽ được phát cho một tài khoản xem truyền hình miễn phí:
+                      </p>
+                      <div className="flex flex-col gap-2 p-3 rounded-2xl bg-white/5 border border-white/10">
+                        <div className="flex justify-between items-center px-1">
+                          <span className="text-[10px] text-white/40 font-bold uppercase">Tên đăng nhập</span>
+                          <span className="text-sm text-amber-400 font-black">vplaybeta</span>
+                        </div>
+                        <div className="flex justify-between items-center px-1">
+                          <span className="text-[10px] text-white/40 font-bold uppercase">Mật khẩu</span>
+                          <span className="text-sm text-amber-400 font-black">vplaybeta</span>
+                        </div>
+                      </div>
+                   </div>
+                </div>
+
+                {/* Decoration blobs */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-purple-400/10 rounded-full blur-[100px]" />
               </div>
-            </div>
-            {!isLogin && (
-              <div className="space-y-1">
-                <label className={labelClasses}>Xác nhận mật khẩu</label>
-                <div className={inputContainerClasses}>
-                  <input 
-                    required 
-                    type={showPassword ? "text" : "password"} 
-                    value={confirmPassword} 
-                    onChange={e => setConfirmPassword(e.target.value)} 
-                    className={inputClasses} 
-                    placeholder="Nhập lại mật khẩu..." 
-                  />
-                  <div className={`absolute bottom-0 left-0 h-[2px] w-full transition-all duration-300 ${isDark ? "bg-white/10" : "bg-slate-200"} group-focus-within:bg-purple-500 group-focus-within:shadow-[0_0_10px_rgba(168,85,247,0.5)]`} />
+
+              {/* Form Side */}
+              <div className="flex-1 p-8 md:p-14 overflow-y-auto max-h-[70vh] md:max-h-none scrollbar-hide">
+                <div className="max-w-md mx-auto space-y-10">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className={`text-2xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                        {isForgotPassword ? "Quên mật khẩu" : (isLogin ? "Đăng nhập" : "Đăng ký")}
+                      </h3>
+                      <p className="text-slate-500 text-sm font-medium mt-1">Vui lòng điền thông tin bên dưới</p>
+                    </div>
+                    <button onClick={onClose} className={`p-3 rounded-full transition-colors ${isDark ? "bg-white/5 text-white hover:bg-white/10" : "bg-slate-100 text-slate-900 hover:bg-slate-200"}`}>
+                       <X size={20} />
+                    </button>
+                  </div>
+
+                  <div className="space-y-6">
+                    <button 
+                      type="button"
+                      onClick={handleGoogleLogin}
+                      disabled={loading}
+                      className={`w-full h-16 flex items-center justify-center gap-4 text-sm font-bold transition-all shadow-lg active:scale-[0.98] ${
+                        isDark 
+                          ? "bg-[#111111] border border-white/5 text-white shadow-black/40" 
+                          : "bg-white border border-slate-200 text-slate-900 shadow-slate-200/50"
+                      } rounded-2xl`}
+                    >
+                      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/smartlock/icon_google.svg" className="w-6 h-6" alt="Google" />
+                      Tiếp tục với Google
+                    </button>
+
+                    <div className="flex items-center gap-4">
+                      <div className={`flex-1 h-[1px] ${isDark ? "bg-white/5" : "bg-slate-100"}`} />
+                      <span className="text-[10px] font-bold uppercase opacity-30 tracking-[0.2em]">Hoặc với tên đăng nhập</span>
+                      <div className={`flex-1 h-[1px] ${isDark ? "bg-white/5" : "bg-slate-100"}`} />
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                      {error && (
+                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-[11px] font-bold text-center uppercase tracking-wider">
+                          {error}
+                        </motion.div>
+                      )}
+                      {success && (
+                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-2xl text-[11px] font-bold text-center uppercase tracking-wider">
+                          {success}
+                        </motion.div>
+                      )}
+                      
+                      <div className="space-y-2">
+                        <label className={labelClasses}>Tên đăng nhập / Email</label>
+                        <div className={inputContainerClasses}>
+                          <input 
+                            required 
+                            value={username} 
+                            onChange={e => setUsername(e.target.value)} 
+                            className={inputClasses} 
+                            placeholder="Nhập tài khoản vplay..." 
+                          />
+                        </div>
+                      </div>
+
+                      {!isForgotPassword && (
+                        <div className="space-y-2">
+                          <label className={labelClasses}>Mật khẩu</label>
+                          <div className={inputContainerClasses}>
+                            <input 
+                              required 
+                              type={showPassword ? "text" : "password"} 
+                              value={password} 
+                              onChange={e => setPassword(e.target.value)} 
+                              className={inputClasses} 
+                              placeholder="Nhập mật khẩu..." 
+                            />
+                            <button 
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 hover:text-purple-500 transition-colors"
+                            >
+                              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {!isForgotPassword && !isLogin && (
+                        <div className="space-y-2">
+                          <label className={labelClasses}>Xác nhận mật khẩu</label>
+                          <div className={inputContainerClasses}>
+                            <input 
+                              required 
+                              type={showPassword ? "text" : "password"} 
+                              value={confirmPassword} 
+                              onChange={e => setConfirmPassword(e.target.value)} 
+                              className={inputClasses} 
+                              placeholder="Lặp lại mật khẩu..." 
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {isLogin && !isForgotPassword && (
+                        <div className="text-right">
+                          <button type="button" onClick={() => setIsForgotPassword(true)} className="text-[11px] font-bold text-purple-500 hover:opacity-70 transition-opacity">
+                            Quên mật khẩu?
+                          </button>
+                        </div>
+                      )}
+
+                      <button 
+                        type="submit" 
+                        disabled={loading} 
+                        className="btn-purple-3d w-full h-16 text-lg font-black tracking-widest disabled:opacity-50 mt-4 rounded-3xl"
+                      >
+                        {loading ? "ĐANG XỬ LÝ..." : (isForgotPassword ? "GỬI YÊU CẦU" : (isLogin ? "ĐĂNG NHẬP" : "ĐĂNG KÝ"))}
+                      </button>
+                    </form>
+
+                    <div className="text-center">
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setIsLogin(!isLogin);
+                          setIsForgotPassword(false);
+                          setError("");
+                        }} 
+                        className={`text-xs font-bold tracking-wide transition-colors ${isDark ? "text-white/40 hover:text-white" : "text-slate-500 hover:text-slate-900"}`}
+                      >
+                        {isForgotPassword ? "Quay lại trang Đăng nhập" : (isLogin ? "Chưa có tài khoản? Tham gia ngay" : "Đã có thành viên? Đăng nhập ngay")}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            )}
+            </motion.div>
           </>
         )}
-        
-        {isLogin && !isForgotPassword && (
-          <div className="text-right px-4">
-            <button 
-              type="button" 
-              onClick={() => setIsForgotPassword(true)}
-              className="text-[11px] font-bold text-purple-500 hover:underline"
-            >
-              Quên mật khẩu?
-            </button>
-          </div>
-        )}
-
-        <button 
-          type="submit" 
-          disabled={loading} 
-          className="btn-purple-3d w-full mt-2 h-16 text-lg font-black tracking-widest disabled:opacity-50 disabled:active:top-0"
-        >
-          {loading ? "..." : (isForgotPassword ? "Xác nhận" : (isLogin ? "Đăng nhập" : "Đăng ký"))}
-        </button>
-      </form>
-        <div className="mt-6 flex flex-col gap-3">
-          {isForgotPassword ? (
-            <button type="button" onClick={() => setIsForgotPassword(false)} className="text-purple-500 text-xs font-bold hover:underline">
-              Quay lại đăng nhập
-            </button>
-          ) : (
-            <button type="button" onClick={() => setIsLogin(!isLogin)} className="text-purple-500 text-xs font-bold hover:underline">
-              {isLogin ? "Chưa có tài khoản? Đăng ký ngay" : "Đã có tài khoản? Đăng nhập"}
-            </button>
-          )}
-        </div>
-      </div>
-    )}
-  </LiquidModal>
-);
+      </AnimatePresence>
+    </div>
+  );
 }
 
 function SearchBar({ isDark, query, setQuery, onClose, liquidGlass }: { isDark: boolean, query: string, setQuery: (q: string) => void, onClose: () => void, liquidGlass: "glassy" | "tinted" }) {
@@ -3949,7 +4156,7 @@ function App() {
     if (activeTab !== "Cài đặt") {
       setLastTab(activeTab);
     }
-    if (activeTab !== "Cài đặt" && activeTab !== "Tìm kiếm") {
+    if (activeTab !== "Cài đặt" && activeTab !== "Khám phá") {
       setPrevTab(activeTab);
     }
   }, [activeTab]);
@@ -4416,33 +4623,25 @@ function App() {
                   bypassed={bypassed}
                 />
               )}
-              {displayTab === "Tìm kiếm" && (
-                <div className="flex-1 flex flex-col pt-4">
-                  <div className="max-w-4xl mx-auto w-full px-4 mb-8">
-                     <SearchBar 
-                        isDark={isDark} 
-                        query={searchQuery} 
-                        setQuery={setSearchQuery} 
-                        onClose={() => setActiveTab("Trang chủ")} 
-                        liquidGlass={liquidGlass}
-                      />
-                  </div>
-                  <SearchPopup 
-                    isDark={isDark} 
-                    searchQuery={searchQuery} 
-                    setActiveChannel={handleChannelSelect} 
-                    onClose={() => setActiveTab("Trang chủ")} 
-                    favorites={favorites}
-                    liquidGlass={liquidGlass}
-                    setActiveTab={setActiveTab}
-                    setIsDark={setIsDark}
-                    setLiquidGlass={setLiquidGlass}
-                    onLogin={handleLogin}
-                    onLogout={handleLogout}
-                    setSortOrder={setSortOrder}
-                    loadingTreatment={loadingTreatment}
-                  />
-                </div>
+              {displayTab === "Khám phá" && (
+                <ExploreContent 
+                  isDark={isDark}
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  setActiveChannel={handleChannelSelect}
+                  favorites={favorites}
+                  toggleFavorite={toggleFavorite}
+                  liquidGlass={liquidGlass}
+                  user={user}
+                  onLogin={handleLogin}
+                  onLogout={handleLogout}
+                  setActiveTab={setActiveTab}
+                  setIsDark={setIsDark}
+                  setLiquidGlass={setLiquidGlass}
+                  setSortOrder={setSortOrder}
+                  bypassed={bypassed}
+                  loadingTreatment={loadingTreatment}
+                />
               )}
               {displayTab === "Phát sóng" && (
                 <TVContent 
@@ -4936,7 +5135,7 @@ function App() {
               <ChevronLeft size={24} />
             </button>
 
-            <div className="flex-1 overflow-hidden relative h-16 flex items-center justify-center">
+            <div className="flex-1 overflow-hidden relative h-12 flex items-center justify-center">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={`nav-page-${navPage}`}
@@ -4948,26 +5147,17 @@ function App() {
                 >
                   {navPage === 0 && (
                     <>
-                      {baseTabs.filter(t => ["Trang chủ", "Tìm kiếm", "Phát sóng", "Experimental"].includes(t.id || t.name)).map((tab) => {
+                      {baseTabs.filter(t => ["Trang chủ", "Khám phá", "Phát sóng", "Experimental"].includes(t.id || t.name)).map((tab) => {
                         const Icon = tab.icon;
-                        const isActive = activeTab === (tab.id || tab.name);
+                        const tabId = tab.id || tab.name;
+                        const isActive = activeTab === tabId;
                         const isGlassy = liquidGlass === "glassy";
                         
                         return (
-                          <div key={`mob-nav-${tab.id || tab.name}`} className="relative">
+                          <div key={`mob-nav-${tabId}`} className="flex-1 flex justify-center">
                             <button
-                              onMouseEnter={(e) => {
-                                setHoveredTab(tab.name);
-                                setHoveredTabRect(e.currentTarget.getBoundingClientRect());
-                              }}
-                              onMouseLeave={() => {
-                                setHoveredTab(null);
-                                setHoveredTabRect(null);
-                              }}
-                              onClick={() => setActiveTab(tab.name)}
-                              className={`relative flex flex-col items-center justify-center px-4 py-2 transition-all duration-300 group z-10 ${
-                                liquidGlass ? "rounded-full" : "rounded-none flex-1"
-                              } ${
+                              onClick={() => setActiveTab(tabId)}
+                              className={`relative flex flex-col items-center justify-center px-1 py-2 transition-all duration-300 group z-10 w-full ${
                                 isActive 
                                   ? (isGlassy ? "text-white" : "text-black") 
                                   : isGlassy ? "text-white/70 hover:text-white" : liquidGlass === "tinted" ? "text-black hover:opacity-100 opacity-60" : isDark ? "text-slate-400 hover:text-white" : "text-black hover:opacity-100"
@@ -4988,7 +5178,7 @@ function App() {
                                 whileTap={{ scale: 0.9 }}
                                 className="z-10"
                               >
-                                <Icon className="h-8 w-8 flex-shrink-0" />
+                                <Icon className="h-7 w-7 flex-shrink-0" />
                               </motion.div>
                             </button>
                           </div>
@@ -4998,27 +5188,18 @@ function App() {
                   )}
 
                   {navPage === 1 && (
-                    <>
-                      {baseTabs.filter(t => ["Lưu trữ", "Cài đặt"].includes(t.id || t.name)).map((tab) => {
+                    <div className="flex w-full items-center justify-around h-full">
+                      {baseTabs.filter(t => ["Lưu trữ", "Cài đặt", "Quản trị"].includes(t.id || t.name)).filter(t => t.id !== "Quản trị" || isAdmin).map((tab) => {
                         const Icon = tab.icon;
-                        const isActive = activeTab === (tab.id || tab.name);
+                        const tabId = tab.id || tab.name;
+                        const isActive = activeTab === tabId;
                         const isGlassy = liquidGlass === "glassy";
                         
                         return (
-                          <div key={`mob-nav-${tab.id || tab.name}`} className="relative">
+                          <div key={`mob-nav-${tabId}`} className="flex-1 flex justify-center">
                             <button
-                              onMouseEnter={(e) => {
-                                setHoveredTab(tab.name);
-                                setHoveredTabRect(e.currentTarget.getBoundingClientRect());
-                              }}
-                              onMouseLeave={() => {
-                                setHoveredTab(null);
-                                setHoveredTabRect(null);
-                              }}
-                              onClick={() => setActiveTab(tab.name)}
-                              className={`relative flex flex-col items-center justify-center px-4 py-2 transition-all duration-300 group z-10 ${
-                                liquidGlass ? "rounded-full" : "rounded-none flex-1"
-                              } ${
+                              onClick={() => setActiveTab(tabId)}
+                              className={`relative flex flex-col items-center justify-center px-1 py-2 transition-all duration-300 group z-10 w-full ${
                                 isActive 
                                   ? (isGlassy ? "text-white" : "text-black") 
                                   : isGlassy ? "text-white/70 hover:text-white" : liquidGlass === "tinted" ? "text-black hover:opacity-100 opacity-60" : isDark ? "text-slate-400 hover:text-white" : "text-black hover:opacity-100"
@@ -5039,23 +5220,15 @@ function App() {
                                 whileTap={{ scale: 0.9 }}
                                 className="z-10"
                               >
-                                <Icon className="h-8 w-8 flex-shrink-0" />
+                                <Icon className="h-7 w-7 flex-shrink-0" />
                               </motion.div>
                             </button>
                           </div>
                         );
                       })}
-                      <div className="relative">
+                      <div className="flex-1 flex justify-center">
                         <button
                           onClick={user ? handleLogout : handleLogin}
-                          onMouseEnter={(e) => {
-                             setHoveredTab(user ? "Đăng xuất" : "Đăng nhập");
-                             setHoveredTabRect(e.currentTarget.getBoundingClientRect());
-                          }}
-                          onMouseLeave={() => {
-                             setHoveredTab(null);
-                             setHoveredTabRect(null);
-                          }}
                           className={`p-3 rounded-full transition-all ${
                             user 
                               ? (isDark ? "bg-red-500/10 text-red-400 hover:bg-red-500/20" : "bg-red-50 text-red-500 hover:bg-red-100")
@@ -5067,7 +5240,7 @@ function App() {
                           </div>
                         </button>
                       </div>
-                    </>
+                    </div>
                   )}
 
                   {navPage === 2 && (
@@ -5076,11 +5249,11 @@ function App() {
                       initial={{ scale: 0.9, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                     >
-                      <div className={`text-sm font-medium tracking-wide ${isDark ? "text-white" : "text-slate-900"}`}>
+                      <div className={`text-lg font-medium tracking-wide ${isDark ? "text-white" : "text-slate-900"}`}>
                         {currentTime.toLocaleTimeString('en-GB')}
                       </div>
                       <div className="w-px h-4 bg-slate-500/20" />
-                      <div className={`text-sm font-medium tracking-wide uppercase ${isDark ? "text-white/40" : "text-slate-500"}`}>
+                      <div className={`text-lg font-medium tracking-wide uppercase ${isDark ? "text-white/40" : "text-slate-500"}`}>
                         {currentTime.toLocaleDateString('en-GB')}
                       </div>
                     </motion.div>
