@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode } from "react";
-import { Search, User, Tv, Calendar, Home, Play, Pause, Radio, Info, Sun, Moon, Maximize, Settings, Volume2, VolumeX, CheckCircle2, Shield, LogOut, LogIn, Heart, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Mic, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Users, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, FolderOpen, FlaskConical as Flask } from "lucide-react";
+import { Search, User, Tv, Calendar, Home, Play, Pause, Radio, Info, Sun, Moon, Maximize, Settings, Volume2, VolumeX, CheckCircle2, Shield, LogOut, LogIn, Heart, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Mic, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Users, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, FolderOpen, FlaskConical as Flask, Smartphone, Unlock } from "lucide-react";
 import Hls from "hls.js";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import { auth, db, handleFirestoreError, OperationType } from "./firebase";
@@ -465,7 +465,6 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
               Gợi ý cho bạn
             </motion.h1>
           </div>
-          <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[9px] ml-11">TOP TRENDING & RECOMMENDED FOR YOU</p>
         </div>
         <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6">
           {randomChannels.map(ch => (
@@ -584,7 +583,6 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
               Truy cập nhanh
             </motion.h3>
             </div>
-            <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[9px] ml-11">QUICK ACCESS TO SAVED CHANNELS</p>
           </div>
           <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6">
             {favoriteChannels.map(ch => (
@@ -621,7 +619,6 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
               Gợi ý cho bạn
             </motion.h1>
           </div>
-          <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[9px] ml-11">TOP TRENDING & RECOMMENDED FOR YOU</p>
         </div>
         <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6">
           {randomChannels.map(ch => (
@@ -661,7 +658,18 @@ function ExploreContent({
   setLiquidGlass,
   setSortOrder,
   bypassed,
-  loadingTreatment
+  loadingTreatment,
+  useSidebar,
+  setUseSidebar,
+  isSidebarRight,
+  setIsSidebarRight,
+  sidebarDisplay,
+  setSidebarDisplay,
+  isPinningEnabled,
+  setIsPinningEnabled,
+  featureFlags,
+  setFeatureFlags,
+  setIsSidebarLocked
 }: {
   isDark: boolean,
   searchQuery: string,
@@ -678,7 +686,18 @@ function ExploreContent({
   setLiquidGlass: (val: "glassy" | "tinted") => void,
   setSortOrder: (val: "az" | "za") => void,
   bypassed: boolean,
-  loadingTreatment: string
+  loadingTreatment: string,
+  useSidebar: boolean,
+  setUseSidebar: (val: boolean) => void,
+  isSidebarRight: boolean,
+  setIsSidebarRight: (val: boolean) => void,
+  sidebarDisplay: "float" | "attach",
+  setSidebarDisplay: (val: "float" | "attach") => void,
+  isPinningEnabled: boolean,
+  setIsPinningEnabled: (val: boolean) => void,
+  featureFlags: { [key: string]: boolean },
+  setFeatureFlags: (val: any) => void,
+  setIsSidebarLocked: (val: boolean) => void
 }) {
   const [randomRows, setRandomRows] = useState<Channel[][]>([]);
   const [randomSettings, setRandomSettings] = useState<any[]>([]);
@@ -734,7 +753,7 @@ function ExploreContent({
 
       <div className="max-w-7xl mx-auto w-full px-4 md:px-8 space-y-20">
         {searchQuery.trim() !== "" ? (
-          <div className="max-w-4xl mx-auto w-full">
+          <div className="max-w-6xl mx-auto w-full">
             <SearchPopup 
               isDark={isDark} 
               searchQuery={searchQuery} 
@@ -750,6 +769,18 @@ function ExploreContent({
               setSortOrder={setSortOrder}
               loadingTreatment={loadingTreatment}
               asContent
+              useSidebar={useSidebar}
+              setUseSidebar={setUseSidebar}
+              isSidebarRight={isSidebarRight}
+              setIsSidebarRight={setIsSidebarRight}
+              sidebarDisplay={sidebarDisplay}
+              setSidebarDisplay={setSidebarDisplay}
+              isPinningEnabled={isPinningEnabled}
+              setIsPinningEnabled={setIsPinningEnabled}
+              featureFlags={featureFlags}
+              setFeatureFlags={setFeatureFlags}
+              setIsSidebarLocked={setIsSidebarLocked}
+              setSearchQuery={setSearchQuery}
             />
           </div>
         ) : (
@@ -788,7 +819,6 @@ function ExploreContent({
                       <h3 className={`text-2xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
                           {idx === 0 ? "Kênh nổi bật" : idx === 1 ? "Gợi ý hàng đầu" : "Có thể bạn thích"}
                       </h3>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-40">RANDOM SUGGESTIONS ROW {idx + 1}</p>
                     </div>
                   </div>
                   <button className={`text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full border ${isDark ? "border-white/10 hover:bg-white/5 text-white/40" : "border-black/5 hover:bg-black/5 text-black/40"}`}>Xem tất cả</button>
@@ -817,7 +847,6 @@ function ExploreContent({
                   </div>
                   <div>
                     <h3 className={`text-2xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>Tối ưu trải nghiệm</h3>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-40">QUICK SETTINGS RECOMMENDATIONS</p>
                   </div>
                </div>
                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -1897,13 +1926,25 @@ function SearchPopup({
   onLogout,
   setSortOrder,
   loadingTreatment,
-  asContent
-}: {
-  isDark: boolean,
-  searchQuery: string,
-  setActiveChannel: (ch: typeof channels[0]) => void,
-  onClose: () => void,
-  favorites: string[],
+  asContent,
+  useSidebar,
+  setUseSidebar,
+  isSidebarRight,
+  setIsSidebarRight,
+  sidebarDisplay,
+  setSidebarDisplay,
+  isPinningEnabled,
+  setIsPinningEnabled,
+  featureFlags,
+  setFeatureFlags,
+  setIsSidebarLocked,
+  setSearchQuery
+}: { 
+  isDark: boolean, 
+  searchQuery: string, 
+  setActiveChannel: (ch: typeof channels[0]) => void, 
+  onClose: () => void, 
+  favorites: string[], 
   liquidGlass: "glassy" | "tinted",
   setActiveTab: (tab: string) => void,
   setIsDark: (val: boolean) => void,
@@ -1912,7 +1953,19 @@ function SearchPopup({
   onLogout: () => void,
   setSortOrder: (val: "az" | "za") => void,
   loadingTreatment: string,
-  asContent?: boolean
+  asContent?: boolean,
+  useSidebar?: boolean,
+  setUseSidebar?: (val: boolean) => void,
+  isSidebarRight?: boolean,
+  setIsSidebarRight?: (val: boolean) => void,
+  sidebarDisplay?: "float" | "attach",
+  setSidebarDisplay?: (val: "float" | "attach") => void,
+  isPinningEnabled?: boolean,
+  setIsPinningEnabled?: (val: boolean) => void,
+  featureFlags?: { [key: string]: boolean },
+  setFeatureFlags?: (val: any) => void,
+  setIsSidebarLocked?: (val: boolean) => void,
+  setSearchQuery?: (val: string) => void
 }) {
   if (searchQuery.trim() === "" && !asContent) return null;
 
@@ -1925,14 +1978,44 @@ function SearchPopup({
     { name: "Trang chủ", type: "tab", icon: Home, action: () => setActiveTab("Trang chủ") },
     { name: "Phát sóng", type: "tab", icon: Tv, action: () => setActiveTab("Phát sóng") },
     { name: "Khám phá", type: "tab", icon: Search, action: () => setActiveTab("Khám phá") },
+    { name: "Lưu trữ", type: "tab", icon: FolderOpen, action: () => setActiveTab("Lưu trữ") },
+    { name: "Thử nghiệm", type: "tab", icon: Flask, action: () => setActiveTab("Experimental") },
+    { name: "Phòng thí nghiệm", type: "tab", icon: Flask, action: () => setActiveTab("Experimental") },
     { name: "Cài đặt", type: "tab", icon: SettingsIcon, action: () => setActiveTab("Cài đặt") },
+    { name: "Quản trị", type: "tab", icon: ShieldCheck, action: () => setActiveTab("Quản trị") },
     { name: "Hồ sơ", type: "tab", icon: User, action: () => setActiveTab("Hồ sơ") },
-    { name: "Chế độ tối", type: "setting", icon: Moon, action: () => setIsDark(!isDark) },
-    { name: "Hiệu ứng kính", type: "setting", icon: Layers, action: () => setLiquidGlass(liquidGlass === "glassy" ? "tinted" : "glassy") },
+    { name: "Nhật ký cập nhật", type: "tab", icon: Zap, action: () => setActiveTab("Update Logs") },
+    
+    { name: "Chế độ tối", type: "setting", icon: Moon, action: () => setIsDark(true) },
+    { name: "Chế độ sáng", type: "setting", icon: Sun, action: () => setIsDark(false) },
+    { name: "Giao diện Desktop", type: "setting", icon: Monitor, action: () => setUseSidebar?.(true) },
+    { name: "Giao diện Touch", type: "setting", icon: Smartphone, action: () => setUseSidebar?.(false) },
+    { name: "Sidebar Trái", type: "setting", icon: Columns, action: () => setIsSidebarRight?.(false) },
+    { name: "Sidebar Phải", type: "setting", icon: Columns, action: () => setIsSidebarRight?.(true) },
+    { name: "Khóa Sidebar", type: "setting", icon: Lock, action: () => (setIsSidebarLocked as any)?.(true) },
+    { name: "Mở khóa Sidebar", type: "setting", icon: Unlock, action: () => (setIsSidebarLocked as any)?.(false) },
+    { name: "Sidebar Lơ lửng", type: "setting", icon: Layers, action: () => setSidebarDisplay?.("float") },
+    { name: "Sidebar Chạm góc", type: "setting", icon: Layout, action: () => setSidebarDisplay?.("attach") },
+    { name: "Hiệu ứng Liquid Glass", type: "setting", icon: Layers, action: () => setLiquidGlass(liquidGlass === "glassy" ? "tinted" : "glassy") },
+    
+    { name: "Bật Truy cập nhanh", type: "toggle", icon: Pin, action: () => setIsPinningEnabled?.(true) },
+    { name: "Tắt Truy cập nhanh", type: "toggle", icon: Pin, action: () => setIsPinningEnabled?.(false) },
+    { name: "Bật Giảm chuyển động", type: "toggle", icon: Zap, action: () => setFeatureFlags?.((prev: any) => ({ ...prev, disable_animation: true })) },
+    { name: "Tắt Giảm chuyển động", type: "toggle", icon: Zap, action: () => setFeatureFlags?.((prev: any) => ({ ...prev, disable_animation: false })) },
+    
+    { name: "Lọc kênh VTV", type: "button", icon: Filter, action: () => { onClose(); (document.querySelector('input') as HTMLInputElement).value = "VTV"; setSearchQuery?.("VTV"); } },
+    { name: "Lọc kênh Phim", type: "button", icon: Film, action: () => { onClose(); (document.querySelector('input') as HTMLInputElement).value = "Phim"; setSearchQuery?.("Phim"); } },
+    { name: "Lọc kênh Bóng đá", type: "button", icon: Zap, action: () => { onClose(); (document.querySelector('input') as HTMLInputElement).value = "Bóng đá"; setSearchQuery?.("Bóng đá"); } },
+    
+    { name: "Cài đặt nâng cao", type: "button", icon: SettingsIcon, action: () => setActiveTab("Cài đặt") },
+    { name: "Quản lý kênh", type: "button", icon: ShieldCheck, action: () => setActiveTab("Quản trị") },
+    { name: "Tìm kiếm mở rộng", type: "button", icon: Search, action: () => setActiveTab("Khám phá") },
+    
     { name: "Đăng nhập", type: "button", icon: LogIn, action: onLogin },
     { name: "Đăng xuất", type: "button", icon: LogOut, action: onLogout },
     { name: "Sắp xếp A-Z", type: "toggle", icon: Filter, action: () => setSortOrder("az") },
     { name: "Sắp xếp Z-A", type: "toggle", icon: Filter, action: () => setSortOrder("za") },
+    
     { name: "/force launch loading", type: "command", icon: Zap, action: () => {} },
     { name: "/force launch oobe", type: "command", icon: Zap, action: () => {} },
     { name: "/help", type: "command", icon: Info, action: () => {} },
@@ -1955,13 +2038,17 @@ function SearchPopup({
       animate={asContent ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1, rotateX: 0 }}
       exit={asContent ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.8, rotateX: -15 }}
       transition={{ type: "spring", damping: 20, stiffness: 300 }}
-      className={`${asContent ? "relative w-full" : "absolute bottom-full mb-8 w-[90vw] md:w-full max-w-[400px]"} overflow-hidden ${
-        isDark ? "popup-3d-dark" : "popup-3d-light"
-      } ${
-        liquidGlass ? "backdrop-blur-xl" : "backdrop-blur-none"
-      } ${asContent ? "rounded-[48px] border border-white/10" : ""}`}
+      className={`${
+        asContent 
+          ? "relative w-full overflow-visible" 
+          : `absolute bottom-full mb-8 w-[90vw] md:w-full max-w-[400px] overflow-hidden ${
+              isDark ? "popup-3d-dark" : "popup-3d-light"
+            } ${liquidGlass ? "backdrop-blur-xl" : "backdrop-blur-none"}`
+      }`}
     >
-      <div className="p-4 space-y-1 max-h-[60vh] overflow-y-auto">
+      <div className={`${asContent ? "space-y-12 pb-10" : "p-4 space-y-1 max-h-[60vh] overflow-y-auto"}`}>
+        {asContent && <div className={`h-[1px] w-full ${isDark ? "bg-white/10" : "bg-slate-200"}`} />}
+        
         {searchQuery.trim() === "" ? (
           <div className="space-y-4">
             {favoriteChannels.length > 0 && (
@@ -2004,23 +2091,29 @@ function SearchPopup({
                 <div className="px-4 py-2">
                   <p className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-white/40" : "text-black/60"}`}>Hệ thống & Cài đặt</p>
                 </div>
-                {filteredSystem.map(item => (
-                  <button
-                    key={item.name}
-                    onClick={() => { item.action(); onClose(); }}
-                    className={`w-full flex items-center gap-4 p-3 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] group hover:bg-black/5`}
-                  >
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-transform group-hover:rotate-3 ${isDark ? "bg-white/5 border-white/10 text-purple-400" : "bg-slate-100 border-slate-200 text-purple-600"}`}>
-                      <item.icon className="w-6 h-6 fill-current" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>{item.name}</p>
-                      <p className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? "text-white/40" : "text-black/60"}`}>{item.type === "tab" ? "Chuyển Tab" : "Cài đặt"}</p>
-                    </div>
-                    <ChevronRight className={`w-4 h-4 ${isDark ? "text-white/20" : "text-black/30"}`} />
-                  </button>
-                ))}
+                <div className={asContent ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2" : "space-y-1"}>
+                  {filteredSystem.map(item => (
+                    <button
+                      key={item.name}
+                      onClick={() => { item.action(); onClose(); }}
+                      className={`w-full flex items-center gap-4 p-3 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] group hover:bg-black/5`}
+                    >
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-transform group-hover:rotate-3 ${isDark ? "bg-white/5 border-white/10 text-purple-400" : "bg-slate-100 border-slate-200 text-purple-600"}`}>
+                        <item.icon className="w-6 h-6 fill-current" />
+                      </div>
+                      <div className="flex-1 text-left">
+                        <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>{item.name}</p>
+                        <p className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? "text-white/40" : "text-black/60"}`}>{item.type === "tab" ? "Chuyển Tab" : "Cài đặt"}</p>
+                      </div>
+                      <ChevronRight className={`w-4 h-4 ${isDark ? "text-white/20" : "text-black/30"}`} />
+                    </button>
+                  ))}
+                </div>
               </div>
+            )}
+
+            {asContent && filteredSystem.length > 0 && filteredChannels.length > 0 && (
+               <div className={`h-[1px] w-full ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
             )}
 
             {filteredChannels.length > 0 && (
@@ -2028,22 +2121,24 @@ function SearchPopup({
                 <div className="px-4 py-2">
                   <p className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-white/40" : "text-black/60"}`}>Kênh truyền hình</p>
                 </div>
-                {filteredChannels.map(ch => (
-                  <button
-                    key={`search-ch-${ch.name}-${ch.stream}`}
-                    onClick={() => { setActiveChannel(ch); onClose(); }}
-                    className={`w-full flex items-center gap-4 p-3 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] group hover:bg-black/5`}
-                  >
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-transform group-hover:rotate-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-100 border-slate-200"}`}>
-                      <img src={ch.logo} alt={ch.name} className="w-8 h-8 object-contain" referrerPolicy="no-referrer" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>{ch.name}</p>
-                      <p className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? "text-white/40" : "text-black/60"}`}>{ch.category}</p>
-                    </div>
-                    <ChevronRight className={`w-4 h-4 ${isDark ? "text-white/20" : "text-black/30"}`} />
-                  </button>
-                ))}
+                <div className={asContent ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" : "space-y-1"}>
+                  {filteredChannels.map(ch => (
+                    <button
+                      key={`search-ch-${ch.name}-${ch.stream}`}
+                      onClick={() => { setActiveChannel(ch); onClose(); }}
+                      className={`w-full flex items-center gap-4 p-3 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] group hover:bg-black/5 ${asContent ? (isDark ? "bg-white/5 border border-white/5" : "bg-slate-50 border border-slate-100") : ""}`}
+                    >
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-transform group-hover:rotate-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-100 border-slate-200"}`}>
+                        <img src={ch.logo} alt={ch.name} className="w-8 h-8 object-contain" referrerPolicy="no-referrer" />
+                      </div>
+                      <div className="flex-1 text-left">
+                        <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>{ch.name}</p>
+                        <p className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? "text-white/40" : "text-black/60"}`}>{ch.category}</p>
+                      </div>
+                      <ChevronRight className={`w-4 h-4 ${isDark ? "text-white/20" : "text-black/30"}`} />
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </>
@@ -2571,25 +2666,24 @@ function ExperimentalContent({ isDark, featureFlags, setFeatureFlags, liquidGlas
             <Flask size={28} />
           </div>
           <div>
-            <h2 className={`text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Experimental Labs</h2>
-            <p className={`text-sm ${isDark ? "text-slate-400" : "text-slate-500"} font-bold tracking-widest uppercase`}>Beta features & cutting-edge tech</p>
+            <h2 className={`text-3xl md:text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Experimental Labs</h2>
           </div>
         </div>
       </div>
 
-      <div className={`rounded-[40px] overflow-hidden border-2 transition-all ${isDark ? "bg-white/5 border-white/10 shadow-2xl" : "bg-white border-slate-200 shadow-xl"}`}>
+      <div className={`rounded-[32px] md:rounded-[40px] overflow-hidden border-2 transition-all ${isDark ? "bg-white/5 border-white/10 shadow-2xl" : "bg-white border-slate-200 shadow-xl"}`}>
         {EXPERIMENTS.map((exp, idx) => (
           <div key={`exp-tab-${exp.id}`}>
-            <div className={`flex flex-col md:flex-row items-center justify-between p-8 md:p-12 transition-all hover:bg-black/5 gap-6`}>
-              <div className="flex items-start gap-6">
-                <div className={`p-5 rounded-3xl shrink-0 ${isDark ? "bg-white/5 text-white" : "bg-slate-100 text-slate-600"}`}>
-                  <Flask size={32} />
+            <div className={`flex flex-col md:flex-row items-center justify-between p-6 md:p-12 transition-all hover:bg-black/5 gap-6`}>
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+                <div className={`p-4 md:p-5 rounded-3xl shrink-0 ${isDark ? "bg-white/5 text-white" : "bg-slate-100 text-slate-600"}`}>
+                  <Flask size={28} className="md:w-8 md:h-8" />
                 </div>
-                <div className="text-left space-y-2">
-                  <p className={`text-2xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{exp.name}</p>
-                  <p className={`text-base font-bold opacity-60 leading-relaxed max-w-xl ${isDark ? "text-white" : "text-slate-500"}`}>{exp.desc || "Nâng cấp trải nghiệm hệ thống với các tính năng thử nghiệm mới nhất"}</p>
+                <div className="space-y-2">
+                  <p className={`text-xl md:text-2xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{exp.name}</p>
+                  <p className={`text-sm md:text-base font-bold opacity-60 leading-relaxed max-w-xl ${isDark ? "text-white" : "text-slate-500"}`}>{exp.desc || "Nâng cấp trải nghiệm hệ thống với các tính năng thử nghiệm mới nhất"}</p>
                   <div className="pt-2">
-                    <span className={`px-4 py-1.5 rounded-2xl text-[12px] font-black font-mono border-2 shadow-[0_4px_15px_-4px_rgba(234,179,8,0.3)] ${isDark ? "bg-yellow-400/20 border-yellow-400 text-yellow-400" : "bg-yellow-400 border-yellow-500 text-yellow-950"}`}>
+                    <span className={`px-3 py-1 rounded-2xl text-[10px] md:text-[12px] font-black font-mono border-2 shadow-[0_4px_15px_-4px_rgba(234,179,8,0.3)] ${isDark ? "bg-yellow-400/20 border-yellow-400 text-yellow-400" : "bg-yellow-400 border-yellow-500 text-yellow-950"}`}>
                       REF_ID: {exp.id}
                     </span>
                   </div>
@@ -2939,26 +3033,26 @@ function SettingsContent({
 
       {/* Appearance & Experience */}
       <div className={`p-10 md:p-14 rounded-[64px] border flex flex-col transition-all w-full mt-12 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
-        <div className="flex items-center gap-4 mb-16">
-          <div className="p-4 rounded-3xl bg-purple-500/10 text-purple-500">
-            <Palette size={32} />
+        <div className="flex flex-col md:flex-row items-center gap-4 mb-10 md:mb-16">
+          <div className="p-3 md:p-4 rounded-2xl md:rounded-3xl bg-purple-500/10 text-purple-500">
+            <Palette size={28} className="md:w-8 md:h-8" />
           </div>
-          <div>
-            <h3 className={`font-bold text-4xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Giao diện & Trải nghiệm</h3>
+          <div className="text-center md:text-left">
+            <h3 className={`font-bold text-3xl md:text-4xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Giao diện & Trải nghiệm</h3>
           </div>
         </div>
 
-        <div className="space-y-16">
+        <div className="space-y-12 md:space-y-16">
           {/* 1. Chủ đề hệ thống */}
-          <div className="space-y-8">
-            <div className="flex items-center gap-3 px-1">
+          <div className="space-y-6 md:space-y-8">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-3 px-1 text-center md:text-left">
               <Sun size={24} className="text-amber-500" />
               <div>
-                <span className="text-xl font-bold opacity-80 uppercase tracking-wider">Chủ đề hệ thống</span>
+                <span className="text-lg md:text-xl font-bold opacity-80 uppercase tracking-wider">Chủ đề hệ thống</span>
                 <p className="text-sm text-slate-500 font-bold mt-1">Chọn cách hiển thị phù hợp cho mắt của bạn</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-2 gap-4 md:gap-8">
               <button 
                 onClick={() => setIsDark(false)}
                 className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${!isDark ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
@@ -2977,15 +3071,15 @@ function SettingsContent({
           </div>
 
           {/* 2. Kiểu giao diện */}
-          <div className="space-y-8">
-            <div className="flex items-center gap-3 px-1">
+          <div className="space-y-6 md:space-y-8">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-3 px-1 text-center md:text-left">
               <Monitor size={24} className="text-blue-500" />
               <div>
-                <span className="text-xl font-bold opacity-80 uppercase tracking-wider">Giao diện điều hướng</span>
+                <span className="text-lg md:text-xl font-bold opacity-80 uppercase tracking-wider">Giao diện điều hướng</span>
                 <p className="text-sm text-slate-500 font-bold mt-1">Chọn điều hướng hiển thị tốt nhất trên thiết bị của bạn</p>
               </div>
             </div>
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-2 gap-4 md:gap-8">
             <button 
               onClick={() => setUseSidebar(true)}
               className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${useSidebar ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
@@ -3012,15 +3106,15 @@ function SettingsContent({
                 exit={{ opacity: 0, y: 20 }}
                 className="space-y-16"
               >
-                <div className="space-y-8">
-                  <div className="flex items-center gap-3 px-1">
+                <div className="space-y-6 md:space-y-8">
+                  <div className="flex flex-col md:flex-row items-center md:items-start gap-3 px-1 text-center md:text-left">
                     <Layout size={24} className="text-indigo-500" />
                     <div>
-                      <span className="text-xl font-bold opacity-80 uppercase tracking-wider">Vị trí Sidebar</span>
+                      <span className="text-lg md:text-xl font-bold opacity-80 uppercase tracking-wider">Vị trí Sidebar</span>
                       <p className="text-sm text-slate-500 font-bold mt-1">Chọn vị trí đặt Sidebar thuận tiện cho bạn - trái hoặc phải</p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-8">
+                  <div className="grid grid-cols-2 gap-4 md:gap-8">
                     <button 
                       onClick={() => setIsSidebarRight(false)}
                       className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${!isSidebarRight ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
@@ -3038,15 +3132,15 @@ function SettingsContent({
                   </div>
                 </div>
 
-                <div className="space-y-8">
-                  <div className="flex items-center gap-3 px-1">
+                <div className="space-y-6 md:space-y-8">
+                  <div className="flex flex-col md:flex-row items-center md:items-start gap-3 px-1 text-center md:text-left">
                     <Layers size={24} className="text-cyan-500" />
                     <div>
-                      <span className="text-xl font-bold opacity-80 uppercase tracking-wider">Hiển thị Sidebar</span>
+                      <span className="text-lg md:text-xl font-bold opacity-80 uppercase tracking-wider">Hiển thị Sidebar</span>
                       <p className="text-sm text-slate-500 font-bold mt-1">Chọn cách Sidebar hiển thị - lơ lửng hay chạm góc</p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-8">
+                  <div className="grid grid-cols-2 gap-4 md:gap-8">
                     <button 
                       onClick={() => setSidebarDisplay("float")}
                       className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${sidebarDisplay === "float" ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
@@ -3071,16 +3165,16 @@ function SettingsContent({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
-                className="space-y-8"
+                className="space-y-6 md:space-y-8"
               >
-                <div className="flex items-center gap-3 px-1">
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-3 px-1 text-center md:text-left">
                   <Droplet size={24} className="text-cyan-500" />
                   <div>
-                    <span className="text-xl font-bold opacity-80 uppercase tracking-wider">Hiệu ứng Liquid Glass</span>
+                    <span className="text-lg md:text-xl font-bold opacity-80 uppercase tracking-wider">Hiệu ứng Liquid Glass</span>
                     <p className="text-sm text-slate-500 font-bold mt-1">Cá nhân hóa hiệu ứng phản xạ kính trên giao diện</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-8">
+                <div className="grid grid-cols-2 gap-4 md:gap-8">
                   <button 
                     onClick={() => setLiquidGlass("glassy")}
                     className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${liquidGlass === "glassy" ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
@@ -3102,55 +3196,55 @@ function SettingsContent({
           {/* Regular toggles grouped into one container with iOS-style dividers */}
           <div className={`rounded-[32px] overflow-hidden border-2 transition-all ${isDark ? "bg-white/5 border-white/10 shadow-xl" : "bg-slate-50 border-slate-200 shadow-sm"}`}>
             {/* 5. Ghim kênh (Truy cập nhanh) */}
-            <div className={`flex items-center justify-between p-8 transition-all hover:bg-black/5`}>
-              <div className="flex items-center gap-5">
-                <div className="p-4 rounded-2xl bg-pink-500/10 text-pink-500">
-                  <Pin size={28} />
+            <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 md:p-8 transition-all hover:bg-black/5 gap-4`}>
+              <div className="flex items-start md:items-center gap-4 md:gap-5">
+                <div className="p-3 md:p-4 rounded-2xl bg-pink-500/10 text-pink-500 shrink-0">
+                  <Pin size={24} className="md:w-7 md:h-7" />
                 </div>
-                <div className="text-left">
-                  <p className="text-lg font-bold">Truy cập nhanh</p>
-                  <p className={`text-sm font-bold opacity-60 ${isDark ? "text-white" : "text-slate-500"}`}>Hiển thị các kênh thêm vào danh sách yêu thích trên Sidebar để truy cập nhanh</p>
+                <div className="text-left space-y-1">
+                  <p className="text-base md:text-lg font-bold">Truy cập nhanh</p>
+                  <p className={`text-xs md:text-sm font-bold opacity-60 leading-tight ${isDark ? "text-white" : "text-slate-500"}`}>Hiển thị các kênh thêm vào danh sách yêu thích trên Sidebar</p>
                 </div>
               </div>
               <button 
                 onClick={() => setIsPinningEnabled(!isPinningEnabled)}
-                className={`w-16 h-8 rounded-full transition-all relative border-2 shrink-0 ${isPinningEnabled ? "bg-purple-600/30 border-purple-600/40" : "bg-transparent border-slate-700/30"}`}
+                className={`w-14 md:w-16 h-7 md:h-8 rounded-full transition-all relative border-2 shrink-0 self-end sm:self-center ${isPinningEnabled ? "bg-purple-600/30 border-purple-600/40" : "bg-transparent border-slate-700/30"}`}
               >
                 <motion.div 
                   animate={{ 
-                    x: isPinningEnabled ? 30 : 4,
+                    x: isPinningEnabled ? 28 : 4,
                   }}
                   initial={false}
                   transition={{ type: "spring", damping: 20, stiffness: 200 }}
-                  className={`absolute top-[3px] h-[22px] w-[30px] rounded-full shadow-sm transition-colors ${isPinningEnabled ? "bg-white" : "bg-white"}`}
+                  className={`absolute top-[2px] h-[18px] md:h-[22px] w-[26px] md:w-[30px] rounded-full shadow-sm transition-colors ${isPinningEnabled ? "bg-white" : "bg-white"}`}
                 />
               </button>
             </div>
 
-            <div className={`h-[1px] mx-8 ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
+            <div className={`h-[1px] mx-5 md:mx-8 ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
 
             {/* 6. Giảm chuyển động */}
-            <div className={`flex items-center justify-between p-8 transition-all hover:bg-black/5`}>
-              <div className="flex items-center gap-5">
-                <div className="p-4 rounded-2xl bg-purple-500/10 text-purple-500">
-                  <Zap size={28} />
+            <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 md:p-8 transition-all hover:bg-black/5 gap-4`}>
+              <div className="flex items-start md:items-center gap-4 md:gap-5">
+                <div className="p-3 md:p-4 rounded-2xl bg-purple-500/10 text-purple-500 shrink-0">
+                  <Zap size={24} className="md:w-7 md:h-7" />
                 </div>
-                <div className="text-left">
-                  <p className="text-lg font-bold">Giảm chuyển động</p>
-                  <p className={`text-sm font-bold opacity-60 ${isDark ? "text-white" : "text-slate-500"}`}>Giảm các hiệu ứng chuyển động để tối ưu hóa hiệu suất thiết bị</p>
+                <div className="text-left space-y-1">
+                  <p className="text-base md:text-lg font-bold">Giảm chuyển động</p>
+                  <p className={`text-xs md:text-sm font-bold opacity-60 leading-tight ${isDark ? "text-white" : "text-slate-500"}`}>Giảm các hiệu ứng chuyển động để tối ưu hiệu suất</p>
                 </div>
               </div>
               <button 
                 onClick={() => setFeatureFlags(prev => ({ ...prev, disable_animation: !prev.disable_animation }))}
-                className={`w-16 h-8 rounded-full transition-all relative border-2 shrink-0 ${featureFlags.disable_animation ? "bg-purple-600/30 border-purple-600/40" : "bg-transparent border-slate-700/30"}`}
+                className={`w-14 md:w-16 h-7 md:h-8 rounded-full transition-all relative border-2 shrink-0 self-end sm:self-center ${featureFlags.disable_animation ? "bg-purple-600/30 border-purple-600/40" : "bg-transparent border-slate-700/30"}`}
               >
                 <motion.div 
                   animate={{ 
-                    x: featureFlags.disable_animation ? 30 : 4,
+                    x: featureFlags.disable_animation ? 28 : 4,
                   }}
                   initial={false}
                   transition={{ type: "spring", damping: 20, stiffness: 200 }}
-                  className={`absolute top-[3px] h-[22px] w-[30px] rounded-full shadow-sm transition-colors ${featureFlags.disable_animation ? "bg-white" : "bg-white"}`}
+                  className={`absolute top-[2px] h-[18px] md:h-[22px] w-[26px] md:w-[30px] rounded-full shadow-sm transition-colors ${featureFlags.disable_animation ? "bg-white" : "bg-white"}`}
                 />
               </button>
             </div>
@@ -3500,6 +3594,148 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onClose: () => void, liquidGlass: "glassy" | "tinted" }) {
+  const categories = [
+    {
+      title: "🎨 USER INTERFACE",
+      icon: Palette,
+      items: [
+        "Thiết kế 3D nổi bật cho các nút và toggles",
+        "Popup \"Đăng nhập/Đăng ký\" hoàn toàn mới",
+        "Layout Settings trực quan, gọn gàng hơn",
+        "Tích hợp đồng hồ và lịch trên sidebar",
+        "Hiệu ứng chuyển trang mượt mà"
+      ]
+    },
+    {
+      title: "✨ SIDEBAR",
+      icon: LayoutPanelLeft,
+      items: [
+        "Cấu trúc Sidebar thông minh, tự thu gọn",
+        "Chế độ trang (4 items/page) - vuốt hoặc click",
+        "Idle mode: Tự hiển thị Clock khi rảnh"
+      ]
+    },
+    {
+      title: "🔍 KHÁM PHÁ",
+      icon: Search,
+      items: [
+        "Tab Khám phá: Trung tâm tìm kiếm mới",
+        "Tìm kiếm sâu: Kênh, Phim & Cài đặt hệ thống",
+        "Gợi ý thông minh dựa trên xu hướng"
+      ]
+    },
+    {
+      title: "🧪 THỬ NGHIỆM",
+      icon: Flask,
+      items: [
+        "Vplay Labs: Nơi khởi nguồn công nghệ mới",
+        "Multiview, PiP & Screen Recording (Beta)",
+        "Tùy chỉnh sâu các thông số Rendering"
+      ]
+    }
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-6 md:p-12 backdrop-blur-3xl bg-black/80"
+    >
+      <motion.div
+        initial={{ scale: 0.95, y: 30, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1 }}
+        exit={{ scale: 0.9, y: 40, opacity: 0 }}
+        className={`relative w-full h-full sm:h-auto sm:max-w-5xl overflow-hidden sm:rounded-[48px] border-y sm:border-2 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] ${
+          isDark ? "bg-slate-900/40 border-white/10" : "bg-white/80 border-slate-200"
+        } ${liquidGlass === "glassy" ? "backdrop-blur-3xl" : ""}`}
+      >
+        {/* Decorative background elements */}
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-purple-600/20 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-amber-600/10 rounded-full blur-[100px] pointer-events-none" />
+        
+        <div className="relative h-full flex flex-col p-6 sm:p-10 md:p-14 space-y-8 overflow-y-auto sm:overflow-visible scrollbar-hide">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
+            <div className="text-center sm:text-left space-y-2">
+              <div className="flex items-center justify-center sm:justify-start gap-3 mb-1">
+                <div className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-500 text-[10px] font-black tracking-widest uppercase border border-purple-500/20">Build 26601</div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Released Today</span>
+                </div>
+              </div>
+              <h2 className={`text-4xl md:text-6xl font-black tracking-tighter leading-none ${isDark ? "text-white" : "text-slate-900"}`}>
+                Vplay <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Evolution</span>
+              </h2>
+              <p className={`text-sm md:text-lg font-bold opacity-60 ${isDark ? "text-white" : "text-slate-600"}`}>Khám phá những thay đổi lớn nhất trong đợt cập nhật này</p>
+            </div>
+            
+            <button 
+              onClick={onClose}
+              className={`absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 p-4 rounded-full transition-all group scale-90 sm:scale-100 ${isDark ? "bg-white/5 hover:bg-white/10 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-900"}`}
+            >
+              <X size={24} className="group-hover:rotate-90 transition-transform" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 flex-1">
+            {categories.map((cat, i) => (
+              <motion.div 
+                key={cat.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 + 0.2 }}
+                className={`p-6 md:p-8 rounded-[32px] border transition-all ${
+                  isDark ? "bg-white/5 border-white/5 hover:bg-white/10" : "bg-slate-50 border-slate-100 hover:bg-white active:shadow-xl"
+                } group cursor-default`}
+              >
+                <div className="flex items-center gap-4 mb-6">
+                  <div className={`p-3 rounded-2xl ${isDark ? "bg-purple-500/20 text-purple-400" : "bg-purple-500/10 text-purple-600"}`}>
+                    <cat.icon size={22} />
+                  </div>
+                  <h3 className={`text-sm md:text-base font-black tracking-[0.2em] transform transition-transform group-hover:translate-x-1 ${isDark ? "text-white/80" : "text-slate-900/80"}`}>{cat.title}</h3>
+                </div>
+                
+                <ul className="space-y-4">
+                  {cat.items.map((item, j) => (
+                    <li key={j} className="flex items-start gap-4">
+                      <div className="mt-1.5 w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-purple-500/60 shrink-0" />
+                      <p className={`text-xs md:text-sm font-bold leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>{item}</p>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="pt-8 sm:pt-4 flex flex-col md:flex-row items-center justify-between gap-8 border-t border-white/5">
+            <div className="hidden sm:flex items-center gap-6">
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${isDark ? "bg-white/5 border-white/10 shadow-2xl" : "bg-slate-100 border-slate-200"} border shadow-sm`}>
+                <Zap size={24} className="text-amber-500 fill-amber-500/20" />
+              </div>
+              <div className="space-y-1">
+                <p className={`text-[10px] font-black tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>THE FUTURE OF TV</p>
+                <p className={`text-sm font-black tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Vplay Dev Build: Stable 6.0</p>
+              </div>
+            </div>
+            
+            <button 
+              onClick={onClose}
+              className="w-full md:w-auto btn-vibrant-3d px-12 py-6 text-lg font-black tracking-widest !rounded-[32px] group"
+            >
+              <div className="flex items-center justify-center gap-4">
+                <span>KHÁM PHÁ NGAY</span>
+                <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+              </div>
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -4398,11 +4634,35 @@ function App() {
     audioContext.resume();
   }, []);
 
+  const [showWhatsNew, setShowWhatsNew] = useState(false);
+
+  useEffect(() => {
+    const lastSeenVersion = localStorage.getItem("vplay_last_version");
+    const currentVersion = "26601";
+    if (lastSeenVersion !== currentVersion) {
+      setShowWhatsNew(true);
+    }
+  }, []);
+
+  const closeWhatsNew = () => {
+    localStorage.setItem("vplay_last_version", "26601");
+    setShowWhatsNew(false);
+  };
+
   return (
     <MotionConfig 
       transition={featureFlags.disable_animation ? { duration: 0 } : undefined}
       reducedMotion={featureFlags.disable_animation ? "always" : "user"}
     >
+      <AnimatePresence>
+        {showWhatsNew && (
+          <WhatsNewPopup 
+            isDark={isDark} 
+            onClose={closeWhatsNew} 
+            liquidGlass={liquidGlass} 
+          />
+        )}
+      </AnimatePresence>
       <div className={`${
         isDark 
           ? "bg-gradient-to-br from-rose-950 via-purple-950 to-red-950 text-white" 
@@ -4641,6 +4901,17 @@ function App() {
                   setSortOrder={setSortOrder}
                   bypassed={bypassed}
                   loadingTreatment={loadingTreatment}
+                  useSidebar={useSidebar}
+                  setUseSidebar={setUseSidebar}
+                  isSidebarRight={isSidebarRight}
+                  setIsSidebarRight={setIsSidebarRight}
+                  sidebarDisplay={sidebarDisplay}
+                  setSidebarDisplay={setSidebarDisplay}
+                  isPinningEnabled={isPinningEnabled}
+                  setIsPinningEnabled={setIsPinningEnabled}
+                  featureFlags={featureFlags}
+                  setFeatureFlags={setFeatureFlags}
+                  setIsSidebarLocked={setIsSidebarLocked}
                 />
               )}
               {displayTab === "Phát sóng" && (
