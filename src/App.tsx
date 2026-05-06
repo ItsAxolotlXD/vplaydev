@@ -3601,40 +3601,34 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
   const categories = [
     {
       title: "🎨 USER INTERFACE",
-      icon: Palette,
       items: [
-        "Thiết kế 3D nổi bật cho các nút và toggles",
-        "Popup \"Đăng nhập/Đăng ký\" hoàn toàn mới",
-        "Layout Settings trực quan, gọn gàng hơn",
-        "Tích hợp đồng hồ và lịch trên sidebar",
-        "Hiệu ứng chuyển trang mượt mà"
+        "Update lại toàn bộ design system cho các nút và toggles theo phong cách nổi",
+        "Update lại popup \"Đăng nhập/Đăng ký\"",
+        "Update lại layout bố trí cho Settings",
+        "Thêm đồng hồ và lịch trên sidebar và navigation pane",
+        "Transition animation mới giữa các trang"
       ]
     },
     {
       title: "✨ SIDEBAR",
-      icon: LayoutPanelLeft,
       items: [
-        "Cấu trúc Sidebar thông minh, tự thu gọn",
-        "Chế độ trang (4 items/page) - vuốt hoặc click",
-        "Idle mode: Tự hiển thị Clock khi rảnh"
+        "Tái cấu trúc lại toàn bộ behaviour của sidebar",
+        "Hiển thị 4 items/page với mũi tên chuyển trang",
+        "Chế độ \"Idle mode\" hiển thị đồng hồ và lịch sau 5 giây"
       ]
     },
     {
       title: "🔍 KHÁM PHÁ",
-      icon: Search,
       items: [
-        "Tab Khám phá: Trung tâm tìm kiếm mới",
-        "Tìm kiếm sâu: Kênh, Phim & Cài đặt hệ thống",
-        "Gợi ý thông minh dựa trên xu hướng"
+        "Tab \"Khám phá\" mới cho tìm kiếm và đề xuất",
+        "Tích hợp tìm kiếm sâu cho cả kênh và cài đặt hệ thống"
       ]
     },
     {
       title: "🧪 THỬ NGHIỆM",
-      icon: Flask,
       items: [
-        "Vplay Labs: Nơi khởi nguồn công nghệ mới",
-        "Multiview, PiP & Screen Recording (Beta)",
-        "Tùy chỉnh sâu các thông số Rendering"
+        "Tab Experimental Labs riêng biệt",
+        "Thử nghiệm: Multiview, Picture-in-Picture và Screen Recording"
       ]
     }
   ];
@@ -3644,67 +3638,53 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-6 md:p-12 backdrop-blur-3xl bg-black/80"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 backdrop-blur-2xl bg-black/60"
     >
       <motion.div
-        initial={{ scale: 0.95, y: 30, opacity: 0 }}
+        initial={{ scale: 0.9, y: 20, opacity: 0 }}
         animate={{ scale: 1, y: 0, opacity: 1 }}
-        exit={{ scale: 0.9, y: 40, opacity: 0 }}
-        className={`relative w-full h-full sm:h-auto sm:max-w-5xl overflow-hidden sm:rounded-[48px] border-y sm:border-2 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] ${
-          isDark ? "bg-slate-900/40 border-white/10" : "bg-white/80 border-slate-200"
+        exit={{ scale: 0.9, y: 20, opacity: 0 }}
+        className={`relative w-full max-w-4xl overflow-hidden rounded-[48px] border-2 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] ${
+          isDark ? "bg-slate-900/90 border-white/10" : "bg-white/95 border-slate-200"
         } ${liquidGlass === "glassy" ? "backdrop-blur-3xl" : ""}`}
       >
-        {/* Decorative background elements */}
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-purple-600/20 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-amber-600/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 via-pink-500 to-amber-500" />
         
-        <div className="relative h-full flex flex-col p-6 sm:p-10 md:p-14 space-y-8 overflow-y-auto sm:overflow-visible scrollbar-hide">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
-            <div className="text-center sm:text-left space-y-2">
-              <div className="flex items-center justify-center sm:justify-start gap-3 mb-1">
-                <div className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-500 text-[10px] font-black tracking-widest uppercase border border-purple-500/20">Build 26601</div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Released Today</span>
-                </div>
-              </div>
-              <h2 className={`text-4xl md:text-6xl font-black tracking-tighter leading-none ${isDark ? "text-white" : "text-slate-900"}`}>
-                Vplay <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Evolution</span>
+        <div className="p-8 md:p-12 space-y-8">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h2 className={`text-3xl md:text-5xl font-black tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
+                What's new <span className="text-purple-500">in Vplay Dev</span>
               </h2>
-              <p className={`text-sm md:text-lg font-bold opacity-60 ${isDark ? "text-white" : "text-slate-600"}`}>Khám phá những thay đổi lớn nhất trong đợt cập nhật này</p>
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-500 text-[10px] font-black tracking-widest uppercase border border-purple-500/20">Build 26601</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Stable Beta</span>
+              </div>
             </div>
-            
             <button 
               onClick={onClose}
-              className={`absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 p-4 rounded-full transition-all group scale-90 sm:scale-100 ${isDark ? "bg-white/5 hover:bg-white/10 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-900"}`}
+              className={`p-4 rounded-3xl transition-all ${isDark ? "bg-white/5 hover:bg-white/10 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-900"}`}
             >
-              <X size={24} className="group-hover:rotate-90 transition-transform" />
+              <X size={24} />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 flex-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[50vh] overflow-y-auto pr-4 scrollbar-hide">
             {categories.map((cat, i) => (
               <motion.div 
                 key={cat.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 + 0.2 }}
-                className={`p-6 md:p-8 rounded-[32px] border transition-all ${
-                  isDark ? "bg-white/5 border-white/5 hover:bg-white/10" : "bg-slate-50 border-slate-100 hover:bg-white active:shadow-xl"
-                } group cursor-default`}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="space-y-4"
               >
-                <div className="flex items-center gap-4 mb-6">
-                  <div className={`p-3 rounded-2xl ${isDark ? "bg-purple-500/20 text-purple-400" : "bg-purple-500/10 text-purple-600"}`}>
-                    <cat.icon size={22} />
-                  </div>
-                  <h3 className={`text-sm md:text-base font-black tracking-[0.2em] transform transition-transform group-hover:translate-x-1 ${isDark ? "text-white/80" : "text-slate-900/80"}`}>{cat.title}</h3>
-                </div>
-                
-                <ul className="space-y-4">
+                <h3 className="text-sm font-black text-purple-500 tracking-[0.2em]">{cat.title}</h3>
+                <ul className="space-y-3">
                   {cat.items.map((item, j) => (
-                    <li key={j} className="flex items-start gap-4">
-                      <div className="mt-1.5 w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-purple-500/60 shrink-0" />
-                      <p className={`text-xs md:text-sm font-bold leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>{item}</p>
+                    <li key={j} className="flex items-start gap-3">
+                      <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-purple-500/40 shrink-0" />
+                      <p className={`text-sm font-medium leading-relaxed ${isDark ? "text-slate-300" : "text-slate-600"}`}>{item}</p>
                     </li>
                   ))}
                 </ul>
@@ -3712,25 +3692,21 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
             ))}
           </div>
 
-          <div className="pt-8 sm:pt-4 flex flex-col md:flex-row items-center justify-between gap-8 border-t border-white/5">
-            <div className="hidden sm:flex items-center gap-6">
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${isDark ? "bg-white/5 border-white/10 shadow-2xl" : "bg-slate-100 border-slate-200"} border shadow-sm`}>
-                <Zap size={24} className="text-amber-500 fill-amber-500/20" />
+          <div className="pt-4 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isDark ? "bg-white/5 border-white/10" : "bg-slate-100 border-slate-200"} border shadow-sm`}>
+                <Sparkles size={20} className="text-amber-500" />
               </div>
-              <div className="space-y-1">
-                <p className={`text-[10px] font-black tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>THE FUTURE OF TV</p>
-                <p className={`text-sm font-black tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Vplay Dev Build: Stable 6.0</p>
+              <div>
+                <p className={`text-xs font-bold leading-none ${isDark ? "text-white/60" : "text-slate-500"}`}>TRẢI NGHIỆM ĐƯỢC CÁ NHÂN HÓA</p>
+                <p className={`text-sm font-black tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Khám phá ngay phiên bản mới nhất</p>
               </div>
             </div>
-            
             <button 
               onClick={onClose}
-              className="w-full md:w-auto btn-vibrant-3d px-12 py-6 text-lg font-black tracking-widest !rounded-[32px] group"
+              className="w-full md:w-auto btn-vibrant-3d px-12 py-6 text-lg font-black tracking-widest !rounded-3xl"
             >
-              <div className="flex items-center justify-center gap-4">
-                <span>KHÁM PHÁ NGAY</span>
-                <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
-              </div>
+              BẮT ĐẦU TRẢI NGHIỆM
             </button>
           </div>
         </div>
