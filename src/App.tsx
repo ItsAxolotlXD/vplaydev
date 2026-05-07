@@ -297,7 +297,7 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
       <motion.button
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
         onClick={onClick}
-        className={`w-full aspect-video p-5 md:p-6 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 ${
+        className={`w-full aspect-video p-3 md:p-6 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 ${
           isActive
             ? `btn-vibrant-3d`
             : isDark ? "btn-3d-dark" : "btn-3d-slate"
@@ -734,20 +734,25 @@ function ExploreContent({
           onClose={() => setSearchQuery("")} 
           liquidGlass={liquidGlass}
         />
-        <div className="flex flex-wrap items-center gap-2 mt-5 px-3">
+        <div className="flex flex-wrap items-center gap-2 mt-5 px-3 overflow-hidden">
             <div className="flex items-center gap-2 mr-2">
-                <TrendingUp size={12} className="text-purple-500" />
-                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Xu hướng:</span>
+                <Sparkles size={12} className="text-purple-500" />
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Đề xuất:</span>
             </div>
-            {["VTV3", "HBO", "K+ Action", "Bóng đá", "Phim Mới", "Discovery", "Hoạt Hình"].sort(() => 0.5 - Math.random()).slice(0, 5).map(kw => (
-                <button 
-                    key={kw} 
-                    onClick={() => setSearchQuery(kw)}
-                    className={`text-[10px] font-bold px-4 py-1.5 rounded-full border transition-all ${isDark ? "border-white/10 hover:bg-white/10 text-white/60 hover:text-white" : "border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-900"}`}
-                >
-                    {kw}
-                </button>
-            ))}
+            <div className="flex flex-wrap gap-2">
+              {["VTV1", "VTV3", "HBO", "K+ Action", "Discovery", "Bóng đá", "Phim Mới", "Hoạt Hình", "Chế độ tối", "Kính lỏng", "Sắp xếp A-Z", "Cập nhật", "Phòng thí nghiệm"].sort(() => 0.5 - Math.random()).slice(0, 6).map((kw, i) => (
+                  <motion.button 
+                      key={kw} 
+                      initial={{ opacity: 0, x: 50 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05, type: "spring", stiffness: 100, damping: 15 }}
+                      onClick={() => setSearchQuery(kw)}
+                      className={`text-[10px] font-bold px-4 py-1.5 rounded-full border transition-all ${isDark ? "border-white/10 hover:bg-white/10 text-white/60 hover:text-white" : "border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-900"}`}
+                  >
+                      {kw}
+                  </motion.button>
+              ))}
+            </div>
         </div>
       </div>
 
@@ -821,7 +826,6 @@ function ExploreContent({
                       </h3>
                     </div>
                   </div>
-                  <button className={`text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full border ${isDark ? "border-white/10 hover:bg-white/5 text-white/40" : "border-black/5 hover:bg-black/5 text-black/40"}`}>Xem tất cả</button>
                 </div>
                 <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-6">
                   {row.map((ch, i) => (
@@ -1571,17 +1575,17 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
             )}
             {!isMaintenance && (
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none flex flex-col justify-between">
-                <div className="p-8 md:p-10 pointer-events-auto">
+                <div className="p-4 md:p-10 pointer-events-auto">
                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-white/10 backdrop-blur-3xl border border-white/20 rounded-2xl flex items-center justify-center">
-                         <img src={active.logo} alt={active.name} className="h-10 w-10 object-contain" referrerPolicy="no-referrer" />
+                      <div className="p-2 md:p-3 bg-white/10 backdrop-blur-3xl border border-white/20 rounded-xl md:rounded-2xl flex items-center justify-center">
+                         <img src={active.logo} alt={active.name} className="h-6 w-6 md:h-10 md:w-10 object-contain" referrerPolicy="no-referrer" />
                       </div>
-                      <div className="space-y-1">
-                        <h4 className="text-2xl font-bold tracking-tighter text-white uppercase">{active.name}</h4>
-                        <div className="flex items-center gap-3">
-                          <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/10">{active.category}</span>
-                          <div className="flex items-center gap-1 text-[10px] text-white/50 font-bold uppercase tracking-widest">
-                             <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                      <div className="space-y-0.5 md:space-y-1">
+                        <h4 className="text-lg md:text-2xl font-bold tracking-tighter text-white uppercase">{active.name}</h4>
+                        <div className="flex items-center gap-2 md:gap-3">
+                          <span className="text-[8px] md:text-[10px] font-bold text-purple-400 uppercase tracking-widest bg-purple-500/10 px-1.5 md:px-2 py-0.5 rounded-md border border-purple-500/10">{active.category}</span>
+                          <div className="flex items-center gap-1 text-[8px] md:text-[10px] text-white/50 font-bold uppercase tracking-widest">
+                             <div className="w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-green-500 animate-pulse" />
                              LIVE 4K
                           </div>
                         </div>
@@ -1589,11 +1593,11 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                    </div>
                 </div>
 
-                <div className="p-8 md:p-10 pointer-events-auto">
-                   <div className={`p-4 rounded-[32px] border border-white/10 flex items-center justify-between gap-6 backdrop-blur-3xl shadow-2xl ${liquidGlass === "tinted" ? "bg-white/80" : "bg-black/30"}`}>
-                      <div className="flex items-center gap-3">
-                         <button onClick={togglePlay} className={`p-4 rounded-2xl transition-all hover:scale-105 active:scale-95 ${liquidGlass === "tinted" ? "bg-black text-white" : "bg-white text-black"}`}>
-                            {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
+                <div className="p-4 md:p-10 pointer-events-auto">
+                   <div className={`p-2 md:p-4 rounded-[24px] md:rounded-[32px] border border-white/10 flex items-center justify-between gap-2 md:gap-6 backdrop-blur-3xl shadow-2xl ${liquidGlass === "tinted" ? "bg-white/80" : "bg-black/30"}`}>
+                      <div className="flex items-center gap-2 md:gap-3">
+                         <button onClick={togglePlay} className={`p-3 md:p-4 rounded-xl md:rounded-2xl transition-all hover:scale-105 active:scale-95 ${liquidGlass === "tinted" ? "bg-black text-white" : "bg-white text-black"}`}>
+                            {isPlaying ? <Pause size={20} className="md:w-6 md:h-6" fill="currentColor" /> : <Play size={20} className="md:w-6 md:h-6" fill="currentColor" />}
                          </button>
                          <div className="hidden sm:flex items-center gap-4 pl-4 border-l border-white/10">
                             <Volume2 size={20} className={liquidGlass === "tinted" ? "text-black" : "text-white"} />
@@ -1605,32 +1609,32 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                          </div>
                       </div>
 
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2 md:gap-4">
                           {featureFlags.screen_recording && (
                              <button 
                                onClick={toggleRecording}
-                               className={`p-4 rounded-2xl border transition-all ${
+                               className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
                                  isRecording
                                    ? "bg-red-600 border-red-500 text-white shadow-lg animate-pulse"
                                    : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"
                                }`}
-                               title={isRecording ? "Dừng ghi" : "Ghi màn hình"}
+                               title={searchQuery.trim().length > 0 ? "Search results" : (isRecording ? "Dừng ghi" : "Ghi màn hình")}
                              >
-                               {isRecording ? <Square size={20} fill="currentColor" /> : <Circle size={20} fill="currentColor" />}
+                               {isRecording ? <Square size={18} className="md:w-5 md:h-5" fill="currentColor" /> : <Circle size={18} className="md:w-5 md:h-5" fill="currentColor" />}
                              </button>
                           )}
                           {featureFlags.multiview_channels && (
                             <div className="relative">
                               <button 
                                 onClick={() => setShowLayoutMenu(!showLayoutMenu)}
-                                className={`p-4 rounded-2xl border transition-all ${
+                                className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
                                   isMultiview
                                     ? "bg-purple-600 border-purple-500 text-white shadow-lg"
                                     : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"
                                 }`}
                                 title="Multiview"
                               >
-                                <LayoutGrid size={20} />
+                                <LayoutGrid size={18} className="md:w-5 md:h-5" />
                               </button>
                               <AnimatePresence>
                                 {showLayoutMenu && (
@@ -1638,7 +1642,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                    className={`absolute bottom-full mb-6 right-0 min-w-[240px] z-50 p-6 space-y-6 ${
+                                    className={`absolute bottom-full mb-6 right-0 min-w-[200px] md:min-w-[240px] z-50 p-4 md:p-6 space-y-4 md:space-y-6 ${
                                       isDark ? "popup-3d-dark" : "popup-3d-light"
                                     } ${liquidGlass ? "backdrop-blur-3xl" : "backdrop-blur-none"}`}
                                   >
@@ -1646,11 +1650,11 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                                       <span className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-white/40" : "text-slate-500"}`}>Enable Multiview</span>
                                       <button 
                                         onClick={toggleMultiview}
-                                        className={`w-12 h-6 rounded-full transition-all relative ${isMultiview ? "bg-purple-600" : "bg-slate-700"}`}
+                                        className={`w-10 h-5 md:w-12 md:h-6 rounded-full transition-all relative ${isMultiview ? "bg-purple-600" : "bg-slate-700"}`}
                                       >
                                         <motion.div 
-                                          animate={{ x: isMultiview ? 26 : 4 }}
-                                          className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm"
+                                          animate={{ x: isMultiview ? 22 : 4 }}
+                                          className="absolute top-1 w-3 h-3 md:w-4 md:h-4 rounded-full bg-white shadow-sm"
                                         />
                                       </button>
                                     </div>
@@ -1664,7 +1668,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                                               setMultiviewCount(n);
                                               if (!isMultiview) setIsMultiview(true);
                                             }}
-                                            className={`p-2 rounded-xl text-xs font-bold transition-all ${multiviewCount === n ? "bg-purple-600 text-white shadow-[0_4px_12px_rgba(147,51,234,0.3)]" : "bg-white/5 text-white/60 hover:bg-white/10"}`}
+                                            className={`p-2 rounded-lg text-[10px] md:text-xs font-bold transition-all ${multiviewCount === n ? "bg-purple-600 text-white shadow-[0_4px_12px_rgba(147,51,234,0.3)]" : "bg-white/5 text-white/60 hover:bg-white/10"}`}
                                           >
                                             {n}
                                           </button>
@@ -1678,16 +1682,16 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                           )}
                           <button 
                             onClick={() => toggleFavorite(active)}
-                            className={`p-4 rounded-2xl border transition-all ${
+                            className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
                               favorites.includes(active.name)
                                 ? "bg-red-500/10 border-red-500 text-red-500"
                                 : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"
                             }`}
                           >
-                            <Heart size={20} fill={favorites.includes(active.name) ? "currentColor" : "none"} />
+                            <Heart size={18} className="md:w-5 md:h-5" fill={favorites.includes(active.name) ? "currentColor" : "none"} />
                           </button>
-                         <button onClick={toggleFullscreen} className={`p-4 rounded-2xl border transition-all ${liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"}`}>
-                            <Maximize size={20} />
+                         <button onClick={toggleFullscreen} className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"}`}>
+                            <Maximize size={18} className="md:w-5 md:h-5" />
                          </button>
                       </div>
                    </div>
@@ -1699,63 +1703,65 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
       </div>
 
       {/* CHANNEL INFO */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2 mt-4 md:mt-0">
+        <div className="flex flex-col gap-1 md:gap-2">
+          <div className="flex flex-wrap items-center gap-3 md:gap-4">
             <motion.h2 
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
-              className={`text-4xl font-bold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-950"}`}
+              className={`text-2xl md:text-4xl font-bold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-950"}`}
             >
               {active.name}
             </motion.h2>
-            {isMaintenance ? (
-              <div className="bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] px-3 py-1 rounded-full font-bold tracking-widest flex items-center gap-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-amber-500"></div>
-                ĐANG BẢO TRÌ
-              </div>
-            ) : (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] px-3 py-1 rounded-full font-bold tracking-widest flex items-center gap-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></div>
-                ĐANG TRỰC TIẾP
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              {isMaintenance ? (
+                <div className="bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[8px] md:text-[10px] px-2 md:px-3 py-1 rounded-full font-bold tracking-widest flex items-center gap-1.5 md:gap-2">
+                  <div className="h-1 w-1 md:h-1.5 md:w-1.5 rounded-full bg-amber-500"></div>
+                  ĐANG BẢO TRÌ
+                </div>
+              ) : (
+                <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-[8px] md:text-[10px] px-2 md:px-3 py-1 rounded-full font-bold tracking-widest flex items-center gap-1.5 md:gap-2">
+                  <div className="h-1 w-1 md:h-1.5 md:w-1.5 rounded-full bg-red-500 animate-pulse"></div>
+                  ĐANG TRỰC TIẾP
+                </div>
+              )}
+            </div>
           </div>
-          <p className="text-slate-500 text-xs font-bold uppercase tracking-widest ml-1">Đang phát sóng: {active.category}</p>
+          <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest ml-1">Đang phát sóng: {active.category}</p>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
            {featureFlags.multiview_channels && (
              <button 
                onClick={toggleMultiview}
-               className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all font-bold text-[10px] uppercase tracking-widest ${
+               className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-3 md:px-6 md:py-3 rounded-[20px] md:rounded-2xl border transition-all font-bold text-[9px] md:text-[10px] uppercase tracking-widest ${
                  isMultiview
                    ? "bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20"
                    : isDark ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm"
                }`}
              >
                <LayoutGrid size={14} />
-               {isMultiview ? "Thoát Multiview" : "Multiview"}
+               <span className="truncate">{isMultiview ? "Thoát MV" : "Multiview"}</span>
              </button>
            )}
            <button 
              onClick={() => toggleFavorite(active)}
-             className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all font-bold text-[10px] uppercase tracking-widest ${
+             className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-3 md:px-6 md:py-3 rounded-[20px] md:rounded-2xl border transition-all font-bold text-[9px] md:text-[10px] uppercase tracking-widest ${
                favorites.includes(active.name)
                  ? "bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20"
                  : isDark ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm"
              }`}
            >
              <Heart size={14} fill={favorites.includes(active.name) ? "currentColor" : "none"} />
-             {favorites.includes(active.name) ? "Đã thích" : "Yêu thích"}
+             <span className="truncate">{favorites.includes(active.name) ? "Đã thích" : "Yêu thích"}</span>
            </button>
         </div>
       </div>
 
       {/* FILTERS */}
-      <div className="mt-8">
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide flex-1">
+      <div className="mt-8 md:mt-12">
+        <div className="flex flex-col lg:flex-row gap-6 mb-8">
+          <div className="flex gap-2 overflow-x-auto pb-4 md:pb-0 no-scrollbar flex-1 -mx-4 px-4 md:mx-0 md:px-0">
             {["Tất cả", "VTV", "HTV", "VTVcab", "Thiết yếu", "Địa phương", "Phát thanh", "Hoạt động", "Bảo trì"].map((type) => (
               <button
                 key={type}
@@ -1849,16 +1855,16 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
         </div>
 
         {/* CHANNEL LIST */}
-        <div className="space-y-16">
+        <div className="space-y-12 md:space-y-16">
           {filteredCategories.map(cat => (
-            <div key={cat} className="space-y-8">
-              <div className="flex items-center gap-4 px-2">
-                <div className="h-8 w-1.5 bg-purple-500 rounded-full" />
+            <div key={cat} className="space-y-6 md:space-y-8">
+              <div className="flex items-center gap-3 md:gap-4 px-2">
+                <div className="h-6 md:h-8 w-1 md:w-1.5 bg-purple-500 rounded-full" />
                 <div>
-                  <h3 className={`text-2xl md:text-3xl font-bold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-900"}`}>{cat}</h3>
+                  <h3 className={`text-xl md:text-3xl font-bold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-900"}`}>{cat}</h3>
                 </div>
               </div>
-              <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6">
+              <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 md:gap-6">
                 {cat === "Phát thanh" ? (
                   <div className={`col-span-full p-12 rounded-[40px] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
                     isDark ? "border-white/10 bg-white/5 text-slate-400 hover:bg-white/10" : "border-black/5 bg-black/5 text-slate-500 hover:bg-black/[0.02]"
@@ -2674,8 +2680,8 @@ function ExperimentalContent({ isDark, featureFlags, setFeatureFlags, liquidGlas
       <div className={`rounded-[32px] md:rounded-[40px] overflow-hidden border-2 transition-all ${isDark ? "bg-white/5 border-white/10 shadow-2xl" : "bg-white border-slate-200 shadow-xl"}`}>
         {EXPERIMENTS.map((exp, idx) => (
           <div key={`exp-tab-${exp.id}`}>
-            <div className={`flex flex-col md:flex-row items-center justify-between p-6 md:p-12 transition-all hover:bg-black/5 gap-6`}>
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+            <div className={`flex flex-col md:flex-row items-start md:items-center justify-between p-6 md:p-12 transition-all hover:bg-black/5 gap-6`}>
+              <div className="flex flex-col sm:flex-row items-start gap-6 text-left">
                 <div className={`p-4 md:p-5 rounded-3xl shrink-0 ${isDark ? "bg-white/5 text-white" : "bg-slate-100 text-slate-600"}`}>
                   <Flask size={28} className="md:w-8 md:h-8" />
                 </div>
@@ -3400,35 +3406,35 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className={`relative w-full max-w-5xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.5)] flex flex-col md:flex-row min-h-[400px] md:min-h-[580px] ${
-                liquidGlass === "glassy" ? "rounded-[48px] backdrop-blur-[100px] bg-white/10 border border-white/20" : isDark ? "rounded-[48px] bg-slate-900 border border-white/5" : "rounded-[48px] bg-white"
+              className={`relative w-full max-w-5xl max-h-[95vh] overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.5)] flex flex-col md:flex-row min-h-[400px] md:min-h-[580px] ${
+                liquidGlass === "glassy" ? "rounded-[32px] md:rounded-[48px] backdrop-blur-[100px] bg-white/10 border border-white/20" : isDark ? "rounded-[32px] md:rounded-[48px] bg-slate-900 border border-white/5" : "rounded-[32px] md:rounded-[48px] bg-white"
               }`}
             >
-              {/* Image/Visual Side */}
-              <div className="w-full md:w-[45%] bg-gradient-to-br from-purple-600 to-indigo-900 p-8 md:p-12 relative flex flex-col justify-between overflow-hidden">
+              {/* Image/Visual Side - Responsive hiding for very small screens if necessary, or just smaller height */}
+              <div className="w-full md:w-[45%] h-48 md:h-auto bg-gradient-to-br from-purple-600 to-indigo-900 p-6 md:p-12 relative flex flex-col justify-between overflow-hidden shrink-0">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/20 blur-[100px] -mr-32 -mt-32" />
                 <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/20 blur-[100px] -ml-32 -mb-32" />
                 
-                <div className="relative z-10 space-y-6">
-                  <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 shadow-xl">
+                <div className="relative z-10 space-y-4 md:space-y-6">
+                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 shadow-xl">
                     <img 
                       src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi"
-                      className="w-10 h-10 object-contain"
+                      className="w-8 h-8 md:w-10 md:h-10 object-contain"
                       alt="Vplay"
                       referrerPolicy="no-referrer"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <h2 className="text-4xl font-bold text-white tracking-tighter leading-none">
+                  <div className="space-y-1 md:space-y-2">
+                    <h2 className="text-2xl md:text-4xl font-bold text-white tracking-tighter leading-none">
                       {isLogin ? "Chào mừng trở lại!" : "Tham gia mạng lưới Vplay"}
                     </h2>
-                    <p className="text-white/60 text-base font-medium leading-relaxed max-w-xs">
+                    <p className="text-white/60 text-xs md:text-base font-medium leading-relaxed max-w-xs">
                       {isLogin ? "Trải nghiệm thế giới giải trí 4K không giới hạn ngay trong tầm tay bạn." : "Đăng ký tài khoản để đồng bộ hóa và nhận đề xuất cá nhân hóa từ AI."}
                     </p>
                   </div>
                 </div>
 
-                <div className="relative z-10">
+                <div className="relative z-10 hidden md:block">
                    <div className={`p-6 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl space-y-4`}>
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-500">
@@ -3451,48 +3457,45 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
                       </div>
                    </div>
                 </div>
-
-                {/* Decoration blobs */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-purple-400/10 rounded-full blur-[100px]" />
               </div>
 
               {/* Form Side */}
-              <div className="flex-1 p-8 md:p-14 overflow-y-auto max-h-[70vh] md:max-h-none scrollbar-hide">
-                <div className="max-w-md mx-auto space-y-10">
+              <div className="flex-1 p-6 sm:p-8 md:p-14 overflow-y-auto scrollbar-hide">
+                <div className="max-w-md mx-auto space-y-8 md:space-y-10">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className={`text-2xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                      <h3 className={`text-xl md:text-2xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
                         {isForgotPassword ? "Quên mật khẩu" : (isLogin ? "Đăng nhập" : "Đăng ký")}
                       </h3>
-                      <p className="text-slate-500 text-sm font-medium mt-1">Vui lòng điền thông tin bên dưới</p>
+                      <p className="text-slate-500 text-[11px] md:text-sm font-medium mt-1">Vui lòng điền thông tin bên dưới</p>
                     </div>
-                    <button onClick={onClose} className={`p-3 rounded-full transition-colors ${isDark ? "bg-white/5 text-white hover:bg-white/10" : "bg-slate-100 text-slate-900 hover:bg-slate-200"}`}>
-                       <X size={20} />
+                    <button onClick={onClose} className={`p-2.5 md:p-3 rounded-full transition-colors ${isDark ? "bg-white/5 text-white hover:bg-white/10" : "bg-slate-100 text-slate-900 hover:bg-slate-200"}`}>
+                       <X size={18} className="md:w-5 md:h-5" />
                     </button>
                   </div>
 
-                  <div className="space-y-6">
+                  <div className="space-y-4 md:space-y-6">
                     <button 
                       type="button"
                       onClick={handleGoogleLogin}
                       disabled={loading}
-                      className={`w-full h-16 flex items-center justify-center gap-4 text-sm font-bold transition-all shadow-lg active:scale-[0.98] ${
+                      className={`w-full h-14 md:h-16 flex items-center justify-center gap-4 text-xs md:text-sm font-bold transition-all shadow-lg active:scale-[0.98] ${
                         isDark 
                           ? "bg-[#111111] border border-white/5 text-white shadow-black/40" 
                           : "bg-white border border-slate-200 text-slate-900 shadow-slate-200/50"
                       } rounded-2xl`}
                     >
-                      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/smartlock/icon_google.svg" className="w-6 h-6" alt="Google" />
+                      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/smartlock/icon_google.svg" className="w-5 h-5 md:w-6 md:h-6" alt="Google" />
                       Tiếp tục với Google
                     </button>
 
                     <div className="flex items-center gap-4">
                       <div className={`flex-1 h-[1px] ${isDark ? "bg-white/5" : "bg-slate-100"}`} />
-                      <span className="text-[10px] font-bold uppercase opacity-30 tracking-[0.2em]">Hoặc với tên đăng nhập</span>
+                      <span className="text-[9px] font-bold uppercase opacity-30 tracking-[0.2em]">Hoặc với tên đăng nhập</span>
                       <div className={`flex-1 h-[1px] ${isDark ? "bg-white/5" : "bg-slate-100"}`} />
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
                       {error && (
                         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-[11px] font-bold text-center uppercase tracking-wider">
                           {error}
@@ -3567,7 +3570,7 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
                       <button 
                         type="submit" 
                         disabled={loading} 
-                        className="btn-purple-3d w-full h-16 text-lg font-black tracking-widest disabled:opacity-50 mt-4 rounded-3xl"
+                        className="btn-purple-3d w-full h-14 md:h-16 text-base md:text-lg font-black tracking-widest disabled:opacity-50 mt-4 rounded-2xl md:rounded-3xl"
                       >
                         {loading ? "ĐANG XỬ LÝ..." : (isForgotPassword ? "GỬI YÊU CẦU" : (isLogin ? "ĐĂNG NHẬP" : "ĐĂNG KÝ"))}
                       </button>
@@ -3596,6 +3599,7 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
     </div>
   );
 }
+
 
 function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onClose: () => void, liquidGlass: "glassy" | "tinted" }) {
   const categories = [
@@ -3630,6 +3634,13 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
         "Tab Experimental Labs riêng biệt",
         "Thử nghiệm: Multiview, Picture-in-Picture và Screen Recording"
       ]
+    },
+    {
+      title: "🐛 BUG FIXES",
+      items: [
+        "Kênh VTV1 và VTV9 hiện đã có thể xem được bình thường",
+        "Tối ưu hóa một số trang khi hiển thị trên thiết bị di động"
+      ]
     }
   ];
 
@@ -3638,53 +3649,53 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 backdrop-blur-2xl bg-black/60"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-4 md:p-8 backdrop-blur-2xl bg-black/60"
     >
       <motion.div
         initial={{ scale: 0.9, y: 20, opacity: 0 }}
         animate={{ scale: 1, y: 0, opacity: 1 }}
         exit={{ scale: 0.9, y: 20, opacity: 0 }}
-        className={`relative w-full max-w-4xl overflow-hidden rounded-[48px] border-2 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] ${
+        className={`relative w-full max-w-4xl max-h-[92vh] overflow-hidden rounded-[32px] md:rounded-[48px] border-2 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex flex-col ${
           isDark ? "bg-slate-900/90 border-white/10" : "bg-white/95 border-slate-200"
         } ${liquidGlass === "glassy" ? "backdrop-blur-3xl" : ""}`}
       >
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 via-pink-500 to-amber-500" />
         
-        <div className="p-8 md:p-12 space-y-8">
-          <div className="flex items-center justify-between">
+        <div className="p-6 md:p-12 flex flex-col flex-1 overflow-hidden space-y-6 md:space-y-8">
+          <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
-              <h2 className={`text-3xl md:text-5xl font-black tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
-                What's new <span className="text-purple-500">in Vplay Dev</span>
+              <h2 className={`text-2xl sm:text-3xl md:text-5xl font-black tracking-tighter leading-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                What's new <span className="text-purple-500 block sm:inline">in Vplay Dev</span>
               </h2>
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-500 text-[10px] font-black tracking-widest uppercase border border-purple-500/20">Build 26601</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-purple-500/10 text-purple-500 text-[9px] md:text-[10px] font-black tracking-widest uppercase border border-purple-500/20">Build 26601</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Stable Beta</span>
+                <span className="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Stable Beta</span>
               </div>
             </div>
             <button 
               onClick={onClose}
-              className={`p-4 rounded-3xl transition-all ${isDark ? "bg-white/5 hover:bg-white/10 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-900"}`}
+              className={`p-3 md:p-4 rounded-2xl md:rounded-3xl transition-all shrink-0 ${isDark ? "bg-white/5 hover:bg-white/10 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-900"}`}
             >
-              <X size={24} />
+              <X size={20} className="md:w-6 md:h-6" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[50vh] overflow-y-auto pr-4 scrollbar-hide">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 overflow-y-auto pr-2 scrollbar-hide flex-1">
             {categories.map((cat, i) => (
               <motion.div 
                 key={cat.title}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="space-y-4"
+                className="space-y-3 md:space-y-4"
               >
-                <h3 className="text-sm font-black text-purple-500 tracking-[0.2em]">{cat.title}</h3>
-                <ul className="space-y-3">
+                <h3 className="text-[11px] md:text-sm font-black text-purple-500 tracking-[0.2em]">{cat.title}</h3>
+                <ul className="space-y-2 md:space-y-3">
                   {cat.items.map((item, j) => (
-                    <li key={j} className="flex items-start gap-3">
+                    <li key={j} className="flex items-start gap-2 md:gap-3">
                       <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-purple-500/40 shrink-0" />
-                      <p className={`text-sm font-medium leading-relaxed ${isDark ? "text-slate-300" : "text-slate-600"}`}>{item}</p>
+                      <p className={`text-xs md:text-sm font-medium leading-relaxed ${isDark ? "text-slate-300" : "text-slate-600"}`}>{item}</p>
                     </li>
                   ))}
                 </ul>
@@ -3692,21 +3703,21 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
             ))}
           </div>
 
-          <div className="pt-4 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isDark ? "bg-white/5 border-white/10" : "bg-slate-100 border-slate-200"} border shadow-sm`}>
-                <Sparkles size={20} className="text-amber-500" />
+          <div className="pt-4 flex flex-col md:flex-row items-center justify-between gap-6 shrink-0 mt-auto">
+            <div className="flex items-center gap-3 md:gap-4 self-start md:self-center">
+              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center ${isDark ? "bg-white/5 border-white/10" : "bg-slate-100 border-slate-200"} border shadow-sm`}>
+                <Sparkles size={18} className="text-amber-500 md:w-5 md:h-5" />
               </div>
               <div>
-                <p className={`text-xs font-bold leading-none ${isDark ? "text-white/60" : "text-slate-500"}`}>TRẢI NGHIỆM ĐƯỢC CÁ NHÂN HÓA</p>
-                <p className={`text-sm font-black tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Khám phá ngay phiên bản mới nhất</p>
+                <p className={`text-[9px] md:text-xs font-bold leading-none ${isDark ? "text-white/60" : "text-slate-500"}`}>TRẢI NGHIỆM ĐƯỢC CÁ NHÂN HÓA</p>
+                <p className={`text-xs md:text-sm font-black tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Khám phá ngay phiên bản mới nhất</p>
               </div>
             </div>
             <button 
               onClick={onClose}
-              className="w-full md:w-auto btn-vibrant-3d px-12 py-6 text-lg font-black tracking-widest !rounded-3xl"
+              className="w-full md:w-auto btn-vibrant-3d px-8 md:px-12 py-4 md:py-6 text-sm md:text-lg font-black tracking-widest !rounded-2xl md:!rounded-3xl"
             >
-              BẮT ĐẦU TRẢI NGHIỆM
+              KHÁM PHÁ NGAY
             </button>
           </div>
         </div>
@@ -3748,30 +3759,30 @@ function SearchBar({ isDark, query, setQuery, onClose, liquidGlass }: { isDark: 
 
   const isGlassy = liquidGlass === "glassy";
   const iconColor = isGlassy ? "text-white" : "text-black";
-  const placeholderColor = isGlassy ? "placeholder-white/60" : "placeholder-black/60";
+  const placeholderColor = isGlassy ? "placeholder-white/40" : "placeholder-black/40";
   const textColor = isGlassy ? "text-white" : "text-black";
 
   return (
-    <div className={`flex items-center gap-1 md:gap-4 px-0 md:px-6 py-2 h-14 md:h-16 w-full max-w-4xl relative group rounded-2xl overflow-hidden transition-all ${isGlassy ? "bg-white/5" : isDark ? "bg-slate-800" : "bg-slate-200"}`}>
-      <div className="flex items-center gap-1 md:gap-2 flex-1">
-        <Search className={`h-6 w-6 ${iconColor} flex-shrink-0 transition-colors ${isDark ? "group-focus-within:text-slate-100" : "group-focus-within:text-slate-600"}`} />
+    <div className={`flex items-center gap-2 md:gap-4 px-4 md:px-10 py-2 h-12 md:h-16 w-full max-w-4xl relative group rounded-full overflow-hidden transition-all ${isGlassy ? "bg-white/10" : isDark ? "bg-slate-800/80" : "bg-slate-200"}`}>
+      <div className="flex items-center gap-2 md:gap-3 flex-1 overflow-hidden">
+        <Search className={`h-5 w-5 md:h-6 md:w-6 ${iconColor} flex-shrink-0 transition-colors ${isDark ? "group-focus-within:text-purple-400" : "group-focus-within:text-purple-500"}`} />
         <input
           ref={inputRef}
           type="text"
           placeholder="Search or use commands"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className={`flex-1 bg-transparent border-none outline-none text-lg font-medium ${textColor} ${placeholderColor}`}
+          className={`flex-1 bg-transparent border-none outline-none text-base md:text-lg font-medium truncate ${textColor} ${placeholderColor}`}
         />
       </div>
-      <div className={`absolute bottom-0 left-0 h-[2px] w-full transition-all duration-300 ${isGlassy ? "bg-white/20" : "bg-black/10"} ${isDark ? "group-focus-within:bg-slate-100" : "group-focus-within:bg-slate-400"} group-focus-within:shadow-[0_0_15px_rgba(255,255,255,0.4)]`} />
-      <div className="flex items-center gap-4">
+      <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-[85%] transition-all duration-300 ${isGlassy ? "bg-white/10" : "bg-black/5"} group-focus-within:bg-purple-500 group-focus-within:shadow-[0_0_15px_rgba(168,85,247,0.4)]`} />
+      <div className="flex items-center gap-2 md:gap-4 shrink-0">
         <button 
           onClick={startVoiceSearch}
-          className={`p-2 rounded-full transition-all ${isListening ? "bg-red-500 text-white animate-pulse" : `${iconColor} hover:opacity-70`}`}
+          className={`p-2 rounded-full transition-all ${isListening ? "bg-red-500 text-white animate-pulse" : `${iconColor} opacity-60 hover:opacity-100`}`}
           title="Đang nghe..."
         >
-          <Mic className="h-7 w-7" />
+          <Mic className="h-5 w-5 md:h-6 md:w-6" />
         </button>
       </div>
     </div>
@@ -4613,15 +4624,10 @@ function App() {
   const [showWhatsNew, setShowWhatsNew] = useState(false);
 
   useEffect(() => {
-    const lastSeenVersion = localStorage.getItem("vplay_last_version");
-    const currentVersion = "26601";
-    if (lastSeenVersion !== currentVersion) {
-      setShowWhatsNew(true);
-    }
+    setShowWhatsNew(true);
   }, []);
 
   const closeWhatsNew = () => {
-    localStorage.setItem("vplay_last_version", "26601");
     setShowWhatsNew(false);
   };
 
@@ -5088,125 +5094,8 @@ function App() {
                 </div>
               </div>
 
-              {/* Integrated Search Bar */}
-              <div className="px-6 py-2 mb-4 relative">
-                <motion.div 
-                  initial={false}
-                  animate={{ 
-                    width: isSidebarExpanded || isSidebarSearchOpen ? "100%" : "50px",
-                    x: isSidebarExpanded || isSidebarSearchOpen ? 0 : (isSidebarRight ? "auto" : 0)
-                  }}
-                  className={`relative group flex items-center gap-3 h-[50px] rounded-full overflow-hidden transition-all ${
-                    isDark ? "bg-[#1c1c1e] hover:bg-[#2c2c2e]" : "bg-[#e5e5e7] hover:bg-[#d1d1d6]"
-                  } ${!isSidebarExpanded && !isSidebarSearchOpen ? "cursor-pointer justify-center px-0" : "px-4"}`}
-                  onClick={() => {
-                    if (!isSidebarExpanded && !isSidebarSearchOpen) {
-                      setIsSidebarSearchOpen(true);
-                    }
-                  }}
-                >
-                  <Search 
-                    size={20} 
-                    className={`${isDark ? "text-white/40" : "text-black/60"} group-focus-within:text-purple-400 transition-colors flex-shrink-0`} 
-                  />
-                  {(isSidebarExpanded || isSidebarSearchOpen) && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="flex-1 flex items-center"
-                    >
-                      <input 
-                        type="text" 
-                        placeholder="Search or use commands"
-                        autoFocus={isSidebarSearchOpen && !isSidebarExpanded}
-                        value={searchQuery}
-                        onBlur={() => {
-                          if (!isSidebarExpanded) setIsSidebarSearchOpen(false);
-                        }}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          if (val === "/bypass") {
-                            setBypassed(true);
-                            setSearchQuery("");
-                            setCustomAlert({ title: "Bypass Activated", message: "Bạn đã kích hoạt chế độ bypass đăng nhập. Bạn có quyền truy cập vào mọi tính năng yêu cầu đăng nhập." });
-                          } else {
-                            setSearchQuery(val);
-                          }
-                        }}
-                        className={`bg-transparent border-none outline-none text-sm font-semibold w-full ${isDark ? "text-white placeholder-white/30" : "text-black placeholder-black/30"}`}
-                      />
-                      {searchQuery && (
-                        <button onClick={() => setSearchQuery("")} className="text-slate-500 hover:text-white p-1">
-                          <X size={14} />
-                        </button>
-                      )}
-                    </motion.div>
-                  )}
-                  <div className={`absolute bottom-0 left-0 h-[2px] w-full transition-all duration-300 ${isDark ? "bg-white/10" : "bg-slate-200"} group-focus-within:bg-purple-500 group-focus-within:shadow-[0_0_10px_rgba(168,85,247,0.5)]`} />
-                </motion.div>
-
-                {/* Search Results Dropdown */}
-                    <AnimatePresence>
-                      {searchQuery.trim().length > 0 && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className={`absolute top-full left-6 right-6 mt-4 z-[60] overflow-hidden ${
-                            isDark ? "popup-3d-dark" : "popup-3d-light"
-                          } backdrop-blur-3xl`}
-                        >
-                          <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
-                            {isSearchLoading ? (
-                              <div className="p-8 flex flex-col items-center justify-center space-y-4">
-                                <img 
-                                  src={
-                                      loadingTreatment === "treatment1"
-                                        ? "https://static.wikia.nocookie.net/ftv/images/6/63/Search_uci.png/revision/latest?cb=20260411084053&path-prefix=vi"
-                                        : "https://static.wikia.nocookie.net/ftv/images/7/7f/Processing_loading.gif/revision/latest?cb=20260408134707&path-prefix=vi"
-                                  } 
-                                  alt="Loading" 
-                                  className={`w-10 h-10 ${
-                                    ((loadingTreatment === "treatment3") && (isDark || (typeof window !== "undefined" && window.innerWidth >= 768))) ? "filter brightness-0 invert" :
-                                    ((loadingTreatment === "treatment3") && !isDark && (typeof window !== "undefined" && window.innerWidth < 768)) ? "filter grayscale brightness-0" :
-                                    ((loadingTreatment === "treatment1") && !isDark) ? "filter grayscale brightness-0" : ""
-                                  }`}
-                                />
-                                <span className={`text-[10px] font-semibold uppercase tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>Đang tìm kiếm...</span>
-                              </div>
-                            ) : searchResults.length > 0 ? (
-                              <div className="p-2 space-y-1">
-                                {searchResults.map(ch => (
-                                  <button
-                                    key={`side-search-${ch.name}-${ch.stream}`}
-                                    onClick={() => {
-                                      handleChannelSelect(ch);
-                                      setSearchQuery("");
-                                    }}
-                                    className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
-                                      isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
-                                    }`}
-                                  >
-                                    <div className={`w-10 h-10 flex items-center justify-center rounded-lg ${isDark ? "bg-white/5" : "bg-white shadow-sm"}`}>
-                                      <img src={ch.logo} alt={ch.name} className="w-8 h-8 object-contain" referrerPolicy="no-referrer" />
-                                    </div>
-                                    <div className="flex flex-col items-start min-w-0">
-                                      <span className={`text-sm font-semibold truncate w-full ${isDark ? "text-white" : "text-slate-900"}`}>{ch.name}</span>
-                                      <span className="text-[10px] font-semibold text-slate-500 uppercase">{ch.category}</span>
-                                    </div>
-                                  </button>
-                                ))}
-                              </div>
-                            ) : (
-                              <div className="p-8 text-center text-slate-500 text-[10px] font-semibold uppercase tracking-widest">
-                                Không tìm thấy kết quả
-                              </div>
-                            )}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-              </div>
+              {/* Integrated Search Bar removed as per user request (already has Explore tab) */}
+              <div className="mb-4" />
 
               {/* Navigation Items */}
               <div className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar">
