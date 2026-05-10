@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode } from "react";
-import { Search, User, Tv, Calendar, Home, Play, Pause, Radio, Info, Sun, Moon, Maximize, Settings, Volume2, VolumeX, CheckCircle2, Shield, LogOut, LogIn, Heart, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Mic, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Users, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, FolderOpen, FlaskConical as Flask, Smartphone, Unlock } from "lucide-react";
+import { Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, FlaskConical as Flask, Smartphone, Unlock } from "lucide-react";
 import Hls from "hls.js";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import { auth, db, handleFirestoreError, OperationType } from "./firebase";
@@ -12,6 +12,67 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, on
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, updateDoc, arrayUnion, getDocFromServer } from "firebase/firestore";
 
 import { channels, Channel } from "./channels";
+
+const ICON_URLS = {
+  HOME: "https://static.wikia.nocookie.net/ftv/images/f/ff/Ic_fluent_home_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
+  TV: "https://static.wikia.nocookie.net/ftv/images/e/ee/Ic_fluent_tv_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
+  SETTINGS: "https://static.wikia.nocookie.net/ftv/images/8/85/Ic_fluent_settings_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
+  SIGN_IN: "https://static.wikia.nocookie.net/ftv/images/2/27/Ic_fluent_sign_in_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
+  SIGN_OUT: "https://static.wikia.nocookie.net/ftv/images/0/02/Ic_fluent_sign_out_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
+  LIKE: "https://static.wikia.nocookie.net/ftv/images/a/a7/Ic_fluent_thumb_like_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
+  LIKE_FILLED: "https://static.wikia.nocookie.net/ftv/images/7/72/Ic_fluent_thumb_like_24_filled.png/revision/latest?cb=20260508155255&path-prefix=vi",
+  EXPERIMENTAL: "https://static.wikia.nocookie.net/ftv/images/b/ba/Ic_fluent_food_pizza_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
+  COMMUNITY: "https://static.wikia.nocookie.net/ftv/images/8/8c/Ic_fluent_people_community_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
+  ACCOUNT: "https://static.wikia.nocookie.net/ftv/images/e/e6/Ic_fluent_person_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
+  MIC: "https://static.wikia.nocookie.net/ftv/images/6/6c/Ic_fluent_mic_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
+  SEARCH: "https://static.wikia.nocookie.net/ftv/images/6/63/Search_uci.png/revision/latest?cb=20260411084053&path-prefix=vi",
+  FOLDER: "https://static.wikia.nocookie.net/ftv/images/e/e1/Ic_fluent_folder_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi"
+};
+
+const FluentIcon = ({ src, size, className = "", style = {} }: { src: string, size?: number | string, className?: string, style?: any }) => (
+  <img 
+    src={src} 
+    alt=""
+    referrerPolicy="no-referrer"
+    className={`icon-fluent object-contain ${className}`}
+    style={{
+      width: size || '1.25rem',
+      height: size || '1.25rem',
+      minWidth: size || '1.25rem',
+      minHeight: size || '1.25rem',
+      ...style
+    }}
+  />
+);
+
+import { 
+  Home, 
+  Tv, 
+  Settings, 
+  LogIn, 
+  LogOut, 
+  Beaker, 
+  Heart, 
+  Users, 
+  User, 
+  Mic, 
+  Search, 
+  Folder,
+  Pizza
+} from "lucide-react";
+
+const HomeIcon = ({ className, size }: { className?: string, size?: number | string }) => <FluentIcon src={ICON_URLS.HOME} className={className} size={size} />;
+const TvIcon = ({ className, size }: { className?: string, size?: number | string }) => <FluentIcon src={ICON_URLS.TV} className={className} size={size} />;
+const SettingsIcon = ({ className, size }: { className?: string, size?: number | string }) => <FluentIcon src={ICON_URLS.SETTINGS} className={className} size={size} />;
+const SignInIcon = ({ className, size }: { className?: string, size?: number | string }) => <LogIn className={className} size={size || 22} strokeWidth={2.5} />;
+const SignOutIcon = ({ className, size }: { className?: string, size?: number | string }) => <LogOut className={className} size={size || 22} strokeWidth={2.5} />;
+const ExperimentalIcon = ({ className, size }: { className?: string, size?: number | string }) => <Flask className={className} size={size || 22} strokeWidth={2.5} />;
+const LikeIcon = ({ className, size, filled }: { className?: string, size?: number | string, filled?: boolean }) => <Heart className={className} size={size || 20} fill={filled ? "currentColor" : "none"} strokeWidth={2.5} />;
+const CommunityIcon = ({ className, size }: { className?: string, size?: number | string }) => <Users className={className} size={size || 20} strokeWidth={2.5} />;
+const AccountIcon = ({ className, size }: { className?: string, size?: number | string }) => <User className={className} size={size || 22} strokeWidth={2.5} />;
+const MicIcon = ({ className, size }: { className?: string, size?: number | string }) => <Mic className={className} size={size || 20} strokeWidth={2.5} />;
+const SearchIcon = ({ className, size }: { className?: string, size?: number | string }) => <Search className={className} size={size || 22} strokeWidth={2.5} />;
+const FolderIcon = ({ className, size }: { className?: string, size?: number | string }) => <Folder className={className} size={size || 22} strokeWidth={2.5} />;
 
 // Test connection as per critical directive
 // Test connection removed
@@ -38,10 +99,6 @@ const TREATMENTS = [
   { id: "treatment1", name: "Rotating Balls", desc: "Animation with rotating elements." },
   { id: "treatment3", name: "Chasing Snake", desc: "Clean and simple loading chasing effect." }
 ];
-
-const SettingsIcon = ({ className }: { className?: string }) => (
-  <Settings className={`${className} flex-shrink-0`} />
-);
 
 const SplashScreen = ({ isDark, onEnter, duration = 5000, featureFlags, loadingTreatment }: { isDark: boolean, onEnter: () => void, duration?: number, featureFlags?: any, loadingTreatment: string }) => {
   const getLoadingGif = () => {
@@ -143,13 +200,12 @@ const Sparkles2 = ({ className }: { className?: string }) => (
 );
 
 const baseTabs = [
-  { name: "Trang chủ", icon: Home, id: "Trang chủ" },
-  { name: "Khám phá", icon: Search, id: "Khám phá" },
-  { name: "Phát sóng", icon: Tv, id: "Phát sóng" },
-  { name: "Lưu trữ", icon: FolderOpen, id: "Lưu trữ" },
-  { name: "Thử nghiệm", icon: Flask, id: "Experimental" },
-  { name: "Quản trị", icon: Shield, id: "Quản trị" },
-  { name: "Cài đặt", icon: Settings, id: "Cài đặt" },
+  { name: "Trang chủ", icon: HomeIcon, id: "Trang chủ" },
+  { name: "Khám phá", icon: SearchIcon, id: "Khám phá" },
+  { name: "Phát sóng", icon: TvIcon, id: "Phát sóng" },
+  { name: "Lưu trữ", icon: FolderIcon, id: "Lưu trữ" },
+  { name: "Thử nghiệm", icon: ExperimentalIcon, id: "Experimental" },
+  { name: "Cài đặt", icon: SettingsIcon, id: "Cài đặt" },
 ];
 
 // Channel type is imported from channels.ts
@@ -223,13 +279,13 @@ function Tooltip({ text, show, targetRect }: { text: string, show: boolean, targ
   );
 }
 
-function ChannelLogo({ src, alt, className, isDark, liquidGlass }: { src: string, alt: string, className?: string, isDark: boolean, liquidGlass?: "glassy" | "tinted" }) {
+function ChannelLogo({ src, alt, className, isDark, liquidGlass, status }: { src: string, alt: string, className?: string, isDark: boolean, liquidGlass?: "glassy" | "tinted", status?: string }) {
   const [error, setError] = useState(false);
 
   if (error || !src) {
     return (
       <div className={`${className} flex flex-col items-center justify-center bg-slate-800/50 rounded-[24px] border border-slate-700/50 p-1 text-center`}>
-        <Tv className={`h-6 w-6 mb-1 ${liquidGlass === "tinted" ? "text-black" : "text-slate-500"}`} />
+        <TvIcon size={24} className={liquidGlass === "tinted" ? "text-black" : "text-slate-500 mb-1"} />
         <span className={`text-[10px] font-bold leading-tight line-clamp-2 uppercase ${liquidGlass === "tinted" ? "text-black/60" : "opacity-60"}`}>{alt}</span>
       </div>
     );
@@ -271,7 +327,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass }: { src: string
         liquidGlass === "tinted" 
           ? "opacity-100" 
           : !isDark ? "drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]" : ""
-      } ${scaleClass}`} 
+      } ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
     />
   );
 }
@@ -288,6 +344,15 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
   key?: string | number
 }) {
   const isMaintenance = ch.status === "maintenance";
+  const isComingSoon = ch.status === "coming-soon";
+  const isVTV6 = ch.name.includes("VTV6");
+
+  const getVTV6Days = () => {
+    const target = new Date('2026-06-08T00:00:00').getTime();
+    const now = new Date().getTime();
+    const diff = target - now;
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  };
 
   return (
     <div className={`relative group ${className || ""}`}>
@@ -297,7 +362,7 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
       <motion.button
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
         onClick={onClick}
-        className={`w-full aspect-video p-3 md:p-6 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 ${
+        className={`w-full aspect-video p-2 md:p-6 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 ${
           isActive
             ? `btn-vibrant-3d`
             : isDark ? "btn-3d-dark" : "btn-3d-slate"
@@ -316,7 +381,17 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
             BẢO TRÌ
           </div>
         )}
-        <ChannelLogo src={ch.logo} alt={ch.name} className={`w-full h-full ${isMaintenance ? "grayscale opacity-20" : ""} transition-transform duration-500`} isDark={isDark} liquidGlass={liquidGlass} />
+        {isComingSoon && isVTV6 && (
+          <div className="absolute top-2 left-2 bg-purple-600 text-white text-[8px] font-bold px-2 py-0.5 rounded-full z-20 shadow-lg uppercase">
+            CÒN {getVTV6Days()} NGÀY
+          </div>
+        )}
+        {isComingSoon && !isVTV6 && (
+          <div className="absolute top-2 left-2 bg-blue-500 text-white text-[8px] font-bold px-2 py-0.5 rounded-full z-20 shadow-lg uppercase">
+            SẮP RA MẮT
+          </div>
+        )}
+        <ChannelLogo src={ch.logo} alt={ch.name} className={`w-full h-full transition-transform duration-500`} isDark={isDark} liquidGlass={liquidGlass} status={ch.status} />
       </motion.button>
       <button 
         onClick={(e) => { e.stopPropagation(); toggleFavorite(ch); }}
@@ -324,12 +399,57 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
           favorites.includes(ch.name) ? "text-red-500 bg-red-50/20" : "text-white bg-black/20"
         }`}
       >
-        <Heart className={`h-4 w-4 ${favorites.includes(ch.name) ? "fill-red-500" : ""}`} />
+        <LikeIcon size={16} filled={favorites.includes(ch.name)} />
       </button>
     </div>
   );
 }
 
+
+const Countdown = ({ targetDate, isDark }: { targetDate: string, isDark: boolean }) => {
+  const [timeLeft, setTimeLeft] = useState<{ days: number, hours: number, minutes: number, seconds: number } | null>(null);
+
+  useEffect(() => {
+    const calculate = () => {
+      const target = new Date(targetDate).getTime();
+      const now = new Date().getTime();
+      const diff = target - now;
+      if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+      return {
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / 1000 / 60) % 60),
+        seconds: Math.floor((diff / 1000) % 60)
+      };
+    };
+
+    setTimeLeft(calculate());
+    const timer = setInterval(() => setTimeLeft(calculate()), 1000);
+    return () => clearInterval(timer);
+  }, [targetDate]);
+
+  if (!timeLeft) return null;
+
+  return (
+    <div className="flex gap-4">
+      {[
+        { val: timeLeft.days, unit: "Ngày" },
+        { val: timeLeft.hours, unit: "Giờ" },
+        { val: timeLeft.minutes, unit: "Phút" },
+        { val: timeLeft.seconds, unit: "Giây" }
+      ].map((item, idx) => (
+        <div key={idx} className="flex flex-col items-center">
+          <div className={`text-4xl font-bold tracking-tighter ${isDark ? "text-white" : "text-black"}`}>
+            {item.val.toString().padStart(2, '0')}
+          </div>
+          <div className="text-[10px] font-bold uppercase tracking-widest opacity-40">
+            {item.unit}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const slides = [
   { 
@@ -573,7 +693,7 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
           <div className="flex flex-col gap-2 px-2">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
-                <Heart size={18} fill="currentColor" />
+                <LikeIcon size={18} />
               </div>
             <motion.h3 
               initial={{ opacity: 0, x: -40 }}
@@ -604,40 +724,6 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
         </div>
       )}
 
-      {/* Suggested Section */}
-      <div className="space-y-10">
-        <div className="flex flex-col gap-2 px-2">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500">
-              <Sparkles size={18} />
-            </div>
-            <motion.h1 
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              className={`text-3xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
-            >
-              Gợi ý cho bạn
-            </motion.h1>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6">
-          {randomChannels.map(ch => (
-            <ChannelCard 
-              key={`${ch.name}-${ch.stream}`} 
-              ch={ch} 
-              className="hover:scale-105"
-              onClick={() => {
-                setActiveChannel(ch);
-                setActiveTab("Phát sóng");
-              }} 
-              isDark={isDark} 
-              favorites={favorites} 
-              toggleFavorite={toggleFavorite} 
-              liquidGlass={liquidGlass}
-            />
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
@@ -717,7 +803,7 @@ function ExploreContent({
        { name: "Hiệu ứng kính", icon: Layers, action: () => setLiquidGlass(liquidGlass === "glassy" ? "tinted" : "glassy"), desc: "Bật/Tắt hiệu cực mờ Liquid Glass" },
        { name: "Sắp xếp A-Z", icon: Filter, action: () => setSortOrder("az"), desc: "Sắp xếp kênh theo thứ tự bảng chữ cái" },
        { name: "Sidebar Float", icon: Columns, action: () => {}, desc: "Thay đổi giao diện thanh điều hướng" },
-       { name: "Phòng thí nghiệm", icon: Flask, action: () => setActiveTab("Experimental"), desc: "Trải nghiệm các tính năng thử nghiệm mới" },
+       { name: "Phòng thí nghiệm", icon: ExperimentalIcon, action: () => setActiveTab("Experimental"), desc: "Trải nghiệm các tính năng thử nghiệm mới" },
        { name: "Cập nhật", icon: Zap, action: () => setActiveTab("Update Logs"), desc: "Xem nhật ký thay đổi của hệ thống" }
     ];
     setRandomSettings([...settingsOptions].sort(() => 0.5 - Math.random()).slice(0, 3));
@@ -762,7 +848,7 @@ function ExploreContent({
             <SearchPopup 
               isDark={isDark} 
               searchQuery={searchQuery} 
-              setActiveChannel={setActiveChannel} 
+              setActiveChannel={handleChannelSelect} 
               onClose={() => setSearchQuery("")} 
               favorites={favorites}
               liquidGlass={liquidGlass}
@@ -916,7 +1002,7 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
   return (
     <video 
       ref={videoRef} 
-      className="w-full h-full object-cover" 
+      className="w-full h-full object-contain bg-black" 
       autoPlay 
       playsInline
       muted={isMuted}
@@ -1291,7 +1377,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   );
 
   return (
-    <div className="flex-1 p-4 md:p-6 overflow-y-auto">
+    <div className="flex-1 p-2 md:p-6 overflow-y-auto w-full max-w-full overflow-x-hidden">
       {/* Liquid Modal for Channel Selection */}
       <LiquidModal
         isOpen={!!showChannelSelector}
@@ -1303,7 +1389,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
       >
         <div className="space-y-6">
           <div className={`relative group flex items-center gap-3 px-6 py-4 rounded-full overflow-hidden transition-all ${isDark ? "bg-white/5" : "bg-slate-100"}`}>
-            <Search size={18} className={`transition-colors ${isDark ? "text-slate-500 group-focus-within:text-purple-400" : "text-slate-400 group-focus-within:text-purple-600"}`} />
+            <SearchIcon size={18} className={`transition-colors ${isDark ? "text-slate-500 group-focus-within:text-purple-400" : "text-slate-400 group-focus-within:text-purple-600"}`} />
             <input 
               type="text"
               placeholder="Tìm tên kênh hoặc thể loại..."
@@ -1340,14 +1426,14 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                     <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{c.category}</p>
                   </div>
                   <div className="p-2 rounded-full bg-purple-500/10 text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <LogIn size={16} />
+                    <SignInIcon size={16} />
                   </div>
                 </button>
               ))
             ) : (
               <div className="py-20 text-center space-y-4">
                 <div className="inline-flex p-4 rounded-full bg-slate-500/10 text-slate-500">
-                  <Search size={32} />
+                  <SearchIcon size={32} />
                 </div>
                 <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Không tìm thấy kênh nào</p>
               </div>
@@ -1359,10 +1445,10 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
       {/* VIDEO PLAYER */}
       <div 
         ref={containerRef}
-        className={`bg-black mb-6 flex items-center justify-center border shadow-2xl relative overflow-hidden group ${
-        isMultiview ? "aspect-auto min-h-[400px]" : "aspect-video"
+        className={`bg-black mb-4 md:mb-6 flex items-center justify-center border shadow-2xl relative overflow-hidden group w-full ${
+        isMultiview ? "aspect-auto min-h-[300px] md:min-h-[400px]" : "aspect-video"
       } ${
-        liquidGlass ? "rounded-2xl" : "rounded-lg"
+        liquidGlass ? "rounded-xl md:rounded-2xl" : "rounded-lg"
       } ${isDark ? "border-slate-800" : "border-slate-300"}`}>
         {!user && !isDev && !bypassed ? (
           <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-900/40 p-6 text-center ${
@@ -1408,7 +1494,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                 ) : (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-slate-500">
                     <div className="p-4 rounded-full bg-white/5 border border-white/5">
-                      <Tv size={32} />
+                      <TvIcon size={32} />
                     </div>
                     <span className="text-[10px] font-bold uppercase tracking-widest">Trống</span>
                   </div>
@@ -1460,73 +1546,23 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
           </div>
         ) : (
           <>
-            {active.status === "maintenance" ? (
+            {active.status === "maintenance" || active.status === "coming-soon" ? (
               <div className="absolute inset-0 w-full h-full bg-[#0a0a0a] flex flex-col items-center justify-center p-8 overflow-hidden">
-                {/* Background Testcard Pattern */}
-                <div className="absolute inset-0 opacity-10 pointer-events-none select-none overflow-hidden">
-                  <div className="w-full h-full" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #1a1a1a 0, #1a1a1a 1px, transparent 0, transparent 50%)', backgroundSize: '100px 100px' }} />
-                  <div className="absolute top-1/2 left-0 w-full h-[1px] bg-red-500/30" />
-                  <div className="absolute top-0 left-1/2 w-[1px] h-full bg-red-500/30" />
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-white/20 rounded-full" />
-                </div>
-
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="relative z-10 text-center space-y-8"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="relative z-10 flex flex-col items-center text-center space-y-6"
                 >
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="p-5 rounded-[2rem] bg-amber-500/10 border border-amber-500/20 shadow-[0_0_30px_rgba(245,158,11,0.1)]">
-                      <Zap className="h-12 w-12 text-amber-500 animate-pulse" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="text-4xl font-bold text-white tracking-tighter uppercase">Kênh đang bảo trì</h3>
-                      <p className="text-white/40 font-mono text-sm uppercase tracking-widest">System Status: Maintenance Mode</p>
-                    </div>
-                  </div>
-
-                  <div className="bg-white/5 border border-white/10 backdrop-blur-md p-6 max-w-md rounded-2xl space-y-4">
-                    <p className="text-white/70 text-sm leading-relaxed">
-                      Kênh truyền hình này hiện đang trong quá trình nâng cấp hệ thống định kỳ. Vui lòng quay lại sau ít phút hoặc xem các kênh khác.
-                    </p>
-                    <div className="flex items-center justify-center gap-6 pt-2 border-t border-white/5 text-[10px] font-mono text-white/30 uppercase tracking-widest">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                        <span>Signal: Stable</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                        <span>Update: 85%</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center justify-center gap-4">
-                    <button 
-                      onClick={() => window.location.reload()}
-                      className="btn-white-3d px-8 py-3 text-sm flex items-center gap-2 h-14"
-                    >
-                      <RotateCcw size={16} />
-                      Tải lại trang
-                    </button>
-                    <div className="px-6 py-3 border border-white/20 text-white/60 rounded-xl text-xs font-mono">
-                      CODE: MAINTENANCE_503
-                    </div>
+                  <ChannelLogo src={active.logo} alt={active.name} className="w-48 h-48 md:w-64 md:h-64" isDark={true} />
+                  <div className="space-y-1">
+                    <p className="text-white/60 text-lg md:text-xl font-medium">Kênh chưa tồn tại trong hệ thống</p>
                   </div>
                 </motion.div>
-
-                {/* Corner Accents */}
-                <div className="absolute top-8 left-8 font-mono text-[10px] text-white/20 select-none">
-                  VPLAY // SYSTEM_CORE_v2.4
-                </div>
-                <div className="absolute bottom-8 right-8 font-mono text-[10px] text-white/20 select-none">
-                  {new Date().toISOString()}
-                </div>
               </div>
             ) : (
               <video
                 ref={videoRef}
-                className="w-full h-full"
+                className="w-full h-full object-contain"
                 autoPlay
                 muted={isMuted}
                 onClick={togglePlay}
@@ -1688,7 +1724,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                                 : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"
                             }`}
                           >
-                            <Heart size={18} className="md:w-5 md:h-5" fill={favorites.includes(active.name) ? "currentColor" : "none"} />
+                            <LikeIcon size={20} filled={favorites.includes(active.name)} />
                           </button>
                          <button onClick={toggleFullscreen} className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"}`}>
                             <Maximize size={18} className="md:w-5 md:h-5" />
@@ -1731,29 +1767,40 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
         </div>
         
         <div className="flex items-center gap-2 md:gap-3">
+           {featureFlags.screen_recording && (
+             <button 
+               onClick={toggleRecording}
+               className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
+                 isRecording
+                   ? "bg-red-600 border-red-500 text-white shadow-lg animate-pulse"
+                   : isDark ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm"
+               }`}
+               title={isRecording ? "Dừng ghi" : "Ghi màn hình"}
+             >
+               {isRecording ? <Square size={16} fill="currentColor" /> : <Circle size={16} fill="currentColor" />}
+             </button>
+           )}
            {featureFlags.multiview_channels && (
              <button 
                onClick={toggleMultiview}
-               className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-3 md:px-6 md:py-3 rounded-[20px] md:rounded-2xl border transition-all font-bold text-[9px] md:text-[10px] uppercase tracking-widest ${
+               className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
                  isMultiview
                    ? "bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20"
                    : isDark ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm"
                }`}
              >
-               <LayoutGrid size={14} />
-               <span className="truncate">{isMultiview ? "Thoát MV" : "Multiview"}</span>
+               <LayoutGrid size={16} />
              </button>
            )}
            <button 
              onClick={() => toggleFavorite(active)}
-             className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-3 md:px-6 md:py-3 rounded-[20px] md:rounded-2xl border transition-all font-bold text-[9px] md:text-[10px] uppercase tracking-widest ${
+             className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
                favorites.includes(active.name)
                  ? "bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20"
                  : isDark ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm"
              }`}
            >
-             <Heart size={14} fill={favorites.includes(active.name) ? "currentColor" : "none"} />
-             <span className="truncate">{favorites.includes(active.name) ? "Đã thích" : "Yêu thích"}</span>
+             <LikeIcon size={16} filled={favorites.includes(active.name)} />
            </button>
         </div>
       </div>
@@ -1981,15 +2028,16 @@ function SearchPopup({
   );
 
   const systemItems = [
-    { name: "Trang chủ", type: "tab", icon: Home, action: () => setActiveTab("Trang chủ") },
-    { name: "Phát sóng", type: "tab", icon: Tv, action: () => setActiveTab("Phát sóng") },
-    { name: "Khám phá", type: "tab", icon: Search, action: () => setActiveTab("Khám phá") },
-    { name: "Lưu trữ", type: "tab", icon: FolderOpen, action: () => setActiveTab("Lưu trữ") },
-    { name: "Thử nghiệm", type: "tab", icon: Flask, action: () => setActiveTab("Experimental") },
-    { name: "Phòng thí nghiệm", type: "tab", icon: Flask, action: () => setActiveTab("Experimental") },
+    { name: "Trang chủ", type: "tab", icon: HomeIcon, action: () => setActiveTab("Trang chủ") },
+    { name: "Phát sóng", type: "tab", icon: TvIcon, action: () => setActiveTab("Phát sóng") },
+    { name: "Khám phá", type: "tab", icon: SearchIcon, action: () => setActiveTab("Khám phá") },
+    { name: "Lưu trữ", type: "tab", icon: FolderIcon, action: () => setActiveTab("Lưu trữ") },
+    { name: "Thử nghiệm", type: "tab", icon: ExperimentalIcon, action: () => setActiveTab("Experimental") },
+    { name: "Phòng thí nghiệm", type: "tab", icon: ExperimentalIcon, action: () => setActiveTab("Experimental") },
     { name: "Cài đặt", type: "tab", icon: SettingsIcon, action: () => setActiveTab("Cài đặt") },
     { name: "Quản trị", type: "tab", icon: ShieldCheck, action: () => setActiveTab("Quản trị") },
-    { name: "Hồ sơ", type: "tab", icon: User, action: () => setActiveTab("Hồ sơ") },
+    { name: "Tài khoản", type: "tab", icon: AccountIcon, action: () => setActiveTab("Tài khoản") },
+    { name: "Cộng đồng", type: "tab", icon: CommunityIcon, action: () => setActiveTab("Cài đặt") },
     { name: "Nhật ký cập nhật", type: "tab", icon: Zap, action: () => setActiveTab("Update Logs") },
     
     { name: "Chế độ tối", type: "setting", icon: Moon, action: () => setIsDark(true) },
@@ -2015,10 +2063,10 @@ function SearchPopup({
     
     { name: "Cài đặt nâng cao", type: "button", icon: SettingsIcon, action: () => setActiveTab("Cài đặt") },
     { name: "Quản lý kênh", type: "button", icon: ShieldCheck, action: () => setActiveTab("Quản trị") },
-    { name: "Tìm kiếm mở rộng", type: "button", icon: Search, action: () => setActiveTab("Khám phá") },
+    { name: "Tìm kiếm mở rộng", type: "button", icon: SearchIcon, action: () => setActiveTab("Khám phá") },
     
-    { name: "Đăng nhập", type: "button", icon: LogIn, action: onLogin },
-    { name: "Đăng xuất", type: "button", icon: LogOut, action: onLogout },
+    { name: "Đăng nhập", type: "button", icon: SignInIcon, action: onLogin },
+    { name: "Đăng xuất", type: "button", icon: SignOutIcon, action: onLogout },
     { name: "Sắp xếp A-Z", type: "toggle", icon: Filter, action: () => setSortOrder("az") },
     { name: "Sắp xếp Z-A", type: "toggle", icon: Filter, action: () => setSortOrder("za") },
     
@@ -2060,7 +2108,7 @@ function SearchPopup({
             {favoriteChannels.length > 0 && (
               <div className="space-y-2">
                 <div className="px-4 py-2 flex items-center gap-2">
-                  <Heart className="w-3 h-3 text-red-500 fill-red-500" />
+                  <LikeIcon size={12} filled={true} className="text-red-500" />
                   <p className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-white/40" : "text-black/60"}`}>Kênh yêu thích</p>
                 </div>
                 {favoriteChannels.map(ch => (
@@ -2098,14 +2146,14 @@ function SearchPopup({
                   <p className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-white/40" : "text-black/60"}`}>Hệ thống & Cài đặt</p>
                 </div>
                 <div className={asContent ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2" : "space-y-1"}>
-                  {filteredSystem.map(item => (
+                  {filteredSystem.map((item, idx) => (
                     <button
-                      key={item.name}
+                      key={`${item.name}-${item.type}-${idx}`}
                       onClick={() => { item.action(); onClose(); }}
                       className={`w-full flex items-center gap-4 p-3 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] group hover:bg-black/5`}
                     >
                       <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-transform group-hover:rotate-3 ${isDark ? "bg-white/5 border-white/10 text-purple-400" : "bg-slate-100 border-slate-200 text-purple-600"}`}>
-                        <item.icon className="w-6 h-6 fill-current" />
+                        <item.icon size={24} className="fill-current" />
                       </div>
                       <div className="flex-1 text-left">
                         <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>{item.name}</p>
@@ -2273,7 +2321,7 @@ function AdminContent({ isDark, liquidGlass }: { isDark: boolean, liquidGlass: "
     async function fetchUsers() {
       try {
         const snapshot = await getDocs(collection(db, "users"));
-        const usersData = snapshot.docs.map(doc => doc.data());
+        const usersData = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
         setUsers(usersData);
       } catch (err: any) {
         setError(err.message);
@@ -2306,7 +2354,7 @@ function AdminContent({ isDark, liquidGlass }: { isDark: boolean, liquidGlass: "
               <tr key={u.uid}>
                 <td className="p-4">
                   <div className="flex items-center gap-3">
-                    {u.photoURL ? <img src={u.photoURL} className="w-8 h-8 rounded-full object-cover" referrerPolicy="no-referrer" /> : <div className="w-8 h-8 rounded-full bg-slate-300 flex items-center justify-center"><User className="w-4 h-4 text-slate-600" /></div>}
+                    {u.photoURL ? <img src={u.photoURL} className="w-8 h-8 rounded-full object-cover" referrerPolicy="no-referrer" /> : <div className="w-8 h-8 rounded-full bg-slate-300 flex items-center justify-center"><AccountIcon size={16} className="text-slate-600" /></div>}
                     <div className="flex flex-col">
                       <span className="font-medium">{u.displayName || "Chưa có tên"}</span>
                       <span className="text-xs opacity-50">{u.email}</span>
@@ -2317,8 +2365,8 @@ function AdminContent({ isDark, liquidGlass }: { isDark: boolean, liquidGlass: "
                 <td className="p-4">
                   <div className="flex flex-wrap gap-1">
                     {u.watchedChannels && u.watchedChannels.length > 0 ? (
-                      u.watchedChannels.map((chName: string) => (
-                        <span key={chName} className={`px-2 py-0.5 rounded-full text-[10px] ${isDark ? "bg-purple-500/20 text-purple-400" : "bg-purple-100 text-purple-700"}`}>
+                      u.watchedChannels.map((chName: string, idx: number) => (
+                        <span key={`${chName}-${idx}`} className={`px-2 py-0.5 rounded-full text-[10px] ${isDark ? "bg-purple-500/20 text-purple-400" : "bg-purple-100 text-purple-700"}`}>
                           {chName}
                         </span>
                       ))
@@ -2415,7 +2463,7 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment }: {
         {
           title: '🎨 USER INTERFACE',
           items: [
-            'Cấu trúc lại trang Cài đặt: Phần Thông tin giờ được đặt cạnh Hồ sơ và Cộng đồng',
+            'Cấu trúc lại trang Cài đặt: Phần Thông tin giờ được đặt cạnh Tài khoản và Cộng đồng',
             'Cập nhật giao diện thẻ Thông tin đẹp hơn với Build ID và Status indicator'
           ],
           color: 'text-blue-500'
@@ -2554,7 +2602,7 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment }: {
 
             <div className={`relative group min-w-[280px] transition-all`}>
               <div className={`flex items-center ${isDark ? "btn-3d-dark" : "btn-3d-slate"} px-4 py-3 h-14`}>
-                <Search className={`mr-3 transition-colors ${isDark ? "text-white/20 group-focus-within:text-purple-400" : "text-slate-400 group-focus-within:text-purple-600"}`} size={16} />
+                <SearchIcon className={`mr-3 transition-colors ${isDark ? "text-white/20 group-focus-within:text-purple-400" : "text-slate-400 group-focus-within:text-purple-600"}`} size={16} />
                 <input 
                   value={logSearchQuery}
                   onChange={e => setLogSearchQuery(e.target.value)}
@@ -2669,7 +2717,7 @@ function ExperimentalContent({ isDark, featureFlags, setFeatureFlags, liquidGlas
       <div className="space-y-4 px-2">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center text-white shadow-[2px_2px_0_0_rgba(147,51,234,0.4)] rotate-3">
-            <Flask size={28} />
+            <ExperimentalIcon size={28} />
           </div>
           <div>
             <h2 className={`text-3xl md:text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Experimental Labs</h2>
@@ -2683,7 +2731,7 @@ function ExperimentalContent({ isDark, featureFlags, setFeatureFlags, liquidGlas
             <div className={`flex flex-col md:flex-row items-start md:items-center justify-between p-6 md:p-12 transition-all hover:bg-black/5 gap-6`}>
               <div className="flex flex-col sm:flex-row items-start gap-6 text-left">
                 <div className={`p-4 md:p-5 rounded-3xl shrink-0 ${isDark ? "bg-white/5 text-white" : "bg-slate-100 text-slate-600"}`}>
-                  <Flask size={28} className="md:w-8 md:h-8" />
+                  <ExperimentalIcon size={32} />
                 </div>
                 <div className="space-y-2">
                   <p className={`text-xl md:text-2xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{exp.name}</p>
@@ -2877,7 +2925,7 @@ function SettingsContent({
                    <p className={`text-base md:text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>June 2026 Update</p>
                  </div>
                </div>
-               <span className="px-3 py-1.5 bg-amber-500 text-slate-900 text-[9px] md:text-[10px] font-bold rounded-lg md:rounded-xl shadow-lg shadow-amber-500/30">26M6</span>
+               <span className="px-3 py-1.5 bg-amber-500 text-slate-900 text-[9px] md:text-[10px] font-bold rounded-lg md:rounded-xl shadow-lg shadow-amber-500/30">Build 26603</span>
              </div>
 
              <div className="grid grid-cols-2 gap-3 md:gap-4">
@@ -2909,15 +2957,15 @@ function SettingsContent({
         <div className={`p-6 md:p-10 rounded-[32px] md:rounded-[48px] border flex flex-col transition-all ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
           <div className="flex items-center gap-4 mb-6 md:mb-10">
             <div className="p-2.5 md:p-3 rounded-xl md:rounded-2xl bg-purple-500/20 text-purple-500">
-              <User size={20} className="md:w-6 md:h-6" />
+              <AccountIcon size={24} className="md:w-6 md:h-6" />
             </div>
-            <h3 className={`font-bold text-xl md:text-2xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Hồ sơ cá nhân</h3>
+            <h3 className={`font-bold text-xl md:text-2xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Tài khoản cá nhân</h3>
           </div>
 
           {!user && !bypassed ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center gap-8 py-4">
               <div className={`w-32 h-32 rounded-[40px] flex items-center justify-center border-4 ${isDark ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-white shadow-inner"}`}>
-                <User className="w-16 h-16 text-slate-400 opacity-20" />
+                <AccountIcon size={64} className="text-slate-400 opacity-20" />
               </div>
               <div className="space-y-2">
                 <p className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Chưa đăng nhập</p>
@@ -2927,7 +2975,7 @@ function SettingsContent({
                 onClick={onLogin}
                 className="btn-vibrant-3d w-full py-4 text-base flex items-center justify-center gap-3"
               >
-                <LogIn size={20} /> ĐĂNG NHẬP NGAY
+                <SignInIcon size={20} /> ĐĂNG NHẬP NGAY
               </button>
             </div>
           ) : (
@@ -2939,7 +2987,7 @@ function SettingsContent({
                     <img src={avatar} alt="Avatar" className="w-28 h-28 rounded-[32px] object-cover border-4 border-white/10 relative z-10 shadow-2xl" referrerPolicy="no-referrer" />
                   ) : (
                     <div className={`w-28 h-28 rounded-[32px] flex items-center justify-center border-4 relative z-10 ${isDark ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-white shadow-inner"}`}>
-                      <User className="w-14 h-14 text-slate-400 opacity-20" />
+                        <AccountIcon size={56} className="text-slate-400 opacity-20" />
                     </div>
                   )}
                   <div className="absolute inset-0 bg-black/60 rounded-[32px] flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
@@ -2974,7 +3022,7 @@ function SettingsContent({
                       onClick={() => signOut(auth)}
                       className={`p-3.5 rounded-2xl border transition-all active:translate-y-1 ${isDark ? "bg-red-500/10 border-red-500/10 text-red-500" : "bg-red-50 border-red-100 text-red-600 shadow-xl"}`}
                     >
-                      <LogOut size={20} />
+                      <SignOutIcon size={20} />
                     </button>
                   </div>
                 </div>
@@ -2988,7 +3036,7 @@ function SettingsContent({
           <div className="space-y-10">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-2xl bg-blue-500/20 text-blue-500">
-                <Users size={24} />
+                <CommunityIcon size={24} />
               </div>
               <h3 className={`font-bold text-2xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Cộng đồng</h3>
             </div>
@@ -3765,7 +3813,7 @@ function SearchBar({ isDark, query, setQuery, onClose, liquidGlass }: { isDark: 
   return (
     <div className={`flex items-center gap-2 md:gap-4 px-4 md:px-10 py-2 h-12 md:h-16 w-full max-w-4xl relative group rounded-full overflow-hidden transition-all ${isGlassy ? "bg-white/10" : isDark ? "bg-slate-800/80" : "bg-slate-200"}`}>
       <div className="flex items-center gap-2 md:gap-3 flex-1 overflow-hidden">
-        <Search className={`h-5 w-5 md:h-6 md:w-6 ${iconColor} flex-shrink-0 transition-colors ${isDark ? "group-focus-within:text-purple-400" : "group-focus-within:text-purple-500"}`} />
+        <SearchIcon className={`h-5 w-5 md:h-6 md:w-6 ${iconColor} flex-shrink-0 transition-colors ${isDark ? "group-focus-within:text-purple-400" : "group-focus-within:text-purple-500"}`} />
         <input
           ref={inputRef}
           type="text"
@@ -3782,7 +3830,7 @@ function SearchBar({ isDark, query, setQuery, onClose, liquidGlass }: { isDark: 
           className={`p-2 rounded-full transition-all ${isListening ? "bg-red-500 text-white animate-pulse" : `${iconColor} opacity-60 hover:opacity-100`}`}
           title="Đang nghe..."
         >
-          <Mic className="h-5 w-5 md:h-6 md:w-6" />
+          <MicIcon size={24} className="md:w-6 md:h-6" />
         </button>
       </div>
     </div>
@@ -3879,7 +3927,7 @@ function OnboardingWizard({
     {
       title: "Cá nhân hóa trải nghiệm",
       description: "Đăng nhập để đồng bộ các kênh yêu thích và các tùy chỉnh của bạn trên mọi thiết bị.",
-      icon: User,
+      icon: AccountIcon,
       color: "text-purple-500"
     },
     {
@@ -4088,7 +4136,7 @@ function OnboardingWizard({
                           onClick={onLogin}
                           className="flex items-center gap-5 p-6 rounded-3xl border-2 border-purple-600 bg-purple-600 text-white shadow-lg transition-all active:scale-95"
                         >
-                          <div className="p-3.5 rounded-2xl bg-white text-purple-600"><LogIn size={24} /></div>
+                          <div className="p-3.5 rounded-2xl bg-white text-purple-600"><SignInIcon size={24} /></div>
                           <div className="text-left">
                             <h4 className="text-base font-bold">Đăng nhập tài khoản</h4>
                             <p className="text-xs opacity-70">Sử dụng tài khoản Vplay của bạn</p>
@@ -4098,7 +4146,7 @@ function OnboardingWizard({
                           onClick={nextStep}
                           className={`flex items-center gap-5 p-6 rounded-3xl border-2 transition-all ${config.isDark ? "bg-white/5 border-white/10 hover:bg-white/10 text-white" : "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-900"}`}
                         >
-                          <div className={`p-3.5 rounded-2xl ${config.isDark ? "bg-white/10" : "bg-white"} text-slate-50`}><User size={24} /></div>
+                          <div className={`p-3.5 rounded-2xl ${config.isDark ? "bg-white/10" : "bg-white"} text-slate-50`}><AccountIcon size={24} /></div>
                           <div className="text-left">
                             <h4 className="text-base font-bold">Sử dụng tài khoản đăng xuất</h4>
                             <p className="text-xs opacity-70">Tiếp tục mà không cần đồng bộ</p>
@@ -4193,14 +4241,14 @@ function OnboardingWizard({
               </button>
             </div>
           </div>
+
+          {/* Accessibility Icons */}
+          <div className="fixed bottom-10 right-10 flex items-center gap-6 opacity-30">
+            <div className={`p-1.5 rounded-lg ${config.isDark ? "text-white" : "text-slate-900"}`}><Accessibility size={24} /></div>
+            <div className={`p-1.5 rounded-lg ${config.isDark ? "text-white" : "text-slate-900"}`}><Volume2 size={24} /></div>
+          </div>
         </div>
       </div>
-
-       {/* Accessibility Icons */}
-       <div className="fixed bottom-10 right-10 flex items-center gap-6 opacity-30">
-         <div className={`p-1.5 rounded-lg ${config.isDark ? "text-white" : "text-slate-900"}`}><Accessibility size={24} /></div>
-         <div className={`p-1.5 rounded-lg ${config.isDark ? "text-white" : "text-slate-900"}`}><Volume2 size={24} /></div>
-       </div>
     </motion.div>
   );
 }
@@ -4529,6 +4577,10 @@ function App() {
       setShowAuthModal(true);
       return;
     }
+    if (ch.name.includes("VTV6")) {
+      setIsVTV6DialogOpen(true);
+      return;
+    }
     setActiveChannel(ch);
     setPipExplicitlyClosed(false);
     setActiveTab("Phát sóng");
@@ -4621,11 +4673,25 @@ function App() {
     audioContext.resume();
   }, []);
 
-  const [showWhatsNew, setShowWhatsNew] = useState(false);
+  const [isVTV6DialogOpen, setIsVTV6DialogOpen] = useState(false);
 
   useEffect(() => {
-    setShowWhatsNew(true);
+    const handleWhatsNew = async () => {
+      const lastVersion = localStorage.getItem("vplay_version");
+      const currentVersion = "26603";
+      
+      if (lastVersion !== currentVersion) {
+        // Build 26603 is minor, so we hide it as per request
+        if (currentVersion !== "26603") {
+          setShowWhatsNew(true);
+        }
+        localStorage.setItem("vplay_version", currentVersion);
+      }
+    };
+    handleWhatsNew();
   }, []);
+
+  const [showWhatsNew, setShowWhatsNew] = useState(false);
 
   const closeWhatsNew = () => {
     setShowWhatsNew(false);
@@ -4637,6 +4703,26 @@ function App() {
       reducedMotion={featureFlags.disable_animation ? "always" : "user"}
     >
       <AnimatePresence>
+        {isVTV6DialogOpen && (
+          <LiquidModal 
+            isOpen={isVTV6DialogOpen} 
+            onClose={() => setIsVTV6DialogOpen(false)} 
+            isDark={isDark} 
+            liquidGlass={liquidGlass}
+            title="Coming soon - VTV6 sắp trở lại!"
+            description="Kênh VTV6 dự kiến trở lại vào 08/6/2026 sau gần 4 năm dừng phát sóng, với mục tiêu là kênh chuyên biệt thể thao của Đài Truyền hình Việt Nam, do Trung tâm Truyền hình Thể thao quản lý. Vplay cũng đã sẵn sàng cho sự trở lại này - Mời quý khán giả đón xem!"
+          >
+            <div className="mt-8 flex flex-col items-center gap-6">
+              <Countdown targetDate="2026-06-08T00:00:00" isDark={isDark} />
+              <button 
+                onClick={() => setIsVTV6DialogOpen(false)}
+                className="w-full btn-vibrant-3d py-4 text-sm font-bold uppercase tracking-widest !rounded-2xl"
+              >
+                Đóng thông báo
+              </button>
+            </div>
+          </LiquidModal>
+        )}
         {showWhatsNew && (
           <WhatsNewPopup 
             isDark={isDark} 
@@ -4647,7 +4733,7 @@ function App() {
       </AnimatePresence>
       <div className={`${
         isDark 
-          ? "bg-gradient-to-br from-rose-950 via-purple-950 to-red-950 text-white" 
+          ? "dark bg-gradient-to-br from-rose-950 via-purple-950 to-red-950 text-white" 
           : "bg-gradient-to-br from-rose-50 via-purple-50 to-red-50 text-black"
       } min-h-screen flex transition-all duration-500 overflow-x-hidden ${useSidebar ? "flex-row" : "flex-col"} ${featureFlags.disable_animation ? "reduce-animations" : ""}`}
       style={{
@@ -5183,7 +5269,7 @@ function App() {
                     </div>
                     <div className="flex items-center gap-2">
                        <span className="text-[12px] font-black text-white tracking-widest whitespace-nowrap">
-                         26M6 - Build 26601
+                         26M6 - Build 26603
                        </span>
                        <div className="px-1.5 py-0.5 rounded bg-cyan-400 text-[9px] font-bold text-slate-900 flex items-center gap-1 shadow-sm">
                          <Zap size={8} fill="currentColor" /> Dev
@@ -5230,7 +5316,7 @@ function App() {
                       ? (isDark ? "bg-red-500/10 text-red-400 group-hover:bg-red-500/20" : "bg-red-50 text-red-500 group-hover:bg-red-100")
                       : (isDark ? "bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20" : "bg-emerald-50 text-emerald-500 group-hover:bg-emerald-100")
                   }`}>
-                    {user ? <LogOut size={20} /> : <LogIn size={20} />}
+                    {user ? <SignOutIcon size={20} /> : <SignInIcon size={20} />}
                   </div>
                   {isSidebarExpanded && (
                     <span className="font-bold text-base whitespace-nowrap">
@@ -5372,7 +5458,7 @@ function App() {
                           }`}
                         >
                           <div className="scale-110">
-                            {user ? <LogOut size={28} /> : <LogIn size={28} />}
+                            {user ? <SignOutIcon size={28} /> : <SignInIcon size={28} />}
                           </div>
                         </button>
                       </div>

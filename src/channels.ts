@@ -3,7 +3,7 @@ export type Channel = {
   name: string;
   logo: string;
   stream: string;
-  status?: "working" | "maintenance";
+  status?: "working" | "maintenance" | "coming-soon";
 };
 
 export const channels: Channel[] = [
@@ -15,6 +15,7 @@ export const channels: Channel[] = [
   { category: "VTV", name: "VTV5", logo: "https://img.vtvprime.vn/jOBZtq6b0zQexwyMF5J2BD1fdgFn6O1ElFvK5Xh7F9w/rs:fit:836:468/czM6Ly9wcmQtc24taW1hZ2VzL2NoYW5uZWwvY2Y4NzBiMGQtMzBhYy00NjE5LTlmOTktY2I5ZDgwN2QwMGJlLnBuZw==.png", stream: "https://live-a.fptplay53.net/live/media/VTV5HD/live_hls_avc/index.m3u8" },
   { category: "VTV", name: "VTV5 Tây Nam Bộ", logo: "https://img.vtvprime.vn/J2zL9kJ60Ai9Qr_h_SQgTFC5AB4-BQhNoXi9U9Ke9y0/rs:fit:836:468/czM6Ly9wcmQtc24taW1hZ2VzL2NoYW5uZWwvMDQ0Y2ZkOWItNjY2Yi00MmJhLWEzNzktYTYyOTY0YWNiM2I0LnBuZw==.png", stream: "https://live.fptplay53.net/fnxhd1/vtv5tnb_vhls.smil/chunklist_b5000000.m3u8" },
   { category: "VTV", name: "VTV5 Tây Nguyên", logo: "https://img.vtvprime.vn/4rHmZo5ln9H0mB-ZfEdLvY6QEoPc5vBj8fhGmfBbCfQ/rs:fit:836:468/czM6Ly9wcmQtc24taW1hZ2VzL2NoYW5uZWwvMDg2NmUyMTQtMjJjNC00NDViLThhZWMtYmZlZDUwMGQ0N2M0LnBuZw==.png", stream: "https://live.fptplay53.net/fnxhd1/vtv5taynguyen_vhls.smil/chunklist_b5000000.m3u8" },
+  { category: "VTV", name: "VTV6 (coming soon)", logo: "https://static.wikia.nocookie.net/logos/images/2/21/VTV6_logo_%282026%29.png/revision/latest/scale-to-width-down/1000?cb=20260508074729&path-prefix=vi", stream: "", status: "coming-soon" },
   { category: "VTV", name: "VTV7", logo: "https://static.wikia.nocookie.net/logos/images/a/a9/VTV7_logo_06.02.2016.png/revision/latest/scale-to-width-down/1000?cb=20221213075109&path-prefix=vi", stream: "https://live.fptplay53.net/fnxhd1/vtv7hd_vhls.smil/chunklist_b5000000.m3u8" },
   { category: "VTV", name: "VTV8", logo: "https://img.vtvprime.vn/K9r1jXt6N9Hm4M714Ct4xfPuLTXNFtRa8fg81RTnr3c/rs:fit:836:468/czM6Ly9wcmQtc24taW1hZ2VzL2NoYW5uZWwvZTliNjFhZGQtZTZiYS00OWRmLWJjZjYtYzgwOTM5YTkxYzQ3LnBuZw==.png", stream: "https://live.fptplay53.net/epzhd1/vtv8hd_vhls.smil/chunklist_b5000000.m3u8" },
   { category: "VTV", name: "VTV9", logo: "https://static.wikia.nocookie.net/ftv/images/c/c5/V9.png/revision/latest/scale-to-width-down/1000?cb=20260412131622&path-prefix=vi", stream: "https://live.fptplay53.net/epzch2/vtv9hd_abr.smil/chunklist_b4200000.m3u8" },

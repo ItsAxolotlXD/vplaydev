@@ -129,3 +129,29 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+.icon-fluent {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  user-select: none;
+  pointer-events: none;
+  filter: brightness(0); /* Default black */
+  transition: filter 0.2s ease;
+}
+
+.dark .icon-fluent,
+.icon-white,
+.text-white .icon-fluent,
+.btn-vibrant-3d .icon-fluent,
+.btn-purple-3d .icon-fluent,
+.bg-purple-600 .icon-fluent,
+.bg-red-500 .icon-fluent {
+  filter: brightness(0) invert(1); /* Pure white */
+}
+
+/* Purple-500 approximation for active state */
+.text-purple-500 .icon-fluent,
+.icon-fluent.text-purple-500 {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(83%) saturate(2462%) hue-rotate(258deg) brightness(93%) contrast(102%);
+}
