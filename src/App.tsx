@@ -56,21 +56,20 @@ const TREATMENTS = [
   { id: "treatment3", name: "Chasing Snake", desc: "Clean and simple loading chasing effect." }
 ];
 
-const SplashScreen = ({ isDark, onEnter, duration = 5000, featureFlags, loadingTreatment }: { isDark: boolean, onEnter: () => void, duration?: number, featureFlags?: any, loadingTreatment: string }) => {
-  const getLoadingGif = () => {
-    switch (loadingTreatment) {
-      case "treatment1": return "https://static.wikia.nocookie.net/ftv/images/6/63/Search_uci.png/revision/latest?cb=20260411084053&path-prefix=vi";
-      case "treatment3": return "https://static.wikia.nocookie.net/ftv/images/7/7f/Processing_loading.gif/revision/latest?cb=20260408134707&path-prefix=vi";
-      default: return "https://static.wikia.nocookie.net/ftv/images/7/7f/Processing_loading.gif/revision/latest?cb=20260408134707&path-prefix=vi";
-    }
-  };
+const LoadingSpinner = ({ isDark, className = "w-6 h-6" }: { isDark: boolean, className?: string }) => (
+  <div 
+    className={`animate-spin rounded-full border-[3px] border-t-transparent ${
+      isDark ? "border-white" : "border-black"
+    } ${className}`} 
+    style={{ animationDuration: '0.8s' }}
+  />
+);
 
+const SplashScreen = ({ isDark, onEnter, duration = 5000 }: { isDark: boolean, onEnter: () => void, duration?: number }) => {
   useEffect(() => {
     const timer = setTimeout(onEnter, duration);
     return () => clearTimeout(timer);
   }, [onEnter, duration]);
-
-  const loadingUrl = getLoadingGif();
 
   return (
     <motion.div
@@ -122,16 +121,7 @@ const SplashScreen = ({ isDark, onEnter, duration = 5000, featureFlags, loadingT
             transition={{ delay: 1, duration: 0.5 }}
             className="flex items-center gap-4 pt-4"
           >
-            <img 
-              src={loadingUrl} 
-              alt="Loading" 
-              className={`w-12 h-12 ${
-                ((loadingTreatment === "treatment3") && (isDark || (typeof window !== "undefined" && window.innerWidth >= 768))) ? "filter brightness-0 invert" :
-                ((loadingTreatment === "treatment3") && !isDark && (typeof window !== "undefined" && window.innerWidth < 768)) ? "filter grayscale brightness-0" :
-                ((loadingTreatment === "treatment1") && !isDark) ? "filter grayscale brightness-0" : ""
-              }`} 
-              referrerPolicy="no-referrer"
-            />
+            <LoadingSpinner isDark={isDark} className="w-8 h-8" />
             <span className={`${isDark ? "text-white/60" : "text-black/80"} text-xl font-medium tracking-tight`}>Preparing your experience</span>
           </motion.div>
         </div>
@@ -178,7 +168,7 @@ function LiquidModal({ isOpen, onClose, children, isDark, title, description, li
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1898,21 +1888,14 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
             </div>
           ))}
           {filteredChannels.length === 0 && (
-            <div className="text-center py-20 flex flex-col items-center justify-center">
-              <div className="w-16 h-16 rounded-full mb-6">
-                 <img 
-                  src={loadingTreatment === "treatment1" ? "https://static.wikia.nocookie.net/ftv/images/6/63/Search_uci.png/revision/latest?cb=20260411084053&path-prefix=vi" : "https://static.wikia.nocookie.net/ftv/images/7/7f/Processing_loading.gif/revision/latest?cb=20260408134707&path-prefix=vi"} 
-                  alt="Loading" 
-                  className={`w-12 h-12 ${
-                    ((loadingTreatment === "treatment3") && (isDark || (typeof window !== "undefined" && window.innerWidth >= 768))) ? "filter brightness-0 invert" :
-                    ((loadingTreatment === "treatment3") && !isDark && (typeof window !== "undefined" && window.innerWidth < 768)) ? "filter grayscale brightness-0" :
-                    ((loadingTreatment === "treatment1") && !isDark) ? "filter grayscale brightness-0" : ""
-                  }`} 
-                  referrerPolicy="no-referrer"
-                />
+            <div className="text-center py-20 flex flex-col items-center justify-center space-y-6">
+              <div className="w-16 h-16 relative flex items-center justify-center">
+                 <LoadingSpinner isDark={isDark} className="w-14 h-14" />
               </div>
-              <h3 className={`text-xl font-bold ${isDark ? "text-slate-400" : "text-slate-600"}`}>Đang tìm kiếm...</h3>
-              <p className="text-slate-500 text-sm font-bold uppercase tracking-widest mt-2">Đang nỗ lực tải kết quả mới nhất</p>
+              <div>
+                <h3 className={`text-xl font-bold ${isDark ? "text-slate-400" : "text-slate-600"}`}>Đang tìm kiếm...</h3>
+                <p className="text-slate-500 text-sm font-bold uppercase tracking-widest mt-2">Đang nỗ lực tải kết quả mới nhất</p>
+              </div>
             </div>
           )}
         </div>
@@ -1998,8 +1981,6 @@ function SearchPopup({
     
     { name: "Chế độ tối", type: "setting", icon: Moon, action: () => setIsDark(true) },
     { name: "Chế độ sáng", type: "setting", icon: Sun, action: () => setIsDark(false) },
-    { name: "Giao diện Desktop", type: "setting", icon: Monitor, action: () => setUseSidebar?.(true) },
-    { name: "Giao diện Touch", type: "setting", icon: Smartphone, action: () => setUseSidebar?.(false) },
     { name: "Sidebar Trái", type: "setting", icon: Columns, action: () => setIsSidebarRight?.(false) },
     { name: "Sidebar Phải", type: "setting", icon: Columns, action: () => setIsSidebarRight?.(true) },
     { name: "Khóa Sidebar", type: "setting", icon: Lock, action: () => (setIsSidebarLocked as any)?.(true) },
@@ -2155,12 +2136,7 @@ function SearchPopup({
         ) : (
           <div className={`py-12 text-center flex flex-col items-center justify-center space-y-4 ${isDark ? "text-white" : "text-black"}`}>
             <div className="w-12 h-12 relative flex items-center justify-center">
-               <img 
-                src="https://static.wikia.nocookie.net/ftv/images/7/7f/Processing_loading.gif/revision/latest?cb=20260408134707&path-prefix=vi" 
-                alt="Loading" 
-                className={`w-10 h-10 ${isDark ? "filter brightness-0 invert" : "filter grayscale brightness-0 opacity-40"}`} 
-                referrerPolicy="no-referrer"
-              />
+              <LoadingSpinner isDark={isDark} className="w-10 h-10" />
             </div>
             <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 italic">Đang tìm kiếm dữ liệu...</p>
           </div>
@@ -2368,15 +2344,7 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment }: {
 
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-4">
-        <img 
-          src={loadingUrl} 
-          alt="Loading" 
-          className={`w-14 h-14 ${
-            ((loadingTreatment === "treatment3") && (isDark || (typeof window !== "undefined" && window.innerWidth >= 768))) ? "filter brightness-0 invert" :
-            ((loadingTreatment === "treatment3") && !isDark && (typeof window !== "undefined" && window.innerWidth < 768)) ? "filter grayscale brightness-0" :
-            ((loadingTreatment === "treatment1") && !isDark) ? "filter grayscale brightness-0" : ""
-          }`}
-        />
+        <LoadingSpinner isDark={isDark} className="w-14 h-14" />
         <span className={`text-[10px] font-semibold uppercase tracking-[0.3em] ${isDark ? "text-white/40" : "text-slate-400"}`}>
           Đang tải dữ liệu...
         </span>
@@ -3306,31 +3274,6 @@ function SettingsContent({
 
             <div className={`h-[1px] mx-5 md:mx-8 ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
 
-            {/* 7. Heading Bar */}
-            <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 md:p-8 transition-all hover:bg-black/5 gap-4`}>
-              <div className="flex items-start md:items-center gap-4 md:gap-5">
-                <div className="p-3 md:p-4 rounded-2xl bg-indigo-500/10 text-indigo-500 shrink-0">
-                  <LayoutTemplate size={24} className="md:w-7 md:h-7" />
-                </div>
-                <div className="text-left space-y-1">
-                  <p className="text-base md:text-lg font-bold">Heading bar</p>
-                  <p className={`text-xs md:text-sm font-bold opacity-60 leading-tight ${isDark ? "text-white" : "text-slate-500"}`}>Hiển thị thanh tiêu đề và tìm kiếm tập trung ở trên đầu ứng dụng</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => setHeadingBar(!headingBar)}
-                className={`w-14 md:w-16 h-7 md:h-8 rounded-full transition-all relative border-2 shrink-0 self-end sm:self-center ${headingBar ? "bg-purple-600/30 border-purple-600/40" : "bg-transparent border-slate-700/30"}`}
-              >
-                <motion.div 
-                  animate={{ 
-                    x: headingBar ? 28 : 4,
-                  }}
-                  initial={false}
-                  transition={{ type: "spring", damping: 20, stiffness: 200 }}
-                  className={`absolute top-[2px] h-[18px] md:h-[22px] w-[26px] md:w-[30px] rounded-full shadow-sm transition-colors ${headingBar ? "bg-white" : "bg-white"}`}
-                />
-              </button>
-            </div>
           </div>
 
           {/* Experimental separated block removed - moved to Thử nghiệm tab */}
@@ -3620,7 +3563,7 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
   };
 
   return (
-    <div className={`fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 ${isOpen ? "visible" : "invisible"}`}>
+    <div className={`fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-8 ${isOpen ? "visible" : "invisible"}`}>
       <AnimatePresence>
         {isOpen && (
           <>
@@ -3799,8 +3742,9 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
                       <button 
                         type="submit" 
                         disabled={loading} 
-                        className="btn-purple-3d w-full h-14 md:h-16 text-base md:text-lg font-black tracking-widest disabled:opacity-50 mt-4 rounded-2xl md:rounded-3xl"
+                        className="btn-purple-3d w-full h-14 md:h-16 text-base md:text-lg font-black tracking-widest disabled:opacity-50 mt-4 rounded-2xl md:rounded-3xl flex items-center justify-center gap-3"
                       >
+                        {loading && <LoadingSpinner isDark={true} className="w-6 h-6 border-white" />}
                         {loading ? "ĐANG XỬ LÝ..." : (isForgotPassword ? "GỬI YÊU CẦU" : (isLogin ? "ĐĂNG NHẬP" : "ĐĂNG KÝ"))}
                       </button>
                     </form>
@@ -3878,14 +3822,18 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-4 md:p-8 backdrop-blur-2xl bg-black/60"
+      className="fixed inset-0 z-[2000] flex items-center justify-center p-2 sm:p-4 md:p-8 backdrop-blur-2xl bg-black/60"
     >
       <motion.div
         initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.5, opacity: 0 }}
         transition={{ type: "spring", damping: 30, stiffness: 400 }}
-        className={`relative w-full max-w-4xl max-h-[92vh] overflow-hidden rounded-[40px] md:rounded-[56px] shadow-[0_40px_100px_rgba(0,0,0,0.4)] flex flex-col bg-white/95 backdrop-blur-[100px] border border-white/40`}
+        className={`relative w-full max-w-4xl max-h-[92vh] overflow-hidden rounded-[40px] md:rounded-[56px] shadow-[0_40px_100px_rgba(0,0,0,0.4)] flex flex-col transition-colors border ${
+          isDark 
+            ? "bg-[#130f26]/95 border-white/20" 
+            : "bg-white/95 border-white/40"
+        } backdrop-blur-[100px]`}
       >
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 via-pink-500 to-amber-500" />
         
@@ -4133,7 +4081,7 @@ function OnboardingWizard({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[160] flex items-center justify-center p-0 md:p-8"
+      className="fixed inset-0 z-[2000] flex items-center justify-center p-0 md:p-8"
     >
       {/* Background Image */}
       <img 
@@ -4487,7 +4435,7 @@ function HeadingBar({
           }`}
         >
           {user ? <SignOutIcon size={14} /> : <SignInIcon size={14} />}
-          <span>{user ? "Đăng xuất" : "Đăng nhập"}</span>
+          {/* Title text hidden as per request */}
         </button>
 
         <div className="flex items-center gap-2 ml-1">
@@ -4511,7 +4459,7 @@ function HeadingBar({
         >
           <Search size={16} className="group-hover:scale-110 transition-transform" />
           <span className="text-xs font-bold overflow-hidden whitespace-nowrap text-ellipsis">
-            {searchQuery || "Find and search"}
+            {searchQuery || "Find and explore"}
           </span>
           <div className="flex-1" />
           <div className={`hidden sm:block px-1.5 py-0.5 rounded-md border text-[9px] font-bold ${
@@ -4526,12 +4474,12 @@ function HeadingBar({
         <div className="flex flex-col items-end">
           <div className="flex items-center gap-3">
             {showTempInClock && weather && (
-              <div className={`text-xs font-bold flex items-center gap-1 ${isDark ? "text-cyan-400" : "text-cyan-600"}`}>
+              <div className={`text-xs font-bold flex items-center gap-1 ${isDark ? "text-yellow-400" : "text-yellow-500"}`}>
                 <Thermometer size={14} />
                 {getTempDisplay()}
               </div>
             )}
-            <div className={`text-base font-black font-mono tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
+            <div className={`text-base font-bold tracking-tight font-mono ${isDark ? "text-white" : "text-slate-900"}`}>
               {formatTime(currentTime)}
             </div>
           </div>
@@ -4539,7 +4487,7 @@ function HeadingBar({
             <span className={`text-[9px] font-bold uppercase tracking-tight ${isDark ? "text-white/60" : "text-slate-600"}`}>
                {location}
             </span>
-            <div className={`text-[10px] font-black tracking-widest uppercase ${isDark ? "text-white/40" : "text-slate-500"}`}>
+            <div className={`text-[10px] font-bold uppercase tracking-tight font-mono ${isDark ? "text-white/40" : "text-slate-500"}`}>
               {formatDateString(currentTime)}
             </div>
           </div>
@@ -4735,13 +4683,21 @@ const [headingBar, setHeadingBar] = useState(() => {
     return localStorage.getItem("vplay_heading_bar") === "true";
   });
   useEffect(() => {
-    localStorage.setItem("vplay_heading_bar", headingBar.toString());
-    if (headingBar && sidebarWidth > 240) {
-      setSidebarWidth(240);
-    } else if (!headingBar && sidebarWidth < 280 && !isSidebarLocked) {
-      setSidebarWidth(280);
-    }
-  }, [headingBar]);
+    const handleResize = () => {
+      const isMobileSize = window.innerWidth < 768;
+      const isLargeSize = window.innerWidth >= 1024;
+      
+      if (isMobileSize) {
+        setHeadingBar(false);
+      } else if (isLargeSize) {
+        setHeadingBar(true);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initial check
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -5183,8 +5139,6 @@ const [headingBar, setHeadingBar] = useState(() => {
               isDark={isDark} 
               onEnter={handleEnterApp} 
               duration={splashDuration} 
-              featureFlags={featureFlags}
-              loadingTreatment={loadingTreatment}
             />
           </div>
         )}
@@ -5290,7 +5244,7 @@ const [headingBar, setHeadingBar] = useState(() => {
 
       <AnimatePresence>
         {isSearchOpen && (
-          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -5769,18 +5723,18 @@ const [headingBar, setHeadingBar] = useState(() => {
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col">
                       <div className="flex items-baseline gap-3">
-                        <div className={`text-2xl font-black font-mono tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
+                        <div className={`text-2xl font-bold tracking-tight font-mono ${isDark ? "text-white" : "text-slate-900"}`}>
                           {formatTime(currentTime || new Date())}
                         </div>
                         {showTempInClock && weather && (
-                          <div className={`text-sm font-bold flex items-center gap-1.5 ${isDark ? "text-cyan-400" : "text-cyan-600"}`}>
+                          <div className={`text-sm font-bold flex items-center gap-1.5 ${isDark ? "text-yellow-400" : "text-yellow-500"}`}>
                             <Thermometer size={14} strokeWidth={1.5} />
                             {getTempDisplay()}
                           </div>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className={`text-[10px] font-black tracking-[0.2em] uppercase ${isDark ? "text-white/40" : "text-slate-500"}`}>
+                        <div className={`text-[10px] font-bold uppercase tracking-tight font-mono ${isDark ? "text-white/40" : "text-slate-500"}`}>
                           {formatDateString(currentTime || new Date())}
                         </div>
                         {showTempInClock && weather && isSidebarExpanded && (
