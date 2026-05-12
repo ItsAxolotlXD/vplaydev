@@ -4,7 +4,10 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode } from "react";
-import { Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, FlaskConical as Flask, Smartphone, Unlock } from "lucide-react";
+import { 
+  Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer,
+  Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, Pizza, FlaskConical as Flask
+} from "lucide-react";
 import Hls from "hls.js";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import { auth, db, handleFirestoreError, OperationType } from "./firebase";
@@ -13,66 +16,19 @@ import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, updateDoc, a
 
 import { channels, Channel } from "./channels";
 
-const ICON_URLS = {
-  HOME: "https://static.wikia.nocookie.net/ftv/images/f/ff/Ic_fluent_home_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
-  TV: "https://static.wikia.nocookie.net/ftv/images/e/ee/Ic_fluent_tv_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
-  SETTINGS: "https://static.wikia.nocookie.net/ftv/images/8/85/Ic_fluent_settings_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
-  SIGN_IN: "https://static.wikia.nocookie.net/ftv/images/2/27/Ic_fluent_sign_in_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
-  SIGN_OUT: "https://static.wikia.nocookie.net/ftv/images/0/02/Ic_fluent_sign_out_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
-  LIKE: "https://static.wikia.nocookie.net/ftv/images/a/a7/Ic_fluent_thumb_like_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
-  LIKE_FILLED: "https://static.wikia.nocookie.net/ftv/images/7/72/Ic_fluent_thumb_like_24_filled.png/revision/latest?cb=20260508155255&path-prefix=vi",
-  EXPERIMENTAL: "https://static.wikia.nocookie.net/ftv/images/b/ba/Ic_fluent_food_pizza_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
-  COMMUNITY: "https://static.wikia.nocookie.net/ftv/images/8/8c/Ic_fluent_people_community_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
-  ACCOUNT: "https://static.wikia.nocookie.net/ftv/images/e/e6/Ic_fluent_person_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
-  MIC: "https://static.wikia.nocookie.net/ftv/images/6/6c/Ic_fluent_mic_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi",
-  SEARCH: "https://static.wikia.nocookie.net/ftv/images/6/63/Search_uci.png/revision/latest?cb=20260411084053&path-prefix=vi",
-  FOLDER: "https://static.wikia.nocookie.net/ftv/images/e/e1/Ic_fluent_folder_24_regular.png/revision/latest?cb=20260508155255&path-prefix=vi"
-};
+const HomeIcon = ({ className, size }: { className?: string, size?: number | string }) => <Home className={className} size={size || 22} strokeWidth={1.5} />;
+const TvIcon = ({ className, size }: { className?: string, size?: number | string }) => <Tv className={className} size={size || 22} strokeWidth={1.5} />;
+const SettingsIcon = ({ className, size }: { className?: string, size?: number | string }) => <Settings className={className} size={size || 22} strokeWidth={1.5} />;
+const SignInIcon = ({ className, size }: { className?: string, size?: number | string }) => <LogIn className={className} size={size || 22} strokeWidth={1.5} />;
+const SignOutIcon = ({ className, size }: { className?: string, size?: number | string }) => <LogOut className={className} size={size || 22} strokeWidth={1.5} />;
+const ExperimentalIcon = ({ className, size }: { className?: string, size?: number | string }) => <Flask className={className} size={size || 22} strokeWidth={1.5} />;
+const LikeIcon = ({ className, size, filled }: { className?: string, size?: number | string, filled?: boolean }) => <Heart className={className} size={size || 20} fill={filled ? "currentColor" : "none"} strokeWidth={1.5} />;
+const CommunityIcon = ({ className, size }: { className?: string, size?: number | string }) => <Users className={className} size={size || 20} strokeWidth={1.5} />;
+const AccountIcon = ({ className, size }: { className?: string, size?: number | string }) => <User className={className} size={size || 22} strokeWidth={1.5} />;
+const MicIcon = ({ className, size }: { className?: string, size?: number | string }) => <Mic className={className} size={size || 20} strokeWidth={1.5} />;
+const SearchIcon = ({ className, size }: { className?: string, size?: number | string }) => <Search className={className} size={size || 22} strokeWidth={1.5} />;
+const FolderIcon = ({ className, size }: { className?: string, size?: number | string }) => <Folder className={className} size={size || 22} strokeWidth={1.5} />;
 
-const FluentIcon = ({ src, size, className = "", style = {} }: { src: string, size?: number | string, className?: string, style?: any }) => (
-  <img 
-    src={src} 
-    alt=""
-    referrerPolicy="no-referrer"
-    className={`icon-fluent object-contain ${className}`}
-    style={{
-      width: size || '1.25rem',
-      height: size || '1.25rem',
-      minWidth: size || '1.25rem',
-      minHeight: size || '1.25rem',
-      ...style
-    }}
-  />
-);
-
-import { 
-  Home, 
-  Tv, 
-  Settings, 
-  LogIn, 
-  LogOut, 
-  Beaker, 
-  Heart, 
-  Users, 
-  User, 
-  Mic, 
-  Search, 
-  Folder,
-  Pizza
-} from "lucide-react";
-
-const HomeIcon = ({ className, size }: { className?: string, size?: number | string }) => <FluentIcon src={ICON_URLS.HOME} className={className} size={size} />;
-const TvIcon = ({ className, size }: { className?: string, size?: number | string }) => <FluentIcon src={ICON_URLS.TV} className={className} size={size} />;
-const SettingsIcon = ({ className, size }: { className?: string, size?: number | string }) => <FluentIcon src={ICON_URLS.SETTINGS} className={className} size={size} />;
-const SignInIcon = ({ className, size }: { className?: string, size?: number | string }) => <FluentIcon src={ICON_URLS.SIGN_IN} className={className} size={size || 22} />;
-const SignOutIcon = ({ className, size }: { className?: string, size?: number | string }) => <FluentIcon src={ICON_URLS.SIGN_OUT} className={className} size={size || 22} />;
-const ExperimentalIcon = ({ className, size }: { className?: string, size?: number | string }) => <Flask className={className} size={size || 22} strokeWidth={2.5} />;
-const LikeIcon = ({ className, size, filled }: { className?: string, size?: number | string, filled?: boolean }) => <Heart className={className} size={size || 20} fill={filled ? "currentColor" : "none"} strokeWidth={2.5} />;
-const CommunityIcon = ({ className, size }: { className?: string, size?: number | string }) => <Users className={className} size={size || 20} strokeWidth={2.5} />;
-const AccountIcon = ({ className, size }: { className?: string, size?: number | string }) => <User className={className} size={size || 22} strokeWidth={2.5} />;
-const MicIcon = ({ className, size }: { className?: string, size?: number | string }) => <Mic className={className} size={size || 20} strokeWidth={2.5} />;
-const SearchIcon = ({ className, size }: { className?: string, size?: number | string }) => <Search className={className} size={size || 22} strokeWidth={2.5} />;
-const FolderIcon = ({ className, size }: { className?: string, size?: number | string }) => <Folder className={className} size={size || 22} strokeWidth={2.5} />;
 
 // Test connection as per critical directive
 // Test connection removed
@@ -587,9 +543,9 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
           </div>
         </div>
         <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6">
-          {randomChannels.map(ch => (
+          {randomChannels.map((ch, idx) => (
             <ChannelCard 
-              key={`${ch.name}-${ch.stream}`} 
+              key={`home-random-${ch.name}-${idx}`} 
               ch={ch} 
               className="hover:scale-105"
               onClick={() => {
@@ -828,7 +784,7 @@ function ExploreContent({
             <div className="flex flex-wrap gap-2">
               {["VTV1", "VTV3", "HBO", "K+ Action", "Discovery", "Bóng đá", "Phim Mới", "Hoạt Hình", "Chế độ tối", "Kính lỏng", "Sắp xếp A-Z", "Cập nhật", "Phòng thí nghiệm"].sort(() => 0.5 - Math.random()).slice(0, 6).map((kw, i) => (
                   <motion.button 
-                      key={kw} 
+                      key={`explore-kw-${kw}-${i}`} 
                       initial={{ opacity: 0, x: 50 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.05, type: "spring", stiffness: 100, damping: 15 }}
@@ -1103,7 +1059,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
     setIsMultiview(!isMultiview);
   };
 
-  const timeString = currentTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false });
+  const timeString = (currentTime || new Date()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false });
   const isMaintenance = active.status === "maintenance";
 
   const filteredChannels = channels
@@ -1483,7 +1439,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
             "grid-cols-3"
           }`}>
             {multiviewChannels.map((ch, idx) => (
-              <div key={idx} className="relative aspect-video bg-slate-900 rounded-lg overflow-hidden border border-white/5 group/slot">
+              <div key={`multiview-slot-${idx}-${ch?.name || 'empty'}`} className="relative aspect-video bg-slate-900 rounded-lg overflow-hidden border border-white/5 group/slot">
                 {ch ? (
                   <IndividualPlayer 
                     channel={ch} 
@@ -1903,21 +1859,21 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
 
         {/* CHANNEL LIST */}
         <div className="space-y-12 md:space-y-16">
-          {filteredCategories.map(cat => (
-            <div key={cat} className="space-y-6 md:space-y-8">
+                {filteredCategories.map((cat, catIdx) => (
+            <div key={`${cat}-${catIdx}`} className="space-y-6 md:space-y-8">
               <div className="flex items-center gap-3 md:gap-4 px-2">
                 <div className="h-6 md:h-8 w-1 md:w-1.5 bg-purple-500 rounded-full" />
                 <div>
                   <h3 className={`text-xl md:text-3xl font-bold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-900"}`}>{cat}</h3>
                 </div>
               </div>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 md:gap-6">
+              <div className="grid grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-6">
                 {cat === "Phát thanh" ? (
                   <div className={`col-span-full p-12 rounded-[40px] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
                     isDark ? "border-white/10 bg-white/5 text-slate-400 hover:bg-white/10" : "border-black/5 bg-black/5 text-slate-500 hover:bg-black/[0.02]"
                   }`}>
                     <div className="p-4 rounded-3xl bg-purple-500/10 text-purple-500">
-                      <Sparkles size={32} className="animate-pulse" />
+                      <Sparkles size={32} className="animate-pulse" strokeWidth={1.5} />
                     </div>
                     <div className="text-center">
                       <p className="font-bold text-xl tracking-tighter uppercase mb-1">Coming Soon!</p>
@@ -1925,9 +1881,9 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                     </div>
                   </div>
                 ) : (
-                  filteredChannels.filter(c => c.category === cat).map((ch) => (
+                  filteredChannels.filter(c => c.category === cat).map((ch, chIdx) => (
                     <ChannelCard 
-                      key={`${ch.name}-${ch.stream}`} 
+                      key={`tv-${cat}-${ch.name}-${chIdx}`} 
                       ch={ch} 
                       onClick={() => setActive(ch)} 
                       isDark={isDark} 
@@ -2111,9 +2067,9 @@ function SearchPopup({
                   <LikeIcon size={12} filled={true} className="text-red-500" />
                   <p className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-white/40" : "text-black/60"}`}>Kênh yêu thích</p>
                 </div>
-                {favoriteChannels.map(ch => (
+                {favoriteChannels.map((ch, idx) => (
                   <button
-                    key={`search-fav-${ch.name}-${ch.stream}`}
+                    key={`search-fav-${ch.name}-${idx}`}
                     onClick={() => { setActiveChannel(ch); onClose(); }}
                     className={`w-full flex items-center gap-4 p-3 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] group hover:bg-black/5`}
                   >
@@ -2148,7 +2104,7 @@ function SearchPopup({
                 <div className={asContent ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2" : "space-y-1"}>
                   {filteredSystem.map((item, idx) => (
                     <button
-                      key={`${item.name}-${item.type}-${idx}`}
+                      key={`search-system-${item.name}-${idx}`}
                       onClick={() => { item.action(); onClose(); }}
                       className={`w-full flex items-center gap-4 p-3 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] group hover:bg-black/5`}
                     >
@@ -2176,9 +2132,9 @@ function SearchPopup({
                   <p className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-white/40" : "text-black/60"}`}>Kênh truyền hình</p>
                 </div>
                 <div className={asContent ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" : "space-y-1"}>
-                  {filteredChannels.map(ch => (
+                  {filteredChannels.map((ch, idx) => (
                     <button
-                      key={`search-ch-${ch.name}-${ch.stream}`}
+                      key={`search-ch-${ch.name}-${idx}`}
                       onClick={() => { setActiveChannel(ch); onClose(); }}
                       className={`w-full flex items-center gap-4 p-3 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] group hover:bg-black/5 ${asContent ? (isDark ? "bg-white/5 border border-white/5" : "bg-slate-50 border border-slate-100") : ""}`}
                     >
@@ -2812,7 +2768,21 @@ function SettingsContent({
   favorites,
   bypassed,
   loadingTreatment,
-  setLoadingTreatment
+  setLoadingTreatment,
+  tempUnit,
+  setTempUnit,
+  location,
+  setLocation,
+  timeFormat,
+  setTimeFormat,
+  clockFormat,
+  setClockFormat,
+  dateFormat,
+  setDateFormat,
+  showTempInClock,
+  setShowTempInClock,
+  headingBar,
+  setHeadingBar
 }: { 
   isDark: boolean, 
   setIsDark: (val: boolean) => void,
@@ -2842,7 +2812,21 @@ function SettingsContent({
   favorites: string[],
   bypassed: boolean,
   loadingTreatment: string,
-  setLoadingTreatment: (val: string) => void
+  setLoadingTreatment: (val: string) => void,
+  tempUnit: "C" | "F",
+  setTempUnit: (val: "C" | "F") => void,
+  location: string,
+  setLocation: (val: string) => void,
+  timeFormat: "24h" | "12h",
+  setTimeFormat: (val: "24h" | "12h") => void,
+  clockFormat: "hh:mm:ss" | "hh:mm" | "custom",
+  setClockFormat: (val: "hh:mm:ss" | "hh:mm" | "custom") => void,
+  dateFormat: "dd/mm/yyyy" | "dd/mm/yy" | "dd/mm" | "custom",
+  setDateFormat: (val: "dd/mm/yyyy" | "dd/mm/yy" | "dd/mm" | "custom") => void,
+  showTempInClock: boolean,
+  setShowTempInClock: (val: boolean) => void,
+  headingBar: boolean,
+  setHeadingBar: (val: boolean) => void
 }) {
   const [name, setName] = useState(user?.displayName || userData?.name || "Vplay User");
   const [avatar, setAvatar] = useState(user?.photoURL || userData?.avatar || "");
@@ -3319,9 +3303,190 @@ function SettingsContent({
                 />
               </button>
             </div>
+
+            <div className={`h-[1px] mx-5 md:mx-8 ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
+
+            {/* 7. Heading Bar */}
+            <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 md:p-8 transition-all hover:bg-black/5 gap-4`}>
+              <div className="flex items-start md:items-center gap-4 md:gap-5">
+                <div className="p-3 md:p-4 rounded-2xl bg-indigo-500/10 text-indigo-500 shrink-0">
+                  <LayoutTemplate size={24} className="md:w-7 md:h-7" />
+                </div>
+                <div className="text-left space-y-1">
+                  <p className="text-base md:text-lg font-bold">Heading bar</p>
+                  <p className={`text-xs md:text-sm font-bold opacity-60 leading-tight ${isDark ? "text-white" : "text-slate-500"}`}>Hiển thị thanh tiêu đề và tìm kiếm tập trung ở trên đầu ứng dụng</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setHeadingBar(!headingBar)}
+                className={`w-14 md:w-16 h-7 md:h-8 rounded-full transition-all relative border-2 shrink-0 self-end sm:self-center ${headingBar ? "bg-purple-600/30 border-purple-600/40" : "bg-transparent border-slate-700/30"}`}
+              >
+                <motion.div 
+                  animate={{ 
+                    x: headingBar ? 28 : 4,
+                  }}
+                  initial={false}
+                  transition={{ type: "spring", damping: 20, stiffness: 200 }}
+                  className={`absolute top-[2px] h-[18px] md:h-[22px] w-[26px] md:w-[30px] rounded-full shadow-sm transition-colors ${headingBar ? "bg-white" : "bg-white"}`}
+                />
+              </button>
+            </div>
           </div>
 
           {/* Experimental separated block removed - moved to Thử nghiệm tab */}
+        </div>
+      </div>
+
+      {/* Weather Settings */}
+      <div className={`p-10 md:p-14 rounded-[64px] border flex flex-col transition-all w-full mt-8 md:mt-12 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+        <div className="flex items-center gap-4 mb-10 md:mb-16">
+          <div className="p-3 md:p-4 rounded-2xl md:rounded-3xl bg-blue-500/10 text-blue-500">
+            <Globe size={28} className="md:w-8 md:h-8" />
+          </div>
+          <h3 className={`font-bold text-3xl md:text-4xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Thời tiết</h3>
+        </div>
+
+        <div className="space-y-12">
+          {/* Unit selection */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <Droplet size={20} className="text-cyan-500" />
+              <p className="font-bold text-lg opacity-80 uppercase tracking-widest leading-none">Đơn bị nhiệt độ</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <button onClick={() => setTempUnit("C")} className={`h-16 rounded-[24px] font-bold text-xl transition-all ${tempUnit === "C" ? "btn-vibrant-3d" : isDark ? "bg-white/5 border border-white/5 text-white/40" : "bg-black/5 border border-black/5 text-black/40"}`}>
+                Độ C (°C)
+              </button>
+              <button onClick={() => setTempUnit("F")} className={`h-16 rounded-[24px] font-bold text-xl transition-all ${tempUnit === "F" ? "btn-vibrant-3d" : isDark ? "bg-white/5 border border-white/5 text-white/40" : "bg-black/5 border border-black/5 text-black/40"}`}>
+                Độ F (°F)
+              </button>
+            </div>
+          </div>
+
+          {/* Location customization */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <Navigation size={20} className="text-emerald-500" />
+              <p className="font-bold text-lg opacity-80 uppercase tracking-widest leading-none">Vị trí tùy chỉnh</p>
+            </div>
+            <div className={`relative group rounded-[28px] overflow-hidden transition-all ${isDark ? "bg-white/5 shadow-inner border border-white/5" : "bg-slate-100 shadow-sm border border-slate-200"}`}>
+              <input 
+                value={location} 
+                onChange={e => setLocation(e.target.value)} 
+                placeholder="Nhập tên thành phố (vd: Hanoi, Saigon)..."
+                className={`w-full px-8 py-5 text-lg font-bold bg-transparent outline-none transition-all ${
+                  isDark ? "text-white placeholder-white/20" : "text-slate-900 placeholder-slate-400"
+                }`} 
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Clock & Formatting Settings */}
+      <div className={`p-10 md:p-14 rounded-[64px] border flex flex-col transition-all w-full mt-8 md:mt-12 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+        <div className="flex items-center gap-4 mb-10 md:mb-16">
+          <div className="p-3 md:p-4 rounded-2xl md:rounded-3xl bg-amber-500/10 text-amber-500">
+            <Clock size={28} className="md:w-8 md:h-8" />
+          </div>
+          <h3 className={`font-bold text-3xl md:text-4xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Đồng hồ & Thời gian</h3>
+        </div>
+
+        <div className="space-y-12">
+          {/* 1. Time Format 24h vs 12h */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <Zap size={20} className="text-purple-500" />
+              <p className="font-bold text-lg opacity-80 uppercase tracking-widest leading-none">Chế độ hiển thị</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <button 
+                onClick={() => setTimeFormat("24h")}
+                className={`h-16 rounded-[24px] font-bold text-xl transition-all flex items-center justify-center gap-3 ${timeFormat === "24h" ? "btn-vibrant-3d" : isDark ? "bg-white/5 text-white/40 border border-white/5" : "bg-black/5 text-slate-400 border border-black/5"}`}
+              >
+                24 Giờ
+              </button>
+              <button 
+                onClick={() => setTimeFormat("12h")}
+                className={`h-16 rounded-[24px] font-bold text-xl transition-all flex items-center justify-center gap-3 ${timeFormat === "12h" ? "btn-vibrant-3d" : isDark ? "bg-white/5 text-white/40 border border-white/5" : "bg-black/5 text-slate-400 border border-black/5"}`}
+              >
+                12 Giờ
+              </button>
+            </div>
+          </div>
+
+          {/* 2. Clock Format selection */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <Sliders size={20} className="text-blue-500" />
+              <p className="font-bold text-lg opacity-80 uppercase tracking-widest leading-none">Định dạng hiển thị Giờ</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {[
+                { id: "hh:mm:ss", label: "hh:mm:ss" },
+                { id: "hh:mm", label: "hh:mm" },
+                { id: "custom", label: "Tùy chỉnh" }
+              ].map(opt => (
+                <button 
+                  key={opt.id}
+                  onClick={() => setClockFormat(opt.id as any)}
+                  className={`h-14 rounded-[20px] font-bold text-sm transition-all ${clockFormat === opt.id ? "btn-vibrant-3d" : isDark ? "bg-white/5 text-white/40" : "bg-black/5 text-slate-500"}`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 3. Date Format selection */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <Calendar size={20} className="text-red-500" />
+              <p className="font-bold text-lg opacity-80 uppercase tracking-widest leading-none">Định dạng hiển thị Ngày</p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { id: "dd/mm/yyyy", label: "dd/mm/yyyy" },
+                { id: "dd/mm/yy", label: "dd/mm/yy" },
+                { id: "dd/mm", label: "dd/mm" },
+                { id: "custom", label: "Tùy chỉnh" }
+              ].map(opt => (
+                <button 
+                  key={opt.id}
+                  onClick={() => setDateFormat(opt.id as any)}
+                  className={`h-14 rounded-[20px] font-bold text-[10px] transition-all px-2 ${dateFormat === opt.id ? "btn-vibrant-3d" : isDark ? "bg-white/5 text-white/40" : "bg-black/5 text-slate-500"}`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 4. Show temp in clock toggle */}
+          <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 md:p-8 transition-all hover:bg-black/5 gap-4 rounded-[40px] border-2 mt-4 ${isDark ? "bg-white/5 border-white/5" : "bg-slate-50 border-slate-200 shadow-sm"}`}>
+              <div className="flex items-start md:items-center gap-4">
+                <div className="p-3 md:p-4 rounded-2xl bg-cyan-500/10 text-cyan-500 shrink-0">
+                  <Sun size={24} className="md:w-7 md:h-7" />
+                </div>
+                <div className="text-left space-y-1">
+                  <p className="text-base md:text-lg font-bold">Hiển thị nhiệt độ</p>
+                  <p className={`text-xs md:text-sm font-bold opacity-60 leading-tight ${isDark ? "text-white" : "text-slate-500"}`}>Hiển thị nhiệt độ cạnh đồng hồ và ngày tháng tại sidebar</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowTempInClock(!showTempInClock)}
+                className={`w-14 md:w-16 h-7 md:h-8 rounded-full transition-all relative border-2 shrink-0 self-end sm:self-center ${showTempInClock ? "bg-cyan-600/30 border-cyan-600/40" : "bg-transparent border-slate-700/30"}`}
+              >
+                <motion.div 
+                  animate={{ 
+                    x: showTempInClock ? 28 : 4,
+                  }}
+                  initial={false}
+                  transition={{ type: "spring", damping: 20, stiffness: 200 }}
+                  className={`absolute top-[2px] h-[18px] md:h-[22px] w-[26px] md:w-[30px] rounded-full shadow-sm transition-colors ${showTempInClock ? "bg-white" : "bg-white"}`}
+                />
+              </button>
+            </div>
         </div>
       </div>
 
@@ -3468,12 +3633,11 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
             />
             <motion.div
               layoutId="auth-modal"
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className={`relative w-full max-w-5xl max-h-[95vh] overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.5)] flex flex-col md:flex-row min-h-[400px] md:min-h-[580px] ${
-                liquidGlass === "glassy" ? "rounded-[32px] md:rounded-[48px] backdrop-blur-[100px] bg-white/10 border border-white/20" : isDark ? "rounded-[32px] md:rounded-[48px] bg-slate-900 border border-white/5" : "rounded-[32px] md:rounded-[48px] bg-white"
-              }`}
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+              transition={{ type: "spring", damping: 30, stiffness: 400 }}
+              className={`relative w-full max-w-5xl max-h-[95vh] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.4)] flex flex-col md:flex-row min-h-[400px] md:min-h-[580px] rounded-[40px] md:rounded-[56px] bg-white/95 backdrop-blur-[100px] border border-white/40`}
             >
               {/* Image/Visual Side - Responsive hiding for very small screens if necessary, or just smaller height */}
               <div className="w-full md:w-[45%] h-48 md:h-auto bg-gradient-to-br from-purple-600 to-indigo-900 p-6 md:p-12 relative flex flex-col justify-between overflow-hidden shrink-0">
@@ -3717,12 +3881,11 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
       className="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-4 md:p-8 backdrop-blur-2xl bg-black/60"
     >
       <motion.div
-        initial={{ scale: 0.9, y: 20, opacity: 0 }}
-        animate={{ scale: 1, y: 0, opacity: 1 }}
-        exit={{ scale: 0.9, y: 20, opacity: 0 }}
-        className={`relative w-full max-w-4xl max-h-[92vh] overflow-hidden rounded-[32px] md:rounded-[48px] border-2 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex flex-col ${
-          isDark ? "bg-slate-900/90 border-white/10" : "bg-white/95 border-slate-200"
-        } ${liquidGlass === "glassy" ? "backdrop-blur-3xl" : ""}`}
+        initial={{ scale: 0.5, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.5, opacity: 0 }}
+        transition={{ type: "spring", damping: 30, stiffness: 400 }}
+        className={`relative w-full max-w-4xl max-h-[92vh] overflow-hidden rounded-[40px] md:rounded-[56px] shadow-[0_40px_100px_rgba(0,0,0,0.4)] flex flex-col bg-white/95 backdrop-blur-[100px] border border-white/40`}
       >
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 via-pink-500 to-amber-500" />
         
@@ -4270,6 +4433,122 @@ function OnboardingWizard({
   );
 }
 
+function HeadingBar({ 
+  isDark, 
+  liquidGlass, 
+  onSearchClick, 
+  onMenuClick, 
+  searchQuery,
+  currentTime,
+  weather,
+  showTempInClock,
+  getTempDisplay,
+  formatTime,
+  formatDateString,
+  location,
+  user,
+  onLogin,
+  onLogout
+}: { 
+  isDark: boolean, 
+  liquidGlass: "glassy" | "tinted", 
+  onSearchClick: () => void, 
+  onMenuClick: () => void,
+  searchQuery: string,
+  currentTime: Date,
+  weather: any,
+  showTempInClock: boolean,
+  getTempDisplay: () => string,
+  formatTime: (d: Date) => string,
+  formatDateString: (d: Date) => string,
+  location: string,
+  user: any,
+  onLogin: () => void,
+  onLogout: () => void
+}) {
+  return (
+    <div className={`h-16 flex items-center justify-between px-4 sticky top-0 z-[105] transition-all ${
+      isDark ? "bg-[#130f26]" : "bg-[#f2f2f7] border-b border-slate-200"
+    }`}>
+      <div className="flex items-center gap-2">
+        <button 
+          onClick={onMenuClick}
+          className={`p-2 rounded-lg transition-all hover:bg-black/10 ${isDark ? "text-white/60 hover:text-white" : "text-slate-600 hover:text-slate-900"}`}
+        >
+          <Menu size={20} />
+        </button>
+
+        <button
+          onClick={user ? onLogout : onLogin}
+          className={`group flex items-center gap-2 px-3 py-1.5 rounded-full transition-all text-xs font-bold ${
+            user 
+              ? (isDark ? "bg-red-500/10 text-red-400 hover:bg-red-500/20" : "bg-red-50 text-red-500 hover:bg-red-100")
+              : (isDark ? "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20" : "bg-emerald-50 text-emerald-500 hover:bg-emerald-100")
+          }`}
+        >
+          {user ? <SignOutIcon size={14} /> : <SignInIcon size={14} />}
+          <span>{user ? "Đăng xuất" : "Đăng nhập"}</span>
+        </button>
+
+        <div className="flex items-center gap-2 ml-1">
+          <motion.img 
+            src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi" 
+            alt="Logo" 
+            className="w-6 h-6 object-contain"
+            referrerPolicy="no-referrer"
+          />
+        </div>
+      </div>
+
+      <div className="flex-1 flex justify-center mx-4">
+        <div 
+          onClick={onSearchClick}
+          className={`group flex items-center gap-3 px-4 h-10 w-full max-w-[150px] sm:max-w-sm md:max-w-md lg:max-w-2xl rounded-xl border transition-all cursor-text ${
+            isDark 
+              ? "bg-white/5 border-white/5 hover:bg-white/10 text-white/40" 
+              : "bg-black/5 border-slate-200 hover:bg-black/10 text-slate-500"
+          }`}
+        >
+          <Search size={16} className="group-hover:scale-110 transition-transform" />
+          <span className="text-xs font-bold overflow-hidden whitespace-nowrap text-ellipsis">
+            {searchQuery || "Find and search"}
+          </span>
+          <div className="flex-1" />
+          <div className={`hidden sm:block px-1.5 py-0.5 rounded-md border text-[9px] font-bold ${
+            isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200"
+          }`}>
+            Ctrl K
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <div className="flex flex-col items-end">
+          <div className="flex items-center gap-3">
+            {showTempInClock && weather && (
+              <div className={`text-xs font-bold flex items-center gap-1 ${isDark ? "text-cyan-400" : "text-cyan-600"}`}>
+                <Thermometer size={14} />
+                {getTempDisplay()}
+              </div>
+            )}
+            <div className={`text-base font-black font-mono tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
+              {formatTime(currentTime)}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className={`text-[9px] font-bold uppercase tracking-tight ${isDark ? "text-white/60" : "text-slate-600"}`}>
+               {location}
+            </span>
+            <div className={`text-[10px] font-black tracking-widest uppercase ${isDark ? "text-white/40" : "text-slate-500"}`}>
+              {formatDateString(currentTime)}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [showSplash, setShowSplash] = useState(false);
   const [splashDuration, setSplashDuration] = useState(5000);
@@ -4330,7 +4609,9 @@ function App() {
   });
   const [sidebarWidth, setSidebarWidth] = useState(() => {
     const saved = localStorage.getItem("vplay_sidebar_width");
-    return saved ? parseInt(saved, 10) : 280;
+    const baseWidth = saved ? parseInt(saved, 10) : 280;
+    const isHeading = localStorage.getItem("vplay_heading_bar") === "true";
+    return isHeading && baseWidth > 240 ? 240 : baseWidth;
   });
   const isResizing = useRef(false);
 
@@ -4450,6 +4731,96 @@ function App() {
   }, [activeTab]);
   const [isDark, setIsDark] = useState(true); // Default to dark for better gradient look
   const [currentTime, setCurrentTime] = useState(new Date());
+const [headingBar, setHeadingBar] = useState(() => {
+    return localStorage.getItem("vplay_heading_bar") === "true";
+  });
+  useEffect(() => {
+    localStorage.setItem("vplay_heading_bar", headingBar.toString());
+    if (headingBar && sidebarWidth > 240) {
+      setSidebarWidth(240);
+    } else if (!headingBar && sidebarWidth < 280 && !isSidebarLocked) {
+      setSidebarWidth(280);
+    }
+  }, [headingBar]);
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (date: Date) => {
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    
+    if (timeFormat === "12h") {
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+    }
+    
+    const hStr = hours.toString().padStart(2, '0');
+    
+    if (clockFormat === "hh:mm") return `${hStr}:${minutes}${timeFormat === "12h" ? " " + ampm : ""}`;
+    return `${hStr}:${minutes}:${seconds}${timeFormat === "12h" ? " " + ampm : ""}`;
+  };
+
+  const formatDateString = (date: Date) => {
+    const d = date.getDate().toString().padStart(2, '0');
+    const m = (date.getMonth() + 1).toString().padStart(2, '0');
+    const yyyy = date.getFullYear();
+    const yy = yyyy.toString().slice(-2);
+    
+    if (dateFormat === "dd/mm/yy") return `${d}/${m}/${yy}`;
+    if (dateFormat === "dd/mm") return `${d}/${m}`;
+    return `${d}/${m}/${yyyy}`;
+  };
+
+  const getTempDisplay = () => {
+    if (!weather) return "--°";
+    const t = tempUnit === "F" ? (weather.temp * 9/5) + 32 : weather.temp;
+    return `${Math.round(t)}°${tempUnit}`;
+  };
+  const [tempUnit, setTempUnit] = useState<"C" | "F">(() => (localStorage.getItem("vplay_temp_unit") as "C" | "F") || "C");
+  const [location, setLocation] = useState(() => localStorage.getItem("vplay_location") || "Hanoi");
+  const [weather, setWeather] = useState<{ temp: number, status: string } | null>(null);
+  const [timeFormat, setTimeFormat] = useState<"24h" | "12h">(() => (localStorage.getItem("vplay_time_format") as "24h" | "12h") || "24h");
+  const [clockFormat, setClockFormat] = useState<"hh:mm:ss" | "hh:mm" | "custom">(() => (localStorage.getItem("vplay_clock_format") as any) || "hh:mm:ss");
+  const [dateFormat, setDateFormat] = useState<"dd/mm/yyyy" | "dd/mm/yy" | "dd/mm" | "custom">(() => (localStorage.getItem("vplay_date_format") as any) || "dd/mm/yyyy");
+  const [showTempInClock, setShowTempInClock] = useState(() => localStorage.getItem("vplay_show_temp") === "true");
+
+  useEffect(() => {
+    localStorage.setItem("vplay_temp_unit", tempUnit);
+    localStorage.setItem("vplay_location", location);
+    localStorage.setItem("vplay_time_format", timeFormat);
+    localStorage.setItem("vplay_clock_format", clockFormat);
+    localStorage.setItem("vplay_date_format", dateFormat);
+    localStorage.setItem("vplay_show_temp", showTempInClock.toString());
+  }, [tempUnit, location, timeFormat, clockFormat, dateFormat, showTempInClock]);
+
+  const updateWeather = useCallback(async () => {
+    try {
+      // Mocking weather based on location or using a simple geocode + open-meteo
+      // For this demo, we'll fetch for Hanoi if location is Hanoi, or random-ish for others
+      const lat = location.toLowerCase().includes("hanoi") ? 21.0285 : 10.8231; // Hanoi or Saigon
+      const lon = location.toLowerCase().includes("hanoi") ? 105.8542 : 106.6297;
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+      const data = await res.json();
+      if (data.current_weather) {
+        setWeather({
+          temp: data.current_weather.temperature,
+          status: "Sunny" // Simple mock status
+        });
+      }
+    } catch (e) {
+      console.error("Failed to fetch weather", e);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    updateWeather();
+    const timer = setInterval(updateWeather, 600000); // 10 mins
+    return () => clearInterval(timer);
+  }, [updateWeather]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -4678,6 +5049,7 @@ function App() {
 
   const tabs = baseTabs.filter(t => {
     if (t.id === "Quản trị" && !isAdmin) return false;
+    if (t.id === "Khám phá" && headingBar) return false;
     return true;
   });
 
@@ -4756,8 +5128,32 @@ function App() {
       style={{
         paddingLeft: useSidebar && !isMobile && !isSidebarRight ? (isSidebarExpanded ? sidebarWidth + (sidebarDisplay === "float" ? 24 : 0) : (sidebarDisplay === "float" ? 104 : 80)) : 0,
         paddingRight: useSidebar && !isMobile && isSidebarRight ? (isSidebarExpanded ? sidebarWidth + (sidebarDisplay === "float" ? 24 : 0) : (sidebarDisplay === "float" ? 104 : 80)) : 0,
+        paddingTop: headingBar ? 64 : 0,
       }}
       >
+      {headingBar && (
+        <div className="fixed top-0 left-0 right-0 z-[110]">
+          <HeadingBar 
+            isDark={isDark} 
+            liquidGlass={liquidGlass} 
+            searchQuery={searchQuery}
+            onMenuClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
+            onSearchClick={() => {
+              setActiveTab("Khám phá");
+            }}
+            currentTime={currentTime}
+            weather={weather}
+            showTempInClock={showTempInClock}
+            getTempDisplay={getTempDisplay}
+            formatTime={formatTime}
+            formatDateString={formatDateString}
+            location={location}
+            user={user}
+            onLogin={handleLogin}
+            onLogout={handleLogout}
+          />
+        </div>
+      )}
       {/* Global Immersive Background Blur */}
       <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
         <AnimatePresence mode="wait">
@@ -4891,6 +5287,85 @@ function App() {
           </div>
         </form>
       </LiquidModal>
+
+      <AnimatePresence>
+        {isSearchOpen && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSearchOpen(false)}
+              className={`absolute inset-0 bg-black/60 backdrop-blur-md`}
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className={`relative w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col ${
+                isDark ? "popup-3d-dark" : "popup-3d-light"
+              } ${liquidGlass ? "backdrop-blur-3xl" : ""}`}
+            >
+              <div className="p-6 border-b border-white/10 flex items-center gap-4">
+                 <div className={`flex-1 flex items-center gap-4 px-6 py-4 rounded-3xl ${isDark ? "bg-white/5" : "bg-black/5"}`}>
+                    <Search className={isDark ? "text-purple-400" : "text-purple-600"} size={22} />
+                    <input 
+                      autoFocus
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Tìm kiếm kênh, chương trình, cài đặt..."
+                      className={`flex-1 bg-transparent border-none outline-none text-lg font-bold ${isDark ? "text-white" : "text-black"}`}
+                    />
+                    {searchQuery && (
+                      <button onClick={() => setSearchQuery("")} className="p-1 rounded-full hover:bg-black/10">
+                        <X size={16} />
+                      </button>
+                    )}
+                 </div>
+                 <button 
+                  onClick={() => setIsSearchOpen(false)}
+                  className={`p-4 rounded-full transition-all active:scale-90 ${isDark ? "hover:bg-white/10" : "hover:bg-black/10"}`}
+                 >
+                   <X size={24} />
+                 </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4">
+                <SearchPopup 
+                  isDark={isDark}
+                  searchQuery={searchQuery}
+                  setActiveChannel={handleChannelSelect}
+                  onClose={() => {
+                    setIsSearchOpen(false);
+                    setSearchQuery("");
+                  }}
+                  favorites={favorites}
+                  liquidGlass={liquidGlass}
+                  setActiveTab={setActiveTab}
+                  setIsDark={setIsDark}
+                  setLiquidGlass={setLiquidGlass}
+                  onLogin={handleLogin}
+                  onLogout={handleLogout}
+                  setSortOrder={setSortOrder}
+                  loadingTreatment={loadingTreatment}
+                  asContent={false}
+                  useSidebar={useSidebar}
+                  setUseSidebar={setUseSidebar}
+                  isSidebarRight={isSidebarRight}
+                  setIsSidebarRight={setIsSidebarRight}
+                  sidebarDisplay={sidebarDisplay}
+                  setSidebarDisplay={setSidebarDisplay}
+                  isPinningEnabled={isPinningEnabled}
+                  setIsPinningEnabled={setIsPinningEnabled}
+                  featureFlags={featureFlags}
+                  setFeatureFlags={setFeatureFlags}
+                  setIsSidebarLocked={setIsSidebarLocked}
+                  setSearchQuery={setSearchQuery}
+                />
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <div className="flex-1 flex flex-col min-h-screen px-0 md:px-8">
         <AnimatePresence>
@@ -5064,6 +5539,20 @@ function App() {
                       bypassed={bypassed}
                       loadingTreatment={loadingTreatment}
                       setLoadingTreatment={setLoadingTreatment}
+                      tempUnit={tempUnit}
+                      setTempUnit={setTempUnit}
+                      location={location}
+                      setLocation={setLocation}
+                      timeFormat={timeFormat}
+                      setTimeFormat={setTimeFormat}
+                      clockFormat={clockFormat}
+                      setClockFormat={setClockFormat}
+                      dateFormat={dateFormat}
+                      setDateFormat={setDateFormat}
+                      showTempInClock={showTempInClock}
+                      setShowTempInClock={setShowTempInClock}
+                      headingBar={headingBar}
+                      setHeadingBar={setHeadingBar}
                     />
                   </div>
                 </div>
@@ -5094,8 +5583,8 @@ function App() {
                 className={`fixed top-6 z-[51] p-3.5 rounded-2xl shadow-2xl transition-all active:scale-95 ${
                   isSidebarRight ? "right-6" : "left-6"
                 } ${
-                  isDark ? "bg-[#11141d] text-white border border-white/10" : "bg-white text-slate-800 border border-slate-200"
-                } backdrop-blur-xl`}
+                  isDark ? "bg-[#130f26] text-white border border-white/10" : "bg-white text-slate-800 border border-slate-200"
+                }`}
               >
                 <Menu size={24} />
               </motion.button>
@@ -5122,18 +5611,18 @@ function App() {
               }}
               exit={{ x: isSidebarRight ? sidebarWidth : -sidebarWidth }}
               transition={{ type: "spring", damping: 30, stiffness: 300, width: { duration: 0 } }}
-              className={`fixed z-50 flex flex-col transition-all duration-0 overflow-visible ${
+              className={`fixed z-[120] flex flex-col transition-all duration-0 overflow-visible ${
                 isSidebarRight 
                   ? (sidebarDisplay === "float" && !isMobile ? "right-6" : "right-0") 
                   : (sidebarDisplay === "float" && !isMobile ? "left-6" : "left-0")
               } ${
                 isMobile 
-                  ? "top-0 h-full !rounded-none !m-0 !left-0 !right-0 transition-none" 
+                  ? `${headingBar ? "top-16 h-[calc(100%-64px)]" : "top-0 h-full"} !rounded-none !m-0 !left-0 !right-0 transition-none` 
                   : sidebarDisplay === "float" 
-                    ? "top-6 h-[calc(100%-48px)] !rounded-[32px] border shadow-2xl backdrop-blur-md" 
-                    : `top-0 h-full border-y-0 ${isSidebarRight ? "border-r-0 border-l" : "border-l-0 border-r"} shadow-2xl backdrop-blur-md`
+                    ? `${headingBar ? "top-20 h-[calc(100%-96px)]" : "top-6 h-[calc(100%-48px)]"} !rounded-[32px] border shadow-2xl`
+                    : `${headingBar ? "top-16 h-[calc(100%-64px)]" : "top-0 h-full"} border-y-0 ${isSidebarRight ? "border-r-0 border-l" : "border-l-0 border-r"} shadow-2xl`
               } ${
-                isDark ? "bg-[#11141d]/85 border-white/5 shadow-black/50" : "bg-[#f2f2f7]/95 border-slate-200 shadow-xl"
+                isDark ? "bg-[#130f26] border-white/5 shadow-black/50" : "bg-[#f2f2f7]/95 border-slate-200 shadow-xl"
               }`}
             >
               {/* Resize Handle */}
@@ -5150,72 +5639,74 @@ function App() {
               )}
 
               {/* Logo & Hamburger Section */}
-              <div className="p-6">
-                <div className={`flex items-center gap-4 h-12 ${!isSidebarExpanded ? "justify-center" : ""}`}>
-                  <AnimatePresence mode="wait">
-                    {!isSidebarExpanded ? (
-                      <motion.button 
-                        key="collapsed-logo"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        onClick={() => setIsSidebarExpanded(true)}
-                        className="w-12 h-12 flex items-center justify-center transition-all group overflow-hidden relative"
-                      >
-                        <img 
-                          src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi" 
-                          alt="Vplay" 
-                          className="w-10 h-10 object-contain drop-shadow-lg group-hover:scale-110 transition-transform" 
-                          referrerPolicy="no-referrer"
-                        />
-                      </motion.button>
-                    ) : (
-                      <motion.div 
-                        key="expanded-logo"
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -10 }}
-                        className="flex items-center gap-4 w-full"
-                      >
-                        <button 
-                          onClick={() => setIsSidebarExpanded(false)}
-                          className={`p-2 rounded-xl transition-all ${isDark ? "hover:bg-white/10 text-white" : "hover:bg-black/5 text-black"}`}
+              {!headingBar && (
+                <div className="p-6">
+                  <div className={`flex items-center gap-4 h-12 ${!isSidebarExpanded ? "justify-center" : ""}`}>
+                    <AnimatePresence mode="wait">
+                      {!isSidebarExpanded ? (
+                        <motion.button 
+                          key="collapsed-logo"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          onClick={() => setIsSidebarExpanded(true)}
+                          className="w-12 h-12 flex items-center justify-center transition-all group overflow-hidden relative"
                         >
-                          <Menu size={28} />
-                        </button>
-                        <div className="flex items-center">
                           <img 
                             src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi" 
                             alt="Vplay" 
-                            className="h-10 w-10 object-contain drop-shadow-md"
+                            className="w-10 h-10 object-contain drop-shadow-lg group-hover:scale-110 transition-transform" 
                             referrerPolicy="no-referrer"
                           />
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                        </motion.button>
+                      ) : (
+                        <motion.div 
+                          key="expanded-logo"
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -10 }}
+                          className="flex items-center gap-4 w-full"
+                        >
+                          <button 
+                            onClick={() => setIsSidebarExpanded(false)}
+                            className={`p-2 rounded-xl transition-all ${isDark ? "hover:bg-white/10 text-white" : "hover:bg-black/5 text-black"}`}
+                          >
+                            <Menu size={28} />
+                          </button>
+                          <div className="flex items-center">
+                            <img 
+                              src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi" 
+                              alt="Vplay" 
+                              className="h-10 w-10 object-contain drop-shadow-md"
+                              referrerPolicy="no-referrer"
+                            />
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Integrated Search Bar removed as per user request (already has Explore tab) */}
               <div className="mb-4" />
 
               {/* Navigation Items */}
               <div className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar">
-                {tabs.filter(t => t.id !== "Cài đặt").map((tab) => {
+                {tabs.filter(t => t.id !== "Cài đặt").map((tab, idx) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === (tab.id || tab.name);
                   return (
                     <button
-                      key={`side-nav-${tab.id || tab.name}`}
+                      key={`side-nav-${tab.id || tab.name}-${idx}`}
                       onClick={() => {
                         setActiveTab(tab.id || tab.name);
                         if (isMobile) setIsSidebarExpanded(false);
                       }}
                       className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all relative group h-[50px] overflow-hidden ${
                         isActive 
-                          ? (isDark ? "bg-[#1d2230] text-white" : "bg-black/5 text-black") 
-                          : (isDark ? "text-white/60 hover:text-white" : "text-black hover:bg-black/5")
+                          ? (isDark ? "bg-white/10 text-white" : "bg-black/5 text-black") 
+                          : (isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5")
                       } ${!isSidebarExpanded ? "justify-center" : ""}`}
                     >
                       {isActive && (
@@ -5274,14 +5765,29 @@ function App() {
 
               {/* Footer Section */}
               <div className={`p-6 mt-auto space-y-6 border-t ${isDark ? "border-white/5" : "border-slate-100"}`}>
-                {isSidebarExpanded && (
+                {isSidebarExpanded && !headingBar && (
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col">
-                      <div className={`text-2xl font-black font-mono tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
-                        {currentTime.toLocaleTimeString('en-GB')}
+                      <div className="flex items-baseline gap-3">
+                        <div className={`text-2xl font-black font-mono tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
+                          {formatTime(currentTime || new Date())}
+                        </div>
+                        {showTempInClock && weather && (
+                          <div className={`text-sm font-bold flex items-center gap-1.5 ${isDark ? "text-cyan-400" : "text-cyan-600"}`}>
+                            <Thermometer size={14} strokeWidth={1.5} />
+                            {getTempDisplay()}
+                          </div>
+                        )}
                       </div>
-                      <div className={`text-[10px] font-black tracking-[0.2em] uppercase ${isDark ? "text-white/40" : "text-slate-500"}`}>
-                        {currentTime.toLocaleDateString('en-GB')}
+                      <div className="flex items-center gap-2">
+                        <div className={`text-[10px] font-black tracking-[0.2em] uppercase ${isDark ? "text-white/40" : "text-slate-500"}`}>
+                          {formatDateString(currentTime || new Date())}
+                        </div>
+                        {showTempInClock && weather && isSidebarExpanded && (
+                          <span className={`text-[8px] font-bold uppercase tracking-tight ${isDark ? "text-white/20" : "text-slate-400"}`}>
+                            • {location}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -5302,8 +5808,8 @@ function App() {
                   }}
                   className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all w-full h-[50px] relative overflow-hidden group ${
                     activeTab === "Cài đặt"
-                      ? (isDark ? "bg-[#1d2230] text-white" : "bg-black/5 text-black")
-                      : (isDark ? "text-white/60 hover:text-white" : "text-black hover:bg-black/5")
+                      ? (isDark ? "bg-white/10 text-white" : "bg-black/5 text-black")
+                      : (isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5")
                   } ${!isSidebarExpanded ? "justify-center" : ""}`}
                 >
                   {activeTab === "Cài đặt" && (
@@ -5322,25 +5828,27 @@ function App() {
                   {isSidebarExpanded && <span className="font-bold text-base">Cài đặt</span>}
                 </button>
 
-                <button
-                  onClick={user ? handleLogout : handleLogin}
-                  className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all w-full h-[50px] relative overflow-hidden group ${
-                    isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5"
-                  } ${!isSidebarExpanded ? "justify-center" : ""}`}
-                >
-                  <div className={`p-1.5 rounded-lg transition-colors ${
-                    user 
-                      ? (isDark ? "bg-red-500/10 text-red-400 group-hover:bg-red-500/20" : "bg-red-50 text-red-500 group-hover:bg-red-100")
-                      : (isDark ? "bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20" : "bg-emerald-50 text-emerald-500 group-hover:bg-emerald-100")
-                  }`}>
-                    {user ? <SignOutIcon size={20} /> : <SignInIcon size={20} />}
-                  </div>
-                  {isSidebarExpanded && (
-                    <span className="font-bold text-base whitespace-nowrap">
-                      {user ? "Đăng xuất" : "Đăng nhập"}
-                    </span>
-                  )}
-                </button>
+                {!headingBar && (
+                  <button
+                    onClick={user ? handleLogout : handleLogin}
+                    className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all w-full h-[50px] relative overflow-hidden group ${
+                      isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5"
+                    } ${!isSidebarExpanded ? "justify-center" : ""}`}
+                  >
+                    <div className={`p-1.5 rounded-lg transition-colors ${
+                      user 
+                        ? (isDark ? "bg-red-500/10 text-red-400 group-hover:bg-red-500/20" : "bg-red-50 text-red-500 group-hover:bg-red-100")
+                        : (isDark ? "bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20" : "bg-emerald-50 text-emerald-500 group-hover:bg-emerald-100")
+                    }`}>
+                      {user ? <SignOutIcon size={20} /> : <SignInIcon size={20} />}
+                    </div>
+                    {isSidebarExpanded && (
+                      <span className="font-bold text-base whitespace-nowrap">
+                        {user ? "Đăng xuất" : "Đăng nhập"}
+                      </span>
+                    )}
+                  </button>
+                )}
               </div>
             </motion.div>
           </>
@@ -5489,11 +5997,11 @@ function App() {
                       animate={{ scale: 1, opacity: 1 }}
                     >
                       <div className={`text-lg font-medium tracking-wide ${isDark ? "text-white" : "text-slate-900"}`}>
-                        {currentTime.toLocaleTimeString('en-GB')}
+                        {(currentTime || new Date()).toLocaleTimeString('en-GB')}
                       </div>
                       <div className="w-px h-4 bg-slate-500/20" />
                       <div className={`text-lg font-medium tracking-wide uppercase ${isDark ? "text-white/40" : "text-slate-500"}`}>
-                        {currentTime.toLocaleDateString('en-GB')}
+                        {(currentTime || new Date()).toLocaleDateString('en-GB')}
                       </div>
                     </motion.div>
                   )}

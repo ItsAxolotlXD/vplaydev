@@ -8,7 +8,7 @@ export type Channel = {
 
 export const channels: Channel[] = [
   // VTV
-  { category: "VTV", name: "VTV1", logo: "https://img.vtvprime.vn/3besFRMbi8HdBDsdgQNVFnTWi7KiLruKJ7uTXobHG2g/rs:fit:836:468/czM6Ly9wcmQtc24taW1hZ2VzL2NoYW5uZWwvYzQ0ZjFjMGMtYTAzOC00ZWMxLThiZWUtNDJlNTBmMjE1YTI4LnBuZw==.png", stream: "https://live.fptplay53.net/fnxch2/vtv1hd_abr.smil/chunklist.m3u8" },
+  { category: "VTV", name: "VTV1", logo: "https://upload.wikimedia.org/wikipedia/commons/2/23/VTV1_logo_2013-nay.png", stream: "https://live.fptplay53.net/fnxch2/vtv1hd_abr.smil/chunklist.m3u8" },
   { category: "VTV", name: "VTV2", logo: "https://img.vtvprime.vn/w4IKXks-9-9WGKIssgP0s5mx5SeFo5Uff0GfKym61bk/rs:fit:836:468/czM6Ly9wcmQtc24taW1hZ2VzL2NoYW5uZWwvN2ViZjUxZTEtNmNjYS00NWZkLWI4MjMtMDhmYTkxODcyYWI4LnBuZw==.png", stream: "https://live.fptplay53.net/fnxch2/vtv2hd_abr.smil/chunklist.m3u8" },
   { category: "VTV", name: "VTV3", logo: "https://img.vtvprime.vn/bgy0or6CTa3_xe1_viCTS_4ZIQfwiGzb5rdiTTd1wuc/rs:fit:836:468/czM6Ly9wcmQtc24taW1hZ2VzL2NoYW5uZWwvZjdkZTIzZjItYWYyYS00MmUyLWFhNTEtOWU3NTIwNzJkMDI1LnBuZw==.png", stream: "https://live-a.fptplay53.net/live/media/VTV3HD/live_hls_avc/index.m3u8" },
   { category: "VTV", name: "VTV4", logo: "https://img.vtvprime.vn/_6GyruCvlBkAppkupY3LvFNoAvzITxE9U0OFC_VCZ08/rs:fit:836:468/czM6Ly9wcmQtc24taW1hZ2VzL2NoYW5uZWwvZjU5OGY0NzYtMzMzOC00Zjg3LTg4MzgtODJjYzAxYzAxNDEwLnBuZw==.png", stream: "https://live.fptplay53.net/fnxch2/vtv4hd_abr.smil/chunklist.m3u8" },
