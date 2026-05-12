@@ -64,8 +64,8 @@ import {
 const HomeIcon = ({ className, size }: { className?: string, size?: number | string }) => <FluentIcon src={ICON_URLS.HOME} className={className} size={size} />;
 const TvIcon = ({ className, size }: { className?: string, size?: number | string }) => <FluentIcon src={ICON_URLS.TV} className={className} size={size} />;
 const SettingsIcon = ({ className, size }: { className?: string, size?: number | string }) => <FluentIcon src={ICON_URLS.SETTINGS} className={className} size={size} />;
-const SignInIcon = ({ className, size }: { className?: string, size?: number | string }) => <LogIn className={className} size={size || 22} strokeWidth={2.5} />;
-const SignOutIcon = ({ className, size }: { className?: string, size?: number | string }) => <LogOut className={className} size={size || 22} strokeWidth={2.5} />;
+const SignInIcon = ({ className, size }: { className?: string, size?: number | string }) => <FluentIcon src={ICON_URLS.SIGN_IN} className={className} size={size || 22} />;
+const SignOutIcon = ({ className, size }: { className?: string, size?: number | string }) => <FluentIcon src={ICON_URLS.SIGN_OUT} className={className} size={size || 22} />;
 const ExperimentalIcon = ({ className, size }: { className?: string, size?: number | string }) => <Flask className={className} size={size || 22} strokeWidth={2.5} />;
 const LikeIcon = ({ className, size, filled }: { className?: string, size?: number | string, filled?: boolean }) => <Heart className={className} size={size || 20} fill={filled ? "currentColor" : "none"} strokeWidth={2.5} />;
 const CommunityIcon = ({ className, size }: { className?: string, size?: number | string }) => <Users className={className} size={size || 20} strokeWidth={2.5} />;
@@ -284,7 +284,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status }: { src
 
   if (error || !src) {
     return (
-      <div className={`${className} flex flex-col items-center justify-center bg-slate-800/50 rounded-[24px] border border-slate-700/50 p-1 text-center`}>
+      <div className={`${className} flex flex-col items-center justify-center bg-slate-800/50 rounded-[23px] border border-slate-700/50 p-1 text-center`}>
         <TvIcon size={24} className={liquidGlass === "tinted" ? "text-black" : "text-slate-500 mb-1"} />
         <span className={`text-[10px] font-bold leading-tight line-clamp-2 uppercase ${liquidGlass === "tinted" ? "text-black/60" : "opacity-60"}`}>{alt}</span>
       </div>
@@ -292,30 +292,30 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status }: { src
   }
 
   const scaleMap: { [key: string]: string } = {
-    "Lâm Đồng 1 (LTV1)": "md:scale-[1.4]",
-    "Đà Nẵng 1 (DNRT1)": "scale-[1.5] md:scale-[1.7]",
-    "Đà Nẵng 2 (DNRT2)": "scale-[1.4] md:scale-[1.7]",
-    "Thái Nguyên (TN)": "md:scale-[1.5]",
-    "Điện Biên (ĐTV)": "md:scale-[0.8]",
-    "Hưng Yên (HYTV)": "md:scale-[1.7]",
-    "Đồng Tháp 1 (THĐT1)": "scale-[2.0] md:scale-[1.4]",
-    "Huế (HueTV)": "md:scale-[1.4]",
-    "Tây Ninh (TN)": "md:scale-[1.4]",
-    "H1": "scale-[1.6] md:scale-[2.0]",
-    "H2": "scale-[1.6] md:scale-[2.0]",
-    "Đắk Lắk (DRT)": "scale-[1.2] md:scale-[1.4]",
-    "ĐNNRTV1": "scale-[1.1] md:scale-[1.1]",
-    "ĐNNRTV2": "scale-[1.1] md:scale-[1.1]",
-    "Nghệ An (NTV)": "md:scale-[1.4]",
-    "Quảng Ngãi 1 (QNgTV1)": "md:scale-[1.5]",
-    "Quảng Ngãi 2 (QNgTV2)": "md:scale-[1.5]",
-    "HTV Thể Thao": "scale-[1.5] md:scale-[1.5]",
-    "VTV1": "scale-[1.14] md:scale-[0.92]",
-    "VTV7": "scale-[1.24] md:scale-[1.01]",
-    "VTV10": "scale-[1.11] md:scale-[1.0]"
+    "Lâm Đồng 1 (LTV1)": "scale-[1.6]",
+    "Đà Nẵng 1 (DNRT1)": "scale-[1.8]",
+    "Đà Nẵng 2 (DNRT2)": "scale-[1.8]",
+    "Thái Nguyên (TN)": "scale-[1.6]",
+    "Điện Biên (ĐTV)": "scale-[0.9]",
+    "Hưng Yên (HYTV)": "scale-[1.8]",
+    "Đồng Tháp 1 (THĐT1)": "scale-[1.8]",
+    "Huế (HueTV)": "scale-[1.6]",
+    "Tây Ninh (TN)": "scale-[1.6]",
+    "H1": "scale-[2.0]",
+    "H2": "scale-[2.0]",
+    "Đắk Lắk (DRT)": "scale-[1.5]",
+    "ĐNNRTV1": "scale-[1.2]",
+    "ĐNNRTV2": "scale-[1.2]",
+    "Nghệ An (NTV)": "scale-[1.5]",
+    "Quảng Ngãi 1 (QNgTV1)": "scale-[1.6]",
+    "Quảng Ngãi 2 (QNgTV2)": "scale-[1.6]",
+    "HTV Thể Thao": "scale-[1.7]",
+    "VTV1": "scale-[1.1]",
+    "VTV7": "scale-[1.2]",
+    "VTV10": "scale-[1.2]"
   };
 
-  const scaleClass = scaleMap[alt] || (alt.startsWith("VTV") ? "md:scale-[0.9]" : "");
+  const scaleClass = scaleMap[alt] || (alt.startsWith("VTV") ? "scale-[1.3]" : "scale-[1.1]");
 
   return (
     <img 
@@ -323,7 +323,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status }: { src
       alt={alt} 
       referrerPolicy="no-referrer"
       onError={() => setError(true)}
-      className={`${className} object-contain transition-all duration-300 ${
+      className={`${className} object-contain p-0 transition-all duration-300 ${
         liquidGlass === "tinted" 
           ? "opacity-100" 
           : !isDark ? "drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]" : ""
@@ -357,23 +357,23 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
   return (
     <div className={`relative group ${className || ""}`}>
       {/* Background blur/glow effect */}
-      <div className={`absolute -inset-1 rounded-[32px] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0 ${isActive ? "bg-purple-500/20 opacity-100" : isDark ? "bg-white/5" : "bg-slate-500/10"}`} />
+      <div className={`absolute -inset-1 rounded-[23px] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0 ${isActive ? "bg-purple-500/20 opacity-100" : isDark ? "bg-white/5" : "bg-slate-500/10"}`} />
       
       <motion.button
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
         onClick={onClick}
-        className={`w-full aspect-video p-2 md:p-6 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 ${
+        className={`w-full aspect-video p-1.5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 ${
           isActive
             ? `btn-vibrant-3d`
             : isDark ? "btn-3d-dark" : "btn-3d-slate"
         } ${
           liquidGlass 
-            ? `rounded-3xl ${
+            ? `rounded-[23px] ${
                 liquidGlass === "tinted" 
                   ? `${isActive ? "bg-purple-600/90" : "bg-white/80"} backdrop-blur-md border-white/20` 
                   : `${isActive ? "bg-purple-600/40" : "bg-white/5"} backdrop-blur-2xl border-white/10`
               }` 
-            : "rounded-3xl backdrop-blur-none"
+            : "rounded-[23px] backdrop-blur-none"
         }`}
       >
         {isMaintenance && (
@@ -382,8 +382,8 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
           </div>
         )}
         {isComingSoon && isVTV6 && (
-          <div className="absolute top-2 left-2 bg-purple-600 text-white text-[8px] font-bold px-2 py-0.5 rounded-full z-20 shadow-lg uppercase">
-            CÒN {getVTV6Days()} NGÀY
+          <div className="absolute top-2 left-2 bg-purple-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg z-20 shadow-lg">
+            {getVTV6Days()}d
           </div>
         )}
         {isComingSoon && !isVTV6 && (
@@ -848,7 +848,7 @@ function ExploreContent({
             <SearchPopup 
               isDark={isDark} 
               searchQuery={searchQuery} 
-              setActiveChannel={handleChannelSelect} 
+              setActiveChannel={setActiveChannel} 
               onClose={() => setSearchQuery("")} 
               favorites={favorites}
               liquidGlass={liquidGlass}
@@ -1377,7 +1377,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   );
 
   return (
-    <div className="flex-1 p-2 md:p-6 overflow-y-auto w-full max-w-full overflow-x-hidden">
+    <div className="flex-1 p-2 md:p-6 w-full max-w-full overflow-x-hidden">
       {/* Liquid Modal for Channel Selection */}
       <LiquidModal
         isOpen={!!showChannelSelector}
@@ -1445,7 +1445,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
       {/* VIDEO PLAYER */}
       <div 
         ref={containerRef}
-        className={`bg-black mb-4 md:mb-6 flex items-center justify-center border shadow-2xl relative overflow-hidden group w-full ${
+        className={`bg-black mb-4 md:mb-6 flex items-center justify-center border shadow-2xl relative overflow-hidden group w-full max-w-full ${
         isMultiview ? "aspect-auto min-h-[300px] md:min-h-[400px]" : "aspect-video"
       } ${
         liquidGlass ? "rounded-xl md:rounded-2xl" : "rounded-lg"
@@ -1503,7 +1503,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                 {/* Individual Control Bar */}
                 <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover/slot:opacity-100 transition-opacity flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 truncate">
-                    {ch && <img src={ch.logo} className="w-4 h-4 object-contain" />}
+                    {ch && <ChannelLogo src={ch.logo} alt={ch.name} className="w-5 h-5" isDark={true} />}
                     <span className="text-[10px] font-bold text-white truncate">{ch?.name || "Chọn kênh"}</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -1911,7 +1911,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                   <h3 className={`text-xl md:text-3xl font-bold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-900"}`}>{cat}</h3>
                 </div>
               </div>
-              <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 md:gap-6">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 md:gap-6">
                 {cat === "Phát thanh" ? (
                   <div className={`col-span-full p-12 rounded-[40px] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
                     isDark ? "border-white/10 bg-white/5 text-slate-400 hover:bg-white/10" : "border-black/5 bg-black/5 text-slate-500 hover:bg-black/[0.02]"
@@ -2430,6 +2430,23 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment }: {
 
   const logs = [
     {
+      id: 'dev-26604',
+      version: 'Vplay Dev - Build 26604',
+      tag: '✨',
+      type: 'PATCH',
+      sections: [
+        {
+          title: '🔄 UPDATES',
+          items: [
+            'Update build version to 26604',
+            'Thay logo kênh VTV1 ở các ô kênh truyền hình (ko thay trong search results)',
+            'Thay icon Sign In/Sign Out sang phong cách Fluent mới'
+          ],
+          color: 'text-purple-500'
+        }
+      ]
+    },
+    {
       id: 'dev-26601',
       version: 'Vplay Dev - Build 26601',
       tag: '✨',
@@ -2925,7 +2942,7 @@ function SettingsContent({
                    <p className={`text-base md:text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>June 2026 Update</p>
                  </div>
                </div>
-               <span className="px-3 py-1.5 bg-amber-500 text-slate-900 text-[9px] md:text-[10px] font-bold rounded-lg md:rounded-xl shadow-lg shadow-amber-500/30">Build 26603</span>
+               <span className="px-3 py-1.5 bg-amber-500 text-slate-900 text-[9px] md:text-[10px] font-bold rounded-lg md:rounded-xl shadow-lg shadow-amber-500/30">Build 26604</span>
              </div>
 
              <div className="grid grid-cols-2 gap-3 md:gap-4">
@@ -4678,11 +4695,11 @@ function App() {
   useEffect(() => {
     const handleWhatsNew = async () => {
       const lastVersion = localStorage.getItem("vplay_version");
-      const currentVersion = "26603";
+      const currentVersion = "26604";
       
       if (lastVersion !== currentVersion) {
-        // Build 26603 is minor, so we hide it as per request
-        if (currentVersion !== "26603") {
+        // Build 26604 is minor, so we hide it as per request
+        if (currentVersion !== "26604" && currentVersion !== "26603") {
           setShowWhatsNew(true);
         }
         localStorage.setItem("vplay_version", currentVersion);
@@ -4910,14 +4927,14 @@ function App() {
         </LiquidModal>
 
 
-        <div className="flex-1 overflow-y-auto pb-32 flex flex-col">
+        <div className="flex-1 overflow-y-auto pb-32 flex flex-col w-full max-w-full overflow-x-hidden">
           {/* Large Tab Header */}
-          <div className="px-4 md:px-12 pt-12 pb-4">
+          <div className="px-5 md:px-12 pt-12 pb-4">
             <motion.h1 
               key={`title-${displayTab}`}
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
-              className={`text-4xl md:text-6xl font-bold tracking-tighter ${isDark ? "text-white" : "text-black"}`}
+              className={`text-3xl md:text-6xl font-bold tracking-tighter ${isDark ? "text-white" : "text-black"}`}
             >
               {displayTab === "Update Logs" ? "Cập nhật" : displayTab}
             </motion.h1>
@@ -5269,7 +5286,7 @@ function App() {
                     </div>
                     <div className="flex items-center gap-2">
                        <span className="text-[12px] font-black text-white tracking-widest whitespace-nowrap">
-                         26M6 - Build 26603
+                         26M6 - Build 26604
                        </span>
                        <div className="px-1.5 py-0.5 rounded bg-cyan-400 text-[9px] font-bold text-slate-900 flex items-center gap-1 shadow-sm">
                          <Zap size={8} fill="currentColor" /> Dev
