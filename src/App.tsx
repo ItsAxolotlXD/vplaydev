@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode } from "react";
 import { 
   Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer,
-  Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, Pizza, Cloud, FlaskConical as Flask
+  Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, FolderOpen, Pizza, Cloud, CreditCard, Gift, HelpCircle, FlaskConical as Flask
 } from "lucide-react";
 import Hls from "hls.js";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
@@ -21,13 +21,13 @@ const TvIcon = ({ className, size }: { className?: string, size?: number | strin
 const SettingsIcon = ({ className, size }: { className?: string, size?: number | string }) => <Settings className={className} size={size || 22} strokeWidth={1.5} />;
 const SignInIcon = ({ className, size }: { className?: string, size?: number | string }) => <LogIn className={className} size={size || 22} strokeWidth={1.5} />;
 const SignOutIcon = ({ className, size }: { className?: string, size?: number | string }) => <LogOut className={className} size={size || 22} strokeWidth={1.5} />;
-const ExperimentalIcon = ({ className, size }: { className?: string, size?: number | string }) => <Flask className={className} size={size || 22} strokeWidth={1.5} />;
+const ExperimentalIcon = ({ className, size }: { className?: string, size?: number | string }) => <Pizza className={className} size={size || 22} strokeWidth={1} />;
 const LikeIcon = ({ className, size, filled }: { className?: string, size?: number | string, filled?: boolean }) => <Heart className={className} size={size || 20} fill={filled ? "currentColor" : "none"} strokeWidth={1.5} />;
 const CommunityIcon = ({ className, size }: { className?: string, size?: number | string }) => <Users className={className} size={size || 20} strokeWidth={1.5} />;
 const AccountIcon = ({ className, size }: { className?: string, size?: number | string }) => <User className={className} size={size || 22} strokeWidth={1.5} />;
 const MicIcon = ({ className, size }: { className?: string, size?: number | string }) => <Mic className={className} size={size || 20} strokeWidth={1.5} />;
 const SearchIcon = ({ className, size }: { className?: string, size?: number | string }) => <Search className={className} size={size || 22} strokeWidth={1.5} />;
-const FolderIcon = ({ className, size }: { className?: string, size?: number | string }) => <Folder className={className} size={size || 22} strokeWidth={1.5} />;
+const FolderIcon = ({ className, size }: { className?: string, size?: number | string }) => <FolderOpen className={className} size={size || 22} strokeWidth={1.5} />;
 
 
 // Test connection as per critical directive
@@ -193,7 +193,7 @@ function LiquidModal({ isOpen, onClose, children, isDark, title, description, li
             initial={{ scale: 1.2, opacity: 0, y: 0 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 1.2, opacity: 0, y: 0 }}
-            transition={{ type: "spring", damping: 30, stiffness: 350 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className={`relative w-full max-w-md overflow-hidden ${
               isDark 
                 ? "popup-3d-dark" 
@@ -341,7 +341,7 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
           </div>
         )}
         {isComingSoon && isVTV6 && (
-          <div className="absolute top-2 left-2 bg-purple-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg z-20 shadow-lg">
+          <div className="absolute top-2 left-2 bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-lg z-20 shadow-lg">
             {getVTV6Days()}d
           </div>
         )}
@@ -539,7 +539,7 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
             <motion.h1 
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
-              className={`text-3xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
+              className={`text-2xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
             >
               Gợi ý cho bạn
             </motion.h1>
@@ -591,7 +591,7 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
           <div className="relative z-10 shrink-0 w-full md:w-auto">
             <button 
               onClick={onLogin} 
-              className="w-full md:w-auto btn-vibrant-3d px-16 py-7 text-xl font-black tracking-widest !rounded-[40px] !border-none !bg-purple-600 hover:!bg-purple-500 shadow-[0_20px_50px_rgba(147,51,234,0.3)]"
+              className="w-full md:w-auto btn-vibrant-3d px-16 py-7 text-xl font-bold tracking-widest !rounded-[40px] !border-none !bg-purple-600 hover:!bg-purple-500 shadow-[0_20px_50px_rgba(147,51,234,0.3)]"
             >
               ĐĂNG NHẬP
             </button>
@@ -771,37 +771,39 @@ function ExploreContent({
   return (
     <div className="flex-1 flex flex-col pt-4 overflow-y-auto scrollbar-hide pb-32">
       {/* Trending Searches */}
-      <div className="max-w-4xl mx-auto w-full px-4 mb-16">
-        <SearchBar 
-          isDark={isDark} 
-          query={searchQuery} 
-          setQuery={setSearchQuery} 
-          onClose={() => setSearchQuery("")} 
-          liquidGlass={liquidGlass}
-        />
-        <div className="flex flex-wrap items-center gap-2 mt-5 px-3 overflow-hidden">
-            <div className="flex items-center gap-2 mr-2">
-                <Sparkles size={12} className="text-purple-500" />
-                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Đề xuất:</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {["VTV1", "VTV3", "HBO", "K+ Action", "Discovery", "Bóng đá", "Phim Mới", "Hoạt Hình", "Chế độ tối", "Kính lỏng", "Sắp xếp A-Z", "Cập nhật", "Phòng thí nghiệm"].sort(() => 0.5 - Math.random()).slice(0, 6).map((kw, i) => (
-                  <motion.button 
-                      key={`explore-kw-${kw}-${i}`} 
-                      initial={{ opacity: 0, x: 50 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.05, type: "spring", stiffness: 100, damping: 15 }}
-                      onClick={() => setSearchQuery(kw)}
-                      className={`text-[10px] font-bold px-4 py-1.5 rounded-full border transition-all ${isDark ? "border-white/10 hover:bg-white/10 text-white/60 hover:text-white" : "border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-900"}`}
-                  >
-                      {kw}
-                  </motion.button>
-              ))}
-            </div>
+      {!useSidebar && (
+        <div className="max-w-4xl mx-auto w-full px-4 mb-16">
+          <SearchBar 
+            isDark={isDark} 
+            query={searchQuery} 
+            setQuery={setSearchQuery} 
+            onClose={() => setSearchQuery("")} 
+            liquidGlass={liquidGlass}
+          />
+          <div className="flex flex-wrap items-center gap-2 mt-5 px-3 overflow-hidden">
+              <div className="flex items-center gap-2 mr-2">
+                  <Sparkles size={12} className="text-purple-500" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-40">Đề xuất:</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {["VTV1", "VTV3", "HBO", "K+ Action", "Discovery", "Bóng đá", "Phim Mới", "Hoạt Hình", "Chế độ tối", "Kính lỏng", "Sắp xếp A-Z", "Cập nhật", "Phòng thí nghiệm"].sort(() => 0.5 - Math.random()).slice(0, 6).map((kw, i) => (
+                    <motion.button 
+                        key={`explore-kw-${kw}-${i}`} 
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.05, type: "spring", stiffness: 100, damping: 15 }}
+                        onClick={() => setSearchQuery(kw)}
+                        className={`text-[10px] font-bold px-4 py-1.5 rounded-full border transition-all ${isDark ? "border-white/10 hover:bg-white/10 text-white/60 hover:text-white" : "border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-900"}`}
+                    >
+                        {kw}
+                    </motion.button>
+                ))}
+              </div>
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="max-w-7xl mx-auto w-full px-4 md:px-8 space-y-20">
+      <div className={`${useSidebar ? "mt-4" : "max-w-7xl"} mx-auto w-full px-4 md:px-8 space-y-20`}>
         {searchQuery.trim() !== "" ? (
           <div className="max-w-6xl mx-auto w-full">
             <SearchPopup 
@@ -851,7 +853,7 @@ function ExploreContent({
                 </div>
                 <button 
                   onClick={onLogin} 
-                  className="relative z-10 btn-vibrant-3d px-12 py-5 text-lg font-black tracking-widest shrink-0 !rounded-[32px] !border-none !bg-purple-600 hover:!bg-purple-500"
+                  className="relative z-10 btn-vibrant-3d px-12 py-5 text-lg font-bold tracking-widest shrink-0 !rounded-[32px] !border-none !bg-purple-600 hover:!bg-purple-500"
                 >
                   ĐĂNG NHẬP
                 </button>
@@ -866,7 +868,7 @@ function ExploreContent({
                         {idx === 0 ? <Sparkles size={20} /> : idx === 1 ? <TrendingUp size={20} /> : <Zap size={20} />}
                     </div>
                     <div>
-                      <h3 className={`text-2xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
+                      <h3 className={`text-xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
                           {idx === 0 ? "Kênh nổi bật" : idx === 1 ? "Gợi ý hàng đầu" : "Có thể bạn thích"}
                       </h3>
                     </div>
@@ -908,7 +910,7 @@ function ExploreContent({
                        <div className={`p-4 w-fit rounded-2xl mb-6 transition-transform group-hover:rotate-6 ${isDark ? "bg-white/10 text-purple-400 font-bold" : "bg-purple-100 text-purple-600 font-bold"}`}>
                           <s.icon size={28} />
                        </div>
-                       <h4 className={`text-xl font-black mb-2 tracking-tight ${isDark ? "text-white uppercase" : "text-slate-900 uppercase"}`}>{s.name}</h4>
+                       <h4 className={`text-xl font-bold mb-2 tracking-tight ${isDark ? "text-white uppercase" : "text-slate-900 uppercase"}`}>{s.name}</h4>
                        <p className={`text-sm font-medium opacity-50 ${isDark ? "text-white" : "text-slate-900"}`}>{s.desc}</p>
                     </button>
                   ))}
@@ -2095,7 +2097,7 @@ function SearchPopup({
               <p className="text-sm font-bold">Tìm kiếm kênh chương trình</p>
             </div>
           </div>
-        ) : (filteredChannels.length > 0 || filteredSystem.length > 0) ? (
+          ) : (filteredChannels.length > 0 || filteredSystem.length > 0) ? (
           <>
             {filteredSystem.length > 0 && (
               <div className="space-y-1 mb-4">
@@ -2107,7 +2109,7 @@ function SearchPopup({
                     <button
                       key={`search-system-${item.name}-${idx}`}
                       onClick={() => { item.action(); onClose(); }}
-                      className={`w-full flex items-center gap-4 p-3 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] group hover:bg-black/5`}
+                      className={`w-full flex items-center gap-4 p-3 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] group ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}
                     >
                       <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-transform group-hover:rotate-3 ${isDark ? "bg-white/5 border-white/10 text-purple-400" : "bg-slate-100 border-slate-200 text-purple-600"}`}>
                         <item.icon size={24} className="fill-current" />
@@ -2124,7 +2126,7 @@ function SearchPopup({
             )}
 
             {asContent && filteredSystem.length > 0 && filteredChannels.length > 0 && (
-               <div className={`h-[1px] w-full ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
+               <div className={`h-[1px] w-full ${isDark ? "bg-white/10" : "bg-slate-200"} mb-8`} />
             )}
 
             {filteredChannels.length > 0 && (
@@ -2132,21 +2134,19 @@ function SearchPopup({
                 <div className="px-4 py-2">
                   <p className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-white/40" : "text-black/60"}`}>Kênh truyền hình</p>
                 </div>
-                <div className={asContent ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" : "space-y-1"}>
+                <div className={asContent ? "grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3" : "space-y-1"}>
                   {filteredChannels.map((ch, idx) => (
                     <button
                       key={`search-ch-${ch.name}-${idx}`}
                       onClick={() => { setActiveChannel(ch); onClose(); }}
-                      className={`w-full flex items-center gap-4 p-3 rounded-[24px] transition-all hover:scale-[1.02] active:scale-[0.98] group hover:bg-black/5 ${asContent ? (isDark ? "bg-white/5 border border-white/5" : "bg-slate-50 border border-slate-100") : ""}`}
+                      className={`flex flex-col items-center gap-3 p-3 rounded-2xl transition-all hover:scale-[1.05] active:scale-[0.95] group ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}
                     >
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-transform group-hover:rotate-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-100 border-slate-200"}`}>
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-transform group-hover:rotate-3 ${isDark ? "bg-white/10 border-white/10" : "bg-slate-100 border-slate-200"}`}>
                         <img src={ch.logo} alt={ch.name} className="w-8 h-8 object-contain" referrerPolicy="no-referrer" />
                       </div>
-                      <div className="flex-1 text-left">
-                        <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>{ch.name}</p>
-                        <p className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? "text-white/40" : "text-black/60"}`}>{ch.category}</p>
+                      <div className="text-center overflow-hidden w-full">
+                        <p className={`font-bold text-[10px] truncate ${isDark ? "text-white" : "text-slate-900"}`}>{ch.name}</p>
                       </div>
-                      <ChevronRight className={`w-4 h-4 ${isDark ? "text-white/20" : "text-black/30"}`} />
                     </button>
                   ))}
                 </div>
@@ -2156,9 +2156,15 @@ function SearchPopup({
         ) : (
           <div className={`py-12 text-center flex flex-col items-center justify-center space-y-4 ${isDark ? "text-white" : "text-black"}`}>
             <div className="w-12 h-12 relative flex items-center justify-center">
-              <LoadingSpinner isDark={isDark} className="w-10 h-10" />
+              {/* Show no results if not loading or just show a message */}
+              <p className="text-sm font-bold opacity-60">Không tìm thấy kết quả nào cho "{searchQuery}"</p>
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 italic">Đang tìm kiếm dữ liệu...</p>
+            <button 
+              onClick={() => setSearchQuery("")}
+              className="text-[10px] font-bold uppercase tracking-widest text-purple-500 hover:underline"
+            >
+              Xóa tìm kiếm
+            </button>
           </div>
         )}
       </div>
@@ -2392,7 +2398,7 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment }: {
     },
     {
       id: 'dev-26601',
-      version: 'Vplay Dev - Build 26601',
+      version: 'Vplay Dev - Build 26604',
       tag: '✨',
       type: '',
       sections: [
@@ -2698,7 +2704,7 @@ function ExperimentalContent({ isDark, featureFlags, setFeatureFlags, liquidGlas
                   <p className={`text-xl md:text-2xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{exp.name}</p>
                   <p className={`text-sm md:text-base font-bold opacity-60 leading-relaxed max-w-xl ${isDark ? "text-white" : "text-slate-500"}`}>{exp.desc || "Nâng cấp trải nghiệm hệ thống với các tính năng thử nghiệm mới nhất"}</p>
                   <div className="pt-2">
-                    <span className={`px-3 py-1 rounded-2xl text-[10px] md:text-[12px] font-black font-mono border-2 shadow-[0_4px_15px_-4px_rgba(234,179,8,0.3)] ${isDark ? "bg-yellow-400/20 border-yellow-400 text-yellow-400" : "bg-yellow-400 border-yellow-500 text-yellow-950"}`}>
+                    <span className={`px-3 py-1 rounded-2xl text-[10px] md:text-[12px] font-bold font-mono border-2 shadow-[0_4px_15px_-4px_rgba(234,179,8,0.3)] ${isDark ? "bg-yellow-400/20 border-yellow-400 text-yellow-400" : "bg-yellow-400 border-yellow-500 text-yellow-950"}`}>
                       REF_ID: {exp.id}
                     </span>
                   </div>
@@ -2896,7 +2902,7 @@ function SettingsContent({
                   <span className={`text-[9px] md:text-[10px] font-bold tracking-[0.4em] ${isDark ? "text-white/40" : "text-slate-400"}`}>June 2026 Update</span>
                   <div className="flex items-center gap-1.5 md:gap-2">
                     <span className="px-1.5 py-0.5 bg-amber-500/20 text-amber-500 text-[8px] md:text-[9px] font-bold rounded-md uppercase">26M6</span>
-                    <span className="px-1.5 py-0.5 bg-cyan-500/20 text-cyan-500 text-[8px] md:text-[9px] font-bold rounded-md uppercase">Build 26601</span>
+                    <span className="px-1.5 py-0.5 bg-cyan-500/20 text-cyan-500 text-[8px] md:text-[9px] font-bold rounded-md uppercase">Build 26604</span>
                   </div>
                 </div>
               </div>
@@ -2968,7 +2974,7 @@ function SettingsContent({
               </button>
             </div>
           ) : (
-            <div className="space-y-8">
+            <div className="space-y-8 flex-1 flex flex-col">
               <div className="flex flex-col md:flex-row items-center gap-8">
                 <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                   <div className="absolute inset-0 bg-purple-500/20 blur-xl rounded-full scale-125" />
@@ -2988,12 +2994,12 @@ function SettingsContent({
                 <div className="flex-1 space-y-4 w-full">
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-30 ml-2">Tên hiển thị</label>
-                    <div className={`relative group rounded-[24px] overflow-hidden transition-all ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
+                    <div className={`relative group rounded-[22px] overflow-hidden transition-all ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
                       <input 
                         value={name} 
                         onChange={e => setName(e.target.value)} 
                         placeholder="Tên của bạn..."
-                        className={`w-full px-6 py-4 text-base font-bold bg-transparent outline-none transition-all ${
+                        className={`w-full px-5 py-3.5 text-base font-bold bg-transparent outline-none transition-all ${
                           isDark ? "text-white placeholder-white/20" : "text-slate-900 placeholder-slate-400"
                         }`} 
                       />
@@ -3003,15 +3009,15 @@ function SettingsContent({
                     <button 
                       onClick={handleSave} 
                       disabled={saving}
-                      className="btn-purple-3d flex-1 text-xs py-3.5 disabled:opacity-50 flex items-center justify-center gap-2"
+                      className="btn-purple-3d flex-1 text-xs py-3 disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl"
                     >
                       <CheckCircle2 size={16} /> {saving ? "Đang lưu..." : "Lưu thay đổi"}
                     </button>
                     <button 
                       onClick={() => signOut(auth)}
-                      className={`p-3.5 rounded-2xl border transition-all active:translate-y-1 ${isDark ? "bg-red-500/10 border-red-500/10 text-red-500" : "bg-red-50 border-red-100 text-red-600 shadow-xl"}`}
+                      className={`p-3 rounded-xl border transition-all active:translate-y-1 ${isDark ? "bg-red-500/10 border-red-500/10 text-red-500" : "bg-red-50 border-red-100 text-red-600 shadow-xl"}`}
                     >
-                      <SignOutIcon size={20} />
+                      <SignOutIcon size={18} />
                     </button>
                   </div>
                 </div>
@@ -3021,51 +3027,51 @@ function SettingsContent({
         </div>
 
         {/* Community Section */}
-        <div className={`p-10 rounded-[48px] border flex flex-col justify-between transition-all ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
-          <div className="space-y-10">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-2xl bg-blue-500/20 text-blue-500">
-                <CommunityIcon size={24} />
+        <div className={`p-6 md:p-10 rounded-[32px] md:rounded-[48px] border flex flex-col justify-between transition-all ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+          <div className="space-y-6 md:space-y-8">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-blue-500/20 text-blue-500">
+                <CommunityIcon size={20} />
               </div>
-              <h3 className={`font-bold text-2xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Cộng đồng</h3>
+              <h3 className={`font-bold text-xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Cộng đồng</h3>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <a 
                 href="https://discord.gg/CNKFTUBSty" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className={`flex items-center justify-between p-6 rounded-[32px] border transition-all active:scale-[0.98] group ${
+                className={`flex items-center justify-between p-4 rounded-[24px] border transition-all active:scale-[0.98] group ${
                   isDark ? "bg-black/20 border-white/5 hover:bg-black/30 shadow-2xl" : "bg-slate-100/50 border-slate-100 hover:bg-slate-100 shadow-xl"
                 }`}
               >
-                <div className="flex items-center gap-5">
-                  <div className="w-16 h-16 rounded-[24px] bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                    <MessageSquare size={32} />
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-[18px] bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <MessageSquare size={24} />
                   </div>
                   <div>
-                    <h4 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>THE WAVES</h4>
-                    <p className={`text-[10px] opacity-60 font-bold tracking-[0.2em] leading-none mt-2`}>Official Discord</p>
+                    <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>THE WAVES</h4>
+                    <p className={`text-[9px] opacity-60 font-bold tracking-[0.2em] leading-none mt-1`}>Official Discord</p>
                   </div>
                 </div>
-                <ChevronRight size={24} className="text-slate-500 group-hover:translate-x-2 transition-transform" />
+                <ChevronRight size={20} className="text-slate-500 group-hover:translate-x-2 transition-transform" />
               </a>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 {[1, 2].map(num => (
                   <a 
-                    key={num}
+                    key={`yt-link-${num}`}
                     href={`https://www.youtube.com/@ota${num === 1 ? 'one' : 'two'}fr253`} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className={`flex items-center gap-4 p-5 rounded-[28px] border text-xs font-bold transition-all group ${
+                    className={`flex items-center gap-3 p-3.5 rounded-[20px] border text-[10px] font-bold transition-all group ${
                       isDark ? "bg-black/20 border-white/5 hover:bg-black/30 text-slate-300" : "bg-slate-100/50 border-slate-100 hover:bg-slate-100 text-slate-600 shadow-sm"
                     }`}
                   >
-                    <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white shrink-0 shadow-lg group-hover:scale-110 transition-transform">
-                      <Play size={14} fill="currentColor" />
+                    <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white shrink-0 shadow-lg group-hover:scale-110 transition-transform">
+                      <Play size={12} fill="currentColor" />
                     </div>
-                    <span className="tracking-widest">YT #{num}</span>
+                    <span className="tracking-widest uppercase">YT #{num}</span>
                   </a>
                 ))}
               </div>
@@ -3074,68 +3080,85 @@ function SettingsContent({
         </div>
       </div>
 
+
       {/* Appearance & Experience */}
-      <div className={`p-10 md:p-14 rounded-[64px] border flex flex-col transition-all w-full mt-12 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
-        <div className="flex flex-col md:flex-row items-center gap-4 mb-10 md:mb-16">
-          <div className="p-3 md:p-4 rounded-2xl md:rounded-3xl bg-purple-500/10 text-purple-500">
-            <Palette size={28} className="md:w-8 md:h-8" />
+      <div className={`p-6 md:p-10 rounded-[32px] border flex flex-col transition-all w-full mt-8 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+        <div className="flex flex-col md:flex-row items-center gap-3 mb-8 md:mb-10">
+          <div className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-purple-500/10 text-purple-500">
+            <Palette size={24} className="md:w-6 md:h-6" />
           </div>
           <div className="text-center md:text-left">
-            <h3 className={`font-bold text-3xl md:text-4xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Giao diện & Trải nghiệm</h3>
+            <h3 className={`font-bold text-xl md:text-2xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Giao diện & Trải nghiệm</h3>
           </div>
         </div>
 
-        <div className="space-y-12 md:space-y-16">
+        <div className="space-y-8 md:space-y-10">
           {/* 1. Chủ đề hệ thống */}
-          <div className="space-y-6 md:space-y-8">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-3 px-1 text-center md:text-left">
-              <Sun size={24} className="text-amber-500" />
+          <div className="space-y-4 md:space-y-6">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-2 px-1 text-center md:text-left">
+              <Sun size={20} className="text-amber-500" />
               <div>
-                <span className="text-lg md:text-xl font-bold opacity-80 uppercase tracking-wider">Chủ đề hệ thống</span>
-                <p className="text-sm text-slate-500 font-bold mt-1">Chọn cách hiển thị phù hợp cho mắt của bạn</p>
+                <span className="text-base md:text-lg font-bold opacity-80 uppercase tracking-wider">Chủ đề hệ thống</span>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">Chọn cách hiển thị phù hợp cho mắt của bạn</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 md:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4">
               <button 
                 onClick={() => setIsDark(false)}
-                className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${!isDark ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+                className={`transition-all flex items-center justify-between sm:justify-center px-4 sm:px-0 gap-3 group h-12 md:h-14 rounded-xl ${!isDark ? "btn-vibrant-3d" : isDark ? "bg-[#1f2937] border border-white/10 text-white/40" : "bg-slate-100 border border-slate-200 text-slate-400"}`}
               >
-                <Sun size={28} className={!isDark ? "text-white" : "text-slate-400 group-hover:text-amber-500"} />
-                <span className="text-xl font-bold opacity-80 group-hover:opacity-100 transition-opacity">Sáng</span>
+                <div className="flex items-center gap-2">
+                  <Sun size={20} className={!isDark ? "text-white" : "text-slate-400 group-hover:text-amber-500"} />
+                  <span className="text-sm sm:text-base font-bold opacity-80 group-hover:opacity-100 transition-opacity">Sáng</span>
+                </div>
+                {!isDark && (
+                  <CheckCircle2 size={16} className="sm:hidden text-white" />
+                )}
               </button>
               <button 
                 onClick={() => setIsDark(true)}
-                className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${isDark ? "btn-vibrant-3d" : !isDark ? "btn-3d-slate" : "btn-3d-dark"}`}
+                className={`transition-all flex items-center justify-between sm:justify-center px-4 sm:px-0 gap-3 group h-12 md:h-14 rounded-xl ${isDark ? "btn-vibrant-3d" : !isDark ? "bg-slate-100 border border-slate-200 text-slate-400" : "bg-[#1f2937] border border-white/10 text-white/40"}`}
               >
-                <Moon size={28} className={isDark ? "text-white" : "text-slate-400 group-hover:text-purple-400"} />
-                <span className="text-xl font-bold opacity-80 group-hover:opacity-100 transition-opacity">Tối</span>
+                <div className="flex items-center gap-2">
+                  <Moon size={20} className={isDark ? "text-white" : "text-slate-400 group-hover:text-purple-400"} />
+                  <span className="text-sm sm:text-base font-bold opacity-80 group-hover:opacity-100 transition-opacity">Tối</span>
+                </div>
+                {isDark && (
+                  <CheckCircle2 size={16} className="sm:hidden text-white" />
+                )}
               </button>
             </div>
           </div>
 
           {/* 2. Kiểu giao diện */}
-          <div className="space-y-6 md:space-y-8">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-3 px-1 text-center md:text-left">
-              <Monitor size={24} className="text-blue-500" />
+          <div className="space-y-4 md:space-y-6">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-2 px-1 text-center md:text-left">
+              <Monitor size={20} className="text-blue-500" />
               <div>
-                <span className="text-lg md:text-xl font-bold opacity-80 uppercase tracking-wider">Giao diện điều hướng</span>
-                <p className="text-sm text-slate-500 font-bold mt-1">Chọn điều hướng hiển thị tốt nhất trên thiết bị của bạn</p>
+                <span className="text-base md:text-lg font-bold opacity-80 uppercase tracking-wider">Giao diện điều hướng</span>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">Chọn điều hướng hiển thị tốt nhất trên thiết bị của bạn</p>
               </div>
             </div>
-          <div className="grid grid-cols-2 gap-4 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4">
             <button 
               onClick={() => setUseSidebar(true)}
-              className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${useSidebar ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+              className={`transition-all flex items-center justify-between sm:justify-center px-4 sm:px-0 gap-3 group h-12 md:h-14 rounded-xl ${useSidebar ? "btn-vibrant-3d" : isDark ? "bg-[#1f2937] border border-white/10 text-white/40" : "bg-slate-100 border border-slate-200 text-slate-400"}`}
             >
-              <Monitor size={28} className={useSidebar ? "text-white" : "text-slate-400 group-hover:text-blue-400"} />
-              <span className="text-xl font-bold">Desktop</span>
+              <div className="flex items-center gap-2">
+                <Monitor size={20} className={useSidebar ? "text-white" : "text-slate-400 group-hover:text-blue-400"} />
+                <span className="text-sm sm:text-base font-bold">Desktop</span>
+              </div>
+              {useSidebar && <CheckCircle2 size={16} className="sm:hidden text-white" />}
             </button>
             <button 
               onClick={() => setUseSidebar(false)}
-              className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${!useSidebar ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+              className={`transition-all flex items-center justify-between sm:justify-center px-4 sm:px-0 gap-3 group h-12 md:h-14 rounded-xl ${!useSidebar ? "btn-vibrant-3d" : isDark ? "bg-[#1f2937] border border-white/10 text-white/40" : "bg-slate-100 border border-slate-200 text-slate-400"}`}
             >
-              <Navigation size={28} className={!useSidebar ? "text-white" : "text-slate-400 group-hover:text-purple-400"} />
-              <span className="text-xl font-bold">Touch</span>
+              <div className="flex items-center gap-2">
+                <Navigation size={20} className={!useSidebar ? "text-white" : "text-slate-400 group-hover:text-purple-400"} />
+                <span className="text-sm sm:text-base font-bold">Touch</span>
+              </div>
+              {!useSidebar && <CheckCircle2 size={16} className="sm:hidden text-white" />}
             </button>
           </div>
           </div>
@@ -3147,56 +3170,62 @@ function SettingsContent({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
-                className="space-y-16"
+                className="space-y-10"
               >
-                <div className="space-y-6 md:space-y-8">
-                  <div className="flex flex-col md:flex-row items-center md:items-start gap-3 px-1 text-center md:text-left">
-                    <Layout size={24} className="text-indigo-500" />
+                <div className="space-y-4 md:space-y-6">
+                  <div className="flex flex-col md:flex-row items-center md:items-start gap-2 px-1 text-center md:text-left">
+                    <Layout size={20} className="text-indigo-500" />
                     <div>
-                      <span className="text-lg md:text-xl font-bold opacity-80 uppercase tracking-wider">Vị trí Sidebar</span>
-                      <p className="text-sm text-slate-500 font-bold mt-1">Chọn vị trí đặt Sidebar thuận tiện cho bạn - trái hoặc phải</p>
+                      <span className="text-base md:text-lg font-bold opacity-80 uppercase tracking-wider">Vị trí Sidebar</span>
+                      <p className="text-xs text-slate-500 font-bold mt-0.5">Chọn vị trí đặt Sidebar thuận tiện cho bạn - trái hoặc phải</p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 md:gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4">
                     <button 
                       onClick={() => setIsSidebarRight(false)}
-                      className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${!isSidebarRight ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+                      className={`transition-all flex items-center justify-between sm:justify-center px-4 sm:px-0 gap-3 group h-12 md:h-14 rounded-xl ${!isSidebarRight ? "btn-vibrant-3d" : isDark ? "bg-[#1f2937] border border-white/10 text-white/40" : "bg-slate-100 border border-slate-200 text-slate-400"}`}
                     >
-                      <ArrowLeft size={28} className={!isSidebarRight ? "text-white" : "text-slate-400 group-hover:text-amber-500"} />
-                      <span className="text-xl font-bold">Bên trái</span>
+                      <div className="flex items-center gap-2">
+                        <ArrowLeft size={20} className={!isSidebarRight ? "text-white" : "text-slate-400 group-hover:text-amber-500"} />
+                        <span className="text-sm sm:text-base font-bold">Bên trái</span>
+                      </div>
+                      {!isSidebarRight && <CheckCircle2 size={16} className="sm:hidden text-white" />}
                     </button>
                     <button 
                       onClick={() => setIsSidebarRight(true)}
-                      className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${isSidebarRight ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+                      className={`transition-all flex items-center justify-between sm:justify-center px-4 sm:px-0 gap-3 group h-12 md:h-14 rounded-xl ${isSidebarRight ? "btn-vibrant-3d" : isDark ? "bg-[#1f2937] border border-white/10 text-white/40" : "bg-slate-100 border border-slate-200 text-slate-400"}`}
                     >
-                      <ArrowRight size={28} className={isSidebarRight ? "text-white" : "text-slate-400 group-hover:text-purple-400"} />
-                      <span className="text-xl font-bold">Bên phải</span>
+                      <div className="flex items-center gap-2">
+                        <ArrowRight size={20} className={isSidebarRight ? "text-white" : "text-slate-400 group-hover:text-purple-400"} />
+                        <span className="text-sm font-bold">Bên phải</span>
+                      </div>
+                      {isSidebarRight && <CheckCircle2 size={16} className="sm:hidden text-white" />}
                     </button>
                   </div>
                 </div>
 
-                <div className="space-y-6 md:space-y-8">
-                  <div className="flex flex-col md:flex-row items-center md:items-start gap-3 px-1 text-center md:text-left">
-                    <Layers size={24} className="text-cyan-500" />
+                <div className="space-y-4 md:space-y-6">
+                  <div className="flex flex-col md:flex-row items-center md:items-start gap-2 px-1 text-center md:text-left">
+                    <Layers size={20} className="text-cyan-500" />
                     <div>
-                      <span className="text-lg md:text-xl font-bold opacity-80 uppercase tracking-wider">Hiển thị Sidebar</span>
-                      <p className="text-sm text-slate-500 font-bold mt-1">Chọn cách Sidebar hiển thị - lơ lửng hay chạm góc</p>
+                      <span className="text-base md:text-lg font-bold opacity-80 uppercase tracking-wider">Hiển thị Sidebar</span>
+                      <p className="text-xs text-slate-500 font-bold mt-0.5">Chọn cách Sidebar hiển thị - lơ lửng hay chạm góc</p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 md:gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4">
                     <button 
                       onClick={() => setSidebarDisplay("float")}
-                      className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${sidebarDisplay === "float" ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+                      className={`transition-all flex items-center justify-center gap-3 group h-12 md:h-14 rounded-xl ${sidebarDisplay === "float" ? "btn-vibrant-3d" : isDark ? "bg-[#1f2937] border border-white/10 text-white/40" : "bg-slate-100 border border-slate-200 text-slate-400"}`}
                     >
-                      <Layers size={28} className={sidebarDisplay === "float" ? "text-white" : "text-slate-400 group-hover:text-indigo-400"} />
-                      <span className="text-xl font-bold">Lơ lửng</span>
+                      <Layers size={20} className={sidebarDisplay === "float" ? "text-white" : "text-slate-400 group-hover:text-indigo-400"} />
+                      <span className="text-base font-bold">Lơ lửng</span>
                     </button>
                     <button 
                       onClick={() => setSidebarDisplay("attach")}
-                      className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${sidebarDisplay === "attach" ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+                      className={`transition-all flex items-center justify-center gap-3 group h-12 md:h-14 rounded-xl ${sidebarDisplay === "attach" ? "btn-vibrant-3d" : isDark ? "bg-[#1f2937] border border-white/10 text-white/40" : "bg-slate-100 border border-slate-200 text-slate-400"}`}
                     >
-                      <Square size={28} className={sidebarDisplay === "attach" ? "text-white" : "text-slate-400 group-hover:text-indigo-400"} />
-                      <span className="text-xl font-bold">Chạm góc</span>
+                      <Square size={20} className={sidebarDisplay === "attach" ? "text-white" : "text-slate-400 group-hover:text-indigo-400"} />
+                      <span className="text-base font-bold">Chạm góc</span>
                     </button>
                   </div>
                 </div>
@@ -3208,29 +3237,29 @@ function SettingsContent({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
-                className="space-y-6 md:space-y-8"
+                className="space-y-4 md:space-y-6"
               >
-                <div className="flex flex-col md:flex-row items-center md:items-start gap-3 px-1 text-center md:text-left">
-                  <Droplet size={24} className="text-cyan-500" />
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-2 px-1 text-center md:text-left">
+                  <Droplet size={20} className="text-cyan-500" />
                   <div>
-                    <span className="text-lg md:text-xl font-bold opacity-80 uppercase tracking-wider">Hiệu ứng Liquid Glass</span>
-                    <p className="text-sm text-slate-500 font-bold mt-1">Cá nhân hóa hiệu ứng phản xạ kính trên giao diện</p>
+                    <span className="text-base md:text-lg font-bold opacity-80 uppercase tracking-wider">Hiệu ứng Liquid Glass</span>
+                    <p className="text-xs text-slate-500 font-bold mt-0.5">Cá nhân hóa hiệu ứng phản xạ kính trên giao diện</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 md:gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4">
                   <button 
                     onClick={() => setLiquidGlass("glassy")}
-                    className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${liquidGlass === "glassy" ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+                    className={`transition-all flex items-center justify-center gap-3 group h-12 md:h-14 rounded-xl ${liquidGlass === "glassy" ? "btn-vibrant-3d" : isDark ? "bg-[#1f2937] border border-white/10 text-white/40" : "bg-slate-100 border border-slate-200 text-slate-400"}`}
                   >
-                    <Droplet size={28} className={liquidGlass === "glassy" ? "text-white" : "text-slate-400 group-hover:text-cyan-500"} />
-                    <span className="text-xl font-bold">Glassy</span>
+                    <Droplet size={20} className={liquidGlass === "glassy" ? "text-white" : "text-slate-400 group-hover:text-cyan-500"} />
+                    <span className="text-base font-bold">Glassy</span>
                   </button>
                   <button 
                     onClick={() => setLiquidGlass("tinted")}
-                    className={`transition-all flex items-center justify-center gap-4 group h-20 md:h-24 ${liquidGlass === "tinted" ? "btn-vibrant-3d" : isDark ? "btn-3d-dark" : "btn-3d-slate"}`}
+                    className={`transition-all flex items-center justify-center gap-3 group h-12 md:h-14 rounded-xl ${liquidGlass === "tinted" ? "btn-vibrant-3d" : isDark ? "bg-[#1f2937] border border-white/10 text-white/40" : "bg-slate-100 border border-slate-200 text-slate-400"}`}
                   >
-                    <Droplet size={28} className={liquidGlass === "tinted" ? "text-white" : "text-slate-400 group-hover:text-cyan-500"} />
-                    <span className="text-xl font-bold">Tinted</span>
+                    <Droplet size={20} className={liquidGlass === "tinted" ? "text-white" : "text-slate-400 group-hover:text-cyan-500"} />
+                    <span className="text-base font-bold">Tinted</span>
                   </button>
                 </div>
               </motion.div>
@@ -3301,43 +3330,43 @@ function SettingsContent({
       </div>
 
       {/* Weather Settings */}
-      <div className={`p-10 md:p-14 rounded-[64px] border flex flex-col transition-all w-full mt-8 md:mt-12 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
-        <div className="flex items-center gap-4 mb-10 md:mb-16">
-          <div className="p-3 md:p-4 rounded-2xl md:rounded-3xl bg-blue-500/10 text-blue-500">
-            <Globe size={28} className="md:w-8 md:h-8" />
+      <div className={`p-6 md:p-10 rounded-[32px] border flex flex-col transition-all w-full mt-6 md:mt-8 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+        <div className="flex items-center gap-3 mb-8 md:mb-10">
+          <div className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-blue-500/10 text-blue-500">
+            <Globe size={24} className="md:w-6 md:h-6" />
           </div>
-          <h3 className={`font-bold text-3xl md:text-4xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Thời tiết</h3>
+          <h3 className={`font-bold text-xl md:text-2xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Thời tiết</h3>
         </div>
 
-        <div className="space-y-12">
+        <div className="space-y-8">
           {/* Unit selection */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <Droplet size={20} className="text-cyan-500" />
-              <p className="font-bold text-lg opacity-80 uppercase tracking-widest leading-none">Đơn bị nhiệt độ</p>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Droplet size={18} className="text-cyan-500" />
+              <p className="font-bold text-base opacity-80 uppercase tracking-widest leading-none">Đơn bị nhiệt độ</p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <button onClick={() => setTempUnit("C")} className={`h-16 rounded-[24px] font-bold text-xl transition-all ${tempUnit === "C" ? "btn-vibrant-3d" : isDark ? "bg-white/5 border border-white/5 text-white/40" : "bg-black/5 border border-black/5 text-black/40"}`}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button onClick={() => setTempUnit("C")} className={`h-10 md:h-12 rounded-xl font-bold text-base transition-all ${tempUnit === "C" ? "btn-vibrant-3d" : isDark ? "bg-[#1f2937] border border-white/5 text-white/40" : "bg-black/5 border border-black/5 text-black/40"}`}>
                 Độ C (°C)
               </button>
-              <button onClick={() => setTempUnit("F")} className={`h-16 rounded-[24px] font-bold text-xl transition-all ${tempUnit === "F" ? "btn-vibrant-3d" : isDark ? "bg-white/5 border border-white/5 text-white/40" : "bg-black/5 border border-black/5 text-black/40"}`}>
+              <button onClick={() => setTempUnit("F")} className={`h-10 md:h-12 rounded-xl font-bold text-base transition-all ${tempUnit === "F" ? "btn-vibrant-3d" : isDark ? "bg-[#1f2937] border border-white/5 text-white/40" : "bg-black/5 border border-black/5 text-black/40"}`}>
                 Độ F (°F)
               </button>
             </div>
           </div>
 
           {/* Location customization */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Navigation size={20} className="text-emerald-500" />
-              <p className="font-bold text-lg opacity-80 uppercase tracking-widest leading-none">Vị trí tùy chỉnh</p>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Navigation size={18} className="text-emerald-500" />
+              <p className="font-bold text-base opacity-80 uppercase tracking-widest leading-none">Vị trí tùy chỉnh</p>
             </div>
-            <div className={`relative group rounded-[28px] overflow-hidden transition-all ${isDark ? "bg-white/5 shadow-inner border border-white/5" : "bg-slate-100 shadow-sm border border-slate-200"}`}>
+            <div className={`relative group rounded-2xl overflow-hidden transition-all ${isDark ? "bg-white/5 shadow-inner border border-white/5" : "bg-slate-100 shadow-sm border border-slate-200"}`}>
               <input 
                 value={location} 
                 onChange={e => setLocation(e.target.value)} 
                 placeholder="Nhập tên thành phố (vd: Hanoi, Saigon)..."
-                className={`w-full px-8 py-5 text-lg font-bold bg-transparent outline-none transition-all ${
+                className={`w-full px-6 py-4 text-base font-bold bg-transparent outline-none transition-all ${
                   isDark ? "text-white placeholder-white/20" : "text-slate-900 placeholder-slate-400"
                 }`} 
               />
@@ -3347,31 +3376,31 @@ function SettingsContent({
       </div>
 
       {/* Clock & Formatting Settings */}
-      <div className={`p-10 md:p-14 rounded-[64px] border flex flex-col transition-all w-full mt-8 md:mt-12 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
-        <div className="flex items-center gap-4 mb-10 md:mb-16">
-          <div className="p-3 md:p-4 rounded-2xl md:rounded-3xl bg-amber-500/10 text-amber-500">
-            <Clock size={28} className="md:w-8 md:h-8" />
+      <div className={`p-6 md:p-10 rounded-[32px] border flex flex-col transition-all w-full mt-6 md:mt-8 ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
+        <div className="flex items-center gap-3 mb-8 md:mb-10">
+          <div className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-amber-500/10 text-amber-500">
+            <Clock size={24} className="md:w-6 md:h-6" />
           </div>
-          <h3 className={`font-bold text-3xl md:text-4xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Đồng hồ & Thời gian</h3>
+          <h3 className={`font-bold text-xl md:text-2xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Đồng hồ & Thời gian</h3>
         </div>
 
-        <div className="space-y-12">
+        <div className="space-y-8">
           {/* 1. Time Format 24h vs 12h */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <Zap size={20} className="text-purple-500" />
-              <p className="font-bold text-lg opacity-80 uppercase tracking-widest leading-none">Chế độ hiển thị</p>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Zap size={18} className="text-purple-500" />
+              <p className="font-bold text-base opacity-80 uppercase tracking-widest leading-none">Chế độ hiển thị</p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button 
                 onClick={() => setTimeFormat("24h")}
-                className={`h-16 rounded-[24px] font-bold text-xl transition-all flex items-center justify-center gap-3 ${timeFormat === "24h" ? "btn-vibrant-3d" : isDark ? "bg-white/5 text-white/40 border border-white/5" : "bg-black/5 text-slate-400 border border-black/5"}`}
+                className={`h-10 md:h-12 rounded-xl font-bold text-base transition-all flex items-center justify-center gap-3 ${timeFormat === "24h" ? "btn-vibrant-3d" : isDark ? "bg-[#1f2937] text-white/40 border border-white/5" : "bg-black/5 text-slate-400 border border-black/5"}`}
               >
                 24 Giờ
               </button>
               <button 
                 onClick={() => setTimeFormat("12h")}
-                className={`h-16 rounded-[24px] font-bold text-xl transition-all flex items-center justify-center gap-3 ${timeFormat === "12h" ? "btn-vibrant-3d" : isDark ? "bg-white/5 text-white/40 border border-white/5" : "bg-black/5 text-slate-400 border border-black/5"}`}
+                className={`h-10 md:h-12 rounded-xl font-bold text-base transition-all flex items-center justify-center gap-3 ${timeFormat === "12h" ? "btn-vibrant-3d" : isDark ? "bg-[#1f2937] text-white/40 border border-white/5" : "bg-black/5 text-slate-400 border border-black/5"}`}
               >
                 12 Giờ
               </button>
@@ -3379,12 +3408,12 @@ function SettingsContent({
           </div>
 
           {/* 2. Clock Format selection */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <Sliders size={20} className="text-blue-500" />
-              <p className="font-bold text-lg opacity-80 uppercase tracking-widest leading-none">Định dạng hiển thị Giờ</p>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Sliders size={18} className="text-blue-500" />
+              <p className="font-bold text-base opacity-80 uppercase tracking-widest leading-none">Định dạng hiển thị Giờ</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {[
                 { id: "hh:mm:ss", label: "hh:mm:ss" },
                 { id: "hh:mm", label: "hh:mm" },
@@ -3393,7 +3422,7 @@ function SettingsContent({
                 <button 
                   key={opt.id}
                   onClick={() => setClockFormat(opt.id as any)}
-                  className={`h-14 rounded-[20px] font-bold text-sm transition-all ${clockFormat === opt.id ? "btn-vibrant-3d" : isDark ? "bg-white/5 text-white/40" : "bg-black/5 text-slate-500"}`}
+                  className={`h-9 md:h-11 rounded-lg font-bold text-xs transition-all ${clockFormat === opt.id ? "btn-vibrant-3d" : isDark ? "bg-[#1f2937] text-white/40" : "bg-black/5 text-slate-500"}`}
                 >
                   {opt.label}
                 </button>
@@ -3402,12 +3431,12 @@ function SettingsContent({
           </div>
 
           {/* 3. Date Format selection */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <Calendar size={20} className="text-red-500" />
-              <p className="font-bold text-lg opacity-80 uppercase tracking-widest leading-none">Định dạng hiển thị Ngày</p>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Calendar size={18} className="text-red-500" />
+              <p className="font-bold text-base opacity-80 uppercase tracking-widest leading-none">Định dạng hiển thị Ngày</p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
               {[
                 { id: "dd/mm/yyyy", label: "dd/mm/yyyy" },
                 { id: "dd/mm/yy", label: "dd/mm/yy" },
@@ -3417,7 +3446,7 @@ function SettingsContent({
                 <button 
                   key={opt.id}
                   onClick={() => setDateFormat(opt.id as any)}
-                  className={`h-14 rounded-[20px] font-bold text-[10px] transition-all px-2 ${dateFormat === opt.id ? "btn-vibrant-3d" : isDark ? "bg-white/5 text-white/40" : "bg-black/5 text-slate-500"}`}
+                  className={`h-9 md:h-11 rounded-lg font-bold text-[9px] transition-all px-1.5 ${dateFormat === opt.id ? "btn-vibrant-3d" : isDark ? "bg-[#1f2937] text-white/40" : "bg-black/5 text-slate-500"}`}
                 >
                   {opt.label}
                 </button>
@@ -3640,11 +3669,11 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
                       <div className="flex flex-col gap-2 p-3 rounded-2xl bg-white/5 border border-white/10">
                         <div className="flex justify-between items-center px-1">
                           <span className="text-[10px] text-white/40 font-bold uppercase">Tên đăng nhập</span>
-                          <span className="text-sm text-amber-400 font-black">vplaybeta</span>
+                          <span className="text-sm text-amber-400 font-bold">vplaybeta</span>
                         </div>
                         <div className="flex justify-between items-center px-1">
                           <span className="text-[10px] text-white/40 font-bold uppercase">Mật khẩu</span>
-                          <span className="text-sm text-amber-400 font-black">vplaybeta</span>
+                          <span className="text-sm text-amber-400 font-bold">vplaybeta</span>
                         </div>
                       </div>
                    </div>
@@ -3762,7 +3791,7 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
                       <button 
                         type="submit" 
                         disabled={loading} 
-                        className="btn-purple-3d w-full h-14 md:h-16 text-base md:text-lg font-black tracking-widest disabled:opacity-50 mt-4 rounded-2xl md:rounded-3xl flex items-center justify-center gap-3"
+                        className="btn-purple-3d w-full h-14 md:h-16 text-base md:text-lg font-bold tracking-widest disabled:opacity-50 mt-4 rounded-2xl md:rounded-3xl flex items-center justify-center gap-3"
                       >
                         {loading && <LoadingSpinner isDark={true} className="w-6 h-6 border-white" />}
                         {loading ? "ĐANG XỬ LÝ..." : (isForgotPassword ? "GỬI YÊU CẦU" : (isLogin ? "ĐĂNG NHẬP" : "ĐĂNG KÝ"))}
@@ -3860,11 +3889,11 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
         <div className="p-6 md:p-12 flex flex-col flex-1 overflow-hidden space-y-6 md:space-y-8">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
-              <h2 className={`text-2xl sm:text-3xl md:text-5xl font-black tracking-tighter leading-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+              <h2 className={`text-2xl sm:text-3xl md:text-5xl font-bold tracking-tighter leading-tight ${isDark ? "text-white" : "text-slate-900"}`}>
                 What's new <span className="text-purple-500 block sm:inline">in Vplay Dev</span>
               </h2>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-purple-500/10 text-purple-500 text-[9px] md:text-[10px] font-black tracking-widest uppercase border border-purple-500/20">Build 26601</span>
+                <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-purple-500/10 text-purple-500 text-[9px] md:text-[10px] font-bold tracking-widest uppercase border border-purple-500/20">Build 26604</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                 <span className="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Stable Beta</span>
               </div>
@@ -3886,7 +3915,7 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
                 transition={{ delay: i * 0.1 }}
                 className="space-y-3 md:space-y-4"
               >
-                <h3 className="text-[11px] md:text-sm font-black text-purple-500 tracking-[0.2em]">{cat.title}</h3>
+                <h3 className="text-[11px] md:text-sm font-bold text-purple-500 tracking-[0.2em]">{cat.title}</h3>
                 <ul className="space-y-2 md:space-y-3">
                   {cat.items.map((item, j) => (
                     <li key={j} className="flex items-start gap-2 md:gap-3">
@@ -3906,12 +3935,12 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
               </div>
               <div>
                 <p className={`text-[9px] md:text-xs font-bold leading-none ${isDark ? "text-white/60" : "text-slate-500"}`}>TRẢI NGHIỆM ĐƯỢC CÁ NHÂN HÓA</p>
-                <p className={`text-xs md:text-sm font-black tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Khám phá ngay phiên bản mới nhất</p>
+                <p className={`text-xs md:text-sm font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Khám phá ngay phiên bản mới nhất</p>
               </div>
             </div>
             <button 
               onClick={onClose}
-              className="w-full md:w-auto btn-vibrant-3d px-8 md:px-12 py-4 md:py-6 text-sm md:text-lg font-black tracking-widest !rounded-2xl md:!rounded-3xl"
+              className="w-full md:w-auto btn-vibrant-3d px-8 md:px-12 py-4 md:py-6 text-sm md:text-lg font-bold tracking-widest !rounded-2xl md:!rounded-3xl"
             >
               KHÁM PHÁ NGAY
             </button>
@@ -4399,7 +4428,8 @@ function TopBar({
   formatDateString,
   user, 
   onLogin, 
-  onLogout 
+  onLogout,
+  setActiveTab
 }: { 
   isDark: boolean, 
   onMenuClick: () => void, 
@@ -4415,18 +4445,20 @@ function TopBar({
   formatDateString: (date: Date) => string,
   user: any, 
   onLogin: () => void, 
-  onLogout: () => void 
+  onLogout: () => void,
+  setActiveTab: (tab: string) => void
 }) {
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const hours = currentTime.getHours();
   const isDaytime = hours >= 5 && hours < 18;
   const WeatherIcon = isDaytime ? Sun : Moon;
   const weatherColor = isDaytime ? "text-yellow-400" : "text-blue-400";
 
   return (
-    <div className={`h-16 flex items-center justify-between px-4 sticky top-0 z-[105] transition-all ${
-      isDark ? "bg-[#130f26]" : "bg-[#f2f2f7] border-b border-slate-200"
+    <div className={`h-16 flex items-center justify-between px-4 sticky top-0 z-[130] transition-all ${
+      isDark ? "bg-[#1f2937]" : "bg-[#f2f2f7] border-b border-slate-200"
     }`}>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <button 
           onClick={onMenuClick}
           className={`p-2 rounded-lg transition-all hover:bg-black/10 ${isDark ? "text-white/60 hover:text-white" : "text-slate-600 hover:text-slate-900"}`}
@@ -4434,16 +4466,103 @@ function TopBar({
           <Menu size={20} />
         </button>
 
-        <button
-          onClick={user ? onLogout : onLogin}
-          className={`group flex items-center justify-center w-7 h-7 rounded-full transition-all ${
-            user 
-              ? (isDark ? "bg-white/[0.12] text-white hover:bg-white/[0.18]" : "bg-black/[0.05] text-black hover:bg-black/[0.08]")
-              : "bg-amber-400/20 text-amber-500 hover:bg-amber-400/30 shadow-sm shadow-amber-400/10"
-          }`}
+        <button 
+          onClick={() => setActiveTab("Khám phá")}
+          className={`sm:hidden p-2 rounded-lg transition-all hover:bg-black/10 ${isDark ? "text-white/60 hover:text-white" : "text-slate-600 hover:text-slate-900"}`}
         >
-          <User size={14} className={!user ? "text-amber-500 fill-amber-500/20" : ""} />
+          <Search size={20} />
         </button>
+
+        <div className="relative">
+          <button
+            onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+            className={`group flex items-center justify-center w-7 h-7 rounded-full transition-all ${
+              user 
+                ? (isDark ? "bg-white/[0.12] text-white hover:bg-white/[0.18]" : "bg-black/[0.05] text-black hover:bg-black/[0.08]")
+                : "bg-amber-400/20 text-amber-500 hover:bg-amber-400/30 shadow-sm shadow-amber-400/10"
+            }`}
+          >
+            {user && user.photoURL ? (
+              <img src={user.photoURL} className="w-full h-full rounded-full object-cover" />
+            ) : (
+              <User size={14} className={!user ? "text-amber-500 fill-amber-500/20" : ""} />
+            )}
+          </button>
+
+          <AnimatePresence>
+            {isUserMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-[150]" onClick={() => setIsUserMenuOpen(false)} />
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  className={`absolute top-full left-0 mt-3 w-72 rounded-2xl shadow-2xl z-[155] overflow-hidden border ${
+                    isDark ? "bg-[#1f2937] border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"
+                  }`}
+                >
+                  {user ? (
+                    <div className="p-5 flex items-start gap-4 border-b border-white/5">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                        {user.displayName ? user.displayName.slice(0, 2).toUpperCase() : (user.email ? user.email.slice(0, 2).toUpperCase() : "US")}
+                      </div>
+                      <div className="flex-1 overflow-hidden">
+                        <p className="font-bold truncate">{user.displayName || "Luke Cooper"}</p>
+                        <p className="text-xs opacity-60 truncate">{user.email || "sonhuyc2kl@gmail.com"}</p>
+                        <button 
+                          onClick={() => { onLogout(); setIsUserMenuOpen(false); }}
+                          className="mt-1.5 text-xs text-blue-400 hover:underline font-bold"
+                        >
+                          Đăng xuất
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-5 flex flex-col items-center text-center gap-3 border-b border-white/5">
+                      <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center text-slate-400 dark:text-white/40">
+                        <User size={24} />
+                      </div>
+                      <div>
+                        <p className="font-bold text-lg">Khách</p>
+                        <p className="text-xs opacity-60">Đăng nhập để có trải nghiệm tốt nhất</p>
+                      </div>
+                      <button 
+                        onClick={() => { onLogin(); setIsUserMenuOpen(false); }}
+                        className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-purple-600/20"
+                      >
+                        Đăng nhập
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="p-2">
+                    {[
+                      { icon: Info, label: "Phiên bản Vplay" },
+                      { icon: Smartphone, label: "Manage account and devices" },
+                      { icon: Send, label: "Send Feedback" },
+                      { icon: User, label: "Cài đặt Hồ sơ", action: () => setActiveTab("Cài đặt") },
+                    ].map((item, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          if (item.action) item.action();
+                          setIsUserMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all ${
+                          isDark ? "hover:bg-white/5" : "hover:bg-black/5"
+                        }`}
+                      >
+                        <item.icon size={18} strokeWidth={1.5} className="opacity-70" />
+                        <span className="text-sm font-medium">{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </div>
 
         <div className="flex items-center gap-2 ml-1">
           <motion.img 
@@ -4455,21 +4574,22 @@ function TopBar({
         </div>
       </div>
 
-      <div className="flex-1 flex justify-center mx-4">
+      <div className="flex-1 hidden sm:flex justify-center mx-4">
         <div 
-          className={`group flex items-center gap-2.5 px-3.5 h-8 w-full max-w-[120px] sm:max-w-sm md:max-w-md lg:max-w-lg transition-all relative border-b-2 rounded-lg ${
+          className={`group flex items-center gap-2.5 px-3.5 h-10 w-full max-w-[120px] sm:max-w-sm md:max-w-md lg:max-w-lg transition-all relative border-b-2 rounded-lg ${
             isDark 
-              ? "bg-white/[0.08] border-white/20 focus-within:border-white/40 text-white/90" 
-              : "bg-black/[0.04] border-slate-300 focus-within:border-slate-400 text-slate-800"
+              ? "bg-white/[0.08] border-white/20 focus-within:border-fuchsia-500/60 text-white/90" 
+              : "bg-black/[0.04] border-slate-300 focus-within:border-fuchsia-500 text-slate-800"
           }`}
         >
-          <Search size={20} className={`${isDark ? "text-white/60" : "text-slate-400"}`} />
+          <Search size={18} className={`${isDark ? "text-white/40" : "text-slate-400"}`} />
           <input
             type="text"
             value={searchQuery}
+            onFocus={() => setActiveTab("Khám phá")}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Find and explore Vplay"
-            className="flex-1 bg-transparent border-none outline-none text-[10px] font-normal placeholder:text-slate-500/50"
+            className="flex-1 bg-transparent border-none outline-none text-sm font-normal placeholder:text-white/40"
           />
           <div className={`hidden sm:block p-1 rounded-full transition-all ${
             isDark ? "text-white/60 hover:text-white" : "text-slate-400 hover:text-slate-900"
@@ -4489,13 +4609,8 @@ function TopBar({
               </div>
             )}
             {showTempInClock && weather && <div className={`w-[1px] h-3 self-center ${isDark ? "bg-white/20" : "bg-slate-300"}`} />}
-            <div className={`text-base font-bold tracking-tight self-center ${isDark ? "text-white" : "text-slate-900"}`}>
+            <div className={`text-base font-bold tracking-tighter self-center ${isDark ? "text-white" : "text-slate-900"}`}>
               {formatTime(currentTime)}
-            </div>
-          </div>
-          <div className="flex items-center justify-end">
-            <div className={`text-[10px] font-bold uppercase tracking-tight ${isDark ? "text-white/40" : "text-slate-500"}`}>
-              {formatDateString(currentTime)}
             </div>
           </div>
         </div>
@@ -4696,7 +4811,12 @@ const [headingBar, setHeadingBar] = useState(() => {
       const isLargeSize = window.innerWidth >= 1024;
       
       if (isMobileSize) {
-        setHeadingBar(false);
+        // If user explicitly chose sidebar (desktop mode) on mobile, show top bar
+        if (useSidebar) {
+          setHeadingBar(true);
+        } else {
+          setHeadingBar(false);
+        }
       } else if (isLargeSize) {
         setHeadingBar(true);
       }
@@ -4705,7 +4825,7 @@ const [headingBar, setHeadingBar] = useState(() => {
     window.addEventListener('resize', handleResize);
     handleResize(); // Initial check
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [useSidebar]);
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -5086,7 +5206,7 @@ const [headingBar, setHeadingBar] = useState(() => {
       </AnimatePresence>
       <div className={`${
         isDark 
-          ? "dark bg-gradient-to-br from-rose-950 via-purple-950 to-red-950 text-white" 
+          ? "dark bg-[#111827] text-white" 
           : "bg-gradient-to-br from-rose-50 via-purple-50 to-red-50 text-black"
       } min-h-screen flex transition-all duration-500 overflow-x-hidden ${useSidebar ? "flex-row" : "flex-col"} ${featureFlags.disable_animation ? "reduce-animations" : ""}`}
       style={{
@@ -5096,7 +5216,7 @@ const [headingBar, setHeadingBar] = useState(() => {
       }}
       >
       {headingBar && (
-        <div className="fixed top-0 left-0 right-0 z-[110]">
+        <div className="fixed top-0 left-0 right-0 z-[200]">
           <TopBar 
             isDark={isDark} 
             searchQuery={searchQuery}
@@ -5115,6 +5235,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             user={user}
             onLogin={handleLogin}
             onLogout={handleLogout}
+            setActiveTab={setActiveTab}
           />
         </div>
       )}
@@ -5371,7 +5492,7 @@ const [headingBar, setHeadingBar] = useState(() => {
               key={`title-${displayTab}`}
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
-              className={`text-3xl md:text-6xl font-bold tracking-tighter ${isDark ? "text-white" : "text-black"}`}
+              className={`text-2xl md:text-4xl font-bold tracking-tighter ${isDark ? "text-white" : "text-black"}`}
             >
               {displayTab === "Update Logs" ? "Cập nhật" : displayTab}
             </motion.h1>
@@ -5533,7 +5654,7 @@ const [headingBar, setHeadingBar] = useState(() => {
       
       {/* Sidebar Redesign */}
       <AnimatePresence>
-        {useSidebar && (
+        {useSidebar && !showSplash && (
           <>
             {/* Mobile Hamburger Toggle */}
             {isMobile && !isSidebarExpanded && (
@@ -5545,7 +5666,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                 className={`fixed top-6 z-[51] p-3.5 rounded-2xl shadow-2xl transition-all active:scale-95 ${
                   isSidebarRight ? "right-6" : "left-6"
                 } ${
-                  isDark ? "bg-[#130f26] text-white border border-white/10" : "bg-white text-slate-800 border border-slate-200"
+                  isDark ? "bg-[#1f2937] text-white border border-white/10" : "bg-white text-slate-800 border border-slate-200"
                 }`}
               >
                 <Menu size={24} />
@@ -5572,7 +5693,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                 visibility: (isMobile && !isSidebarExpanded) ? "hidden" : "visible" as any
               }}
               exit={{ x: isSidebarRight ? sidebarWidth : -sidebarWidth }}
-              transition={{ type: "spring", damping: 30, stiffness: 300, width: { duration: 0 } }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
               className={`fixed z-[120] flex flex-col transition-all duration-0 overflow-visible ${
                 isSidebarRight 
                   ? (sidebarDisplay === "float" && !isMobile ? "right-6" : "right-0") 
@@ -5584,7 +5705,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                     ? `${headingBar ? "top-20 h-[calc(100%-96px)]" : "top-6 h-[calc(100%-48px)]"} !rounded-[32px] border shadow-2xl`
                     : `${headingBar ? "top-16 h-[calc(100%-64px)]" : "top-0 h-full"} border-y-0 ${isSidebarRight ? "border-r-0 border-l" : "border-l-0 border-r"} shadow-2xl`
               } ${
-                isDark ? "bg-[#130f26] border-white/5 shadow-black/50" : "bg-[#f2f2f7]/95 border-slate-200 shadow-xl"
+                isDark ? "bg-[#1f2937] border-white/5 shadow-black/50" : "bg-[#f2f2f7]/95 border-slate-200 shadow-xl"
               }`}
             >
               {/* Resize Handle */}
@@ -5659,27 +5780,27 @@ const [headingBar, setHeadingBar] = useState(() => {
                   const Icon = tab.icon;
                   const isActive = activeTab === (tab.id || tab.name);
                   return (
-                      <button
-                        key={`side-nav-${tab.id || tab.name}-${idx}`}
-                        onClick={() => {
-                          setActiveTab(tab.id || tab.name);
-                          if (isMobile) setIsSidebarExpanded(false);
-                        }}
-                        className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-xl transition-all relative group h-[34px] overflow-hidden ${
-                          isActive 
-                            ? (isDark ? "bg-white/10 text-white" : "bg-black/5 text-black") 
-                            : (isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5")
-                        } ${!isSidebarExpanded ? "justify-center" : ""}`}
-                      >
+                        <button
+                          key={`side-nav-${tab.id || tab.name}-${idx}`}
+                          onClick={() => {
+                            setActiveTab(tab.id || tab.name);
+                            if (isMobile) setIsSidebarExpanded(false);
+                          }}
+                          className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-all relative group h-[34px] overflow-hidden ${
+                            isActive 
+                              ? (isDark ? "bg-white/10 text-fuchsia-400" : "bg-black/5 text-fuchsia-600") 
+                              : (isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5")
+                          } ${!isSidebarExpanded ? "justify-center" : ""}`}
+                        >
                       {isActive && (
                         <motion.div 
                           layoutId="sidebarActivePill"
-                          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-purple-500 rounded-r-full shadow-[0_0_8px_rgba(168,85,247,0.4)]" 
+                          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-fuchsia-400 rounded-r-sm shadow-[0_0_8px_rgba(232,121,249,0.5)]" 
                         />
                       )}
-                      <Icon size={18} className={`flex-shrink-0 transition-all ${isActive ? "text-purple-500" : (isDark ? "text-white" : "text-black")} group-hover:scale-110`} />
+                      <Icon size={18} strokeWidth={tab.id === "Experimental" ? 1 : 1.5} className={`flex-shrink-0 transition-all ${isActive ? "text-fuchsia-400" : (isDark ? "text-white" : "text-black")} group-hover:scale-110`} />
                       {isSidebarExpanded && (
-                        <span className="font-bold text-xs whitespace-nowrap">{tab.name}</span>
+                        <span className="font-normal text-xs whitespace-nowrap">{tab.name}</span>
                       )}
                     </button>
                   );
@@ -5704,7 +5825,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                               setActiveChannel(channel);
                               if (isMobile) setIsSidebarExpanded(false);
                             }}
-                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all group h-[44px] ${
+                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all group h-[44px] ${
                               isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5"
                             } ${!isSidebarExpanded ? "justify-center" : ""}`}
                           >
@@ -5715,7 +5836,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                               referrerPolicy="no-referrer"
                             />
                             {isSidebarExpanded && (
-                              <span className="font-bold text-sm whitespace-nowrap overflow-hidden text-ellipsis">{channel.name}</span>
+                              <span className="font-normal text-sm whitespace-nowrap overflow-hidden text-ellipsis">{channel.name}</span>
                             )}
                           </button>
                         );
@@ -5731,10 +5852,10 @@ const [headingBar, setHeadingBar] = useState(() => {
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col">
                       <div className="flex items-baseline gap-3">
-                        <div className={`text-2xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                        <div className={`text-2xl font-bold tracking-tighter font-mono ${isDark ? "text-white" : "text-slate-900"}`}>
                           {formatTime(currentTime || new Date())}
                         </div>
-                        {showTempInClock && weather && <div className={`w-[1px] h-3 self-center ${isDark ? "bg-white/20" : "bg-slate-300"}`} />}
+                        {showTempInClock && weather && <div className={`w-[1px] h-3 self-center ${isDark ? "bg-white/10" : "bg-slate-300"} mx-1`} />}
                         {showTempInClock && weather && (
                           <div className={`text-sm font-bold flex items-center gap-1.5 self-center ${isDark ? "text-yellow-400" : "text-yellow-500"}`}>
                             <Thermometer size={14} strokeWidth={1.5} />
@@ -5749,7 +5870,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                       <span className="text-[12px] font-black text-white tracking-widest whitespace-nowrap">
+                       <span className="text-[12px] font-bold text-white tracking-widest whitespace-nowrap">
                          26M6 - Build 26604
                        </span>
                        <div className="px-1.5 py-0.5 rounded bg-cyan-400 text-[9px] font-bold text-slate-900 flex items-center gap-1 shadow-sm">
@@ -5764,7 +5885,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                     setActiveTab("Cài đặt");
                     if (isMobile) setIsSidebarExpanded(false);
                   }}
-                  className={`flex items-center gap-3 px-2.5 py-1 rounded-xl transition-all w-full h-[34px] relative overflow-hidden group ${
+                  className={`flex items-center gap-3 px-2.5 py-1 rounded-lg transition-all w-full h-[34px] relative overflow-hidden group ${
                     activeTab === "Cài đặt"
                       ? (isDark ? "bg-white/10 text-white" : "bg-black/5 text-black")
                       : (isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5")
@@ -5773,23 +5894,23 @@ const [headingBar, setHeadingBar] = useState(() => {
                   {activeTab === "Cài đặt" && (
                     <motion.div 
                       layoutId="sidebarActivePill"
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-purple-500 rounded-r-full shadow-[0_0_8px_rgba(168,85,247,0.4)]" 
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-fuchsia-400 rounded-r-sm shadow-[0_0_8px_rgba(232,121,249,0.5)]" 
                     />
                   )}
                   <div className={`p-1 rounded-lg transition-colors ${
                     activeTab === "Cài đặt"
-                      ? (isDark ? "bg-purple-500/20 text-purple-400" : "bg-purple-100 text-purple-600")
+                      ? (isDark ? "bg-fuchsia-500/20 text-fuchsia-400" : "bg-fuchsia-100 text-fuchsia-600")
                       : (isDark ? "bg-white/5 text-white" : "bg-black/5 text-black")
                   }`}>
                     <SettingsIcon className="w-4 h-4" />
                   </div>
-                  {isSidebarExpanded && <span className="font-bold text-xs">Cài đặt</span>}
+                  {isSidebarExpanded && <span className={`font-normal text-xs ${activeTab === "Cài đặt" ? "text-fuchsia-400" : ""}`}>Cài đặt</span>}
                 </button>
 
                 {!headingBar && (
                   <button
                     onClick={user ? handleLogout : handleLogin}
-                    className={`flex items-center gap-3 px-2.5 py-1 rounded-xl transition-all w-full h-[34px] relative overflow-hidden group ${
+                    className={`flex items-center gap-3 px-2.5 py-1 rounded-lg transition-all w-full h-[34px] relative overflow-hidden group ${
                       isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5"
                     } ${!isSidebarExpanded ? "justify-center" : ""}`}
                   >
