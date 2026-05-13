@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode } from "react";
 import { 
   Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer,
-  Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, Pizza, FlaskConical as Flask
+  Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, Pizza, Cloud, FlaskConical as Flask
 } from "lucide-react";
 import Hls from "hls.js";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
@@ -57,12 +57,25 @@ const TREATMENTS = [
 ];
 
 const LoadingSpinner = ({ isDark, className = "w-6 h-6" }: { isDark: boolean, className?: string }) => (
-  <div 
-    className={`animate-spin rounded-full border-[3px] border-t-transparent ${
-      isDark ? "border-white" : "border-black"
-    } ${className}`} 
-    style={{ animationDuration: '0.8s' }}
-  />
+  <div className={`relative ${className}`}>
+    <svg 
+      className="animate-spin w-full h-full" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ animationDuration: '2.5s' }}
+    >
+      <path 
+        className="opacity-100" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="3" 
+        strokeLinecap="round" 
+        d="M12 2C6.47715 2 2 6.47715 2 12C2 13.5997 2.37562 15.1116 3.0434 16.4527"
+        style={{ color: isDark ? '#d946ef' : '#9333ea' }}
+      />
+    </svg>
+  </div>
 );
 
 const SplashScreen = ({ isDark, onEnter, duration = 5000 }: { isDark: boolean, onEnter: () => void, duration?: number }) => {
@@ -150,7 +163,7 @@ const baseTabs = [
   { name: "Khám phá", icon: SearchIcon, id: "Khám phá" },
   { name: "Phát sóng", icon: TvIcon, id: "Phát sóng" },
   { name: "Lưu trữ", icon: FolderIcon, id: "Lưu trữ" },
-  { name: "Thử nghiệm", icon: ExperimentalIcon, id: "Experimental" },
+  { name: "Thử nghiệm", icon: Pizza, id: "Experimental", strokeWidth: 1 },
   { name: "Cài đặt", icon: SettingsIcon, id: "Cài đặt" },
 ];
 
@@ -177,10 +190,10 @@ function LiquidModal({ isOpen, onClose, children, isDark, title, description, li
             className={`absolute inset-0 bg-black/40 ${liquidGlass ? "backdrop-blur-sm" : ""}`}
           />
           <motion.div
-            initial={{ scale: 0.8, opacity: 0, y: 20 }}
+            initial={{ scale: 1.2, opacity: 0, y: 0 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.8, opacity: 0, y: 20 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            exit={{ scale: 1.2, opacity: 0, y: 0 }}
+            transition={{ type: "spring", damping: 30, stiffness: 350 }}
             className={`relative w-full max-w-md overflow-hidden ${
               isDark 
                 ? "popup-3d-dark" 
@@ -2006,6 +2019,13 @@ function SearchPopup({
     { name: "Đăng xuất", type: "button", icon: SignOutIcon, action: onLogout },
     { name: "Sắp xếp A-Z", type: "toggle", icon: Filter, action: () => setSortOrder("az") },
     { name: "Sắp xếp Z-A", type: "toggle", icon: Filter, action: () => setSortOrder("za") },
+    
+    { name: "Thời tiết hôm nay", type: "element", icon: Cloud, action: () => setActiveTab("Trang chủ") },
+    { name: "Đồng hồ hệ thống", type: "element", icon: Clock, action: () => setActiveTab("Trang chủ") },
+    { name: "Kênh đã ghim", type: "element", icon: Pin, action: () => setActiveTab("Phát sóng") },
+    { name: "Người dùng đăng nhập", type: "element", icon: User, action: onLogin },
+    { name: "Bảng điều khiển", type: "element", icon: Layout, action: () => setActiveTab("Quản trị") },
+    { name: "Liên hệ hỗ trợ", type: "element", icon: Info, action: () => setActiveTab("Cài đặt") },
     
     { name: "/force launch loading", type: "command", icon: Zap, action: () => {} },
     { name: "/force launch oobe", type: "command", icon: Zap, action: () => {} },
@@ -3939,26 +3959,26 @@ function SearchBar({ isDark, query, setQuery, onClose, liquidGlass }: { isDark: 
   const textColor = isGlassy ? "text-white" : "text-black";
 
   return (
-    <div className={`flex items-center gap-2 md:gap-4 px-4 md:px-10 py-2 h-12 md:h-16 w-full max-w-4xl relative group rounded-full overflow-hidden transition-all ${isGlassy ? "bg-white/10" : isDark ? "bg-slate-800/80" : "bg-slate-200"}`}>
-      <div className="flex items-center gap-2 md:gap-3 flex-1 overflow-hidden">
-        <SearchIcon className={`h-5 w-5 md:h-6 md:w-6 ${iconColor} flex-shrink-0 transition-colors ${isDark ? "group-focus-within:text-purple-400" : "group-focus-within:text-purple-500"}`} />
+    <div className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-1.5 h-10 md:h-12 w-full max-w-2xl relative group rounded-2xl overflow-hidden transition-all ${isGlassy ? "bg-white/10" : isDark ? "bg-slate-800/60" : "bg-slate-200"}`}>
+      <div className="flex items-center gap-2 flex-1 overflow-hidden">
+        <SearchIcon className={`h-4 w-4 md:h-5 md:w-5 ${iconColor} flex-shrink-0 transition-colors ${isDark ? "group-focus-within:text-purple-400" : "group-focus-within:text-purple-500"}`} />
         <input
           ref={inputRef}
           type="text"
-          placeholder="Search or use commands"
+          placeholder="Tìm kiếm..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className={`flex-1 bg-transparent border-none outline-none text-base md:text-lg font-medium truncate ${textColor} ${placeholderColor}`}
+          className={`flex-1 bg-transparent border-none outline-none text-sm font-bold truncate ${textColor} ${placeholderColor}`}
         />
       </div>
-      <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-[85%] transition-all duration-300 ${isGlassy ? "bg-white/10" : "bg-black/5"} group-focus-within:bg-purple-500 group-focus-within:shadow-[0_0_15px_rgba(168,85,247,0.4)]`} />
-      <div className="flex items-center gap-2 md:gap-4 shrink-0">
+      <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-[90%] transition-all duration-300 ${isGlassy ? "bg-white/20" : "bg-black/5"} group-focus-within:bg-purple-500/60 group-focus-within:shadow-[0_0_10px_rgba(168,85,247,0.3)]`} />
+      <div className="flex items-center gap-2 shrink-0">
         <button 
           onClick={startVoiceSearch}
-          className={`p-2 rounded-full transition-all ${isListening ? "bg-red-500 text-white animate-pulse" : `${iconColor} opacity-60 hover:opacity-100`}`}
+          className={`p-1.5 rounded-full transition-all ${isListening ? "bg-red-500 text-white animate-pulse" : `${iconColor} opacity-40 hover:opacity-100`}`}
           title="Đang nghe..."
         >
-          <MicIcon size={24} className="md:w-6 md:h-6" />
+          <MicIcon size={20} className="md:w-5 md:h-5" />
         </button>
       </div>
     </div>
@@ -4324,96 +4344,84 @@ function OnboardingWizard({
                     </div>
                   )}
                 </div>
+
+                <div className="flex items-center justify-between pt-6 border-t border-white/10">
+                  <div className="flex gap-2">
+                    {steps.map((_, i) => (
+                      <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === step ? "w-8 bg-purple-500" : "w-1.5 bg-white/20"}`} />
+                    ))}
+                  </div>
+                  <div className="flex gap-4">
+                    {step > 0 && step < 5 && (
+                      <button onClick={prevStep} className={`px-6 py-2.5 rounded-2xl font-bold text-sm transition-all ${config.isDark ? "text-white hover:bg-white/5" : "text-slate-600 hover:bg-black/5"}`}>Quay lại</button>
+                    )}
+                    {step < 5 ? (
+                      <button onClick={nextStep} className="px-8 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-bold text-sm shadow-lg shadow-purple-500/20 transition-all active:scale-95">Tiếp theo</button>
+                    ) : (
+                      <button onClick={() => onComplete(config)} className="px-10 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-[24px] font-bold text-sm shadow-xl shadow-purple-500/30 transition-all active:scale-95 hover:shadow-2xl">Bắt đầu ngay</button>
+                    )}
+                  </div>
+                </div>
               </motion.div>
             </AnimatePresence>
           </div>
-
-          {/* Footer Controls */}
-          <div className="pt-10 flex items-center justify-between border-t border-black/5 mt-auto">
-            <div className="flex items-center gap-6">
-              {step === 0 && !showSkipPrompt && (
-                <button 
-                  onClick={() => setShowSkipPrompt(true)}
-                  className={`text-[11px] font-bold uppercase tracking-[0.2em] opacity-30 hover:opacity-100 transition-all ${config.isDark ? "text-white" : "text-slate-900"}`}
-                >Skip OOBE</button>
-              )}
-              {showSkipPrompt && (
-                <form onSubmit={handleSkip} className="flex items-center gap-3">
-                  <div className={`relative group rounded-2xl overflow-hidden transition-all border-2 ${skipError ? "border-red-500" : config.isDark ? "border-white/10" : "border-slate-200"}`}>
-                    <input 
-                      autoFocus
-                      type="password"
-                      placeholder="Passcode..."
-                      value={skipPass}
-                      onChange={e => setSkipPass(e.target.value)}
-                      className="px-4 py-2 text-xs font-bold bg-transparent outline-none w-36"
-                    />
-                  </div>
-                  <button type="button" onClick={() => setShowSkipPrompt(false)} className="p-2 text-slate-400 hover:text-red-500 transition-colors"><X size={18}/></button>
-                </form>
-              )}
-            </div>
-
-            <div className="flex items-center gap-4">
-              {step > 0 && (
-                <button onClick={prevStep} className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${config.isDark ? "bg-white/5 hover:bg-white/10 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-900"}`}>
-                  <ChevronLeft size={24} />
-                </button>
-              )}
-              <button 
-                onClick={step === 5 ? () => onComplete(config) : nextStep}
-                className="btn-purple-3d px-12 h-16 flex items-center gap-3"
-              >
-                <span className="capitalize">{step === 0 ? "Bắt đầu thiết lập" : step === 5 ? "Khám phá ngay" : "Tiếp theo"}</span>
-                <ChevronRight size={22} />
-              </button>
-            </div>
-          </div>
-
-          {/* Accessibility Icons */}
-          <div className="fixed bottom-10 right-10 flex items-center gap-6 opacity-30">
-            <div className={`p-1.5 rounded-lg ${config.isDark ? "text-white" : "text-slate-900"}`}><Accessibility size={24} /></div>
-            <div className={`p-1.5 rounded-lg ${config.isDark ? "text-white" : "text-slate-900"}`}><Volume2 size={24} /></div>
-          </div>
         </div>
+      </div>
+      
+      {/* Skip button for dev */}
+      <div className="fixed bottom-6 right-6 opacity-0 hover:opacity-100 transition-all group z-[2001]">
+         <form onSubmit={handleSkip} className="flex items-center gap-2">
+           <input 
+             type="password" 
+             value={skipPass}
+             onChange={(e) => setSkipPass(e.target.value)}
+             placeholder="Bypass..." 
+             className={`w-24 px-3 py-1 text-[10px] rounded-full border bg-black/40 text-white outline-none transition-all ${skipError ? "border-red-500" : "border-white/10 focus:border-purple-500"}`}
+           />
+         </form>
       </div>
     </motion.div>
   );
 }
 
-function HeadingBar({ 
+function TopBar({ 
   isDark, 
-  liquidGlass, 
-  onSearchClick, 
   onMenuClick, 
-  searchQuery,
-  currentTime,
-  weather,
-  showTempInClock,
-  getTempDisplay,
+  searchQuery, 
+  setSearchQuery, 
+  onSearchClick, 
+  isSearchOpen, 
+  currentTime, 
+  weather, 
+  showTempInClock, 
+  getTempDisplay, 
   formatTime,
   formatDateString,
-  location,
-  user,
-  onLogin,
-  onLogout
+  user, 
+  onLogin, 
+  onLogout 
 }: { 
   isDark: boolean, 
-  liquidGlass: "glassy" | "tinted", 
+  onMenuClick: () => void, 
+  searchQuery: string, 
+  setSearchQuery: (q: string) => void, 
   onSearchClick: () => void, 
-  onMenuClick: () => void,
-  searchQuery: string,
-  currentTime: Date,
-  weather: any,
-  showTempInClock: boolean,
-  getTempDisplay: () => string,
-  formatTime: (d: Date) => string,
-  formatDateString: (d: Date) => string,
-  location: string,
-  user: any,
-  onLogin: () => void,
-  onLogout: () => void
+  isSearchOpen: boolean, 
+  currentTime: Date, 
+  weather: any, 
+  showTempInClock: boolean, 
+  getTempDisplay: () => string, 
+  formatTime: (date: Date) => string,
+  formatDateString: (date: Date) => string,
+  user: any, 
+  onLogin: () => void, 
+  onLogout: () => void 
 }) {
+  const hours = currentTime.getHours();
+  const isDaytime = hours >= 5 && hours < 18;
+  const WeatherIcon = isDaytime ? Sun : Moon;
+  const weatherColor = isDaytime ? "text-yellow-400" : "text-blue-400";
+
   return (
     <div className={`h-16 flex items-center justify-between px-4 sticky top-0 z-[105] transition-all ${
       isDark ? "bg-[#130f26]" : "bg-[#f2f2f7] border-b border-slate-200"
@@ -4428,21 +4436,20 @@ function HeadingBar({
 
         <button
           onClick={user ? onLogout : onLogin}
-          className={`group flex items-center gap-2 px-3 py-1.5 rounded-full transition-all text-xs font-bold ${
+          className={`group flex items-center justify-center w-7 h-7 rounded-full transition-all ${
             user 
-              ? (isDark ? "bg-red-500/10 text-red-400 hover:bg-red-500/20" : "bg-red-50 text-red-500 hover:bg-red-100")
-              : (isDark ? "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20" : "bg-emerald-50 text-emerald-500 hover:bg-emerald-100")
+              ? (isDark ? "bg-white/[0.12] text-white hover:bg-white/[0.18]" : "bg-black/[0.05] text-black hover:bg-black/[0.08]")
+              : "bg-amber-400/20 text-amber-500 hover:bg-amber-400/30 shadow-sm shadow-amber-400/10"
           }`}
         >
-          {user ? <SignOutIcon size={14} /> : <SignInIcon size={14} />}
-          {/* Title text hidden as per request */}
+          <User size={14} className={!user ? "text-amber-500 fill-amber-500/20" : ""} />
         </button>
 
         <div className="flex items-center gap-2 ml-1">
           <motion.img 
             src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi" 
             alt="Logo" 
-            className="w-6 h-6 object-contain"
+            className="w-5 h-5 object-contain"
             referrerPolicy="no-referrer"
           />
         </div>
@@ -4450,22 +4457,24 @@ function HeadingBar({
 
       <div className="flex-1 flex justify-center mx-4">
         <div 
-          onClick={onSearchClick}
-          className={`group flex items-center gap-3 px-4 h-10 w-full max-w-[150px] sm:max-w-sm md:max-w-md lg:max-w-2xl rounded-xl border transition-all cursor-text ${
+          className={`group flex items-center gap-2.5 px-3.5 h-8 w-full max-w-[120px] sm:max-w-sm md:max-w-md lg:max-w-lg transition-all relative border-b-2 rounded-lg ${
             isDark 
-              ? "bg-white/5 border-white/5 hover:bg-white/10 text-white/40" 
-              : "bg-black/5 border-slate-200 hover:bg-black/10 text-slate-500"
+              ? "bg-white/[0.08] border-white/20 focus-within:border-white/40 text-white/90" 
+              : "bg-black/[0.04] border-slate-300 focus-within:border-slate-400 text-slate-800"
           }`}
         >
-          <Search size={16} className="group-hover:scale-110 transition-transform" />
-          <span className="text-xs font-bold overflow-hidden whitespace-nowrap text-ellipsis">
-            {searchQuery || "Find and explore"}
-          </span>
-          <div className="flex-1" />
-          <div className={`hidden sm:block px-1.5 py-0.5 rounded-md border text-[9px] font-bold ${
-            isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200"
+          <Search size={20} className={`${isDark ? "text-white/60" : "text-slate-400"}`} />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Find and explore Vplay"
+            className="flex-1 bg-transparent border-none outline-none text-[10px] font-normal placeholder:text-slate-500/50"
+          />
+          <div className={`hidden sm:block p-1 rounded-full transition-all ${
+            isDark ? "text-white/60 hover:text-white" : "text-slate-400 hover:text-slate-900"
           }`}>
-            Ctrl K
+            <Mic size={18} />
           </div>
         </div>
       </div>
@@ -4474,20 +4483,18 @@ function HeadingBar({
         <div className="flex flex-col items-end">
           <div className="flex items-center gap-3">
             {showTempInClock && weather && (
-              <div className={`text-xs font-bold flex items-center gap-1 ${isDark ? "text-yellow-400" : "text-yellow-500"}`}>
-                <Thermometer size={14} />
+              <div className={`text-base font-bold flex items-center gap-1 self-center ${isDaytime ? "text-yellow-400" : "text-blue-400"}`}>
+                <WeatherIcon size={16} />
                 {getTempDisplay()}
               </div>
             )}
-            <div className={`text-base font-bold tracking-tight font-mono ${isDark ? "text-white" : "text-slate-900"}`}>
+            {showTempInClock && weather && <div className={`w-[1px] h-3 self-center ${isDark ? "bg-white/20" : "bg-slate-300"}`} />}
+            <div className={`text-base font-bold tracking-tight self-center ${isDark ? "text-white" : "text-slate-900"}`}>
               {formatTime(currentTime)}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className={`text-[9px] font-bold uppercase tracking-tight ${isDark ? "text-white/60" : "text-slate-600"}`}>
-               {location}
-            </span>
-            <div className={`text-[10px] font-bold uppercase tracking-tight font-mono ${isDark ? "text-white/40" : "text-slate-500"}`}>
+          <div className="flex items-center justify-end">
+            <div className={`text-[10px] font-bold uppercase tracking-tight ${isDark ? "text-white/40" : "text-slate-500"}`}>
               {formatDateString(currentTime)}
             </div>
           </div>
@@ -4498,6 +4505,7 @@ function HeadingBar({
 }
 
 function App() {
+  const isResizing = useRef(false);
   const [showSplash, setShowSplash] = useState(false);
   const [splashDuration, setSplashDuration] = useState(5000);
   const [showOnboarding, setShowOnboarding] = useState(() => {
@@ -4555,19 +4563,19 @@ function App() {
     const saved = localStorage.getItem("vplay_sidebar_display");
     return (saved as "float" | "attach") || "float";
   });
-  const [sidebarWidth, setSidebarWidth] = useState(() => {
+  const sidebarWidthDefault = 200;
+const [sidebarWidth, setSidebarWidth] = useState(() => {
     const saved = localStorage.getItem("vplay_sidebar_width");
-    const baseWidth = saved ? parseInt(saved, 10) : 280;
+    const baseWidth = saved ? parseInt(saved, 10) : sidebarWidthDefault;
     const isHeading = localStorage.getItem("vplay_heading_bar") === "true";
-    return isHeading && baseWidth > 240 ? 240 : baseWidth;
+    return isHeading && baseWidth > 180 ? 180 : baseWidth;
   });
-  const isResizing = useRef(false);
 
   useEffect(() => {
     localStorage.setItem("vplay_sidebar_locked", isSidebarLocked.toString());
     if (isSidebarLocked) {
-      setSidebarWidth(280);
-      localStorage.setItem("vplay_sidebar_width", "280");
+      setSidebarWidth(sidebarWidthDefault);
+      localStorage.setItem("vplay_sidebar_width", sidebarWidthDefault.toString());
     }
   }, [isSidebarLocked]);
 
@@ -5089,13 +5097,14 @@ const [headingBar, setHeadingBar] = useState(() => {
       >
       {headingBar && (
         <div className="fixed top-0 left-0 right-0 z-[110]">
-          <HeadingBar 
+          <TopBar 
             isDark={isDark} 
-            liquidGlass={liquidGlass} 
             searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            isSearchOpen={isSearchOpen}
             onMenuClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
             onSearchClick={() => {
-              setActiveTab("Khám phá");
+              setIsSearchOpen(true);
             }}
             currentTime={currentTime}
             weather={weather}
@@ -5103,7 +5112,6 @@ const [headingBar, setHeadingBar] = useState(() => {
             getTempDisplay={getTempDisplay}
             formatTime={formatTime}
             formatDateString={formatDateString}
-            location={location}
             user={user}
             onLogin={handleLogin}
             onLogout={handleLogout}
@@ -5267,8 +5275,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                       autoFocus
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Tìm kiếm kênh, chương trình, cài đặt..."
-                      className={`flex-1 bg-transparent border-none outline-none text-lg font-bold ${isDark ? "text-white" : "text-black"}`}
+                      placeholder="Find and explore Vplay"
+                      className={`flex-1 bg-transparent border-none outline-none text-lg font-normal ${isDark ? "text-white placeholder:text-white/30" : "text-black placeholder:text-black/30"}`}
                     />
                     {searchQuery && (
                       <button onClick={() => setSearchQuery("")} className="p-1 rounded-full hover:bg-black/10">
@@ -5604,12 +5612,12 @@ const [headingBar, setHeadingBar] = useState(() => {
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.8 }}
                           onClick={() => setIsSidebarExpanded(true)}
-                          className="w-12 h-12 flex items-center justify-center transition-all group overflow-hidden relative"
+                          className="w-10 h-10 flex items-center justify-center transition-all group overflow-hidden relative"
                         >
                           <img 
                             src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi" 
                             alt="Vplay" 
-                            className="w-10 h-10 object-contain drop-shadow-lg group-hover:scale-110 transition-transform" 
+                            className="w-8 h-8 object-contain drop-shadow-lg group-hover:scale-110 transition-transform" 
                             referrerPolicy="no-referrer"
                           />
                         </motion.button>
@@ -5631,7 +5639,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                             <img 
                               src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi" 
                               alt="Vplay" 
-                              className="h-10 w-10 object-contain drop-shadow-md"
+                              className="h-8 w-8 object-contain drop-shadow-md"
                               referrerPolicy="no-referrer"
                             />
                           </div>
@@ -5651,27 +5659,27 @@ const [headingBar, setHeadingBar] = useState(() => {
                   const Icon = tab.icon;
                   const isActive = activeTab === (tab.id || tab.name);
                   return (
-                    <button
-                      key={`side-nav-${tab.id || tab.name}-${idx}`}
-                      onClick={() => {
-                        setActiveTab(tab.id || tab.name);
-                        if (isMobile) setIsSidebarExpanded(false);
-                      }}
-                      className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all relative group h-[50px] overflow-hidden ${
-                        isActive 
-                          ? (isDark ? "bg-white/10 text-white" : "bg-black/5 text-black") 
-                          : (isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5")
-                      } ${!isSidebarExpanded ? "justify-center" : ""}`}
-                    >
+                      <button
+                        key={`side-nav-${tab.id || tab.name}-${idx}`}
+                        onClick={() => {
+                          setActiveTab(tab.id || tab.name);
+                          if (isMobile) setIsSidebarExpanded(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-xl transition-all relative group h-[34px] overflow-hidden ${
+                          isActive 
+                            ? (isDark ? "bg-white/10 text-white" : "bg-black/5 text-black") 
+                            : (isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5")
+                        } ${!isSidebarExpanded ? "justify-center" : ""}`}
+                      >
                       {isActive && (
                         <motion.div 
                           layoutId="sidebarActivePill"
-                          className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-purple-500 rounded-r-full" 
+                          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-purple-500 rounded-r-full shadow-[0_0_8px_rgba(168,85,247,0.4)]" 
                         />
                       )}
-                      <Icon size={24} className={`flex-shrink-0 transition-all ${isActive ? "text-purple-500" : (isDark ? "text-white" : "text-black")} group-hover:scale-110`} />
+                      <Icon size={18} className={`flex-shrink-0 transition-all ${isActive ? "text-purple-500" : (isDark ? "text-white" : "text-black")} group-hover:scale-110`} />
                       {isSidebarExpanded && (
-                        <span className="font-bold text-base whitespace-nowrap">{tab.name}</span>
+                        <span className="font-bold text-xs whitespace-nowrap">{tab.name}</span>
                       )}
                     </button>
                   );
@@ -5696,7 +5704,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                               setActiveChannel(channel);
                               if (isMobile) setIsSidebarExpanded(false);
                             }}
-                            className={`w-full flex items-center gap-4 px-4 py-2 rounded-xl transition-all group h-[48px] ${
+                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all group h-[44px] ${
                               isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5"
                             } ${!isSidebarExpanded ? "justify-center" : ""}`}
                           >
@@ -5723,25 +5731,21 @@ const [headingBar, setHeadingBar] = useState(() => {
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col">
                       <div className="flex items-baseline gap-3">
-                        <div className={`text-2xl font-bold tracking-tight font-mono ${isDark ? "text-white" : "text-slate-900"}`}>
+                        <div className={`text-2xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
                           {formatTime(currentTime || new Date())}
                         </div>
+                        {showTempInClock && weather && <div className={`w-[1px] h-3 self-center ${isDark ? "bg-white/20" : "bg-slate-300"}`} />}
                         {showTempInClock && weather && (
-                          <div className={`text-sm font-bold flex items-center gap-1.5 ${isDark ? "text-yellow-400" : "text-yellow-500"}`}>
+                          <div className={`text-sm font-bold flex items-center gap-1.5 self-center ${isDark ? "text-yellow-400" : "text-yellow-500"}`}>
                             <Thermometer size={14} strokeWidth={1.5} />
                             {getTempDisplay()}
                           </div>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className={`text-[10px] font-bold uppercase tracking-tight font-mono ${isDark ? "text-white/40" : "text-slate-500"}`}>
+                        <div className={`text-[10px] font-bold uppercase tracking-tight ${isDark ? "text-white/40" : "text-slate-500"}`}>
                           {formatDateString(currentTime || new Date())}
                         </div>
-                        {showTempInClock && weather && isSidebarExpanded && (
-                          <span className={`text-[8px] font-bold uppercase tracking-tight ${isDark ? "text-white/20" : "text-slate-400"}`}>
-                            • {location}
-                          </span>
-                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -5754,13 +5758,13 @@ const [headingBar, setHeadingBar] = useState(() => {
                     </div>
                   </div>
                 )}
-                
-                  <button
+
+                <button
                   onClick={() => {
                     setActiveTab("Cài đặt");
                     if (isMobile) setIsSidebarExpanded(false);
                   }}
-                  className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all w-full h-[50px] relative overflow-hidden group ${
+                  className={`flex items-center gap-3 px-2.5 py-1 rounded-xl transition-all w-full h-[34px] relative overflow-hidden group ${
                     activeTab === "Cài đặt"
                       ? (isDark ? "bg-white/10 text-white" : "bg-black/5 text-black")
                       : (isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5")
@@ -5769,35 +5773,35 @@ const [headingBar, setHeadingBar] = useState(() => {
                   {activeTab === "Cài đặt" && (
                     <motion.div 
                       layoutId="sidebarActivePill"
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-purple-500 rounded-r-full" 
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-purple-500 rounded-r-full shadow-[0_0_8px_rgba(168,85,247,0.4)]" 
                     />
                   )}
-                  <div className={`p-1.5 rounded-lg transition-colors ${
+                  <div className={`p-1 rounded-lg transition-colors ${
                     activeTab === "Cài đặt"
                       ? (isDark ? "bg-purple-500/20 text-purple-400" : "bg-purple-100 text-purple-600")
                       : (isDark ? "bg-white/5 text-white" : "bg-black/5 text-black")
                   }`}>
-                    <SettingsIcon className="w-5 h-5" />
+                    <SettingsIcon className="w-4 h-4" />
                   </div>
-                  {isSidebarExpanded && <span className="font-bold text-base">Cài đặt</span>}
+                  {isSidebarExpanded && <span className="font-bold text-xs">Cài đặt</span>}
                 </button>
 
                 {!headingBar && (
                   <button
                     onClick={user ? handleLogout : handleLogin}
-                    className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all w-full h-[50px] relative overflow-hidden group ${
+                    className={`flex items-center gap-3 px-2.5 py-1 rounded-xl transition-all w-full h-[34px] relative overflow-hidden group ${
                       isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5"
                     } ${!isSidebarExpanded ? "justify-center" : ""}`}
                   >
-                    <div className={`p-1.5 rounded-lg transition-colors ${
+                    <div className={`p-1 rounded-lg transition-colors ${
                       user 
                         ? (isDark ? "bg-red-500/10 text-red-400 group-hover:bg-red-500/20" : "bg-red-50 text-red-500 group-hover:bg-red-100")
                         : (isDark ? "bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20" : "bg-emerald-50 text-emerald-500 group-hover:bg-emerald-100")
                     }`}>
-                      {user ? <SignOutIcon size={20} /> : <SignInIcon size={20} />}
+                      {user ? <SignOutIcon size={16} /> : <SignInIcon size={16} />}
                     </div>
                     {isSidebarExpanded && (
-                      <span className="font-bold text-base whitespace-nowrap">
+                      <span className="font-bold text-xs whitespace-nowrap">
                         {user ? "Đăng xuất" : "Đăng nhập"}
                       </span>
                     )}
