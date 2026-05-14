@@ -16,24 +16,29 @@ import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, updateDoc, a
 
 import { channels, Channel } from "./channels";
 
-const HomeIcon = ({ className, size }: { className?: string, size?: number | string }) => <Home className={className} size={size || 22} strokeWidth={1.5} />;
-const TvIcon = ({ className, size }: { className?: string, size?: number | string }) => <Tv className={className} size={size || 22} strokeWidth={1.5} />;
-const SettingsIcon = ({ className, size }: { className?: string, size?: number | string }) => <Settings className={className} size={size || 22} strokeWidth={1.5} />;
-const SignInIcon = ({ className, size }: { className?: string, size?: number | string }) => <LogIn className={className} size={size || 22} strokeWidth={1.5} />;
-const SignOutIcon = ({ className, size }: { className?: string, size?: number | string }) => <LogOut className={className} size={size || 22} strokeWidth={1.5} />;
-const ExperimentalIcon = ({ className, size }: { className?: string, size?: number | string }) => <Pizza className={className} size={size || 22} strokeWidth={1} />;
-const LikeIcon = ({ className, size, filled }: { className?: string, size?: number | string, filled?: boolean }) => <Heart className={className} size={size || 20} fill={filled ? "currentColor" : "none"} strokeWidth={1.5} />;
-const CommunityIcon = ({ className, size }: { className?: string, size?: number | string }) => <Users className={className} size={size || 20} strokeWidth={1.5} />;
-const AccountIcon = ({ className, size }: { className?: string, size?: number | string }) => <User className={className} size={size || 22} strokeWidth={1.5} />;
-const MicIcon = ({ className, size }: { className?: string, size?: number | string }) => <Mic className={className} size={size || 20} strokeWidth={1.5} />;
-const SearchIcon = ({ className, size }: { className?: string, size?: number | string }) => <Search className={className} size={size || 22} strokeWidth={1.5} />;
-const FolderIcon = ({ className, size }: { className?: string, size?: number | string }) => <FolderOpen className={className} size={size || 22} strokeWidth={1.5} />;
+const HomeIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Home className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
+const TvIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Tv className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
+const SettingsIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Settings className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
+const SignInIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <LogIn className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
+const SignOutIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <LogOut className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
+const ExperimentalIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Pizza className={className} size={size || 22} strokeWidth={strokeWidth || 1} />;
+const LikeIcon = ({ className, size, filled, strokeWidth }: { className?: string, size?: number | string, filled?: boolean, strokeWidth?: number }) => <Heart className={className} size={size || 20} fill={filled ? "currentColor" : "none"} strokeWidth={strokeWidth || 1.5} />;
+const CommunityIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Users className={className} size={size || 20} strokeWidth={strokeWidth || 1.5} />;
+const AccountIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <User className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
+const MicIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Mic className={className} size={size || 20} strokeWidth={strokeWidth || 1.5} />;
+const SearchIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Search className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
+const FolderIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <FolderOpen className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 
 
 // Test connection as per critical directive
 // Test connection removed
 
 const EXPERIMENTS = [
+  {
+    id: "rejunvenated_settings",
+    name: "Settings Rejuventation",
+    desc: "Thử nghiệm hành vi và hiển thị cài đặt mới"
+  },
   {
     id: "multiview_channels",
     name: "Multi-view",
@@ -63,7 +68,7 @@ const LoadingSpinner = ({ isDark, className = "w-6 h-6" }: { isDark: boolean, cl
       viewBox="0 0 24 24" 
       fill="none" 
       xmlns="http://www.w3.org/2000/svg"
-      style={{ animationDuration: '2.5s' }}
+      style={{ animationDuration: '1.2s' }}
     >
       <path 
         className="opacity-100" 
@@ -89,55 +94,15 @@ const SplashScreen = ({ isDark, onEnter, duration = 5000 }: { isDark: boolean, o
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.8 }}
-      className="fixed inset-0 z-[110] flex flex-col items-center justify-center overflow-hidden"
+      className="fixed inset-0 z-[110] flex flex-col items-center justify-center overflow-hidden bg-[#1a1a1a]"
     >
-      <img 
-        src="https://wallpapercave.com/wp/wp3183649.png" 
-        className="absolute inset-0 w-full h-full object-cover"
-        alt="background"
-      />
-      <div className={`absolute inset-0 ${isDark ? "bg-slate-950/60" : "bg-black/10"}`} />
-
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 flex flex-col items-center space-y-10"
+        className="relative z-10 flex flex-col items-center"
       >
-        <div className="relative">
-          <motion.img 
-            initial={{ scale: 0.9 }}
-            animate={{ scale: [0.9, 1.05, 0.9], rotate: [0, 2, -2, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi" 
-            alt="Vplay Logo" 
-            className={`h-56 w-56 md:h-72 md:w-72 object-contain ${
-              !isDark ? "drop-shadow-[0_10px_40px_rgba(0,0,0,0.5)]" : "drop-shadow-[0_0_30_rgba(168,85,247,0.3)]"
-            }`}
-            referrerPolicy="no-referrer"
-          />
-        </div>
-
-        <div className="flex flex-col items-center space-y-4 px-6 text-center">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 1 }}
-            className={`${isDark ? "text-white/40" : "text-black/60"} text-sm md:text-base font-medium tracking-[0.2em] uppercase text-center max-w-xs md:max-w-none`}
-          >
-            Gói trọn Việt Nam trong tầm mắt bạn
-          </motion.p>
-          
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 1, duration: 0.5 }}
-            className="flex items-center gap-4 pt-4"
-          >
-            <LoadingSpinner isDark={isDark} className="w-8 h-8" />
-            <span className={`${isDark ? "text-white/60" : "text-black/80"} text-xl font-medium tracking-tight`}>Preparing your experience</span>
-          </motion.div>
-        </div>
+        <LoadingSpinner isDark={true} className="w-16 h-16" />
       </motion.div>
     </motion.div>
   );
@@ -163,7 +128,6 @@ const baseTabs = [
   { name: "Khám phá", icon: SearchIcon, id: "Khám phá" },
   { name: "Phát sóng", icon: TvIcon, id: "Phát sóng" },
   { name: "Lưu trữ", icon: FolderIcon, id: "Lưu trữ" },
-  { name: "Thử nghiệm", icon: Pizza, id: "Experimental", strokeWidth: 1 },
   { name: "Cài đặt", icon: SettingsIcon, id: "Cài đặt" },
 ];
 
@@ -2733,6 +2697,279 @@ function ExperimentalContent({ isDark, featureFlags, setFeatureFlags, liquidGlas
   );
 }
 
+function RejuvenatedSettingsItem({ icon: Icon, title, description, onClick, isDark }: { icon: any, title: string, description?: string, onClick: () => void, isDark: boolean }) {
+  return (
+    <button 
+      onClick={onClick}
+      className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all border group ${
+        isDark 
+          ? "bg-white/[0.03] border-white/5 hover:bg-white/[0.08] hover:border-white/10" 
+          : "bg-white border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300"
+      }`}
+    >
+      <div className={`p-3 rounded-lg ${isDark ? "bg-white/5 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
+        <Icon size={20} />
+      </div>
+      <div className="flex-1 text-left">
+        <h4 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h4>
+        {description && <p className="text-[11px] opacity-50 font-medium">{description}</p>}
+      </div>
+      <ChevronRight size={16} className={`opacity-20 group-hover:opacity-100 transition-opacity ${isDark ? "text-white" : "text-black"}`} />
+    </button>
+  );
+}
+
+function RejuvenatedSettings(props: any) {
+  const { 
+    isDark, setIsDark, isDev, setIsDev, featureFlags, setFeatureFlags, liquidGlass, setLiquidGlass,
+    useSidebar, setUseSidebar, isSidebarRight, setIsSidebarRight, isSidebarLocked, setIsSidebarLocked,
+    sidebarDisplay, setSidebarDisplay, isPinningEnabled, setIsPinningEnabled, user, userData,
+    onAlert, onLogin, onUpdateLogsClick, favorites, bypassed, loadingTreatment,
+    tempUnit, setTempUnit, location, setLocation, timeFormat, setTimeFormat, clockFormat, setClockFormat,
+    dateFormat, setDateFormat, showTempInClock, setShowTempInClock, headingBar, setHeadingBar
+  } = props;
+
+  const [activeCategory, setActiveCategory] = useState("System");
+  
+  const categories = [
+    { id: "System", name: "Hệ thống", icon: Monitor },
+    { id: "Accounts", name: "Tài khoản", icon: User },
+    { id: "Personalization", name: "Cá nhân hóa", icon: Palette },
+    { id: "Accessibility", name: "Quyền truy cập", icon: Accessibility },
+    { id: "Privacy", name: "Quyền riêng tư & bảo mật", icon: ShieldCheck },
+    { id: "WindowsUpdate", name: "Vplay Update", icon: RotateCcw },
+  ];
+
+  const renderContent = () => {
+    switch (activeCategory) {
+      case "System":
+        return (
+          <div className="space-y-4">
+             <RejuvenatedSettingsItem 
+              icon={Sun} 
+              title="Chế độ hiển thị" 
+              description={`Hiện tại: ${isDark ? "Tối" : "Sáng"}`}
+              onClick={() => setIsDark(!isDark)}
+              isDark={isDark}
+            />
+            <RejuvenatedSettingsItem 
+              icon={LayoutGrid} 
+              title="Thanh điều hướng (Sidebar)" 
+              description="Thay đổi vị trí và cách hiển thị của sidebar"
+              onClick={() => setUseSidebar(!useSidebar)}
+              isDark={isDark}
+            />
+            <RejuvenatedSettingsItem 
+              icon={Smartphone} 
+              title="Chế độ hiển thị Top Bar" 
+              description={headingBar ? "Đang bật" : "Đang tắt"}
+              onClick={() => setHeadingBar(!headingBar)}
+              isDark={isDark}
+            />
+            <RejuvenatedSettingsItem 
+              icon={Flask} 
+              title="Tính năng thử nghiệm" 
+              description="Quản lý các bản thử nghiệm beta"
+              onClick={() => {}} // Could expand to show sub-list
+              isDark={isDark}
+            />
+          </div>
+        );
+      case "Accounts":
+        return (
+          <div className="space-y-4">
+            <div className={`p-8 rounded-3xl border flex items-center gap-6 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+               <img src={user?.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop"} className="w-24 h-24 rounded-full border-4 border-white/10" />
+               <div className="space-y-1">
+                  <h3 className="text-2xl font-bold">{user?.displayName || "Người dùng Vplay"}</h3>
+                  <p className="opacity-50 text-sm">{user?.email || "Chưa xác minh email"}</p>
+                  <div className="pt-2 flex gap-2">
+                     <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-[10px] font-bold rounded-md uppercase">Vip Membership</span>
+                     <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-bold rounded-md uppercase">Beta Tester</span>
+                  </div>
+               </div>
+            </div>
+            <RejuvenatedSettingsItem 
+              icon={Monitor} 
+              title="Quản lý hồ sơ" 
+              description="Chỉnh sửa tên và ảnh đại diện"
+              onClick={() => onAlert("Tính năng", "Coming soon in detailed view")}
+              isDark={isDark}
+            />
+            <RejuvenatedSettingsItem 
+              icon={LogOut} 
+              title="Đăng xuất" 
+              description="Thoát khỏi phiên làm việc hiện tại"
+              onClick={() => props.onLogout ? props.onLogout() : {}}
+              isDark={isDark}
+            />
+          </div>
+        );
+      case "Personalization":
+        return (
+          <div className="space-y-4">
+             <RejuvenatedSettingsItem 
+              icon={Droplet} 
+              title="Hiệu ứng Liquid Glass" 
+              description={`Kiểu: ${liquidGlass}`}
+              onClick={() => setLiquidGlass(liquidGlass === "glassy" ? "tinted" : "glassy")}
+              isDark={isDark}
+            />
+            <RejuvenatedSettingsItem 
+              icon={Palette} 
+              title="Thay đổi vị trí Sidebar" 
+              description={`Vị trí: ${isSidebarRight ? "Phải" : "Trái"}`}
+              onClick={() => setIsSidebarRight(!isSidebarRight)}
+              isDark={isDark}
+            />
+            <RejuvenatedSettingsItem 
+              icon={Columns} 
+              title="Kiển thị Sidebar" 
+              description={`Kiểu: ${sidebarDisplay}`}
+              onClick={() => setSidebarDisplay(sidebarDisplay === "float" ? "attach" : "float")}
+              isDark={isDark}
+            />
+          </div>
+        );
+      case "Accessibility":
+        return (
+           <div className="space-y-4">
+              <RejuvenatedSettingsItem 
+                icon={Zap} 
+                title="Giảm hiệu ứng chuyển động" 
+                description={featureFlags.disable_animation ? "Đang bật" : "Đang tắt"}
+                onClick={() => setFeatureFlags((prev: any) => ({ ...prev, disable_animation: !prev.disable_animation }))}
+                isDark={isDark}
+              />
+              <RejuvenatedSettingsItem 
+                icon={Pin} 
+                title="Ghim kênh nhanh trên Sidebar" 
+                description={isPinningEnabled ? "Đang bật" : "Đang tắt"}
+                onClick={() => setIsPinningEnabled(!isPinningEnabled)}
+                isDark={isDark}
+              />
+           </div>
+        );
+      case "Privacy":
+        return (
+          <div className="space-y-4">
+            <RejuvenatedSettingsItem 
+                icon={ShieldCheck} 
+                title="Quyền ghi màn hình" 
+                description={featureFlags.screen_recording ? "Đã cho phép" : "Đã từ chối"}
+                onClick={() => setFeatureFlags((prev: any) => ({ ...prev, screen_recording: !prev.screen_recording }))}
+                isDark={isDark}
+              />
+          </div>
+        );
+      case "WindowsUpdate":
+        return (
+          <div className="space-y-4">
+             <div className={`p-8 rounded-3xl border flex items-center justify-between ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+                <div className="flex items-center gap-4">
+                   <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
+                      <CheckCircle2 size={24} />
+                   </div>
+                   <div>
+                      <h4 className="text-xl font-bold">You're up to date</h4>
+                      <p className="opacity-50 text-sm">Last checked: Today, {new Date().toLocaleTimeString()}</p>
+                   </div>
+                </div>
+                <button className="px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-bold transition-all">Check for updates</button>
+             </div>
+             <RejuvenatedSettingsItem 
+              icon={History} 
+              title="Update history" 
+              description="Xem các bản cập nhật gần đây"
+              onClick={onUpdateLogsClick}
+              isDark={isDark}
+            />
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="flex flex-col md:flex-row h-full w-full gap-8 overflow-hidden pt-4">
+       {/* Left sidebar for categories */}
+       <div className="w-full md:w-80 flex flex-col gap-1 py-4 shrink-0 overflow-y-auto">
+          <div className="px-4 mb-6 relative">
+             <input 
+               type="text" 
+               placeholder="Tìm cài đặt..." 
+               className={`w-full py-2.5 px-10 rounded-lg border-b text-sm transition-all ${isDark ? "bg-white/5 border-white/10 text-white placeholder-white/20" : "bg-black/5 border-slate-200 text-slate-900"}`}
+             />
+             <Search size={14} className="absolute left-7 top-1/2 -translate-y-1/2 opacity-30" />
+          </div>
+
+          <div className="space-y-0.5 px-2">
+            {categories.map(cat => {
+              const Icon = cat.icon;
+              const isActive = activeCategory === cat.id;
+              return (
+                <button
+                  key={`cat-${cat.id}`}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all relative group ${
+                    isActive 
+                      ? (isDark ? "bg-white/10 text-white" : "bg-white shadow-sm text-slate-900 border border-slate-100") 
+                      : (isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-slate-600 hover:text-slate-900 hover:bg-black/5")
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div 
+                      layoutId="catActivePill"
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-4 bg-purple-500 rounded-r-md shadow-[0_0_8px_rgba(168,85,247,0.5)]" 
+                    />
+                  )}
+                  <Icon size={18} strokeWidth={isActive ? 2 : 1.5} className={isActive ? "text-purple-500" : ""} />
+                  <span className={`text-sm ${isActive ? "font-bold" : "font-medium"}`}>{cat.name}</span>
+                </button>
+              );
+            })}
+          </div>
+       </div>
+
+       {/* Right content area */}
+       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-8 pb-32">
+          <div className="space-y-1 mb-8">
+             <h2 className={`text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+               {categories.find(c => c.id === activeCategory)?.name}
+             </h2>
+             {activeCategory === "System" && (
+                <div className="flex items-center gap-4 mt-6">
+                   <div className={`p-6 rounded-3xl border flex items-center gap-4 flex-1 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white shadow-xl">
+                         <Zap size={24} />
+                      </div>
+                      <div>
+                         <p className="text-sm font-bold truncate">Vplay Desktop</p>
+                         <button className="text-xs text-purple-500 font-bold hover:underline">Rename PC</button>
+                      </div>
+                   </div>
+                   <div className={`p-6 rounded-3xl border flex items-center gap-4 flex-1 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+                      <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-500">
+                         <Cloud size={24} />
+                      </div>
+                      <div>
+                         <p className="text-sm font-bold truncate">OneDrive</p>
+                         <p className="text-xs opacity-50">Backing up files</p>
+                      </div>
+                   </div>
+                </div>
+             )}
+          </div>
+          
+          <div className="space-y-4">
+             {renderContent()}
+          </div>
+       </div>
+    </div>
+  );
+}
+
 function SettingsContent({ 
   isDark, 
   setIsDark, 
@@ -4429,7 +4666,10 @@ function TopBar({
   user, 
   onLogin, 
   onLogout,
-  setActiveTab
+  setActiveTab,
+  profileStates,
+  sidebarExpanded,
+  useSidebar
 }: { 
   isDark: boolean, 
   onMenuClick: () => void, 
@@ -4446,173 +4686,399 @@ function TopBar({
   user: any, 
   onLogin: () => void, 
   onLogout: () => void,
-  setActiveTab: (tab: string) => void
+  setActiveTab: (tab: string) => void,
+  profileStates: {
+    name: string;
+    setName: (val: string) => void;
+    avatar: string;
+    setAvatar: (val: string) => void;
+    saving: boolean;
+    handleSave: () => Promise<void>;
+    handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    fileInputRef: React.RefObject<HTMLInputElement>;
+  },
+  sidebarExpanded?: boolean,
+  useSidebar?: boolean
 }) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [menuView, setMenuView] = useState<"main" | "profile" | "version" | "feedback">("main");
   const hours = currentTime.getHours();
   const isDaytime = hours >= 5 && hours < 18;
   const WeatherIcon = isDaytime ? Sun : Moon;
   const weatherColor = isDaytime ? "text-yellow-400" : "text-blue-400";
+  const dateStr = formatDateString(currentTime);
 
+  // Calculate dynamic left offset for content to avoid sidebar overlap
+  // Only offset if we are on desktop and sidebar is on the left
   return (
-    <div className={`h-16 flex items-center justify-between px-4 sticky top-0 z-[130] transition-all ${
-      isDark ? "bg-[#1f2937]" : "bg-[#f2f2f7] border-b border-slate-200"
-    }`}>
-      <div className="flex items-center gap-1.5 sm:gap-2">
+    <div className={`h-14 flex items-center justify-between px-4 sticky top-0 z-[130] transition-all duration-300 ${
+      isDark ? "bg-[#0a0118]" : "bg-[#f2f2f7]"
+    }`}
+    >
+      <div className="flex items-center gap-2">
         <button 
           onClick={onMenuClick}
-          className={`p-2 rounded-lg transition-all hover:bg-black/10 ${isDark ? "text-white/60 hover:text-white" : "text-slate-600 hover:text-slate-900"}`}
+          className={`p-2 rounded-xl transition-all hover:bg-white/5 ${isDark ? "text-white/80 hover:text-white" : "text-slate-600 hover:text-slate-900"}`}
         >
           <Menu size={20} />
         </button>
 
-        <button 
-          onClick={() => setActiveTab("Khám phá")}
-          className={`sm:hidden p-2 rounded-lg transition-all hover:bg-black/10 ${isDark ? "text-white/60 hover:text-white" : "text-slate-600 hover:text-slate-900"}`}
-        >
-          <Search size={20} />
-        </button>
+        <div className="flex items-center gap-2 ml-1">
+          <motion.img 
+            src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi" 
+            alt="Logo" 
+            className="w-6 h-6 object-contain"
+            referrerPolicy="no-referrer"
+          />
+          <span className="font-bold text-sm tracking-tight hidden xs:block">Vplay</span>
+        </div>
+      </div>
 
+      <div className="flex-1 flex justify-center mx-4 relative max-w-sm md:max-w-md lg:max-w-lg">
+        <div 
+          className={`group flex items-center gap-2.5 h-10 w-full transition-all relative border-b rounded-md transition-all duration-300 ${
+            isDark 
+              ? "bg-[#250325] border-white/30 focus-within:bg-[#350235] focus-within:border-fuchsia-400/40 text-white/90" 
+              : "bg-white border-slate-200 focus-within:border-fuchsia-500 text-slate-800"
+          }`}
+        >
+          <Search size={18} className={`ml-3 ${isDark ? "text-white/50 group-focus-within:text-fuchsia-400" : "text-slate-400"}`} />
+          <input
+            type="text"
+            value={searchQuery}
+            onFocus={() => setActiveTab("Khám phá")}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Find and explore on Vplay"
+            className={`flex-1 bg-transparent border-none outline-none text-sm font-medium font-display ${isDark ? "placeholder:text-white/20" : "placeholder:text-slate-400"}`}
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery("")} className="p-1 hover:bg-white/10 rounded-full transition-all">
+              <X size={14} className={isDark ? "text-white/40" : "text-slate-400"} />
+            </button>
+          )}
+          <button className={`p-2 rounded-full transition-all mr-4 ${isDark ? "text-white/50 hover:text-white hover:bg-white/10" : "text-slate-400 hover:text-slate-900 hover:bg-black/5"}`}>
+            <Mic size={18} />
+          </button>
+        </div>
+
+        {/* Quick Search Preview */}
+        <AnimatePresence>
+          {searchQuery.trim().length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-full max-w-lg rounded-2xl shadow-2xl border p-2 z-[200] ${
+                isDark ? "bg-[#0a0118] border-white/10 text-white" : "bg-white border-slate-200 text-slate-900"
+              }`}
+            >
+              <div className="max-h-80 overflow-y-auto px-1 space-y-1 custom-scrollbar">
+                {channels.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5).map(c => (
+                  <button
+                    key={`search-preview-${c.name}`}
+                    onClick={() => {
+                      setActiveTab("Phát sóng");
+                      // setActiveChannel logic should be handled by App state
+                      setSearchQuery("");
+                    }}
+                    className={`w-full flex items-center gap-3 p-2.5 rounded-xl transition-all ${isDark ? "hover:bg-white/5" : "hover:bg-slate-100"}`}
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-white/5 p-1.5 flex items-center justify-center border border-white/5">
+                      <img src={c.logo} alt={c.name} className="w-full h-full object-contain" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <p className="text-sm font-bold truncate uppercase tracking-tight">{c.name}</p>
+                      <p className="text-[10px] opacity-40 uppercase tracking-widest">{c.category}</p>
+                    </div>
+                    <ArrowRight size={14} className="opacity-20" />
+                  </button>
+                ))}
+                {channels.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                  <div className="py-8 text-center text-xs opacity-40 uppercase tracking-widest font-bold">
+                    Không tìm thấy kênh nào
+                  </div>
+                )}
+              </div>
+              <button 
+                onClick={() => setActiveTab("Khám phá")}
+                className="w-full py-3 mt-1 text-center text-[10px] font-bold uppercase tracking-[0.2em] opacity-40 hover:opacity-100 hover:text-purple-400 transition-all border-t border-white/5"
+              >
+                Xem tất cả kết quả
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <div className="hidden sm:flex flex-col items-end text-right leading-none mr-3 font-display">
+          <div className={`text-sm font-bold tracking-tight mb-0.5 ${isDark ? "text-white/90" : "text-slate-900"}`}>
+            {formatTime(currentTime)}
+          </div>
+          <div className={`text-[10px] font-bold tracking-widest uppercase opacity-40 ${isDark ? "text-white" : "text-slate-600"}`}>
+            {dateStr}
+          </div>
+        </div>
+
+        {/* User Account Menu moved to the right */}
         <div className="relative">
           <button
             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-            className={`group flex items-center justify-center w-7 h-7 rounded-full transition-all ${
+            className={`group flex items-center justify-center w-8 h-8 rounded-full transition-all border-2 border-white/5 ${
               user 
-                ? (isDark ? "bg-white/[0.12] text-white hover:bg-white/[0.18]" : "bg-black/[0.05] text-black hover:bg-black/[0.08]")
-                : "bg-amber-400/20 text-amber-500 hover:bg-amber-400/30 shadow-sm shadow-amber-400/10"
+                ? (isDark ? "bg-white/[0.08] text-white hover:bg-white/[0.12] hover:border-purple-500/30" : "bg-black/[0.05] text-black hover:bg-black/[0.08]")
+                : "bg-amber-400/10 text-amber-500 hover:bg-amber-400/20 shadow-sm shadow-amber-400/10"
             }`}
           >
             {user && user.photoURL ? (
               <img src={user.photoURL} className="w-full h-full rounded-full object-cover" />
             ) : (
-              <User size={14} className={!user ? "text-amber-500 fill-amber-500/20" : ""} />
+              <User size={16} className={!user ? "text-amber-500" : ""} />
             )}
           </button>
 
           <AnimatePresence>
             {isUserMenuOpen && (
               <>
-                <div className="fixed inset-0 z-[150]" onClick={() => setIsUserMenuOpen(false)} />
+                <div className="fixed inset-0 z-[150]" onClick={() => { setIsUserMenuOpen(false); setMenuView("main"); }} />
                 <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                  className={`absolute top-full left-0 mt-3 w-72 rounded-2xl shadow-2xl z-[155] overflow-hidden border ${
-                    isDark ? "bg-[#1f2937] border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"
+                  initial={{ opacity: 0, y: -40, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -40, scale: 0.95 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 400 }}
+                  className={`absolute top-full right-0 mt-3 w-80 rounded-2xl shadow-2xl z-[155] overflow-hidden border ${
+                    isDark ? "bg-[#0a0118] border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"
                   }`}
                 >
-                  {user ? (
-                    <div className="p-5 flex items-start gap-4 border-b border-white/5">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
-                        {user.displayName ? user.displayName.slice(0, 2).toUpperCase() : (user.email ? user.email.slice(0, 2).toUpperCase() : "US")}
-                      </div>
-                      <div className="flex-1 overflow-hidden">
-                        <p className="font-bold truncate">{user.displayName || "Luke Cooper"}</p>
-                        <p className="text-xs opacity-60 truncate">{user.email || "sonhuyc2kl@gmail.com"}</p>
-                        <button 
-                          onClick={() => { onLogout(); setIsUserMenuOpen(false); }}
-                          className="mt-1.5 text-xs text-blue-400 hover:underline font-bold"
-                        >
-                          Đăng xuất
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-5 flex flex-col items-center text-center gap-3 border-b border-white/5">
-                      <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center text-slate-400 dark:text-white/40">
-                        <User size={24} />
-                      </div>
-                      <div>
-                        <p className="font-bold text-lg">Khách</p>
-                        <p className="text-xs opacity-60">Đăng nhập để có trải nghiệm tốt nhất</p>
-                      </div>
-                      <button 
-                        onClick={() => { onLogin(); setIsUserMenuOpen(false); }}
-                        className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-purple-600/20"
+                  <AnimatePresence mode="wait">
+                    {menuView === "main" && (
+                      <motion.div 
+                        key="menu-main"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.2 }}
                       >
-                        Đăng nhập
-                      </button>
-                    </div>
-                  )}
+                        {user ? (
+                          <div className="p-5 flex items-start gap-4 border-b border-white/5">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg overflow-hidden">
+                              {profileStates.avatar ? (
+                                <img src={profileStates.avatar} className="w-full h-full object-cover" />
+                              ) : (
+                                <span>{user.displayName ? user.displayName.slice(0, 2).toUpperCase() : (user.email ? user.email.slice(0, 2).toUpperCase() : "US")}</span>
+                              )}
+                            </div>
+                            <div className="flex-1 overflow-hidden">
+                              <p className="font-bold truncate text-sm">{profileStates.name || "Luke Cooper"}</p>
+                              <p className="text-[10px] opacity-40 truncate">{user.email || "sonhuyc2kl@gmail.com"}</p>
+                              <button 
+                                onClick={() => { onLogout(); setIsUserMenuOpen(false); }}
+                                className="mt-1.5 text-[10px] text-fuchsia-400 hover:underline font-bold tracking-widest"
+                              >
+                                Đăng xuất
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="p-5 flex flex-col items-center text-center gap-3 border-b border-white/5">
+                            <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center text-slate-400 dark:text-white/40">
+                              <User size={24} />
+                            </div>
+                            <div>
+                              <p className="font-bold text-sm tracking-tight">Khách</p>
+                              <p className="text-[10px] opacity-40 leading-tight">Đăng nhập để có trải nghiệm tốt nhất</p>
+                            </div>
+                            <button 
+                              onClick={() => { onLogin(); setIsUserMenuOpen(false); }}
+                              className="w-full py-2.5 bg-fuchsia-600 hover:bg-fuchsia-500 text-white rounded-xl text-[10px] font-bold transition-all shadow-lg shadow-fuchsia-600/20"
+                            >
+                              Đăng nhập ngay
+                            </button>
+                          </div>
+                        )}
 
-                  <div className="p-2">
-                    {[
-                      { icon: Info, label: "Phiên bản Vplay" },
-                      { icon: Smartphone, label: "Manage account and devices" },
-                      { icon: Send, label: "Send Feedback" },
-                      { icon: User, label: "Cài đặt Hồ sơ", action: () => setActiveTab("Cài đặt") },
-                    ].map((item, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => {
-                          if (item.action) item.action();
-                          setIsUserMenuOpen(false);
-                        }}
-                        className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all ${
-                          isDark ? "hover:bg-white/5" : "hover:bg-black/5"
-                        }`}
+                        <div className="p-2">
+                          {[
+                            { icon: Info, label: "Phiên bản Vplay", action: () => setMenuView("version") },
+                            { icon: Smartphone, label: "Quản lý hồ sơ", action: () => setMenuView("profile") },
+                            { icon: Pizza, label: "Thử nghiệm Vplay", action: () => { setActiveTab("Experimental"); setIsUserMenuOpen(false); } },
+                            { icon: SettingsIcon, label: "Cài đặt hệ thống", action: () => { setActiveTab("Cài đặt"); setIsUserMenuOpen(false); } },
+                            { icon: Send, label: "Send Feedback", action: () => setMenuView("feedback") },
+                          ].map((item, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => {
+                                if (item.action) item.action();
+                              }}
+                              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all group ${
+                                isDark ? "hover:bg-white/5" : "hover:bg-black/5"
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className={`transition-colors ${isDark ? "text-white/50 group-hover:text-fuchsia-400" : "text-black/50"}`}>
+                                  <item.icon size={22} strokeWidth={1.5} />
+                                </div>
+                                <span className="text-xs font-bold tracking-tight opacity-70 group-hover:opacity-100">{item.label}</span>
+                              </div>
+                              <ChevronRight size={12} className="opacity-20 group-hover:opacity-60 transition-all" />
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {menuView === "profile" && (
+                      <motion.div 
+                        key="menu-profile"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        transition={{ duration: 0.2 }}
+                        className="p-5"
                       >
-                        <item.icon size={18} strokeWidth={1.5} className="opacity-70" />
-                        <span className="text-sm font-medium">{item.label}</span>
-                      </button>
-                    ))}
-                  </div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <button onClick={() => setMenuView("main")} className="p-1 hover:bg-white/5 rounded-lg transition-all">
+                            <ChevronLeft size={20} />
+                          </button>
+                          <span className="font-bold">Quản lý hồ sơ</span>
+                        </div>
+
+                        {!user ? (
+                           <div className="py-4 text-center space-y-4">
+                             <div className="w-16 h-16 mx-auto rounded-2xl bg-white/5 flex items-center justify-center text-white/20">
+                               <User size={32} />
+                             </div>
+                             <p className="text-sm opacity-60">Vui lòng đăng nhập để chỉnh sửa hồ sơ</p>
+                             <button onClick={() => onLogin()} className="w-full py-2 bg-purple-600 rounded-lg text-sm font-bold">Đăng nhập</button>
+                           </div>
+                        ) : (
+                          <div className="space-y-4">
+                            <div className="flex flex-col items-center gap-3">
+                              <div className="relative group cursor-pointer" onClick={() => profileStates.fileInputRef.current?.click()}>
+                                <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-white/10">
+                                  {profileStates.avatar ? (
+                                    <img src={profileStates.avatar} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <div className="w-full h-full bg-white/5 flex items-center justify-center text-white/20">
+                                      <User size={32} />
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                                  <Camera size={18} className="text-white" />
+                                </div>
+                                <input type="file" accept="image/*" ref={profileStates.fileInputRef} onChange={profileStates.handleFileChange} className="hidden" />
+                              </div>
+                              <div className="w-full space-y-1">
+                                <label className="text-[10px] font-bold uppercase tracking-widest opacity-30 ml-2">Tên hiển thị</label>
+                                <input 
+                                  value={profileStates.name}
+                                  onChange={e => profileStates.setName(e.target.value)}
+                                  className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-2 text-sm font-bold focus:outline-none focus:border-purple-500/50"
+                                />
+                              </div>
+                              <button 
+                                onClick={profileStates.handleSave}
+                                disabled={profileStates.saving}
+                                className="w-full py-2.5 bg-purple-600 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-purple-600/20"
+                              >
+                                {profileStates.saving ? "Đang lưu..." : "Lưu thay đổi"}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+
+                    {menuView === "version" && (
+                      <motion.div 
+                        key="menu-version"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        transition={{ duration: 0.2 }}
+                        className="p-5"
+                      >
+                        <div className="flex items-center gap-2 mb-6">
+                          <button onClick={() => setMenuView("main")} className="p-1 hover:bg-white/5 rounded-lg transition-all">
+                            <ChevronLeft size={20} />
+                          </button>
+                          <span className="font-bold">Thông tin phiên bản</span>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-1">
+                            <p className="text-[10px] font-bold opacity-30 uppercase tracking-widest">Trạng thái</p>
+                            <p className="text-xl font-bold text-emerald-400">Ổn định</p>
+                          </div>
+                          <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-1">
+                            <p className="text-[10px] font-bold opacity-30 uppercase tracking-widest">Build Number</p>
+                            <p className="text-xl font-bold">Build 26604</p>
+                          </div>
+                          <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-1">
+                            <p className="text-[10px] font-bold opacity-30 uppercase tracking-widest">Cập nhật lần cuối</p>
+                            <p className="text-sm font-bold">14/05/2026</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {menuView === "feedback" && (
+                      <motion.div 
+                        key="menu-feedback"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        transition={{ duration: 0.2 }}
+                        className="p-5"
+                      >
+                        <div className="flex items-center gap-2 mb-6">
+                          <button onClick={() => setMenuView("main")} className="p-1 hover:bg-white/5 rounded-lg transition-all">
+                            <ChevronLeft size={20} />
+                          </button>
+                          <span className="font-bold">Gửi phản hồi</span>
+                        </div>
+
+                        <div className="space-y-3">
+                          <p className="text-[11px] font-medium opacity-60 mb-2">Tham gia cộng đồng để đóng góp ý kiến cho chúng tôi:</p>
+                          <a 
+                            href="https://discord.gg/CNKFTUBSty" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 p-3 rounded-xl bg-[#5865F2]/10 border border-[#5865F2]/20 hover:bg-[#5865F2]/20 transition-all group"
+                          >
+                            <div className="w-10 h-10 rounded-lg bg-[#5865F2] flex items-center justify-center text-white">
+                              <MessageSquare size={20} />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm font-bold">THE WAVES (Discord)</p>
+                              <p className="text-[10px] opacity-60">Tham gia ngay</p>
+                            </div>
+                          </a>
+                          <div className="grid grid-cols-1 gap-2">
+                            {[1, 2].map(num => (
+                              <a 
+                                key={`yt-${num}`}
+                                href={`https://www.youtube.com/@ota${num === 1 ? 'one' : 'two'}fr253`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 transition-all"
+                              >
+                                <div className="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center text-white">
+                                  <Play size={16} fill="currentColor" />
+                                </div>
+                                <span className="text-[11px] font-bold uppercase tracking-widest opacity-80">YouTube OTA #{num}</span>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               </>
             )}
           </AnimatePresence>
-        </div>
-
-        <div className="flex items-center gap-2 ml-1">
-          <motion.img 
-            src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi" 
-            alt="Logo" 
-            className="w-5 h-5 object-contain"
-            referrerPolicy="no-referrer"
-          />
-        </div>
-      </div>
-
-      <div className="flex-1 hidden sm:flex justify-center mx-4">
-        <div 
-          className={`group flex items-center gap-2.5 px-3.5 h-10 w-full max-w-[120px] sm:max-w-sm md:max-w-md lg:max-w-lg transition-all relative border-b-2 rounded-lg ${
-            isDark 
-              ? "bg-white/[0.08] border-white/20 focus-within:border-fuchsia-500/60 text-white/90" 
-              : "bg-black/[0.04] border-slate-300 focus-within:border-fuchsia-500 text-slate-800"
-          }`}
-        >
-          <Search size={18} className={`${isDark ? "text-white/40" : "text-slate-400"}`} />
-          <input
-            type="text"
-            value={searchQuery}
-            onFocus={() => setActiveTab("Khám phá")}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Find and explore Vplay"
-            className="flex-1 bg-transparent border-none outline-none text-sm font-normal placeholder:text-white/40"
-          />
-          <div className={`hidden sm:block p-1 rounded-full transition-all ${
-            isDark ? "text-white/60 hover:text-white" : "text-slate-400 hover:text-slate-900"
-          }`}>
-            <Mic size={18} />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <div className="flex flex-col items-end">
-          <div className="flex items-center gap-3">
-            {showTempInClock && weather && (
-              <div className={`text-base font-bold flex items-center gap-1 self-center ${isDaytime ? "text-yellow-400" : "text-blue-400"}`}>
-                <WeatherIcon size={16} />
-                {getTempDisplay()}
-              </div>
-            )}
-            {showTempInClock && weather && <div className={`w-[1px] h-3 self-center ${isDark ? "bg-white/20" : "bg-slate-300"}`} />}
-            <div className={`text-base font-bold tracking-tighter self-center ${isDark ? "text-white" : "text-slate-900"}`}>
-              {formatTime(currentTime)}
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -4627,6 +5093,67 @@ function App() {
     return localStorage.getItem("vplay_onboarding_completed") !== "true";
   });
   const [activeTab, setActiveTab] = useState("Trang chủ");
+  const [isSettingsLoading, setIsSettingsLoading] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === "Cài đặt") {
+      setIsSettingsLoading(true);
+      const timer = setTimeout(() => {
+        setIsSettingsLoading(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab]);
+
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [userData, setUserData] = useState<any>(null);
+
+  const [name, setName] = useState("");
+  const [avatar, setAvatar] = useState("");
+  const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user) {
+      setName(user.displayName || "Vplay User");
+      setAvatar(user.photoURL || "");
+    } else {
+      setName("Khách");
+      setAvatar("");
+    }
+  }, [user]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const updateData = {
+        displayName: name,
+        photoURL: avatar,
+        updatedAt: serverTimestamp()
+      };
+      await updateDoc(userRef, updateData);
+      // Update local storage or user object if needed
+      // Note: Firebase auth user object is usually updated via updateProfile
+      await updateProfile(user, { displayName: name, photoURL: avatar });
+    } catch (error) {
+      console.error("Error saving profile:", error);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   useEffect(() => {
     // If no onboarding, show splash normally (wait for click)
@@ -4678,7 +5205,10 @@ function App() {
     const saved = localStorage.getItem("vplay_sidebar_display");
     return (saved as "float" | "attach") || "float";
   });
-  const sidebarWidthDefault = 200;
+  const [isBroadcastingLocked, setIsBroadcastingLocked] = useState(true);
+  const [isLockModalOpen, setIsLockModalOpen] = useState(false);
+
+  const sidebarWidthDefault = 300;
 const [sidebarWidth, setSidebarWidth] = useState(() => {
     const saved = localStorage.getItem("vplay_sidebar_width");
     const baseWidth = saved ? parseInt(saved, 10) : sidebarWidthDefault;
@@ -5008,8 +5538,6 @@ const [headingBar, setHeadingBar] = useState(() => {
     }
   };
 
-  const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [userData, setUserData] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isDev, setIsDev] = useState(() => {
     return localStorage.getItem("vplay_dev_mode") === "true";
@@ -5120,6 +5648,8 @@ const [headingBar, setHeadingBar] = useState(() => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      setUserData(null);
+      setIsAdmin(false);
       setActiveTab("Trang chủ");
     } catch (error) {
       console.error("Logout failed", error);
@@ -5141,7 +5671,6 @@ const [headingBar, setHeadingBar] = useState(() => {
 
   const handleEnterApp = useCallback(() => {
     setShowSplash(false);
-    // This empty play/pause logic unblocks audio globally for the session
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     audioContext.resume();
   }, []);
@@ -5154,7 +5683,6 @@ const [headingBar, setHeadingBar] = useState(() => {
       const currentVersion = "26604";
       
       if (lastVersion !== currentVersion) {
-        // Build 26604 is minor, so we hide it as per request
         if (currentVersion !== "26604" && currentVersion !== "26603") {
           setShowWhatsNew(true);
         }
@@ -5203,26 +5731,47 @@ const [headingBar, setHeadingBar] = useState(() => {
             liquidGlass={liquidGlass} 
           />
         )}
+        <LiquidModal 
+          isOpen={isLockModalOpen} 
+          onClose={() => setIsLockModalOpen(false)}
+          isDark={isDark}
+          liquidGlass={liquidGlass}
+          title="Chúng tôi sẽ sớm trở lại..."
+          description="Vplay tạm thời ngừng cung cấp dịch vụ xem truyền hình vì hiện tại các đơn vị đang siết chặt bản quyền về truyền thông. Chúng tôi sẽ sớm trở lại và có thông báo sau. Tuy nhiên các bản cập nhật giao diện, vá lỗi của Vplay Dev và Canary sẽ vẫn được phát hành. Trân trọng!"
+        >
+          <div className="mt-8 flex flex-col gap-3">
+            <button 
+              onClick={() => setIsLockModalOpen(false)} 
+              className="w-full py-4 bg-fuchsia-600 hover:bg-fuchsia-500 text-white rounded-2xl font-bold uppercase tracking-widest transition-all shadow-lg shadow-fuchsia-600/20 active:scale-95"
+            >
+              Đã hiểu
+            </button>
+          </div>
+        </LiquidModal>
       </AnimatePresence>
       <div className={`${
         isDark 
-          ? "dark bg-[#111827] text-white" 
+          ? "dark bg-gradient-to-br from-[#0a0118] via-[#4c0542] to-[#800539] text-white" 
           : "bg-gradient-to-br from-rose-50 via-purple-50 to-red-50 text-black"
-      } min-h-screen flex transition-all duration-500 overflow-x-hidden ${useSidebar ? "flex-row" : "flex-col"} ${featureFlags.disable_animation ? "reduce-animations" : ""}`}
+      } min-h-screen flex font-sans transition-all duration-500 overflow-x-hidden ${useSidebar ? "flex-row" : "flex-col"} ${featureFlags.disable_animation ? "reduce-animations" : ""}`}
       style={{
         paddingLeft: useSidebar && !isMobile && !isSidebarRight ? (isSidebarExpanded ? sidebarWidth + (sidebarDisplay === "float" ? 24 : 0) : (sidebarDisplay === "float" ? 104 : 80)) : 0,
         paddingRight: useSidebar && !isMobile && isSidebarRight ? (isSidebarExpanded ? sidebarWidth + (sidebarDisplay === "float" ? 24 : 0) : (sidebarDisplay === "float" ? 104 : 80)) : 0,
-        paddingTop: headingBar ? 64 : 0,
+        paddingTop: headingBar ? 56 : 0,
       }}
       >
       {headingBar && (
-        <div className="fixed top-0 left-0 right-0 z-[200]">
+        <div 
+          className="fixed top-0 left-0 right-0 z-[200] transition-all duration-300"
+        >
           <TopBar 
             isDark={isDark} 
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             isSearchOpen={isSearchOpen}
             onMenuClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
+            sidebarExpanded={isSidebarExpanded}
+            useSidebar={useSidebar && !isMobile}
             onSearchClick={() => {
               setIsSearchOpen(true);
             }}
@@ -5236,6 +5785,16 @@ const [headingBar, setHeadingBar] = useState(() => {
             onLogin={handleLogin}
             onLogout={handleLogout}
             setActiveTab={setActiveTab}
+            profileStates={{
+              name,
+              setName,
+              avatar,
+              setAvatar,
+              saving,
+              handleSave,
+              handleFileChange,
+              fileInputRef,
+            }}
           />
         </div>
       )}
@@ -5450,7 +6009,13 @@ const [headingBar, setHeadingBar] = useState(() => {
         )}
       </AnimatePresence>
 
-      <div className="flex-1 flex flex-col min-h-screen px-0 md:px-8">
+      <div className={`flex-1 flex flex-col min-h-screen px-0 md:px-8 transition-all duration-500 ${
+        useSidebar && !isMobile 
+          ? (isSidebarRight ? "rounded-tr-[48px]" : "rounded-tl-[48px]") 
+          : ""
+      } ${
+        isDark ? "bg-[#0a0118]/30" : "bg-white/30"
+      } backdrop-blur-sm shadow-2xl`}>
         <AnimatePresence>
           {useSidebar && !isMobile && (
             <div className="fixed inset-0 pointer-events-none z-[40]">
@@ -5591,53 +6156,108 @@ const [headingBar, setHeadingBar] = useState(() => {
               )}
               {displayTab === "Cài đặt" && (
                 <div className="flex-1 overflow-x-hidden md:overflow-y-auto">
-                  <div className="p-4 md:p-8 space-y-12 max-w-6xl mx-auto w-full">
-                    <SettingsContent 
-                      isDark={isDark} 
-                      setIsDark={setIsDark} 
-                      isDev={isDev} 
-                      setIsDev={setIsDev} 
-                      featureFlags={featureFlags}
-                      setFeatureFlags={setFeatureFlags}
-                      liquidGlass={liquidGlass} 
-                      setLiquidGlass={setLiquidGlass}
-                      useSidebar={useSidebar}
-                      setUseSidebar={setUseSidebar}
-                      isSidebarRight={isSidebarRight}
-                      setIsSidebarRight={setIsSidebarRight}
-                      isSidebarLocked={isSidebarLocked}
-                      setIsSidebarLocked={setIsSidebarLocked}
-                      sidebarDisplay={sidebarDisplay}
-                      setSidebarDisplay={setSidebarDisplay}
-                      isPinningEnabled={isPinningEnabled}
-                      setIsPinningEnabled={setIsPinningEnabled}
-                      user={user}
-                      userData={userData}
-                      setUserData={setUserData}
-                      onAlert={(title, msg) => setCustomAlert({ title, message: msg })}
-                      onLogin={handleLogin}
-                      onUpdateLogsClick={() => setActiveTab("Update Logs")}
-                      onResetOnboarding={handleResetOnboarding}
-                      favorites={favorites}
-                      bypassed={bypassed}
-                      loadingTreatment={loadingTreatment}
-                      setLoadingTreatment={setLoadingTreatment}
-                      tempUnit={tempUnit}
-                      setTempUnit={setTempUnit}
-                      location={location}
-                      setLocation={setLocation}
-                      timeFormat={timeFormat}
-                      setTimeFormat={setTimeFormat}
-                      clockFormat={clockFormat}
-                      setClockFormat={setClockFormat}
-                      dateFormat={dateFormat}
-                      setDateFormat={setDateFormat}
-                      showTempInClock={showTempInClock}
-                      setShowTempInClock={setShowTempInClock}
-                      headingBar={headingBar}
-                      setHeadingBar={setHeadingBar}
-                    />
+                   {isSettingsLoading ? (
+                  <div className="h-full flex flex-col items-center justify-center gap-6">
+                     <LoadingSpinner isDark={isDark} className="w-16 h-16" />
+                     <p className="text-[10px] font-bold tracking-[0.3em] uppercase opacity-50 animate-pulse font-display">Preparing Settings</p>
                   </div>
+               ) : (
+                    <div className={`p-4 md:p-8 space-y-12 max-w-6xl mx-auto w-full ${featureFlags.rejunvenated_settings ? "h-full flex flex-col pt-0" : ""}`}>
+                      {featureFlags.rejunvenated_settings ? (
+                        <RejuvenatedSettings
+                          isDark={isDark} 
+                          setIsDark={setIsDark} 
+                          isDev={isDev} 
+                          setIsDev={setIsDev} 
+                          featureFlags={featureFlags}
+                          setFeatureFlags={setFeatureFlags}
+                          liquidGlass={liquidGlass} 
+                          setLiquidGlass={setLiquidGlass}
+                          useSidebar={useSidebar}
+                          setUseSidebar={setUseSidebar}
+                          isSidebarRight={isSidebarRight}
+                          setIsSidebarRight={setIsSidebarRight}
+                          isSidebarLocked={isSidebarLocked}
+                          setIsSidebarLocked={setIsSidebarLocked}
+                          sidebarDisplay={sidebarDisplay}
+                          setSidebarDisplay={setSidebarDisplay}
+                          isPinningEnabled={isPinningEnabled}
+                          setIsPinningEnabled={setIsPinningEnabled}
+                          user={user}
+                          userData={userData}
+                          setUserData={setUserData}
+                          onAlert={(title, msg) => setCustomAlert({ title, message: msg })}
+                          onLogin={handleLogin}
+                          onUpdateLogsClick={() => setActiveTab("Update Logs")}
+                          onResetOnboarding={handleResetOnboarding}
+                          favorites={favorites}
+                          bypassed={bypassed}
+                          loadingTreatment={loadingTreatment}
+                          setLoadingTreatment={setLoadingTreatment}
+                          tempUnit={tempUnit}
+                          setTempUnit={setTempUnit}
+                          location={location}
+                          setLocation={setLocation}
+                          timeFormat={timeFormat}
+                          setTimeFormat={setTimeFormat}
+                          clockFormat={clockFormat}
+                          setClockFormat={setClockFormat}
+                          dateFormat={dateFormat}
+                          setDateFormat={setDateFormat}
+                          showTempInClock={showTempInClock}
+                          setShowTempInClock={setShowTempInClock}
+                          headingBar={headingBar}
+                          setHeadingBar={setHeadingBar}
+                        />
+                      ) : (
+                        <SettingsContent 
+                          isDark={isDark} 
+                          setIsDark={setIsDark} 
+                          isDev={isDev} 
+                          setIsDev={setIsDev} 
+                          featureFlags={featureFlags}
+                          setFeatureFlags={setFeatureFlags}
+                          liquidGlass={liquidGlass} 
+                          setLiquidGlass={setLiquidGlass}
+                          useSidebar={useSidebar}
+                          setUseSidebar={setUseSidebar}
+                          isSidebarRight={isSidebarRight}
+                          setIsSidebarRight={setIsSidebarRight}
+                          isSidebarLocked={isSidebarLocked}
+                          setIsSidebarLocked={setIsSidebarLocked}
+                          sidebarDisplay={sidebarDisplay}
+                          setSidebarDisplay={setSidebarDisplay}
+                          isPinningEnabled={isPinningEnabled}
+                          setIsPinningEnabled={setIsPinningEnabled}
+                          user={user}
+                          userData={userData}
+                          setUserData={setUserData}
+                          onAlert={(title, msg) => setCustomAlert({ title, message: msg })}
+                          onLogin={handleLogin}
+                          onUpdateLogsClick={() => setActiveTab("Update Logs")}
+                          onResetOnboarding={handleResetOnboarding}
+                          favorites={favorites}
+                          bypassed={bypassed}
+                          loadingTreatment={loadingTreatment}
+                          setLoadingTreatment={setLoadingTreatment}
+                          tempUnit={tempUnit}
+                          setTempUnit={setTempUnit}
+                          location={location}
+                          setLocation={setLocation}
+                          timeFormat={timeFormat}
+                          setTimeFormat={setTimeFormat}
+                          clockFormat={clockFormat}
+                          setClockFormat={setClockFormat}
+                          dateFormat={dateFormat}
+                          setDateFormat={setDateFormat}
+                          showTempInClock={showTempInClock}
+                          setShowTempInClock={setShowTempInClock}
+                          headingBar={headingBar}
+                          setHeadingBar={setHeadingBar}
+                        />
+                      )}
+                    </div>
+                   )}
                 </div>
               )}
               {displayTab === "Update Logs" && (
@@ -5694,18 +6314,18 @@ const [headingBar, setHeadingBar] = useState(() => {
               }}
               exit={{ x: isSidebarRight ? sidebarWidth : -sidebarWidth }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className={`fixed z-[120] flex flex-col transition-all duration-0 overflow-visible ${
+              className={`fixed z-[120] flex flex-col transition-all duration-300 overflow-visible ${
                 isSidebarRight 
                   ? (sidebarDisplay === "float" && !isMobile ? "right-6" : "right-0") 
                   : (sidebarDisplay === "float" && !isMobile ? "left-6" : "left-0")
               } ${
                 isMobile 
-                  ? `${headingBar ? "top-16 h-[calc(100%-64px)]" : "top-0 h-full"} !rounded-none !m-0 !left-0 !right-0 transition-none` 
+                  ? `${headingBar ? "top-14 h-[calc(100%-56px)]" : "top-0 h-full"} !rounded-none !m-0 !left-0 !right-0 transition-none` 
                   : sidebarDisplay === "float" 
-                    ? `${headingBar ? "top-20 h-[calc(100%-96px)]" : "top-6 h-[calc(100%-48px)]"} !rounded-[32px] border shadow-2xl`
-                    : `${headingBar ? "top-16 h-[calc(100%-64px)]" : "top-0 h-full"} border-y-0 ${isSidebarRight ? "border-r-0 border-l" : "border-l-0 border-r"} shadow-2xl`
+                    ? `top-0 h-full ${headingBar ? "pt-14" : "pt-6"} pb-6 !rounded-b-[32px] ${headingBar ? "!rounded-t-none" : "!rounded-t-[32px]"} shadow-2xl`
+                    : `top-0 h-full ${headingBar ? "pt-14" : ""} border-y-0 shadow-2xl`
               } ${
-                isDark ? "bg-[#1f2937] border-white/5 shadow-black/50" : "bg-[#f2f2f7]/95 border-slate-200 shadow-xl"
+                isDark ? "bg-[#0a0118]/90 shadow-black/50" : "bg-[#f2f2f7] border-slate-200 shadow-xl"
               }`}
             >
               {/* Resize Handle */}
@@ -5774,19 +6394,36 @@ const [headingBar, setHeadingBar] = useState(() => {
               {/* Integrated Search Bar removed as per user request (already has Explore tab) */}
               <div className="mb-4" />
 
+              {isSidebarExpanded && user && (
+                <div className={`mx-4 mb-6 p-4 rounded-2xl flex items-center gap-3 transition-all ${isDark ? "bg-white/5 border border-white/5" : "bg-white border border-slate-200"}`}>
+                   <div className="relative">
+                      <img src={user.photoURL || avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop"} className="w-10 h-10 rounded-full object-cover border border-white/20" />
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#0a0118]" />
+                   </div>
+                   <div className="flex-1 overflow-hidden">
+                      <p className={`text-xs font-bold truncate ${isDark ? "text-white" : "text-slate-900"}`}>{user.displayName || name || "User"}</p>
+                      <p className={`text-[9px] font-medium opacity-40 truncate ${isDark ? "text-white" : "text-slate-900"}`}>{user.email || "Offline profile"}</p>
+                   </div>
+                </div>
+              )}
+
               {/* Navigation Items */}
               <div className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar">
-                {tabs.filter(t => t.id !== "Cài đặt").map((tab, idx) => {
+                {tabs.map((tab, idx) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === (tab.id || tab.name);
                   return (
                         <button
                           key={`side-nav-${tab.id || tab.name}-${idx}`}
                           onClick={() => {
+                            if (tab.id === "Phát sóng" && isBroadcastingLocked) {
+                              setIsLockModalOpen(true);
+                              return;
+                            }
                             setActiveTab(tab.id || tab.name);
                             if (isMobile) setIsSidebarExpanded(false);
                           }}
-                          className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-all relative group h-[34px] overflow-hidden ${
+                          className={`w-full flex items-center gap-4 px-4 py-2 rounded-xl transition-all relative group h-[44px] overflow-hidden ${
                             isActive 
                               ? (isDark ? "bg-white/10 text-fuchsia-400" : "bg-black/5 text-fuchsia-600") 
                               : (isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5")
@@ -5795,12 +6432,12 @@ const [headingBar, setHeadingBar] = useState(() => {
                       {isActive && (
                         <motion.div 
                           layoutId="sidebarActivePill"
-                          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-fuchsia-400 rounded-r-sm shadow-[0_0_8px_rgba(232,121,249,0.5)]" 
+                          className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-4 bg-fuchsia-400 rounded-r-sm shadow-[0_0_8px_rgba(232,121,249,0.5)]" 
                         />
                       )}
-                      <Icon size={18} strokeWidth={tab.id === "Experimental" ? 1 : 1.5} className={`flex-shrink-0 transition-all ${isActive ? "text-fuchsia-400" : (isDark ? "text-white" : "text-black")} group-hover:scale-110`} />
+                      <Icon size={20} strokeWidth={tab.id === "Experimental" ? 1 : 1.5} className={`flex-shrink-0 transition-all ${isActive ? "text-fuchsia-400" : (isDark ? "text-white" : "text-black")} group-hover:scale-110`} />
                       {isSidebarExpanded && (
-                        <span className="font-normal text-xs whitespace-nowrap">{tab.name}</span>
+                        <span className="font-normal text-sm whitespace-nowrap">{tab.name}</span>
                       )}
                     </button>
                   );
@@ -5882,10 +6519,14 @@ const [headingBar, setHeadingBar] = useState(() => {
 
                 <button
                   onClick={() => {
-                    setActiveTab("Cài đặt");
+                    if (user) {
+                      setActiveTab("Cài đặt"); // If logged in, maybe settings is under account?
+                    } else {
+                      handleLogin();
+                    }
                     if (isMobile) setIsSidebarExpanded(false);
                   }}
-                  className={`flex items-center gap-3 px-2.5 py-1 rounded-lg transition-all w-full h-[34px] relative overflow-hidden group ${
+                  className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all w-full h-[44px] relative overflow-hidden group ${
                     activeTab === "Cài đặt"
                       ? (isDark ? "bg-white/10 text-white" : "bg-black/5 text-black")
                       : (isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5")
@@ -5894,35 +6535,35 @@ const [headingBar, setHeadingBar] = useState(() => {
                   {activeTab === "Cài đặt" && (
                     <motion.div 
                       layoutId="sidebarActivePill"
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-fuchsia-400 rounded-r-sm shadow-[0_0_8px_rgba(232,121,249,0.5)]" 
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-4 bg-fuchsia-400 rounded-r-sm shadow-[0_0_8px_rgba(232,121,249,0.5)]" 
                     />
                   )}
-                  <div className={`p-1 rounded-lg transition-colors ${
+                  <div className={`p-1.5 rounded-lg transition-colors ${
                     activeTab === "Cài đặt"
                       ? (isDark ? "bg-fuchsia-500/20 text-fuchsia-400" : "bg-fuchsia-100 text-fuchsia-600")
                       : (isDark ? "bg-white/5 text-white" : "bg-black/5 text-black")
                   }`}>
-                    <SettingsIcon className="w-4 h-4" />
+                    <AccountIcon className="w-5 h-5" />
                   </div>
-                  {isSidebarExpanded && <span className={`font-normal text-xs ${activeTab === "Cài đặt" ? "text-fuchsia-400" : ""}`}>Cài đặt</span>}
+                  {isSidebarExpanded && <span className={`font-normal text-sm ${activeTab === "Cài đặt" ? "text-fuchsia-400" : ""}`}>{user ? "Tài khoản" : "Đăng nhập"}</span>}
                 </button>
 
                 {!headingBar && (
                   <button
                     onClick={user ? handleLogout : handleLogin}
-                    className={`flex items-center gap-3 px-2.5 py-1 rounded-lg transition-all w-full h-[34px] relative overflow-hidden group ${
+                    className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all w-full h-[44px] relative overflow-hidden group ${
                       isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5"
                     } ${!isSidebarExpanded ? "justify-center" : ""}`}
                   >
-                    <div className={`p-1 rounded-lg transition-colors ${
+                    <div className={`p-1.5 rounded-lg transition-colors ${
                       user 
                         ? (isDark ? "bg-red-500/10 text-red-400 group-hover:bg-red-500/20" : "bg-red-50 text-red-500 group-hover:bg-red-100")
                         : (isDark ? "bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20" : "bg-emerald-50 text-emerald-500 group-hover:bg-emerald-100")
                     }`}>
-                      {user ? <SignOutIcon size={16} /> : <SignInIcon size={16} />}
+                      {user ? <SignOutIcon size={18} /> : <SignInIcon size={18} />}
                     </div>
                     {isSidebarExpanded && (
-                      <span className="font-bold text-xs whitespace-nowrap">
+                      <span className="font-normal text-sm whitespace-nowrap">
                         {user ? "Đăng xuất" : "Đăng nhập"}
                       </span>
                     )}
@@ -5982,10 +6623,16 @@ const [headingBar, setHeadingBar] = useState(() => {
                         return (
                           <div key={`mob-nav-${tabId}`} className="flex-1 flex justify-center">
                             <button
-                              onClick={() => setActiveTab(tabId)}
+                              onClick={() => {
+                                if (tabId === "Phát sóng" && isBroadcastingLocked) {
+                                  setIsLockModalOpen(true);
+                                  return;
+                                }
+                                setActiveTab(tabId);
+                              }}
                               className={`relative flex flex-col items-center justify-center px-1 py-2 transition-all duration-300 group z-10 w-full ${
                                 isActive 
-                                  ? (isGlassy ? "text-white" : "text-black") 
+                                  ? "text-fuchsia-400" 
                                   : isGlassy ? "text-white/70 hover:text-white" : liquidGlass === "tinted" ? "text-black hover:opacity-100 opacity-60" : isDark ? "text-slate-400 hover:text-white" : "text-black hover:opacity-100"
                               }`}
                             >
@@ -6024,10 +6671,16 @@ const [headingBar, setHeadingBar] = useState(() => {
                         return (
                           <div key={`mob-nav-${tabId}`} className="flex-1 flex justify-center">
                             <button
-                              onClick={() => setActiveTab(tabId)}
+                              onClick={() => {
+                                if (tabId === "Phát sóng" && isBroadcastingLocked) {
+                                  setIsLockModalOpen(true);
+                                  return;
+                                }
+                                setActiveTab(tabId);
+                              }}
                               className={`relative flex flex-col items-center justify-center px-1 py-2 transition-all duration-300 group z-10 w-full ${
                                 isActive 
-                                  ? (isGlassy ? "text-white" : "text-black") 
+                                  ? "text-fuchsia-400" 
                                   : isGlassy ? "text-white/70 hover:text-white" : liquidGlass === "tinted" ? "text-black hover:opacity-100 opacity-60" : isDark ? "text-slate-400 hover:text-white" : "text-black hover:opacity-100"
                               }`}
                             >
@@ -6071,16 +6724,15 @@ const [headingBar, setHeadingBar] = useState(() => {
 
                   {navPage === 2 && (
                     <motion.div 
-                      className="flex items-center justify-center h-full gap-3"
+                      className="flex flex-col items-center justify-center h-full gap-0"
                       initial={{ scale: 0.9, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                     >
-                      <div className={`text-lg font-medium tracking-wide ${isDark ? "text-white" : "text-slate-900"}`}>
-                        {(currentTime || new Date()).toLocaleTimeString('en-GB')}
+                      <div className={`text-sm font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                        {formatTime(currentTime || new Date())}
                       </div>
-                      <div className="w-px h-4 bg-slate-500/20" />
-                      <div className={`text-lg font-medium tracking-wide uppercase ${isDark ? "text-white/40" : "text-slate-500"}`}>
-                        {(currentTime || new Date()).toLocaleDateString('en-GB')}
+                      <div className={`text-[10px] font-bold tracking-widest uppercase ${isDark ? "text-white/40" : "text-slate-500"}`}>
+                        {formatDateString(currentTime || new Date())}
                       </div>
                     </motion.div>
                   )}
