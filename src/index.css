@@ -1,10 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Outfit:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Outfit:wght@100..900&family=Plus+Jakarta+Sans:wght@200..800&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --color-primary: var(--primary-color, #9333ea);
+  --font-google: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --color-primary: var(--vplay-primary, #9333ea);
+  --color-vplay-sidebar: var(--vplay-sidebar, #1a0121);
+  --color-vplay-background: var(--vplay-background, #0a0118);
+  --color-vplay-topbar: var(--vplay-topbar, #0a0118);
 }
 
 @layer base {
@@ -24,14 +28,14 @@
 }
 
 .btn-purple-3d {
-  @apply bg-purple-600 border-2 border-purple-400 text-white font-bold uppercase tracking-widest px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] transition-all duration-75 relative isolate backdrop-blur-md;
+  @apply bg-primary border-2 border-white/20 text-white font-bold uppercase tracking-widest px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] transition-all duration-75 relative isolate backdrop-blur-md;
   transform: translate(0, 0);
-  box-shadow: 4px 4px 0px 0px #4c1d95;
+  box-shadow: 4px 4px 0px 0px rgba(0,0,0,0.3);
 }
 .btn-purple-3d:hover {
-  @apply bg-purple-500;
+  @apply opacity-90;
   transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0px 0px #4c1d95;
+  box-shadow: 5px 5px 0px 0px rgba(0,0,0,0.3);
 }
 .btn-purple-3d:active {
   transform: translate(4px, 4px) !important;

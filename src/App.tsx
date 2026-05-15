@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode } from "react";
 import { 
   Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer,
-  Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, FolderOpen, Pizza, Cloud, CreditCard, Gift, HelpCircle, FlaskConical as Flask
+  Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, FolderOpen, Pizza, Cloud, CreditCard, Gift, HelpCircle, FlaskConical as Flask, GlassWater, Grid, ArrowUp, ArrowDown, ArrowRightLeft
 } from "lucide-react";
 import Hls from "hls.js";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
@@ -68,7 +68,7 @@ const LoadingSpinner = ({ isDark, className = "w-6 h-6" }: { isDark: boolean, cl
       viewBox="0 0 24 24" 
       fill="none" 
       xmlns="http://www.w3.org/2000/svg"
-      style={{ animationDuration: '1.2s' }}
+      style={{ animationDuration: '0.8s' }}
     >
       <path 
         className="opacity-100" 
@@ -678,7 +678,9 @@ function ExploreContent({
   setIsPinningEnabled,
   featureFlags,
   setFeatureFlags,
-  setIsSidebarLocked
+  setIsSidebarLocked,
+  handleSearchContextMenu,
+  searchFilter
 }: {
   isDark: boolean,
   searchQuery: string,
@@ -706,7 +708,9 @@ function ExploreContent({
   setIsPinningEnabled: (val: boolean) => void,
   featureFlags: { [key: string]: boolean },
   setFeatureFlags: (val: any) => void,
-  setIsSidebarLocked: (val: boolean) => void
+  setIsSidebarLocked: (val: boolean) => void,
+  handleSearchContextMenu: (e: React.MouseEvent) => void,
+  searchFilter: "all" | "channels" | "settings" | "experiments"
 }) {
   const [randomRows, setRandomRows] = useState<Channel[][]>([]);
   const [randomSettings, setRandomSettings] = useState<any[]>([]);
@@ -743,6 +747,7 @@ function ExploreContent({
             setQuery={setSearchQuery} 
             onClose={() => setSearchQuery("")} 
             liquidGlass={liquidGlass}
+            onContextMenu={handleSearchContextMenu}
           />
           <div className="flex flex-wrap items-center gap-2 mt-5 px-3 overflow-hidden">
               <div className="flex items-center gap-2 mr-2">
@@ -797,6 +802,7 @@ function ExploreContent({
               setFeatureFlags={setFeatureFlags}
               setIsSidebarLocked={setIsSidebarLocked}
               setSearchQuery={setSearchQuery}
+              searchFilter={searchFilter}
             />
           </div>
         ) : (
@@ -1909,7 +1915,8 @@ function SearchPopup({
   featureFlags,
   setFeatureFlags,
   setIsSidebarLocked,
-  setSearchQuery
+  setSearchQuery,
+  searchFilter
 }: { 
   isDark: boolean, 
   searchQuery: string, 
@@ -1936,22 +1943,25 @@ function SearchPopup({
   featureFlags?: { [key: string]: boolean },
   setFeatureFlags?: (val: any) => void,
   setIsSidebarLocked?: (val: boolean) => void,
-  setSearchQuery?: (val: string) => void
+  setSearchQuery?: (val: string) => void,
+  searchFilter?: "all" | "channels" | "settings" | "experiments"
 }) {
   if (searchQuery.trim() === "" && !asContent) return null;
 
-  const filteredChannels = channels.filter(ch => 
-    ch.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    ch.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredChannels = searchFilter === "all" || searchFilter === "channels" 
+    ? channels.filter(ch => 
+        ch.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        ch.category.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
 
   const systemItems = [
     { name: "Trang chủ", type: "tab", icon: HomeIcon, action: () => setActiveTab("Trang chủ") },
     { name: "Phát sóng", type: "tab", icon: TvIcon, action: () => setActiveTab("Phát sóng") },
     { name: "Khám phá", type: "tab", icon: SearchIcon, action: () => setActiveTab("Khám phá") },
     { name: "Lưu trữ", type: "tab", icon: FolderIcon, action: () => setActiveTab("Lưu trữ") },
-    { name: "Thử nghiệm", type: "tab", icon: ExperimentalIcon, action: () => setActiveTab("Experimental") },
-    { name: "Phòng thí nghiệm", type: "tab", icon: ExperimentalIcon, action: () => setActiveTab("Experimental") },
+    { name: "Thử nghiệm", type: "tab", icon: ExperimentalIcon, action: () => setActiveTab("Experimental"), isExp: true },
+    { name: "Phòng thí nghiệm", type: "tab", icon: ExperimentalIcon, action: () => setActiveTab("Experimental"), isExp: true },
     { name: "Cài đặt", type: "tab", icon: SettingsIcon, action: () => setActiveTab("Cài đặt") },
     { name: "Quản trị", type: "tab", icon: ShieldCheck, action: () => setActiveTab("Quản trị") },
     { name: "Tài khoản", type: "tab", icon: AccountIcon, action: () => setActiveTab("Tài khoản") },
@@ -1993,6 +2003,11 @@ function SearchPopup({
     { name: "Bảng điều khiển", type: "element", icon: Layout, action: () => setActiveTab("Quản trị") },
     { name: "Liên hệ hỗ trợ", type: "element", icon: Info, action: () => setActiveTab("Cài đặt") },
     
+    { name: "Multiview Channels", type: "experiments", icon: LayoutGrid, action: () => setActiveTab("Experimental"), isExp: true },
+    { name: "Screen Recording", type: "experiments", icon: Camera, action: () => setActiveTab("Experimental"), isExp: true },
+    { name: "Picture in Picture", type: "experiments", icon: Maximize2, action: () => setActiveTab("Experimental"), isExp: true },
+    { name: "Rejuvenated Settings", type: "experiments", icon: SettingsIcon, action: () => setActiveTab("Experimental"), isExp: true },
+
     { name: "/force launch loading", type: "command", icon: Zap, action: () => {} },
     { name: "/force launch oobe", type: "command", icon: Zap, action: () => {} },
     { name: "/help", type: "command", icon: Info, action: () => {} },
@@ -2001,11 +2016,20 @@ function SearchPopup({
   ];
 
   const isHelpCommand = searchQuery.trim().toLowerCase() === "/help";
-  const filteredSystem = isHelpCommand 
-    ? systemItems.filter(item => ["command", "setting", "button", "tab"].includes(item.type))
-    : systemItems.filter(item => 
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+  const filteredSystem = systemItems.filter(item => {
+    const matchesSearch = isHelpCommand 
+      ? ["command", "setting", "button", "tab"].includes(item.type)
+      : item.name.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (!matchesSearch) return false;
+
+    if (searchFilter === "all") return true;
+    if (searchFilter === "experiments") return (item as any).isExp || item.type === "experiments";
+    if (searchFilter === "settings") return !((item as any).isExp || item.type === "experiments");
+    if (searchFilter === "channels") return false;
+    
+    return true;
+  });
 
   const favoriteChannels = channels.filter(ch => favorites.includes(ch.name));
 
@@ -2697,7 +2721,7 @@ function ExperimentalContent({ isDark, featureFlags, setFeatureFlags, liquidGlas
   );
 }
 
-function RejuvenatedSettingsItem({ icon: Icon, title, description, onClick, isDark }: { icon: any, title: string, description?: string, onClick: () => void, isDark: boolean }) {
+function RejuvenatedSettingsItem({ icon: Icon, title, description, onClick, isDark, isToggled, isToggleable }: { icon: any, title: string, description?: string, onClick: () => void, isDark: boolean, isToggled?: boolean, isToggleable?: boolean }) {
   return (
     <button 
       onClick={onClick}
@@ -2714,7 +2738,16 @@ function RejuvenatedSettingsItem({ icon: Icon, title, description, onClick, isDa
         <h4 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h4>
         {description && <p className="text-[11px] opacity-50 font-medium">{description}</p>}
       </div>
-      <ChevronRight size={16} className={`opacity-20 group-hover:opacity-100 transition-opacity ${isDark ? "text-white" : "text-black"}`} />
+      {isToggleable ? (
+        <div className={`w-9 h-5 rounded-full p-1 transition-colors duration-300 flex items-center ${isToggled ? "bg-purple-500" : (isDark ? "bg-white/10" : "bg-slate-200")}`}>
+          <motion.div 
+            animate={{ x: isToggled ? 16 : 0 }}
+            className="w-3 h-3 bg-white rounded-full shadow-sm" 
+          />
+        </div>
+      ) : (
+        <ChevronRight size={16} className={`opacity-20 group-hover:opacity-100 transition-opacity ${isDark ? "text-white" : "text-black"}`} />
+      )}
     </button>
   );
 }
@@ -2726,56 +2759,60 @@ function RejuvenatedSettings(props: any) {
     sidebarDisplay, setSidebarDisplay, isPinningEnabled, setIsPinningEnabled, user, userData,
     onAlert, onLogin, onUpdateLogsClick, favorites, bypassed, loadingTreatment,
     tempUnit, setTempUnit, location, setLocation, timeFormat, setTimeFormat, clockFormat, setClockFormat,
-    dateFormat, setDateFormat, showTempInClock, setShowTempInClock, headingBar, setHeadingBar
+    dateFormat, setDateFormat, showClock, setShowClock, showDate, setShowDate, showTempInClock, setShowTempInClock, headingBar, setHeadingBar,
+    isSearchCompact, setIsSearchCompact
   } = props;
 
-  const [activeCategory, setActiveCategory] = useState("System");
+  const [activeCategory, setActiveCategory] = useState("SystemInfo");
+  const [expandedOption, setExpandedOption] = useState<string | null>(null);
+
+  const toggleGeolocation = () => {
+    props.setShowGeoPopup(true);
+  };
   
   const categories = [
-    { id: "System", name: "Hệ thống", icon: Monitor },
-    { id: "Accounts", name: "Tài khoản", icon: User },
-    { id: "Personalization", name: "Cá nhân hóa", icon: Palette },
-    { id: "Accessibility", name: "Quyền truy cập", icon: Accessibility },
-    { id: "Privacy", name: "Quyền riêng tư & bảo mật", icon: ShieldCheck },
-    { id: "WindowsUpdate", name: "Vplay Update", icon: RotateCcw },
+    { id: "SystemInfo", name: "Thông tin hệ thống", icon: Info },
+    { id: "Profile", name: "Quản lý hồ sơ", icon: User },
+    { id: "Appearance", name: "Chủ đề giao diện", icon: Palette },
+    { id: "TopBar", name: "Top bar", icon: Monitor },
+    { id: "Sidebar", name: "Sidebar", icon: Columns },
+    { id: "NavBar", name: "Navigation bar", icon: Smartphone },
+    { id: "Experiments", name: "Tính năng thử nghiệm", icon: Pizza },
   ];
 
   const renderContent = () => {
     switch (activeCategory) {
-      case "System":
+      case "SystemInfo":
         return (
           <div className="space-y-4">
-             <RejuvenatedSettingsItem 
-              icon={Sun} 
-              title="Chế độ hiển thị" 
-              description={`Hiện tại: ${isDark ? "Tối" : "Sáng"}`}
-              onClick={() => setIsDark(!isDark)}
-              isDark={isDark}
-            />
-            <RejuvenatedSettingsItem 
-              icon={LayoutGrid} 
-              title="Thanh điều hướng (Sidebar)" 
-              description="Thay đổi vị trí và cách hiển thị của sidebar"
-              onClick={() => setUseSidebar(!useSidebar)}
-              isDark={isDark}
-            />
-            <RejuvenatedSettingsItem 
-              icon={Smartphone} 
-              title="Chế độ hiển thị Top Bar" 
-              description={headingBar ? "Đang bật" : "Đang tắt"}
-              onClick={() => setHeadingBar(!headingBar)}
-              isDark={isDark}
-            />
-            <RejuvenatedSettingsItem 
-              icon={Flask} 
-              title="Tính năng thử nghiệm" 
-              description="Quản lý các bản thử nghiệm beta"
-              onClick={() => {}} // Could expand to show sub-list
-              isDark={isDark}
-            />
+            <div className={`p-6 rounded-3xl border ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+              <div className="flex items-center gap-4 mb-4">
+                <div className={`p-3 rounded-full ${isDark ? "bg-purple-500/20 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
+                  <Zap size={24} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">Hệ thống Vplay</h3>
+                  <p className="text-xs opacity-50 font-bold uppercase tracking-widest">Phiên bản: 26604-BETA</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between py-2 border-b border-white/5">
+                  <span className="text-sm font-medium opacity-60">Trạng thái</span>
+                  <span className="text-sm font-bold text-emerald-400">Ổn định</span>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b border-white/5">
+                  <span className="text-sm font-medium opacity-60">Nhà phát triển</span>
+                  <span className="text-sm font-bold">VPLAY MEDIA TEAM</span>
+                </div>
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm font-medium opacity-60">Ngày cập nhật</span>
+                  <span className="text-sm font-bold">14/05/2026</span>
+                </div>
+              </div>
+            </div>
           </div>
         );
-      case "Accounts":
+      case "Profile":
         return (
           <div className="space-y-4">
             <div className={`p-8 rounded-3xl border flex items-center gap-6 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
@@ -2791,98 +2828,294 @@ function RejuvenatedSettings(props: any) {
             </div>
             <RejuvenatedSettingsItem 
               icon={Monitor} 
-              title="Quản lý hồ sơ" 
-              description="Chỉnh sửa tên và ảnh đại diện"
+              title="Chỉnh sửa hồ sơ" 
+              description="Thay đổi tên hiển thị và ảnh đại diện"
               onClick={() => onAlert("Tính năng", "Coming soon in detailed view")}
               isDark={isDark}
             />
             <RejuvenatedSettingsItem 
               icon={LogOut} 
               title="Đăng xuất" 
-              description="Thoát khỏi phiên làm việc hiện tại"
+              description="Kết thúc phiên làm việc hiện tại"
               onClick={() => props.onLogout ? props.onLogout() : {}}
               isDark={isDark}
             />
           </div>
         );
-      case "Personalization":
+      case "Appearance":
         return (
           <div className="space-y-4">
              <RejuvenatedSettingsItem 
-              icon={Droplet} 
-              title="Hiệu ứng Liquid Glass" 
-              description={`Kiểu: ${liquidGlass}`}
-              onClick={() => setLiquidGlass(liquidGlass === "glassy" ? "tinted" : "glassy")}
+              icon={Sun} 
+              title="Chế độ tối" 
+              description={isDark ? "Đang bật" : "Đang tắt"}
+              onClick={() => setIsDark(!isDark)}
+              isDark={isDark}
+              isToggleable={true}
+              isToggled={isDark}
+            />
+            <div className={`p-4 rounded-xl border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+              <div className="flex items-center gap-4 mb-4">
+                <div className={`p-2 rounded-lg ${isDark ? "bg-white/5 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
+                  <Palette size={20} />
+                </div>
+                <h4 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Tùy chỉnh màu giao diện</h4>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-50">Màu chủ đạo (Nút)</label>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="color" 
+                      value={props.customColors.primary} 
+                      onChange={(e) => props.setCustomColors(prev => ({ ...prev, primary: e.target.value }))}
+                      className="w-8 h-8 rounded cursor-pointer border-0 p-0 bg-transparent"
+                    />
+                    <span className="text-xs font-mono opacity-60 uppercase">{props.customColors.primary}</span>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-50">Màu Sidebar</label>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="color" 
+                      value={props.customColors.sidebar} 
+                      onChange={(e) => props.setCustomColors(prev => ({ ...prev, sidebar: e.target.value }))}
+                      className="w-8 h-8 rounded cursor-pointer border-0 p-0 bg-transparent"
+                    />
+                    <span className="text-xs font-mono opacity-60 uppercase">{props.customColors.sidebar}</span>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-50">Màu Topbar</label>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="color" 
+                      value={props.customColors.topbar} 
+                      onChange={(e) => props.setCustomColors(prev => ({ ...prev, topbar: e.target.value }))}
+                      className="w-8 h-8 rounded cursor-pointer border-0 p-0 bg-transparent"
+                    />
+                    <span className="text-xs font-mono opacity-60 uppercase">{props.customColors.topbar}</span>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-50">Màu Nền Chính</label>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="color" 
+                      value={props.customColors.background} 
+                      onChange={(e) => props.setCustomColors(prev => ({ ...prev, background: e.target.value }))}
+                      className="w-8 h-8 rounded cursor-pointer border-0 p-0 bg-transparent"
+                    />
+                    <span className="text-xs font-mono opacity-60 uppercase">{props.customColors.background}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <RejuvenatedSettingsItem 
+              icon={LayoutGrid} 
+              title="Bố cục màn hình chọn kênh" 
+              description="Thay đổi số lượng kênh hiển thị mỗi dòng"
+              onClick={() => {}}
               isDark={isDark}
             />
             <RejuvenatedSettingsItem 
-              icon={Palette} 
-              title="Thay đổi vị trí Sidebar" 
-              description={`Vị trí: ${isSidebarRight ? "Phải" : "Trái"}`}
+              icon={Smartphone} 
+              title="Chế độ Desktop/Touch" 
+              description="Tối ưu giao diện theo thiết bị"
+              onClick={() => setIsDev(!isDev)}
+              isDark={isDark}
+              isToggleable={true}
+              isToggled={isDev}
+            />
+          </div>
+        );
+      case "TopBar":
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <RejuvenatedSettingsItem 
+                icon={Clock} 
+                title="Đồng hồ và Lịch" 
+                description={showClock ? "Đang bật" : "Đang tắt"}
+                onClick={() => setExpandedOption(expandedOption === "clock" ? null : "clock")}
+                isDark={isDark}
+              />
+              <AnimatePresence>
+                {expandedOption === "clock" && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden space-y-2 ml-4 border-l-2 border-purple-500/20 pl-4"
+                  >
+                    <RejuvenatedSettingsItem 
+                      icon={CheckCircle2} 
+                      title="Hiển thị đồng hồ" 
+                      onClick={() => setShowClock(!showClock)}
+                      isDark={isDark}
+                      isToggleable={true}
+                      isToggled={showClock}
+                    />
+                    <RejuvenatedSettingsItem 
+                      icon={CheckCircle2} 
+                      title="Hiển thị ngày tháng" 
+                      onClick={() => setShowDate(!showDate)}
+                      isDark={isDark}
+                      isToggleable={true}
+                      isToggled={showDate}
+                    />
+                    <RejuvenatedSettingsItem 
+                      icon={History} 
+                      title="Định dạng thời gian" 
+                      description={`${timeFormat} (${clockFormat})`}
+                      onClick={() => {
+                        if (timeFormat === "24h") setTimeFormat("12h");
+                        else {
+                          setTimeFormat("24h");
+                          setClockFormat(clockFormat === "hh:mm" ? "hh:mm:ss" : "hh:mm");
+                        }
+                      }}
+                      isDark={isDark}
+                    />
+                    <RejuvenatedSettingsItem 
+                      icon={Calendar} 
+                      title="Định dạng ngày tháng" 
+                      description={dateFormat}
+                      onClick={() => {
+                        const formats: ("dd/mm/yyyy" | "dd/mm/yy" | "dd/mm")[] = ["dd/mm/yyyy", "dd/mm/yy", "dd/mm"];
+                        const next = formats[(formats.indexOf(dateFormat as any) + 1) % formats.length];
+                        setDateFormat(next);
+                      }}
+                      isDark={isDark}
+                    />
+                    <RejuvenatedSettingsItem 
+                      icon={Globe} 
+                      title="Múi giờ hệ thống" 
+                      description="GMT+7 (Hanoi)"
+                      onClick={() => onAlert("Tính năng", "Coming soon")}
+                      isDark={isDark}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div className="space-y-2">
+              <RejuvenatedSettingsItem 
+                icon={Cloud} 
+                title="Thời tiết" 
+                description={showTempInClock ? "Đang bật" : "Đang tắt"}
+                onClick={() => setExpandedOption(expandedOption === "weather" ? null : "weather")}
+                isDark={isDark}
+              />
+              <AnimatePresence>
+                {expandedOption === "weather" && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden space-y-2 ml-4 border-l-2 border-purple-500/20 pl-4"
+                  >
+                    <RejuvenatedSettingsItem 
+                      icon={CheckCircle2} 
+                      title="Hiển thị nhiệt độ" 
+                      onClick={() => setShowTempInClock(!showTempInClock)}
+                      isDark={isDark}
+                      isToggleable={true}
+                      isToggled={showTempInClock}
+                    />
+                    <RejuvenatedSettingsItem 
+                      icon={Thermometer} 
+                      title="Đơn vị nhiệt độ" 
+                      description={`Độ ${tempUnit}`}
+                      onClick={() => setTempUnit(tempUnit === "C" ? "F" : "C")}
+                      isDark={isDark}
+                    />
+                    <RejuvenatedSettingsItem 
+                      icon={Navigation} 
+                      title="Tự động định vị" 
+                      description={location}
+                      onClick={toggleGeolocation}
+                      isDark={isDark}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        );
+      case "Sidebar":
+        return (
+          <div className="space-y-4">
+            <RejuvenatedSettingsItem 
+              icon={Layout} 
+              title="Vị trí Sidebar" 
+              description={isSidebarRight ? "Bên phải" : "Bên trái"}
               onClick={() => setIsSidebarRight(!isSidebarRight)}
               isDark={isDark}
             />
             <RejuvenatedSettingsItem 
-              icon={Columns} 
-              title="Kiển thị Sidebar" 
-              description={`Kiểu: ${sidebarDisplay}`}
-              onClick={() => setSidebarDisplay(sidebarDisplay === "float" ? "attach" : "float")}
+              icon={Zap} 
+              title="Truy cập nhanh" 
+              description={isPinningEnabled ? "Đang bật" : "Đang tắt"}
+              onClick={() => setIsPinningEnabled(!isPinningEnabled)}
               isDark={isDark}
+              isToggleable={true}
+              isToggled={isPinningEnabled}
             />
           </div>
         );
-      case "Accessibility":
-        return (
-           <div className="space-y-4">
-              <RejuvenatedSettingsItem 
-                icon={Zap} 
-                title="Giảm hiệu ứng chuyển động" 
-                description={featureFlags.disable_animation ? "Đang bật" : "Đang tắt"}
-                onClick={() => setFeatureFlags((prev: any) => ({ ...prev, disable_animation: !prev.disable_animation }))}
-                isDark={isDark}
-              />
-              <RejuvenatedSettingsItem 
-                icon={Pin} 
-                title="Ghim kênh nhanh trên Sidebar" 
-                description={isPinningEnabled ? "Đang bật" : "Đang tắt"}
-                onClick={() => setIsPinningEnabled(!isPinningEnabled)}
-                isDark={isDark}
-              />
-           </div>
-        );
-      case "Privacy":
+      case "NavBar":
         return (
           <div className="space-y-4">
             <RejuvenatedSettingsItem 
-                icon={ShieldCheck} 
-                title="Quyền ghi màn hình" 
-                description={featureFlags.screen_recording ? "Đã cho phép" : "Đã từ chối"}
-                onClick={() => setFeatureFlags((prev: any) => ({ ...prev, screen_recording: !prev.screen_recording }))}
-                isDark={isDark}
-              />
+              icon={Droplet} 
+              title="Đổi sang kính mờ/lỏng" 
+              description={liquidGlass === "glassy" ? "Hiện tại: Kính mờ" : "Hiện tại: Kính lỏng"}
+              onClick={() => setLiquidGlass(liquidGlass === "glassy" ? "tinted" : "glassy")}
+              isDark={isDark}
+            />
+            <RejuvenatedSettingsItem 
+              icon={Monitor} 
+              title="Chế độ Desktop" 
+              description={!isDev ? "Đang bật" : "Đang tắt"}
+              onClick={() => setIsDev(false)}
+              isDark={isDark}
+              isToggleable={true}
+              isToggled={!isDev}
+            />
           </div>
         );
-      case "WindowsUpdate":
+      case "Experiments":
         return (
           <div className="space-y-4">
-             <div className={`p-8 rounded-3xl border flex items-center justify-between ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
-                <div className="flex items-center gap-4">
-                   <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
-                      <CheckCircle2 size={24} />
-                   </div>
-                   <div>
-                      <h4 className="text-xl font-bold">You're up to date</h4>
-                      <p className="opacity-50 text-sm">Last checked: Today, {new Date().toLocaleTimeString()}</p>
-                   </div>
-                </div>
-                <button className="px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-bold transition-all">Check for updates</button>
-             </div>
-             <RejuvenatedSettingsItem 
-              icon={History} 
-              title="Update history" 
-              description="Xem các bản cập nhật gần đây"
-              onClick={onUpdateLogsClick}
+            <RejuvenatedSettingsItem 
+              icon={Grid} 
+              title="Multiview" 
+              description={featureFlags.multiview ? "Đang bật" : "Đang tắt"}
+              onClick={() => setFeatureFlags((prev: any) => ({ ...prev, multiview: !prev.multiview }))}
               isDark={isDark}
+              isToggleable={true}
+              isToggled={featureFlags.multiview}
+            />
+            <RejuvenatedSettingsItem 
+              icon={Camera} 
+              title="Screen Recording" 
+              description={featureFlags.screen_recording ? "Đang bật" : "Đang tắt"}
+              onClick={() => setFeatureFlags((prev: any) => ({ ...prev, screen_recording: !prev.screen_recording }))}
+              isDark={isDark}
+              isToggleable={true}
+              isToggled={featureFlags.screen_recording}
+            />
+            <RejuvenatedSettingsItem 
+              icon={Maximize2} 
+              title="Picture in Picture" 
+              description={featureFlags.pip ? "Đang bật" : "Đang tắt"}
+              onClick={() => setFeatureFlags((prev: any) => ({ ...prev, pip: !prev.pip }))}
+              isDark={isDark}
+              isToggleable={true}
+              isToggled={featureFlags.pip}
             />
           </div>
         );
@@ -3010,6 +3243,10 @@ function SettingsContent({
   setClockFormat,
   dateFormat,
   setDateFormat,
+  showClock,
+  setShowClock,
+  showDate,
+  setShowDate,
   showTempInClock,
   setShowTempInClock,
   headingBar,
@@ -3054,6 +3291,10 @@ function SettingsContent({
   setClockFormat: (val: "hh:mm:ss" | "hh:mm" | "custom") => void,
   dateFormat: "dd/mm/yyyy" | "dd/mm/yy" | "dd/mm" | "custom",
   setDateFormat: (val: "dd/mm/yyyy" | "dd/mm/yy" | "dd/mm" | "custom") => void,
+  showClock: boolean,
+  setShowClock: (val: boolean) => void,
+  showDate: boolean,
+  setShowDate: (val: boolean) => void,
   showTempInClock: boolean,
   setShowTempInClock: (val: boolean) => void,
   headingBar: boolean,
@@ -3869,7 +4110,7 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
               className={`relative w-full max-w-5xl max-h-[95vh] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.4)] flex flex-col md:flex-row min-h-[400px] md:min-h-[580px] rounded-[40px] md:rounded-[56px] bg-white/95 backdrop-blur-[100px] border border-white/40`}
             >
               {/* Image/Visual Side - Responsive hiding for very small screens if necessary, or just smaller height */}
-              <div className="w-full md:w-[45%] h-48 md:h-auto bg-gradient-to-br from-purple-600 to-indigo-900 p-6 md:p-12 relative flex flex-col justify-between overflow-hidden shrink-0">
+              <div className="w-full md:w-[45%] h-48 md:h-auto bg-gradient-to-br from-primary to-indigo-900 p-6 md:p-12 relative flex flex-col justify-between overflow-hidden shrink-0">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/20 blur-[100px] -mr-32 -mt-32" />
                 <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/20 blur-[100px] -ml-32 -mb-32" />
                 
@@ -4188,7 +4429,7 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
   );
 }
 
-function SearchBar({ isDark, query, setQuery, onClose, liquidGlass }: { isDark: boolean, query: string, setQuery: (q: string) => void, onClose: () => void, liquidGlass: "glassy" | "tinted" }) {
+function SearchBar({ isDark, query, setQuery, onClose, liquidGlass, onContextMenu }: { isDark: boolean, query: string, setQuery: (q: string) => void, onClose: () => void, liquidGlass: "glassy" | "tinted", onContextMenu?: (e: React.MouseEvent) => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isListening, setIsListening] = useState(false);
 
@@ -4225,7 +4466,10 @@ function SearchBar({ isDark, query, setQuery, onClose, liquidGlass }: { isDark: 
   const textColor = isGlassy ? "text-white" : "text-black";
 
   return (
-    <div className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-1.5 h-10 md:h-12 w-full max-w-2xl relative group rounded-2xl overflow-hidden transition-all ${isGlassy ? "bg-white/10" : isDark ? "bg-slate-800/60" : "bg-slate-200"}`}>
+    <div 
+      className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-1.5 h-10 md:h-12 w-full max-w-2xl relative group rounded-2xl overflow-hidden transition-all ${isGlassy ? "bg-white/10" : isDark ? "bg-slate-800/60" : "bg-slate-200"}`}
+      onContextMenu={onContextMenu}
+    >
       <div className="flex items-center gap-2 flex-1 overflow-hidden">
         <SearchIcon className={`h-4 w-4 md:h-5 md:w-5 ${iconColor} flex-shrink-0 transition-colors ${isDark ? "group-focus-within:text-purple-400" : "group-focus-within:text-purple-500"}`} />
         <input
@@ -4234,11 +4478,12 @@ function SearchBar({ isDark, query, setQuery, onClose, liquidGlass }: { isDark: 
           placeholder="Tìm kiếm..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className={`flex-1 bg-transparent border-none outline-none text-sm font-bold truncate ${textColor} ${placeholderColor}`}
+          onContextMenu={onContextMenu}
+          className={`flex-1 bg-transparent border-none outline-none text-sm font-bold truncate font-google ${textColor} ${placeholderColor}`}
         />
       </div>
       <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-[90%] transition-all duration-300 ${isGlassy ? "bg-white/20" : "bg-black/5"} group-focus-within:bg-purple-500/60 group-focus-within:shadow-[0_0_10px_rgba(168,85,247,0.3)]`} />
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-2 shrink-0 mr-4">
         <button 
           onClick={startVoiceSearch}
           className={`p-1.5 rounded-full transition-all ${isListening ? "bg-red-500 text-white animate-pulse" : `${iconColor} opacity-40 hover:opacity-100`}`}
@@ -4660,6 +4905,8 @@ function TopBar({
   currentTime, 
   weather, 
   showTempInClock, 
+  showClock,
+  showDate,
   getTempDisplay, 
   formatTime,
   formatDateString,
@@ -4669,7 +4916,10 @@ function TopBar({
   setActiveTab,
   profileStates,
   sidebarExpanded,
-  useSidebar
+  useSidebar,
+  handleSearchContextMenu,
+  onContextMenu,
+  isSearchCompact
 }: { 
   isDark: boolean, 
   onMenuClick: () => void, 
@@ -4680,6 +4930,8 @@ function TopBar({
   currentTime: Date, 
   weather: any, 
   showTempInClock: boolean, 
+  showClock: boolean,
+  showDate: boolean,
   getTempDisplay: () => string, 
   formatTime: (date: Date) => string,
   formatDateString: (date: Date) => string,
@@ -4698,7 +4950,10 @@ function TopBar({
     fileInputRef: React.RefObject<HTMLInputElement>;
   },
   sidebarExpanded?: boolean,
-  useSidebar?: boolean
+  useSidebar?: boolean,
+  handleSearchContextMenu?: (e: React.MouseEvent) => void,
+  onContextMenu?: (e: React.MouseEvent) => void,
+  isSearchCompact?: boolean
 }) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [menuView, setMenuView] = useState<"main" | "profile" | "version" | "feedback">("main");
@@ -4711,9 +4966,11 @@ function TopBar({
   // Calculate dynamic left offset for content to avoid sidebar overlap
   // Only offset if we are on desktop and sidebar is on the left
   return (
-    <div className={`h-14 flex items-center justify-between px-4 sticky top-0 z-[130] transition-all duration-300 ${
-      isDark ? "bg-[#0a0118]" : "bg-[#f2f2f7]"
-    }`}
+    <div 
+      onContextMenu={onContextMenu}
+      className={`h-14 flex items-center justify-between px-4 sticky top-0 z-[130] transition-all duration-300 ${
+        isDark ? "bg-vplay-topbar" : "bg-[#f2f2f7]"
+      }`}
     >
       <div className="flex items-center gap-2">
         <button 
@@ -4735,31 +4992,42 @@ function TopBar({
       </div>
 
       <div className="flex-1 flex justify-center mx-4 relative max-w-sm md:max-w-md lg:max-w-lg">
-        <div 
-          className={`group flex items-center gap-2.5 h-10 w-full transition-all relative border-b rounded-md transition-all duration-300 ${
-            isDark 
-              ? "bg-[#250325] border-white/30 focus-within:bg-[#350235] focus-within:border-fuchsia-400/40 text-white/90" 
-              : "bg-white border-slate-200 focus-within:border-fuchsia-500 text-slate-800"
-          }`}
-        >
-          <Search size={18} className={`ml-3 ${isDark ? "text-white/50 group-focus-within:text-fuchsia-400" : "text-slate-400"}`} />
-          <input
-            type="text"
-            value={searchQuery}
-            onFocus={() => setActiveTab("Khám phá")}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Find and explore on Vplay"
-            className={`flex-1 bg-transparent border-none outline-none text-sm font-medium font-display ${isDark ? "placeholder:text-white/20" : "placeholder:text-slate-400"}`}
-          />
-          {searchQuery && (
-            <button onClick={() => setSearchQuery("")} className="p-1 hover:bg-white/10 rounded-full transition-all">
-              <X size={14} className={isDark ? "text-white/40" : "text-slate-400"} />
-            </button>
-          )}
-          <button className={`p-2 rounded-full transition-all mr-4 ${isDark ? "text-white/50 hover:text-white hover:bg-white/10" : "text-slate-400 hover:text-slate-900 hover:bg-black/5"}`}>
-            <Mic size={18} />
+        {isSearchCompact ? (
+          <button 
+            onClick={onSearchClick}
+            onContextMenu={handleSearchContextMenu}
+            className={`p-2 rounded-full transition-all ${isDark ? "bg-white/5 text-white/50 hover:text-white" : "bg-black/5 text-slate-400 hover:text-slate-900"}`}
+          >
+            <Search size={20} />
           </button>
-        </div>
+        ) : (
+          <div 
+            className={`group flex items-center gap-2.5 h-10 w-full transition-all relative border-b rounded-md transition-all duration-300 ${
+              isDark 
+                ? "bg-[#3a053a] border-white/30 focus-within:bg-[#4a064a] focus-within:border-fuchsia-400/40 text-white/90" 
+                : "bg-white border-slate-200 focus-within:border-fuchsia-500 text-slate-800"
+            }`}
+          >
+            <Search size={18} className={`ml-3 ${isDark ? "text-white/50 group-focus-within:text-fuchsia-400" : "text-slate-400"}`} />
+            <input
+              type="text"
+              value={searchQuery}
+              onFocus={() => setActiveTab("Khám phá")}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onContextMenu={handleSearchContextMenu}
+              placeholder="Find and explore on Vplay"
+              className={`flex-1 bg-transparent border-none outline-none text-sm font-medium font-google ${isDark ? "placeholder:text-white/20" : "placeholder:text-slate-400"}`}
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")} className="p-1 hover:bg-white/10 rounded-full transition-all">
+                <X size={14} className={isDark ? "text-white/40" : "text-slate-400"} />
+              </button>
+            )}
+            <button className={`p-2 rounded-full transition-all mr-6 ${isDark ? "text-white/50 hover:text-white hover:bg-white/10" : "text-slate-400 hover:text-slate-900 hover:bg-black/5"}`}>
+              <Mic size={18} />
+            </button>
+          </div>
+        )}
 
         {/* Quick Search Preview */}
         <AnimatePresence>
@@ -4811,14 +5079,26 @@ function TopBar({
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="hidden sm:flex flex-col items-end text-right leading-none mr-3 font-display">
-          <div className={`text-sm font-bold tracking-tight mb-0.5 ${isDark ? "text-white/90" : "text-slate-900"}`}>
-            {formatTime(currentTime)}
+        {weather && showTempInClock && (
+          <div className="flex items-center gap-2 mr-2 px-3 py-1 rounded-full bg-white/5 border border-white/5">
+            <WeatherIcon size={16} className={weatherColor} />
+            <span className={`text-xs font-bold ${isDark ? "text-white/90" : "text-slate-900"}`}>{getTempDisplay()}</span>
           </div>
-          <div className={`text-[10px] font-bold tracking-widest uppercase opacity-40 ${isDark ? "text-white" : "text-slate-600"}`}>
-            {dateStr}
+        )}
+        {(showClock || showDate) && (
+          <div className="hidden sm:flex flex-col items-end text-right leading-none mr-3 font-google">
+            {showClock && (
+              <div className={`text-sm font-bold tracking-tight mb-0.5 ${isDark ? "text-white/90" : "text-slate-900"}`}>
+                {formatTime(currentTime)}
+              </div>
+            )}
+            {showDate && (
+              <div className={`text-[10px] font-bold tracking-widest uppercase opacity-40 ${isDark ? "text-white" : "text-slate-600"}`}>
+                {dateStr}
+              </div>
+            )}
           </div>
-        </div>
+        )}
 
         {/* User Account Menu moved to the right */}
         <div className="relative">
@@ -5085,7 +5365,313 @@ function TopBar({
   );
 }
 
+function SearchContextMenu({ 
+  x, 
+  y, 
+  onClose, 
+  onSelect, 
+  activeFilter, 
+  isDark 
+}: { 
+  x: number, 
+  y: number, 
+  onClose: () => void, 
+  onSelect: (filter: "all" | "channels" | "settings" | "experiments") => void,
+  activeFilter: string,
+  isDark: boolean
+}) {
+  const menuItems = [
+    { id: "all", label: "Tìm kiếm tất cả", icon: Search },
+    { id: "channels", label: "Tìm kiếm kênh", icon: TvIcon },
+    { id: "settings", label: "Tìm kiếm cài đặt", icon: SettingsIcon },
+    { id: "experiments", label: "Tìm kiếm thử nghiệm", icon: Flask },
+  ];
+
+  return (
+    <>
+      <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+        style={{ top: y, left: x }}
+        className={`fixed z-[1001] w-56 rounded-2xl shadow-2xl border p-1.5 overflow-hidden ${
+          isDark ? "bg-[#1a0121]/95 border-white/10 text-white" : "bg-white/95 border-slate-200 text-slate-900"
+        } backdrop-blur-xl`}
+      >
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeFilter === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => { onSelect(item.id as any); onClose(); }}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
+                isActive 
+                  ? "bg-purple-500/20 text-purple-400" 
+                  : isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"
+              }`}
+            >
+              <Icon size={16} />
+              <span className="text-sm font-medium truncate">{item.label}</span>
+              {isActive && <CheckCircle2 size={14} className="ml-auto" />}
+            </button>
+          );
+        })}
+      </motion.div>
+    </>
+  );
+}
+
+function SidebarContextMenu({ x, y, onClose, isDark, setActiveTab, setUseSidebar, setIsSidebarRight, isSidebarRight, setIsDev }: { 
+  x: number, y: number, onClose: () => void, isDark: boolean, setActiveTab: (t: string) => void,
+  setUseSidebar: (v: boolean) => void, setIsSidebarRight: (v: boolean) => void, isSidebarRight: boolean,
+  setIsDev: (v: boolean) => void
+}) {
+  return (
+    <>
+      <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        style={{ top: y, left: x }}
+        className={`fixed z-[1001] w-56 rounded-2xl shadow-2xl border p-1.5 overflow-hidden ${
+          isDark ? "bg-[#1a0121]/95 border-white/10 text-white" : "bg-white/95 border-slate-200 text-slate-900"
+        } backdrop-blur-xl`}
+      >
+        <button onClick={() => { setActiveTab("Cài đặt"); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
+          <SettingsIcon size={16} />
+          <span className="text-sm font-medium">Sidebar settings</span>
+        </button>
+        <button onClick={() => { setIsSidebarRight(!isSidebarRight); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
+          <ArrowRightLeft size={16} />
+          <span className="text-sm font-medium">Move to {isSidebarRight ? "Left" : "Right"}</span>
+        </button>
+        <button onClick={() => { setIsDev(true); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
+          <Smartphone size={16} />
+          <span className="text-sm font-medium">Chuyển qua Touch Mode</span>
+        </button>
+        <button onClick={() => { setUseSidebar(false); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
+          <ArrowDown size={16} />
+          <span className="text-sm font-medium">Dùng Bottom Nav</span>
+        </button>
+      </motion.div>
+    </>
+  );
+}
+
+function TopBarContextMenu({ x, y, onClose, isDark, setActiveTab, setHeadingBar, headingBar, showTempInClock, setShowTempInClock, showClock, setShowClock, showDate, setShowDate, setIsDev }: { 
+  x: number, y: number, onClose: () => void, isDark: boolean, setActiveTab: (t: string) => void,
+  setHeadingBar: (v: boolean) => void, headingBar: boolean, showTempInClock: boolean, setShowTempInClock: (v: boolean) => void,
+  showClock: boolean, setShowClock: (v: boolean) => void, showDate: boolean, setShowDate: (v: boolean) => void, setIsDev: (v: boolean) => void
+}) {
+  return (
+    <>
+      <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        style={{ top: y, left: x }}
+        className={`fixed z-[1001] w-56 rounded-2xl shadow-2xl border p-1.5 overflow-hidden ${
+          isDark ? "bg-[#1a0121]/95 border-white/10 text-white" : "bg-white/95 border-slate-200 text-slate-900"
+        } backdrop-blur-xl`}
+      >
+        <button onClick={() => { setActiveTab("Cài đặt"); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
+          <SettingsIcon size={16} />
+          <span className="text-sm font-medium">Topbar settings</span>
+        </button>
+        <button onClick={() => { setShowTempInClock(!showTempInClock); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
+          <Cloud size={16} />
+          <span className="text-sm font-medium">{showTempInClock ? "Hide Weather" : "Show Weather"}</span>
+        </button>
+        <button onClick={() => { setShowClock(!showClock); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
+          <Clock size={16} />
+          <span className="text-sm font-medium">{showClock ? "Hide Clock" : "Show Clock"}</span>
+        </button>
+        <button onClick={() => { setShowDate(!showDate); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
+          <Calendar size={16} />
+          <span className="text-sm font-medium">{showDate ? "Hide Date" : "Show Date"}</span>
+        </button>
+        <button onClick={() => { setIsDev(true); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
+          <Smartphone size={16} />
+          <span className="text-sm font-medium">Chuyển qua Touch Mode</span>
+        </button>
+        <button onClick={() => { setHeadingBar(false); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
+          <ArrowUp size={16} className="rotate-180" />
+          <span className="text-sm font-medium">Ẩn Top bar</span>
+        </button>
+      </motion.div>
+    </>
+  );
+}
+
+function NavigationContextMenu({ x, y, onClose, isDark, liquidGlass, setLiquidGlass, setIsDev }: {
+  x: number, y: number, onClose: () => void, isDark: boolean, liquidGlass: string, setLiquidGlass: (v: any) => void, setIsDev: (v: boolean) => void
+}) {
+  return (
+    <>
+      <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        style={{ top: y, left: x }}
+        className={`fixed z-[1001] w-56 rounded-2xl shadow-2xl border p-1.5 overflow-hidden ${
+          isDark ? "bg-[#1a0121]/95 border-white/10 text-white" : "bg-white/95 border-slate-200 text-slate-900"
+        } backdrop-blur-xl`}
+      >
+        <button onClick={() => { setLiquidGlass(liquidGlass === "glassy" ? "tinted" : "glassy"); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
+          <Droplet size={16} />
+          <span className="text-sm font-medium">Đổi sang {liquidGlass === "glassy" ? "kính lỏng" : "kính mờ"}</span>
+        </button>
+        <button onClick={() => { setIsDev(false); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
+          <Monitor size={16} />
+          <span className="text-sm font-medium">Chuyển qua Desktop Mode</span>
+        </button>
+      </motion.div>
+    </>
+  );
+}
+
+function GeoPopup({ isOpen, onClose, onAutoSelect, onManualSelect, isDark }: { isOpen: boolean, onClose: () => void, onAutoSelect: () => void, onManualSelect: (city: string) => void, isDark: boolean }) {
+  const [cityInput, setCityInput] = useState("");
+  const [showInput, setShowInput] = useState(false);
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          />
+          <motion.div 
+            initial={{ scale: 0.9, y: 20, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            exit={{ scale: 0.9, y: 20, opacity: 0 }}
+            className={`relative w-full max-w-md p-8 rounded-[40px] shadow-2xl border-2 ${
+              isDark ? "bg-[#1a0121]/95 border-white/10 text-white" : "bg-white border-slate-200 text-slate-900"
+            } backdrop-blur-3xl`}
+          >
+            <div className="flex flex-col items-center text-center gap-4 mb-8">
+              <div className={`p-4 rounded-3xl ${isDark ? "bg-purple-500/20 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
+                <Navigation size={40} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold">Bật tự động định vị</h3>
+                <p className="text-sm opacity-60 mt-2">
+                  Tự động định vị cho phép Vplay sử dụng API của trình duyệt để hiển thị chính xác thời tiết hiện tại. Bạn có muốn bật tính năng tự động định vị không?
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {!showInput ? (
+                <>
+                  <button 
+                    onClick={() => { onAutoSelect(); onClose(); }}
+                    className="w-full py-4 bg-primary text-white font-bold rounded-2xl shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Zap size={20} />
+                    Bật tự động định vị
+                  </button>
+                  <button 
+                    onClick={() => setShowInput(true)}
+                    className={`w-full py-4 font-bold rounded-2xl transition-all border ${
+                      isDark ? "bg-white/5 border-white/10 hover:bg-white/10" : "bg-slate-100 border-slate-200 hover:bg-slate-200"
+                    } flex items-center justify-center gap-2`}
+                  >
+                    <Sliders size={20} />
+                    Nhập vị trí của bạn
+                  </button>
+                </>
+              ) : (
+                <div className="space-y-4">
+                  <div className="relative">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40" size={18} />
+                    <input 
+                      type="text"
+                      autoFocus
+                      placeholder="Nhập tên thành phố (vd: Hanoi, Saigon...)"
+                      value={cityInput}
+                      onChange={(e) => setCityInput(e.target.value)}
+                      className={`w-full h-14 pl-12 pr-4 rounded-2xl border-2 transition-all outline-none ${
+                        isDark ? "bg-white/5 border-white/10 focus:border-purple-500" : "bg-slate-50 border-slate-200 focus:border-purple-500"
+                      }`}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && cityInput) {
+                          onManualSelect(cityInput);
+                          onClose();
+                        }
+                      }}
+                    />
+                  </div>
+                  <div className="flex gap-4">
+                    <button 
+                      onClick={() => setShowInput(false)}
+                      className={`flex-1 py-4 font-bold rounded-2xl transition-all ${isDark ? "hover:bg-white/5" : "hover:bg-slate-100"}`}
+                    >
+                      Quay lại
+                    </button>
+                    <button 
+                      onClick={() => {
+                        if (cityInput) {
+                          onManualSelect(cityInput);
+                          onClose();
+                        }
+                      }}
+                      className="flex-[2] py-4 bg-primary text-white font-bold rounded-2xl shadow-lg hover:brightness-110 transition-all"
+                    >
+                      Xác nhận
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button 
+              onClick={onClose}
+              className="absolute top-6 right-6 p-2 rounded-full hover:bg-white/5 transition-all opacity-40 hover:opacity-100"
+            >
+              <X size={24} />
+            </button>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 function App() {
+  const [searchFilter, setSearchFilter] = useState<"all" | "channels" | "settings" | "experiments">("all");
+  const [contextMenu, setContextMenu] = useState<{ x: number, y: number, type: "search" | "sidebar" | "topbar" } | null>(null);
+
+  const handleSearchContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, type: "search" });
+  };
+
+  const handleSidebarContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, type: "sidebar" });
+  };
+
+  const handleTopBarContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, type: "topbar" });
+  };
+
+  const handleNavigationContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, type: "navbar" as any });
+  };
+
   const isResizing = useRef(false);
   const [showSplash, setShowSplash] = useState(false);
   const [splashDuration, setSplashDuration] = useState(5000);
@@ -5331,6 +5917,27 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
     }
   }, [activeTab]);
   const [isDark, setIsDark] = useState(true); // Default to dark for better gradient look
+  const [customColors, setCustomColors] = useState(() => {
+    const saved = localStorage.getItem("vplay_custom_colors");
+    return saved ? JSON.parse(saved) : {
+      primary: "#a855f7", // purple-500
+      sidebar: "#1a0121",
+      background: "#0a0118",
+      topbar: "#0a0118"
+    };
+  });
+
+  useEffect(() => {
+    localStorage.setItem("vplay_custom_colors", JSON.stringify(customColors));
+    // Apply colors to root
+    const root = document.documentElement;
+    root.style.setProperty('--vplay-primary', customColors.primary);
+    root.style.setProperty('--vplay-sidebar', customColors.sidebar);
+    root.style.setProperty('--vplay-background', customColors.background);
+    root.style.setProperty('--vplay-topbar', customColors.topbar);
+  }, [customColors]);
+
+  const [showGeoPopup, setShowGeoPopup] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 const [headingBar, setHeadingBar] = useState(() => {
     return localStorage.getItem("vplay_heading_bar") === "true";
@@ -5400,7 +6007,22 @@ const [headingBar, setHeadingBar] = useState(() => {
   const [timeFormat, setTimeFormat] = useState<"24h" | "12h">(() => (localStorage.getItem("vplay_time_format") as "24h" | "12h") || "24h");
   const [clockFormat, setClockFormat] = useState<"hh:mm:ss" | "hh:mm" | "custom">(() => (localStorage.getItem("vplay_clock_format") as any) || "hh:mm:ss");
   const [dateFormat, setDateFormat] = useState<"dd/mm/yyyy" | "dd/mm/yy" | "dd/mm" | "custom">(() => (localStorage.getItem("vplay_date_format") as any) || "dd/mm/yyyy");
+  const [isSearchCompact, setIsSearchCompact] = useState(() => localStorage.getItem("vplay_search_compact") === "true");
   const [showTempInClock, setShowTempInClock] = useState(() => localStorage.getItem("vplay_show_temp") === "true");
+  const [showClock, setShowClock] = useState(() => localStorage.getItem("vplay_show_clock") !== "false");
+  const [showDate, setShowDate] = useState(() => localStorage.getItem("vplay_show_date") !== "false");
+
+  useEffect(() => {
+    localStorage.setItem("vplay_show_clock", showClock.toString());
+  }, [showClock]);
+
+  useEffect(() => {
+    localStorage.setItem("vplay_show_date", showDate.toString());
+  }, [showDate]);
+
+  useEffect(() => {
+    localStorage.setItem("vplay_search_compact", isSearchCompact.toString());
+  }, [isSearchCompact]);
 
   useEffect(() => {
     localStorage.setItem("vplay_temp_unit", tempUnit);
@@ -5536,6 +6158,32 @@ const [headingBar, setHeadingBar] = useState(() => {
       setDevError(true);
       setDevPass("");
     }
+  };
+
+  const handleGeolocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+          const data = await res.json();
+          if (data.city) {
+            setLocation(data.city);
+            onAlert("Vị trí", `Đã cập nhật vị trí tự động: ${data.city}`);
+          }
+        } catch (e) {
+          onAlert("Lỗi", "Không thể xác định tên địa điểm");
+        }
+      }, (error) => {
+        onAlert("Lỗi", "Không thể truy cập vị trí của bạn.");
+      });
+    } else {
+      onAlert("Lỗi", "Trình duyệt không hỗ trợ Geolocation");
+    }
+  };
+
+  const onAlert = (title: string, message: string) => {
+    setCustomAlert({ title, message });
   };
 
   const [isAdmin, setIsAdmin] = useState(false);
@@ -5778,6 +6426,8 @@ const [headingBar, setHeadingBar] = useState(() => {
             currentTime={currentTime}
             weather={weather}
             showTempInClock={showTempInClock}
+            showClock={showClock}
+            showDate={showDate}
             getTempDisplay={getTempDisplay}
             formatTime={formatTime}
             formatDateString={formatDateString}
@@ -5785,6 +6435,9 @@ const [headingBar, setHeadingBar] = useState(() => {
             onLogin={handleLogin}
             onLogout={handleLogout}
             setActiveTab={setActiveTab}
+            handleSearchContextMenu={handleSearchContextMenu}
+            onContextMenu={handleTopBarContextMenu}
+            isSearchCompact={isSearchCompact}
             profileStates={{
               name,
               setName,
@@ -5838,7 +6491,72 @@ const [headingBar, setHeadingBar] = useState(() => {
       </AnimatePresence>
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} isDark={isDark} liquidGlass={liquidGlass} setIsDev={setIsDev} setUserData={setUserData} />
       
-      {/* Developer Settings Choice */}
+      <GeoPopup 
+        isOpen={showGeoPopup} 
+        onClose={() => setShowGeoPopup(false)} 
+        isDark={isDark} 
+        onAutoSelect={handleGeolocation}
+        onManualSelect={(city) => {
+          setLocation(city);
+          onAlert("Vị trí", `Đã cập nhật vị trí: ${city}`);
+        }}
+      />
+      
+      <AnimatePresence>
+        {contextMenu && contextMenu.type === "search" && (
+          <SearchContextMenu 
+            x={contextMenu.x} 
+            y={contextMenu.y} 
+            isDark={isDark} 
+            activeFilter={searchFilter} 
+            onClose={() => setContextMenu(null)} 
+            onSelect={(f) => setSearchFilter(f)} 
+          />
+        )}
+        {contextMenu && contextMenu.type === "sidebar" && (
+          <SidebarContextMenu 
+            x={contextMenu.x} 
+            y={contextMenu.y} 
+            isDark={isDark} 
+            isSidebarRight={isSidebarRight}
+            onClose={() => setContextMenu(null)} 
+            setActiveTab={setActiveTab}
+            setUseSidebar={setUseSidebar}
+            setIsSidebarRight={setIsSidebarRight}
+            setIsDev={setIsDev}
+          />
+        )}
+        {contextMenu && contextMenu.type === "topbar" && (
+          <TopBarContextMenu 
+            x={contextMenu.x} 
+            y={contextMenu.y} 
+            isDark={isDark} 
+            onClose={() => setContextMenu(null)} 
+            setActiveTab={setActiveTab}
+            setHeadingBar={setHeadingBar}
+            headingBar={headingBar}
+            showTempInClock={showTempInClock}
+            setShowTempInClock={setShowTempInClock}
+            showClock={showClock}
+            setShowClock={setShowClock}
+            showDate={showDate}
+            setShowDate={setShowDate}
+            setIsDev={setIsDev}
+          />
+        )}
+        {contextMenu && (contextMenu.type as any) === "navbar" && (
+          <NavigationContextMenu 
+            x={contextMenu.x} 
+            y={contextMenu.y} 
+            isDark={isDark} 
+            onClose={() => setContextMenu(null)} 
+            liquidGlass={liquidGlass}
+            setLiquidGlass={setLiquidGlass}
+            setIsDev={setIsDev}
+          />
+        )}
+      </AnimatePresence>
+
       <LiquidModal
         isOpen={showDevSettings}
         onClose={() => setShowDevSettings(false)}
@@ -5913,7 +6631,7 @@ const [headingBar, setHeadingBar] = useState(() => {
           <div className="flex flex-col gap-3 pt-2">
             <button 
               type="submit"
-              className="w-full py-4 bg-purple-600 hover:bg-purple-500 text-white rounded-[32px] font-bold transition-all shadow-lg shadow-purple-600/20 active:scale-95"
+              className="w-full py-4 bg-primary hover:opacity-90 text-white rounded-[32px] font-bold transition-all shadow-lg shadow-primary/20 active:scale-95"
             >
               Xác nhận
             </button>
@@ -6002,6 +6720,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   setFeatureFlags={setFeatureFlags}
                   setIsSidebarLocked={setIsSidebarLocked}
                   setSearchQuery={setSearchQuery}
+                  searchFilter={searchFilter}
                 />
               </div>
             </motion.div>
@@ -6014,7 +6733,7 @@ const [headingBar, setHeadingBar] = useState(() => {
           ? (isSidebarRight ? "rounded-tr-[48px]" : "rounded-tl-[48px]") 
           : ""
       } ${
-        isDark ? "bg-[#0a0118]/30" : "bg-white/30"
+        isDark ? "bg-vplay-background/30" : "bg-white/30"
       } backdrop-blur-sm shadow-2xl`}>
         <AnimatePresence>
           {useSidebar && !isMobile && (
@@ -6120,6 +6839,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                   featureFlags={featureFlags}
                   setFeatureFlags={setFeatureFlags}
                   setIsSidebarLocked={setIsSidebarLocked}
+                  handleSearchContextMenu={handleSearchContextMenu}
+                  searchFilter={searchFilter}
                 />
               )}
               {displayTab === "Phát sóng" && (
@@ -6186,7 +6907,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                           user={user}
                           userData={userData}
                           setUserData={setUserData}
-                          onAlert={(title, msg) => setCustomAlert({ title, message: msg })}
+                          onAlert={onAlert}
                           onLogin={handleLogin}
                           onUpdateLogsClick={() => setActiveTab("Update Logs")}
                           onResetOnboarding={handleResetOnboarding}
@@ -6204,10 +6925,21 @@ const [headingBar, setHeadingBar] = useState(() => {
                           setClockFormat={setClockFormat}
                           dateFormat={dateFormat}
                           setDateFormat={setDateFormat}
+                          showClock={showClock}
+                          setShowClock={setShowClock}
+                          showDate={showDate}
+                          setShowDate={setShowDate}
                           showTempInClock={showTempInClock}
                           setShowTempInClock={setShowTempInClock}
                           headingBar={headingBar}
                           setHeadingBar={setHeadingBar}
+                          isSearchCompact={isSearchCompact}
+                          setIsSearchCompact={setIsSearchCompact}
+                          onLogout={handleLogout}
+                          customColors={customColors}
+                          setCustomColors={setCustomColors}
+                          setShowGeoPopup={setShowGeoPopup}
+                          handleGeolocation={handleGeolocation}
                         />
                       ) : (
                         <SettingsContent 
@@ -6250,6 +6982,10 @@ const [headingBar, setHeadingBar] = useState(() => {
                           setClockFormat={setClockFormat}
                           dateFormat={dateFormat}
                           setDateFormat={setDateFormat}
+                          showClock={showClock}
+                          setShowClock={setShowClock}
+                          showDate={showDate}
+                          setShowDate={setShowDate}
                           showTempInClock={showTempInClock}
                           setShowTempInClock={setShowTempInClock}
                           headingBar={headingBar}
@@ -6286,7 +7022,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                 className={`fixed top-6 z-[51] p-3.5 rounded-2xl shadow-2xl transition-all active:scale-95 ${
                   isSidebarRight ? "right-6" : "left-6"
                 } ${
-                  isDark ? "bg-[#1f2937] text-white border border-white/10" : "bg-white text-slate-800 border border-slate-200"
+                  isDark ? "bg-vplay-sidebar text-white border border-white/10" : "bg-white text-slate-800 border border-slate-200"
                 }`}
               >
                 <Menu size={24} />
@@ -6305,6 +7041,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             )}
             
             <motion.div
+              onContextMenu={handleSidebarContextMenu}
               initial={{ x: isSidebarRight ? sidebarWidth : -sidebarWidth }}
               animate={{ 
                 x: 0, 
@@ -6325,7 +7062,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                     ? `top-0 h-full ${headingBar ? "pt-14" : "pt-6"} pb-6 !rounded-b-[32px] ${headingBar ? "!rounded-t-none" : "!rounded-t-[32px]"} shadow-2xl`
                     : `top-0 h-full ${headingBar ? "pt-14" : ""} border-y-0 shadow-2xl`
               } ${
-                isDark ? "bg-[#0a0118]/90 shadow-black/50" : "bg-[#f2f2f7] border-slate-200 shadow-xl"
+                isDark ? "bg-vplay-sidebar/90 shadow-black/50" : "bg-[#f2f2f7] border-slate-200 shadow-xl"
               }`}
             >
               {/* Resize Handle */}
@@ -6579,7 +7316,9 @@ const [headingBar, setHeadingBar] = useState(() => {
         useSidebar 
           ? "bottom-[-100%] opacity-0 pointer-events-none" 
           : "bottom-0 left-0 w-full flex justify-center pb-4 md:pb-8"
-      }`}>
+      }`}
+      onContextMenu={handleNavigationContextMenu}
+      >
         <motion.div 
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
