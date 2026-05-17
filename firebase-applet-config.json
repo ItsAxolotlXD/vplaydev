@@ -1,10 +1,10 @@
 {
-  "projectId": "remixed-project-id",
-  "appId": "remixed-app-id",
-  "apiKey": "remixed-api-key",
-  "authDomain": "remixed-auth-domain",
-  "firestoreDatabaseId": "remixed-firestore-database-id",
-  "storageBucket": "remixed-storage-bucket",
-  "messagingSenderId": "remixed-messaging-sender-id",
-  "measurementId": "remixed-measurement-id"
+  "projectId": "astute-vehicle-507pf",
+  "appId": "1:878306611302:web:edaf34a280f41867e35da7",
+  "apiKey": "AIzaSyBKzV6vzDgo92s18KOkIHxtGgMdrd3Vegs",
+  "authDomain": "astute-vehicle-507pf.firebaseapp.com",
+  "firestoreDatabaseId": "ai-studio-0dbb59aa-b23d-4aae-b869-20abe223feaa",
+  "storageBucket": "astute-vehicle-507pf.firebasestorage.app",
+  "messagingSenderId": "878306611302",
+  "measurementId": ""
 }

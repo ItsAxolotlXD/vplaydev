@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode, useMemo } from "react";
 import { 
-  Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer, Check,
+  Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer, Check, Plus, AppWindow, Compass, Trash2, Newspaper,
   Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, FolderOpen, Pizza, Cloud, CreditCard, Gift, HelpCircle, FlaskConical as Flask, GlassWater, Grid, ArrowUp, ArrowDown, ArrowRightLeft
 } from "lucide-react";
 import Hls from "hls.js";
@@ -25,6 +25,7 @@ const ExperimentalIcon = ({ className, size, strokeWidth }: { className?: string
 const LikeIcon = ({ className, size, filled, strokeWidth }: { className?: string, size?: number | string, filled?: boolean, strokeWidth?: number }) => <Heart className={className} size={size || 20} fill={filled ? "currentColor" : "none"} strokeWidth={strokeWidth || 1.5} />;
 const CommunityIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Users className={className} size={size || 20} strokeWidth={strokeWidth || 1.5} />;
 const AccountIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <User className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
+const WidgetsIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <LayoutGrid className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 const MicIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Mic className={className} size={size || 20} strokeWidth={strokeWidth || 1.5} />;
 const SearchIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Search className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 const FolderIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <FolderOpen className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
@@ -34,6 +35,11 @@ const FolderIcon = ({ className, size, strokeWidth }: { className?: string, size
 // Test connection removed
 
 const EXPERIMENTS = [
+  {
+    id: "widgets_dashboard",
+    name: "Widgets Dashboard",
+    desc: "Enables brand-new widgets dashboard"
+  },
   {
     id: "multiview_channels",
     name: "Multi-view",
@@ -193,6 +199,7 @@ const AdminIcon = ({ className, size, strokeWidth }: { className?: string, size?
 
 const baseTabs = [
   { name: "Trang chủ", icon: HomeIcon, id: "Trang chủ" },
+  { name: "Widgets", icon: WidgetsIcon, id: "Widgets" },
   { name: "Khám phá", icon: SearchIcon, id: "Khám phá" },
   { name: "Phát sóng", icon: TvIcon, id: "Phát sóng" },
   { name: "Lưu trữ", icon: FolderIcon, id: "Lưu trữ" },
@@ -2780,7 +2787,7 @@ function ExperimentalContent({ isDark, featureFlags, setFeatureFlags, liquidGlas
   );
 }
 
-function RejuvenatedSettingsItem({ icon: Icon, title, description, onClick, isDark, isToggled, isToggleable }: { icon: any, title: string, description?: string, onClick: () => void, isDark: boolean, isToggled?: boolean, isToggleable?: boolean }) {
+function RejuvenatedSettingsItem({ icon: Icon, title, description, onClick, isDark, isToggled, isToggleable }: { icon: any, title: string, description?: string, onClick: () => void, isDark: boolean, isToggled?: boolean, isToggleable?: boolean, key?: string }) {
   return (
     <button 
       onClick={onClick}
@@ -2834,7 +2841,7 @@ function RejuvenatedSettings(props: any) {
     { id: "Profile", name: "Quản lý hồ sơ", icon: User, keywords: ["tên", "email", "avatar", "đăng xuất", "hồ sơ", "vip"] },
     { id: "Appearance", name: "Chủ đề giao diện", icon: Palette, keywords: ["tối", "sáng", "màu", "sidebar", "navbar", "kính", "touch", "desktop", "chủ đạo", "nền"] },
     { id: "TopBar", name: "Thanh tiêu đề", icon: Monitor, keywords: ["đồng hồ", "lịch", "thời tiết", "nhiệt độ", "giờ", "định vị", "clock", "weather"] },
-    { id: "Experiments", name: "Tính năng thử nghiệm", icon: Pizza, keywords: ["multiview", "quay màn hình", "pip", "thử nghiệm"] },
+    { id: "Experiments", name: "Tính năng thử nghiệm", icon: Pizza, keywords: ["multiview", "quay màn hình", "pip", "thử nghiệm", "widgets", "dashboard", "widget"] },
   ];
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -3219,33 +3226,18 @@ function RejuvenatedSettings(props: any) {
       case "Experiments":
         return (
           <div className="space-y-4">
-            <RejuvenatedSettingsItem 
-              icon={Grid} 
-              title="Multiview" 
-              description={featureFlags.multiview ? "Đang bật" : "Đang tắt"}
-              onClick={() => setFeatureFlags((prev: any) => ({ ...prev, multiview: !prev.multiview }))}
-              isDark={isDark}
-              isToggleable={true}
-              isToggled={featureFlags.multiview}
-            />
-            <RejuvenatedSettingsItem 
-              icon={Camera} 
-              title="Screen Recording" 
-              description={featureFlags.screen_recording ? "Đang bật" : "Đang tắt"}
-              onClick={() => setFeatureFlags((prev: any) => ({ ...prev, screen_recording: !prev.screen_recording }))}
-              isDark={isDark}
-              isToggleable={true}
-              isToggled={featureFlags.screen_recording}
-            />
-            <RejuvenatedSettingsItem 
-              icon={Maximize2} 
-              title="Picture in Picture" 
-              description={featureFlags.pip ? "Đang bật" : "Đang tắt"}
-              onClick={() => setFeatureFlags((prev: any) => ({ ...prev, pip: !prev.pip }))}
-              isDark={isDark}
-              isToggleable={true}
-              isToggled={featureFlags.pip}
-            />
+            {EXPERIMENTS.map((exp) => (
+              <RejuvenatedSettingsItem 
+                key={exp.id}
+                icon={Grid} 
+                title={exp.name} 
+                description={exp.desc}
+                onClick={() => setFeatureFlags((prev: any) => ({ ...prev, [exp.id]: !prev[exp.id] }))}
+                isDark={isDark}
+                isToggleable={true}
+                isToggled={!!featureFlags[exp.id]}
+              />
+            ))}
           </div>
         );
       default:
@@ -4682,7 +4674,13 @@ function OnboardingWizard({
     liquidGlass: "glassy",
     isSidebarRight: false,
     isPinningEnabled: false,
-    featureFlags: { multiview_channels: false, disable_animation: false }
+    featureFlags: { 
+      widgets_dashboard: false, 
+      multiview_channels: false, 
+      disable_animation: false, 
+      screen_recording: false,
+      PiP_experimental: false 
+    }
   });
   const [showSkipPrompt, setShowSkipPrompt] = useState(false);
   const [skipPass, setSkipPass] = useState("");
@@ -5406,10 +5404,10 @@ function NavigationContextMenu({ x, y, onClose, isDark, liquidGlass, setLiquidGl
     <>
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        initial={{ opacity: 0, y: 40, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 120, scale: 0.85 }}
-        transition={{ type: "spring", damping: 20, stiffness: 150 }}
+        exit={{ opacity: 0, y: 150, scale: 0.85 }}
+        transition={{ type: "spring", damping: 18, stiffness: 120 }}
         style={{ left: x, top: y }}
         className={`fixed z-[1001] w-64 rounded-2xl shadow-2xl border p-1 overflow-hidden ${
           isDark ? "bg-[#050110]/95 border-white/10 text-white" : "bg-white border-slate-200 text-slate-800 shadow-xl"
@@ -5444,89 +5442,624 @@ function NavigationContextMenu({ x, y, onClose, isDark, liquidGlass, setLiquidGl
   );
 }
 
-function GeoPopup({ isOpen, onClose, onAutoSelect, onManualSelect, isDark }: { isOpen: boolean, onClose: () => void, onAutoSelect: () => void, onManualSelect: (city: string) => void, isDark: boolean }) {
-  const [cityInput, setCityInput] = useState("");
-  const [showInput, setShowInput] = useState(false);
-  
+function WidgetContainer({ 
+  id,
+  children, 
+  isDark, 
+  onRemove, 
+  onContextMenu,
+  isLocked
+}: { 
+  id: string,
+  children: React.ReactNode, 
+  isDark: boolean, 
+  onRemove?: () => void,
+  onContextMenu: (e: React.MouseEvent, id: string) => void,
+  isLocked?: boolean,
+  key?: React.Key
+}) {
   return (
-    <LiquidModal
-      isOpen={isOpen}
-      onClose={onClose}
-      isDark={isDark}
-      title="Bật tự động định vị"
-      description="Tự động định vị cho phép Vplay sử dụng API của trình duyệt để hiển thị chính xác thời tiết hiện tại. Bạn có muốn bật tính năng tự động định vị không?"
-      liquidGlass="glassy"
+    <motion.div 
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      onContextMenu={(e) => onContextMenu(e, id)}
+      className={`p-5 rounded-[28px] border group transition-all relative ${
+        isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-100 shadow-sm"
+      }`}
     >
-      <div className="w-full space-y-4">
-        {!showInput ? (
-          <>
-            <button 
-              onClick={() => { onAutoSelect(); onClose(); }}
-              className="w-full py-4 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
-            >
-              <Zap size={22} fill="currentColor" />
-              Bật tự động định vị
-            </button>
-            <button 
-              onClick={() => setShowInput(true)}
-              className={`w-full py-4 font-bold rounded-2xl transition-all border ${
-                isDark ? "bg-white/5 border-white/10 hover:bg-white/10 text-white" : "bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-800"
-              } flex items-center justify-center gap-3`}
-            >
-              <Navigation size={22} />
-              Nhập vị trí của bạn
-            </button>
-          </>
-        ) : (
-          <div className="space-y-4 w-full">
-            <div className="relative">
-              <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
-              <input 
-                type="text"
-                value={cityInput}
-                autoFocus
-                onChange={(e) => setCityInput(e.target.value)}
-                className={`w-full h-14 pl-14 pr-6 rounded-[24px] border-2 transition-all outline-none font-medium text-lg ${
-                  isDark ? "bg-white/5 border-white/10 focus:border-primary text-white" : "bg-slate-50 border-slate-200 focus:border-primary text-slate-800"
-                }`}
-                placeholder="Nhập tên thành phố..."
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && cityInput) {
-                    onManualSelect(cityInput);
-                    onClose();
-                  }
-                }}
-              />
+      {onRemove && !isLocked && (
+        <button onClick={onRemove} className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-xl hover:bg-red-500/10 text-red-400">
+          <X size={14} />
+        </button>
+      )}
+      {isLocked && (
+        <div className="absolute top-4 right-4 text-slate-300">
+          <Lock size={12} />
+        </div>
+      )}
+      {children}
+    </motion.div>
+  );
+}
+
+function WidgetsDashboard({ 
+  isOpen, 
+  onClose, 
+  isDark,
+  weather,
+  getTempDisplay,
+  currentTime,
+  formatTime,
+  formatDateString,
+  activeChannel,
+  setActiveChannel,
+  setActiveTab,
+  user,
+  userData,
+  featureFlags,
+  setFeatureFlags,
+  loadingTreatment,
+  setLoadingTreatment,
+  isDev,
+  setIsDev,
+  liquidGlass,
+  onOpenUserMenu
+}: {
+  isOpen: boolean,
+  onClose: () => void, 
+  isDark: boolean,
+  weather: any,
+  getTempDisplay: () => string,
+  currentTime: Date,
+  formatTime: (d: Date) => string,
+  formatDateString: (d: Date) => string,
+  activeChannel: any,
+  setActiveChannel: (c: any) => void,
+  setActiveTab: (t: string) => void,
+  user?: any,
+  userData?: any,
+  featureFlags?: any,
+  setFeatureFlags?: (f: any) => void,
+  loadingTreatment?: string,
+  setLoadingTreatment?: (t: string) => void,
+  isDev?: boolean,
+  setIsDev?: (v: boolean) => void,
+  liquidGlass?: "glassy" | "tinted",
+  onOpenUserMenu?: () => void
+}) {
+  const [pinnedWidgets, setPinnedWidgets] = useState<string[]>(() => {
+    const saved = localStorage.getItem("vplay_pinned_widgets");
+    return saved ? JSON.parse(saved) : ["clock", "market", "weather", "search"];
+  });
+  const [lockedWidgets, setLockedWidgets] = useState<string[]>(() => {
+    const saved = localStorage.getItem("vplay_locked_widgets");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ x: number, y: number, id: string } | null>(null);
+  const [activeDashboardTab, setActiveDashboardTab] = useState<"widgets" | "changelogs" | "labs">("widgets");
+  const [widgetSearchQuery, setWidgetSearchQuery] = useState("");
+
+  useEffect(() => {
+    localStorage.setItem("vplay_pinned_widgets", JSON.stringify(pinnedWidgets));
+  }, [pinnedWidgets]);
+
+  useEffect(() => {
+    localStorage.setItem("vplay_locked_widgets", JSON.stringify(lockedWidgets));
+  }, [lockedWidgets]);
+
+  const allWidgets = [
+    { id: "clock", name: "Đồng hồ", icon: Clock },
+    { id: "market", name: "Thị trường", icon: TrendingUp },
+    { id: "calendar", name: "Lịch", icon: Calendar },
+    { id: "weather", name: "Thời tiết", icon: Cloud },
+    { id: "quick_settings", name: "Quick Settings", icon: Sliders },
+    { id: "search", name: "Tìm kiếm", icon: Search },
+    { id: "version", name: "Phiên bản Vplay", icon: Info },
+    { id: "channels", name: "Kênh truyền hình", icon: Tv },
+  ];
+
+  const removeWidget = (id: string) => {
+    if (lockedWidgets.includes(id)) return;
+    setPinnedWidgets(prev => prev.filter(w => w !== id));
+  };
+
+  const addWidget = (id: string) => {
+    if (!pinnedWidgets.includes(id)) {
+      setPinnedWidgets(prev => [...prev, id]);
+    }
+  };
+
+  const handleContextMenu = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, id });
+  };
+
+  const toggleLock = (id: string) => {
+    setLockedWidgets(prev => 
+      prev.includes(id) ? prev.filter(w => w !== id) : [...prev, id]
+    );
+    setContextMenu(null);
+  };
+
+  const moveWidget = (id: string, direction: 'up' | 'down') => {
+    if (lockedWidgets.includes(id)) return;
+    const index = pinnedWidgets.indexOf(id);
+    if (index === -1) return;
+    
+    const newArr = [...pinnedWidgets];
+    if (direction === 'up' && index > 0) {
+      [newArr[index], newArr[index - 1]] = [newArr[index - 1], newArr[index]];
+    } else if (direction === 'down' && index < newArr.length - 1) {
+      [newArr[index], newArr[index + 1]] = [newArr[index + 1], newArr[index]];
+    }
+    setPinnedWidgets(newArr);
+    setContextMenu(null);
+  };
+
+  const getGreeting = () => {
+    const hour = currentTime.getHours();
+    if (hour >= 5 && hour < 10) return "Chào buổi sáng!";
+    if (hour >= 10 && hour < 13) return "Chào buổi trưa!";
+    if (hour >= 13 && hour < 17) return "Chào buổi chiều!";
+    if (hour >= 17 && hour < 23) return "Chào buổi tối!";
+    return "Chào buổi đêm!";
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 z-[190] bg-black/10"
+          />
+          <motion.div
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className={`fixed left-4 top-4 bottom-4 z-[1000] w-full max-w-sm md:max-w-2xl lg:max-w-3xl shadow-2xl overflow-hidden flex flex-row rounded-2xl border border-white/20 bg-[#f8fafc] text-slate-900`}
+            onClick={() => setContextMenu(null)}
+          >
+             {/* Sidebar */}
+             <div className="w-16 md:w-20 bg-[#f0f2f5] border-r border-slate-200/50 flex flex-col items-center py-8 gap-4 shrink-0 relative">
+                <div className="flex flex-col items-center gap-4 w-full">
+                  <button 
+                    onClick={() => setActiveDashboardTab("widgets")}
+                    className={`relative p-2.5 rounded-xl transition-all ${activeDashboardTab === "widgets" ? "bg-white shadow-xl text-blue-600 scale-110" : "text-slate-400 hover:bg-white/50"}`}
+                  >
+                    <LayoutPanelLeft size={22} />
+                    {activeDashboardTab === "widgets" && (
+                      <motion.div layoutId="active-indicator" className="absolute left-[-16px] md:left-[-20px] w-1.5 h-8 bg-blue-600 rounded-r-full" />
+                    )}
+                  </button>
+                  <button 
+                    onClick={() => setActiveDashboardTab("changelogs")}
+                    className={`relative p-2.5 rounded-xl transition-all ${activeDashboardTab === "changelogs" ? "bg-white shadow-xl text-blue-600 scale-110" : "text-slate-400 hover:bg-white/50"}`}
+                  >
+                    <Newspaper size={22} />
+                    {activeDashboardTab === "changelogs" && (
+                      <motion.div layoutId="active-indicator" className="absolute left-[-16px] md:left-[-20px] w-1.5 h-8 bg-blue-600 rounded-r-full" />
+                    )}
+                  </button>
+                  <button 
+                    onClick={() => setActiveDashboardTab("labs")}
+                    className={`relative p-2.5 rounded-xl transition-all ${activeDashboardTab === "labs" ? "bg-white shadow-xl text-blue-600 scale-110" : "text-slate-400 hover:bg-white/50"}`}
+                  >
+                    <Pizza size={22} />
+                    {activeDashboardTab === "labs" && (
+                      <motion.div layoutId="active-indicator" className="absolute left-[-16px] md:left-[-20px] w-1.5 h-8 bg-blue-600 rounded-r-full" />
+                    )}
+                  </button>
+                </div>
+
+                <div className="mt-auto flex flex-col items-center gap-4 w-full pb-2">
+                  <button onClick={() => { setActiveTab("Cài đặt"); onClose(); }} className="p-2.5 rounded-xl hover:bg-white/50 text-slate-400 transition-colors cursor-pointer">
+                    <Settings size={22} />
+                  </button>
+                  <button 
+                    onClick={() => {
+                        onOpenUserMenu?.();
+                        onClose();
+                    }}
+                    className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-black text-sm shadow-lg shadow-blue-600/30 cursor-pointer hover:scale-105 transition-transform overflow-hidden border-2 border-white"
+                  >
+                    {user?.photoURL ? (
+                        <img src={user.photoURL} className="w-full h-full object-cover" referrerPolicy="no-referrer" alt="User" />
+                    ) : (
+                        "v"
+                    )}
+                  </button>
+                </div>
+             </div>
+
+             {/* Main Area */}
+             <div className="flex-1 flex flex-col h-full overflow-hidden bg-white/40 backdrop-blur-md">
+                {activeDashboardTab === "widgets" && (
+                  <>
+                    {/* Header */}
+                    <div className="p-8 pb-4 flex items-center justify-between">
+                      <div>
+                        <h2 className="text-2xl font-bold tracking-tight text-slate-800">{getGreeting()}</h2>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={() => setIsPickerOpen(true)}
+                          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full font-bold text-[10px] shadow-lg shadow-blue-600/20 hover:scale-[1.02] active:scale-95 transition-all"
+                        >
+                          <Pin size={12} className="rotate-45" />
+                          Pin widgets
+                        </button>
+                        <div className="flex items-center gap-1">
+                          <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 text-slate-400 transition-colors">
+                            <X size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Content Area */}
+                    <div className="flex-1 overflow-y-auto px-8 py-2 custom-scrollbar space-y-6 relative">
+                      {/* Search Bar matching Top Bar styles */}
+                      <div className="relative group">
+                         <div className={`group flex items-center gap-2.5 h-10 w-full transition-all relative rounded-xl bg-black/2 hover:bg-black/5 focus-within:bg-black/[0.08] focus-within:ring-2 ring-blue-500/10 border-b-2 border-black/5 focus-within:border-blue-500 transition-all duration-300`}>
+                            <Search size={16} className="ml-3 text-slate-400 group-focus-within:text-blue-500" />
+                            <input 
+                              type="text" 
+                              value={widgetSearchQuery}
+                              onChange={(e) => setWidgetSearchQuery(e.target.value)}
+                              placeholder="Find and explore on Vplay" 
+                              className="bg-transparent border-none outline-none w-full font-google font-bold text-slate-900 placeholder-slate-400 text-xs"
+                            />
+                            {widgetSearchQuery && (
+                              <button onClick={() => setWidgetSearchQuery("")} className="p-1.5 hover:bg-black/10 rounded-full mr-2 transition-all">
+                                <X size={14} className="text-slate-400" />
+                              </button>
+                            )}
+                         </div>
+                      </div>
+
+                      {pinnedWidgets.filter(w => w !== "search").length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+                           <div className="w-16 h-16 rounded-[24px] bg-slate-50 flex items-center justify-center text-slate-200 border border-slate-100">
+                              <LayoutGrid size={32} />
+                           </div>
+                           <div>
+                              <h3 className="text-base font-bold text-slate-900 mb-1">Chưa có tiện ích nào ở đây</h3>
+                              <p className="text-[10px] text-slate-400 max-w-[180px] mx-auto">Bấm "Pin widgets" để thêm tiện ích</p>
+                           </div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 auto-rows-min pb-20">
+                          {pinnedWidgets.map(widgetId => {
+                            if (widgetId === "search") return null;
+                            const isLocked = lockedWidgets.includes(widgetId);
+                            
+                            if (widgetId === "clock") {
+                              return (
+                                <WidgetContainer key={widgetId} id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked}>
+                                  <div className="flex items-start gap-4 mb-3">
+                                     <div className="w-9 h-9 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center">
+                                        <Clock size={18} />
+                                     </div>
+                                     <div>
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">System</p>
+                                        <p className="text-[10px] font-bold text-slate-800 leading-tight">{new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).format(currentTime)}</p>
+                                     </div>
+                                  </div>
+                                  <div className="text-4xl font-bold tracking-tighter text-slate-900">{formatTime(currentTime)}</div>
+                                  <p className="text-[9px] font-bold text-blue-500 uppercase tracking-widest mt-2">CORE KERNEL ACTIVATED</p>
+                                </WidgetContainer>
+                              );
+                            }
+                            if (widgetId === "market") {
+                              return (
+                                <WidgetContainer key={widgetId} id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked}>
+                                   <div className="flex items-start gap-4 mb-3">
+                                     <div className="w-9 h-9 rounded-2xl bg-green-50 text-emerald-500 flex items-center justify-center">
+                                        <TrendingUp size={18} />
+                                     </div>
+                                     <div>
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Reference</p>
+                                        <p className="text-[10px] font-bold text-slate-800 leading-tight">Local Market</p>
+                                     </div>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-3">
+                                     <div className="p-2.5 rounded-2xl bg-emerald-50/50 border border-emerald-100">
+                                        <p className="text-[8px] font-bold text-emerald-600 uppercase tracking-wider mb-0.5">VN-INDEX</p>
+                                        <p className="text-lg font-bold text-emerald-700 tracking-tight">+12.4</p>
+                                     </div>
+                                     <div className="p-2.5 rounded-2xl bg-emerald-50/50 border border-emerald-100">
+                                        <p className="text-[8px] font-bold text-emerald-600 uppercase tracking-wider mb-0.5">VPLAY_INC</p>
+                                        <p className="text-lg font-bold text-emerald-700 tracking-tight">+1.1m</p>
+                                     </div>
+                                  </div>
+                                </WidgetContainer>
+                              );
+                            }
+                            if (widgetId === "calendar") {
+                              return (
+                                <WidgetContainer key={widgetId} id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked}>
+                                  <div className="flex items-center gap-4 py-1">
+                                    <div className="w-12 h-12 rounded-2xl bg-red-500 text-white flex flex-col items-center justify-center overflow-hidden shadow-lg shadow-red-500/10">
+                                      <div className="bg-red-600/50 w-full text-[8px] font-bold text-center py-0.5 uppercase">{new Intl.DateTimeFormat('en-US', { month: 'short' }).format(currentTime)}</div>
+                                      <div className="text-xl font-bold pb-0.5">{currentTime.getDate()}</div>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-bold text-slate-900 leading-none">{new Intl.DateTimeFormat('vi-VN', { weekday: 'long' }).format(currentTime)}</p>
+                                      <p className="text-[10px] text-slate-400 font-medium mt-1">Không có sự kiện</p>
+                                    </div>
+                                  </div>
+                                </WidgetContainer>
+                              );
+                            }
+                            if (widgetId === "weather") {
+                              return (
+                                <WidgetContainer key={widgetId} id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked}>
+                                   <div className="flex items-start gap-4 mb-3">
+                                     <div className="w-9 h-9 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center">
+                                        <Cloud size={18} />
+                                     </div>
+                                     <div>
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Environment</p>
+                                        <p className="text-[10px] font-bold text-slate-800 leading-tight">Current Location</p>
+                                     </div>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <div className="text-4xl font-bold tracking-tighter text-slate-900">{getTempDisplay()}</div>
+                                    <div className="w-11 h-11 rounded-full bg-yellow-400 text-white flex items-center justify-center shadow-lg shadow-yellow-400/20">
+                                      <Sun size={24} />
+                                    </div>
+                                  </div>
+                                  <p className="text-[9px] font-bold text-orange-500 uppercase tracking-widest mt-2">{weather?.status || "SUNNY"}</p>
+                                </WidgetContainer>
+                              );
+                            }
+                            if (widgetId === "quick_settings") {
+                              return (
+                                <WidgetContainer key={widgetId} id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked}>
+                                  <div className="grid grid-cols-2 gap-2.5 py-0.5">
+                                     <div className="p-3 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm cursor-pointer border border-slate-100">
+                                        <Volume2 size={18} />
+                                     </div>
+                                     <div className="p-3 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm cursor-pointer border border-slate-100">
+                                        <Maximize size={18} />
+                                     </div>
+                                     <div className="p-3 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm cursor-pointer border border-slate-100">
+                                        <Activity size={18} />
+                                     </div>
+                                     <div className="p-3 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm cursor-pointer border border-slate-100">
+                                        <Zap size={18} />
+                                     </div>
+                                  </div>
+                                </WidgetContainer>
+                              );
+                            }
+                            if (widgetId === "version") {
+                              return (
+                                <WidgetContainer key={widgetId} id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked}>
+                                   <div className="flex items-start gap-4 mb-3">
+                                     <div className="w-9 h-9 rounded-2xl bg-purple-50 text-purple-500 flex items-center justify-center">
+                                        <Info size={18} />
+                                     </div>
+                                     <div>
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Phiên bản</p>
+                                        <p className="text-[10px] font-bold text-slate-800 leading-tight">Vplay Build Metadata</p>
+                                     </div>
+                                  </div>
+                                  <div className="text-2xl font-bold tracking-tight text-slate-900 mb-0.5">Build 26606</div>
+                                  <div className="flex flex-wrap gap-2 mt-2">
+                                    <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-600 text-[8px] font-bold uppercase tracking-wider">Dev Branch</span>
+                                    <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[8px] font-bold uppercase tracking-wider">Stable</span>
+                                  </div>
+                                </WidgetContainer>
+                              );
+                            }
+                            if (widgetId === "channels") {
+                              return (
+                                <WidgetContainer key={widgetId} id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked}>
+                                  <div className="space-y-2.5 py-0.5">
+                                    {channels.slice(0, 3).map(ch => (
+                                      <button 
+                                        key={ch.name} 
+                                        onClick={() => { setActiveChannel(ch); setActiveTab("Phát sóng"); onClose(); }}
+                                        className="w-full flex items-center gap-3 p-2.5 rounded-2xl hover:bg-slate-50 transition-all text-left border border-transparent hover:border-slate-100 shadow-sm bg-white"
+                                      >
+                                        <div className="w-8 h-8 rounded-xl bg-slate-50 p-1.5 flex items-center justify-center">
+                                          <img src={ch.logo} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                                        </div>
+                                        <div>
+                                          <span className="text-[10px] font-bold text-slate-800 block truncate max-w-[80px]">{ch.name}</span>
+                                          <span className="text-[8px] text-slate-400 font-medium">Live</span>
+                                        </div>
+                                      </button>
+                                    ))}
+                                  </div>
+                                </WidgetContainer>
+                              );
+                            }
+                            return null;
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                {activeDashboardTab === "changelogs" && (
+                  <div className="flex-1 flex flex-col overflow-hidden">
+                    <div className="p-8 pb-4 flex items-center justify-between border-b border-black/5">
+                      <h2 className="text-2xl font-bold tracking-tight text-slate-800">Update Logs</h2>
+                      <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 text-slate-400 transition-colors">
+                        <X size={16} />
+                      </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto px-8 py-6 custom-scrollbar">
+                      <UpdateLogsContent isDark={false} onBack={() => setActiveDashboardTab("widgets")} loadingTreatment={loadingTreatment || "shimmer"} />
+                    </div>
+                  </div>
+                )}
+
+                {activeDashboardTab === "labs" && (
+                  <div className="flex-1 flex flex-col overflow-hidden">
+                    <div className="p-8 pb-4 flex items-center justify-between border-b border-black/5">
+                      <h2 className="text-2xl font-bold tracking-tight text-slate-800">Experimental Content</h2>
+                      <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 text-slate-400 transition-colors">
+                        <X size={16} />
+                      </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto px-8 py-6 custom-scrollbar">
+                      <ExperimentalContent 
+                        isDark={false} 
+                        featureFlags={featureFlags} 
+                        setFeatureFlags={setFeatureFlags || (() => {})} 
+                        liquidGlass={liquidGlass || "glassy"} 
+                        loadingTreatment={loadingTreatment || "shimmer"}
+                        setLoadingTreatment={setLoadingTreatment || (() => {})}
+                      />
+                    </div>
+                  </div>
+                )}
+             </div>
+
+             {/* Context Menu */}
+             <AnimatePresence>
+                {contextMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="fixed z-[300] w-48 bg-white border border-slate-100 shadow-2xl rounded-2xl p-2 flex flex-col gap-0.5"
+                    style={{ left: contextMenu.x, top: contextMenu.y }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button onClick={() => moveWidget(contextMenu.id, 'up')} className="w-full px-3 py-2 flex items-center gap-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
+                       <ArrowUp size={14} /> Move up
+                    </button>
+                    <button onClick={() => moveWidget(contextMenu.id, 'down')} className="w-full px-3 py-2 flex items-center gap-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
+                       <ArrowDown size={14} /> Move down
+                    </button>
+                    <div className="h-[1px] bg-slate-100 my-1 mx-2" />
+                    <button onClick={() => toggleLock(contextMenu.id)} className="w-full px-3 py-2 flex items-center gap-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
+                       {lockedWidgets.includes(contextMenu.id) ? <Unlock size={14} /> : <Lock size={14} />} 
+                       {lockedWidgets.includes(contextMenu.id) ? "Unlock" : "Lock"}
+                    </button>
+                    <button onClick={() => { removeWidget(contextMenu.id); setContextMenu(null); }} className="w-full px-3 py-2 flex items-center gap-3 text-[11px] font-bold text-red-500 hover:bg-red-50 rounded-xl transition-colors">
+                       <Trash2 size={14} /> Remove
+                    </button>
+                  </motion.div>
+                )}
+             </AnimatePresence>
+
+             {/* Internal Widget Picker Overlay */}
+             <AnimatePresence>
+                {isPickerOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                    className="absolute inset-0 z-50 bg-[#f5f7f9] p-8 overflow-y-auto custom-scrollbar"
+                  >
+                    <div className="flex items-center justify-between mb-8">
+                       <h3 className="text-xl font-bold tracking-tight text-slate-900">Widget Picker</h3>
+                       <button onClick={() => setIsPickerOpen(false)} className="p-2 rounded-xl hover:bg-slate-200 text-slate-500">
+                          <X size={18} />
+                       </button>
+                    </div>
+                    
+                    <div className="space-y-2.5">
+                      {allWidgets.map(widget => {
+                        const isPinned = pinnedWidgets.includes(widget.id);
+                        const Icon = widget.icon;
+                        return (
+                          <button
+                            key={widget.id}
+                            onClick={() => {
+                              if (isPinned) removeWidget(widget.id);
+                              else addWidget(widget.id);
+                            }}
+                            className={`w-full flex items-center justify-between p-3.5 rounded-[20px] border transition-all ${
+                              isPinned ? "bg-primary/5 border-primary/20 shadow-sm" : "bg-white border-slate-100 hover:border-slate-200"
+                            }`}
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className={`w-9 h-9 rounded-[14px] flex items-center justify-center ${isPinned ? "bg-primary text-white" : "bg-slate-50 text-slate-400"}`}>
+                                <Icon size={18} />
+                              </div>
+                              <span className={`text-xs font-bold ${isPinned ? "text-primary" : "text-slate-600"}`}>{widget.name}</span>
+                            </div>
+                            {isPinned ? (
+                              <CheckCircle2 size={18} className="text-primary" />
+                            ) : (
+                              <Plus size={18} className="text-slate-300" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function GeoPopup({ isOpen, onClose, isDark, onAutoSelect, onManualSelect }: {
+  isOpen: boolean;
+  onClose: () => void;
+  isDark: boolean;
+  onAutoSelect: () => void;
+  onManualSelect: (city: string) => void;
+}) {
+  const cities = ["Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "Nha Trang", "Huế", "Đà Lạt", "Vũng Tàu", "Bình Dương"];
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className={`relative w-full max-w-md rounded-[32px] p-8 shadow-2xl ${isDark ? "bg-[#1A0121] text-white border border-white/10" : "bg-white text-slate-800"}`}>
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-2xl font-bold tracking-tight">Chọn vị trí</h3>
+              <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 transition-colors"><X size={20} /></button>
             </div>
-            <div className="flex gap-4">
-              <button 
-                onClick={() => setShowInput(false)}
-                className={`flex-1 py-4 font-bold rounded-[24px] transition-all ${isDark ? "hover:bg-white/5 text-white/50" : "hover:bg-slate-100 text-slate-600"}`}
-              >
-                Quay lại
-              </button>
-              <button 
-                onClick={() => {
-                  if (cityInput) {
-                    onManualSelect(cityInput);
-                    onClose();
-                  }
-                }}
-                className="flex-[2] py-4 bg-primary text-white font-bold rounded-[24px] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
-              >
-                Lưu vị trí
-              </button>
+            
+            <button onClick={() => { onAutoSelect(); onClose(); }} className={`w-full flex items-center gap-4 p-5 rounded-2xl mb-8 transition-all active:scale-95 ${isDark ? "bg-purple-500/20 text-purple-400 hover:bg-purple-500/30" : "bg-purple-50 text-purple-600 hover:bg-purple-100"}`}>
+              <div className={`p-3 rounded-xl ${isDark ? "bg-purple-500/20" : "bg-purple-500 text-white"}`}>
+                <Navigation size={22} />
+              </div>
+              <div className="text-left leading-tight">
+                <p className="font-bold text-sm">Tự động định vị</p>
+                <p className="text-[10px] opacity-60">Xác định vị trí hiện tại của bạn</p>
+              </div>
+            </button>
+
+            <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mb-3 px-2">Hoặc chọn thủ công</p>
+              {cities.map(city => (
+                <button key={city} onClick={() => { onManualSelect(city); onClose(); }} className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}>
+                  {city}
+                </button>
+              ))}
             </div>
-          </div>
-        )}
-      </div>
-    </LiquidModal>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }
 
 function App() {
   const [searchFilter, setSearchFilter] = useState<"all" | "channels" | "settings" | "experiments">("all");
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, type: "search" | "sidebar" | "topbar" } | null>(null);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const handleSearchContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -5554,6 +6087,7 @@ function App() {
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return localStorage.getItem("vplay_onboarding_completed") !== "true";
   });
+  const [isWidgetsOpen, setIsWidgetsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("Trang chủ");
   const [isSettingsLoading, setIsSettingsLoading] = useState(false);
 
@@ -5663,7 +6197,6 @@ function App() {
     const saved = localStorage.getItem("vplay_sidebar_locked");
     return saved === null ? true : saved === "true";
   });
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [showVersionInfo, setShowVersionInfo] = useState(false);
   const [menuView, setMenuView] = useState<"main" | "profile" | "version" | "feedback">("main");
   const [sidebarDisplay, setSidebarDisplay] = useState<"float" | "attach">(() => {
@@ -5771,7 +6304,22 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
 
   const [featureFlags, setFeatureFlags] = useState<{ [key: string]: boolean }>(() => {
     const saved = localStorage.getItem("vplay_feature_flags");
-    return saved ? JSON.parse(saved) : { multiview_channels: false, disable_animation: false, screen_recording: false };
+    const defaults = { 
+      widgets_dashboard: false, 
+      multiview_channels: false, 
+      disable_animation: false, 
+      screen_recording: false,
+      PiP_experimental: false 
+    };
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return { ...defaults, ...parsed };
+      } catch (e) {
+        return defaults;
+      }
+    }
+    return defaults;
   });
 
   useEffect(() => {
@@ -5808,7 +6356,7 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
     return saved ? JSON.parse(saved) : {
       primary: "#a855f7", // purple-500
       sidebar: "#1a0121",
-      background: "#0a0118",
+      background: "#121212",
       topbar: "#0a0118"
     };
   });
@@ -6015,6 +6563,7 @@ const [headingBar, setHeadingBar] = useState(() => {
     { id: "Appearance", name: "Cài đặt Sidebar", category: "Giao diện" },
     { id: "TopBar", name: "Đồng hồ và Lịch", category: "Thanh tiêu đề" },
     { id: "TopBar", name: "Thời tiết", category: "Thanh tiêu đề" },
+    { id: "Experiments", name: "Widgets Dashboard", category: "Tính năng thử nghiệm" },
     { id: "Experiments", name: "Multiview", category: "Tính năng thử nghiệm" },
     { id: "Experiments", name: "Screen Recording", category: "Tính năng thử nghiệm" },
     { id: "Experiments", name: "Picture in Picture", category: "Tính năng thử nghiệm" },
@@ -6170,10 +6719,10 @@ const [headingBar, setHeadingBar] = useState(() => {
       if (currentUser) {
         try {
           const userRef = doc(db, "users", currentUser.uid);
-          const userSnap = await getDoc(userRef);
+          const userSnap = await getDoc(userRef).catch(e => handleFirestoreError(e, OperationType.GET, `users/${currentUser.uid}`));
           
           let role = "user";
-          if (userSnap.exists()) {
+          if (userSnap && userSnap.exists()) {
             role = userSnap.data().role;
             setUserData(userSnap.data());
           } else if (currentUser.uid === "special_guest_uid") {
@@ -6201,12 +6750,12 @@ const [headingBar, setHeadingBar] = useState(() => {
             if (currentUser.displayName) newUserData.displayName = currentUser.displayName;
             if (currentUser.photoURL) newUserData.photoURL = currentUser.photoURL;
             
-            await setDoc(userRef, newUserData);
+            await setDoc(userRef, newUserData).catch(e => handleFirestoreError(e, OperationType.CREATE, `users/${currentUser.uid}`));
             setUserData(newUserData);
           }
           setIsAdmin(role === "admin");
         } catch (error) {
-          console.error("Error fetching user data:", error);
+          console.error("Critical User Data Error:", error);
           setIsAdmin(false);
           setUserData(null);
         }
@@ -6239,6 +6788,7 @@ const [headingBar, setHeadingBar] = useState(() => {
   };
 
   const tabs = baseTabs.filter(t => {
+    if (t.id === "Widgets" && !featureFlags.widgets_dashboard) return false;
     if (t.id === "Quản trị" && !isAdmin) return false;
     if (t.id === "Khám phá" && headingBar) return false;
     return true;
@@ -6280,6 +6830,29 @@ const [headingBar, setHeadingBar] = useState(() => {
       transition={featureFlags.disable_animation ? { duration: 0 } : undefined}
       reducedMotion={featureFlags.disable_animation ? "always" : "user"}
     >
+      <WidgetsDashboard 
+        isOpen={isWidgetsOpen} 
+        onClose={() => setIsWidgetsOpen(false)} 
+        isDark={isDark} 
+        weather={weather}
+        getTempDisplay={getTempDisplay}
+        currentTime={currentTime}
+        formatTime={formatTime}
+        formatDateString={formatDateString}
+        activeChannel={activeChannel}
+        setActiveChannel={setActiveChannel}
+        setActiveTab={setActiveTab}
+        user={user}
+        userData={userData}
+        featureFlags={featureFlags}
+        setFeatureFlags={setFeatureFlags}
+        loadingTreatment={loadingTreatment}
+        setLoadingTreatment={setLoadingTreatment}
+        isDev={isDev}
+        setIsDev={setIsDev}
+        liquidGlass={liquidGlass}
+        onOpenUserMenu={() => setIsUserMenuOpen(true)}
+      />
       <AnimatePresence>
         {isVTV6DialogOpen && (
           <LiquidModal 
@@ -6389,7 +6962,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             />
           </motion.div>
         </AnimatePresence>
-        <div className={`absolute inset-0 transition-colors duration-1000 ${isDark ? "bg-slate-950/60" : "bg-white/60"}`} />
+        <div className={`absolute inset-0 transition-colors duration-1000 ${isDark ? "bg-[#121212]/90" : "bg-white/60"}`} />
       </div>
 
       <AnimatePresence>
@@ -6688,7 +7261,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         </LiquidModal>
 
 
-        <div className="flex-1 overflow-y-auto pb-32 flex flex-col w-full max-w-full overflow-x-hidden">
+        <div className={`flex-1 overflow-y-auto pb-32 flex flex-col w-full max-w-full overflow-x-hidden ${isDark && displayTab === "Trang chủ" ? "bg-[#121212]" : ""}`}>
           {/* Large Tab Header */}
           {!(displayTab === "Cài đặt" && isSettingsLoading) && (
             <div className="px-5 md:px-12 pt-12 pb-4">
@@ -7029,6 +7602,11 @@ const [headingBar, setHeadingBar] = useState(() => {
                       <button
                         key={`side-nav-${tab.id || tab.name}-${idx}`}
                         onClick={() => {
+                          if (tab.id === "Widgets") {
+                            setIsWidgetsOpen(true);
+                            if (isMobile) setIsSidebarExpanded(false);
+                            return;
+                          }
                           if (tab.id === "Phát sóng" && isBroadcastingLocked) {
                             setIsLockModalOpen(true);
                             return;
