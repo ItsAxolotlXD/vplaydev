@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode, useMemo } from "react";
 import { 
   Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer, Check, Plus, AppWindow, Compass, Trash2, Newspaper,
-  Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, FolderOpen, Pizza, Cloud, CreditCard, Gift, HelpCircle, FlaskConical as Flask, GlassWater, Grid, ArrowUp, ArrowDown, ArrowRightLeft
+  Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, FolderOpen, Pizza, Cloud, CreditCard, Gift, HelpCircle, FlaskConical as Flask, GlassWater, Grid, ArrowUp, ArrowDown, ArrowRightLeft, Bot, Hash
 } from "lucide-react";
 import Hls from "hls.js";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
@@ -25,7 +25,24 @@ const ExperimentalIcon = ({ className, size, strokeWidth }: { className?: string
 const LikeIcon = ({ className, size, filled, strokeWidth }: { className?: string, size?: number | string, filled?: boolean, strokeWidth?: number }) => <Heart className={className} size={size || 20} fill={filled ? "currentColor" : "none"} strokeWidth={strokeWidth || 1.5} />;
 const CommunityIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Users className={className} size={size || 20} strokeWidth={strokeWidth || 1.5} />;
 const AccountIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <User className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
-const WidgetsIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <LayoutGrid className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
+const WidgetsIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => (
+  <svg 
+    width={size || 22} 
+    height={size || 22} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth={strokeWidth || 1.5} 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <rect x="3" y="3" width="8" height="10" rx="2" />
+    <rect x="13" y="3" width="8" height="6" rx="2" />
+    <rect x="3" y="15" width="8" height="6" rx="2" />
+    <rect x="13" y="11" width="8" height="10" rx="2" />
+  </svg>
+);
 const MicIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Mic className={className} size={size || 20} strokeWidth={strokeWidth || 1.5} />;
 const SearchIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Search className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 const FolderIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <FolderOpen className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
@@ -78,7 +95,7 @@ const LoadingSpinner = ({ isDark, className = "w-6 h-6" }: { isDark: boolean, cl
         strokeWidth="3" 
         strokeLinecap="round" 
         d="M12 2C6.47715 2 2 6.47715 2 12C2 13.5997 2.37562 15.1116 3.0434 16.4527"
-        style={{ color: isDark ? '#d946ef' : '#9333ea' }}
+        style={{ color: isDark ? '#d946ef' : '#3b82f6' }}
       />
     </svg>
   </div>
@@ -2407,27 +2424,18 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment }: {
   const [logSearchQuery, setLogSearchQuery] = useState("");
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 2000);
+    const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
 
   if (isLoading) {
-    const getLoadingUrl = () => {
-      switch (loadingTreatment) {
-        case "treatment1": return "https://static.wikia.nocookie.net/ftv/images/6/63/Search_uci.png/revision/latest?cb=20260411084053&path-prefix=vi";
-        case "treatment3": return "https://static.wikia.nocookie.net/ftv/images/7/7f/Processing_loading.gif/revision/latest?cb=20260408134707&path-prefix=vi";
-        default: return "https://static.wikia.nocookie.net/ftv/images/7/7f/Processing_loading.gif/revision/latest?cb=20260408134707&path-prefix=vi";
-      }
-    };
-
-    const loadingUrl = getLoadingUrl();
-
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-4">
-        <LoadingSpinner isDark={isDark} className="w-14 h-14" />
-        <span className={`text-[10px] font-semibold uppercase tracking-[0.3em] ${isDark ? "text-white/40" : "text-slate-400"}`}>
-          Đang tải dữ liệu...
-        </span>
+      <div className="flex-1 flex flex-col items-center justify-center py-20">
+        <motion.div 
+          animate={{ rotate: 360 }} 
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-8 h-8 border-2 border-fuchsia-600 border-t-transparent rounded-full"
+        />
       </div>
     );
   }
@@ -2719,46 +2727,60 @@ function ExperimentalContent({ isDark, featureFlags, setFeatureFlags, liquidGlas
   loadingTreatment: string,
   setLoadingTreatment: (val: string) => void
 }) {
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 600);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center py-20">
+        <LoadingSpinner isDark={isDark} className="w-10 h-10" />
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-12 pb-32">
-      <div className={`p-8 rounded-[32px] border-2 transition-all shadow-xl rotate-[-1deg] ${
+    <div className="max-w-3xl mx-auto p-2 md:p-4 space-y-6 pb-32 scale-[0.85] origin-top">
+      <div className={`p-5 rounded-[20px] border-2 transition-all shadow-md ${
         isDark ? "bg-amber-500/10 border-amber-500/20 text-amber-500" : "bg-amber-50 border-amber-200 text-amber-700"
       }`}>
-        <div className="flex items-start gap-5">
-          <div className={`p-3 rounded-2xl ${isDark ? "bg-amber-500/20" : "bg-amber-100"}`}>
-            <AlertCircle size={28} className="shrink-0" />
+        <div className="flex items-start gap-4">
+          <div className={`p-2.5 rounded-xl ${isDark ? "bg-amber-500/20" : "bg-amber-100"}`}>
+            <AlertCircle size={24} className="shrink-0" />
           </div>
-          <div className="space-y-2">
-            <h4 className="text-xl font-bold tracking-tight">Cảnh báo rủi ro</h4>
-            <p className="text-sm font-bold leading-relaxed opacity-90">Các tính năng thử nghiệm có thể chưa ổn định và có thể gây lỗi treo ứng dụng. Chúng tôi khuyến nghị bạn nên sử dụng cẩn thận trên các thiết bị có cấu hình yếu.</p>
+          <div className="space-y-0.5">
+            <h4 className="text-base font-bold tracking-tight">Cảnh báo rủi ro</h4>
+            <p className="text-[10px] font-bold leading-relaxed opacity-90 text-balance">Các tính năng thử nghiệm có thể chưa ổn định và có thể gây lỗi treo ứng dụng. Chúng tôi khuyến nghị bạn nên sử dụng cẩn thận trên các thiết bị có cấu hình yếu.</p>
           </div>
         </div>
       </div>
 
-      <div className="space-y-4 px-2">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center text-white shadow-[2px_2px_0_0_rgba(147,51,234,0.4)] rotate-3">
-            <ExperimentalIcon size={28} />
+      <div className="space-y-2 px-1">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-purple-600 flex items-center justify-center text-white shadow-lg">
+            <ExperimentalIcon size={20} />
           </div>
           <div>
-            <h2 className={`text-3xl md:text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Experimental Labs</h2>
+            <h2 className={`text-xl md:text-2xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Experimental Labs</h2>
           </div>
         </div>
       </div>
 
-      <div className={`rounded-[32px] md:rounded-[40px] overflow-hidden border-2 transition-all ${isDark ? "bg-white/5 border-white/10 shadow-2xl" : "bg-white border-slate-200 shadow-xl"}`}>
+      <div className={`rounded-[20px] md:rounded-[24px] overflow-hidden border-2 transition-all ${isDark ? "bg-white/5 border-white/10 shadow-xl" : "bg-white border-slate-200 shadow-lg"}`}>
         {EXPERIMENTS.map((exp, idx) => (
           <div key={`exp-tab-${exp.id}`}>
-            <div className={`flex flex-col md:flex-row items-start md:items-center justify-between p-6 md:p-12 transition-all hover:bg-black/5 gap-6`}>
-              <div className="flex flex-col sm:flex-row items-start gap-6 text-left">
-                <div className={`p-4 md:p-5 rounded-3xl shrink-0 ${isDark ? "bg-white/5 text-white" : "bg-slate-100 text-slate-600"}`}>
-                  <ExperimentalIcon size={32} />
+            <div className={`flex flex-col md:flex-row items-start md:items-center justify-between p-5 md:p-6 transition-all hover:bg-black/5 gap-5`}>
+              <div className="flex flex-col sm:flex-row items-start gap-4 text-left">
+                <div className={`p-2.5 md:p-3 rounded-2xl shrink-0 ${isDark ? "bg-white/5 text-white" : "bg-slate-100 text-slate-600"}`}>
+                  <ExperimentalIcon size={20} />
                 </div>
-                <div className="space-y-2">
-                  <p className={`text-xl md:text-2xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{exp.name}</p>
-                  <p className={`text-sm md:text-base font-bold opacity-60 leading-relaxed max-w-xl ${isDark ? "text-white" : "text-slate-500"}`}>{exp.desc || "Nâng cấp trải nghiệm hệ thống với các tính năng thử nghiệm mới nhất"}</p>
-                  <div className="pt-2">
-                    <span className={`px-3 py-1 rounded-2xl text-[10px] md:text-[12px] font-bold font-mono border-2 shadow-[0_4px_15px_-4px_rgba(234,179,8,0.3)] ${isDark ? "bg-yellow-400/20 border-yellow-400 text-yellow-400" : "bg-yellow-400 border-yellow-500 text-yellow-950"}`}>
+                <div className="space-y-0.5">
+                  <p className={`text-base md:text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{exp.name}</p>
+                  <p className={`text-[10px] md:text-[11px] font-bold opacity-60 leading-relaxed max-w-sm ${isDark ? "text-white" : "text-slate-500"}`}>{exp.desc || "Nâng cấp trải nghiệm hệ thống với các tính năng thử nghiệm mới nhất"}</p>
+                  <div className="pt-1.5">
+                    <span className={`px-2.5 py-0.5 rounded-2xl text-[9px] md:text-[10px] font-bold font-mono border-2 ${isDark ? "bg-yellow-400/20 border-yellow-400 text-yellow-400" : "bg-yellow-400 border-yellow-500 text-yellow-950"}`}>
                       REF_ID: {exp.id}
                     </span>
                   </div>
@@ -2766,20 +2788,20 @@ function ExperimentalContent({ isDark, featureFlags, setFeatureFlags, liquidGlas
               </div>
               <button 
                 onClick={() => setFeatureFlags(prev => ({ ...prev, [exp.id]: !prev[exp.id] }))}
-                className={`w-20 h-10 rounded-full transition-all relative border-2 shrink-0 ${featureFlags[exp.id] ? "bg-purple-600/30 border-purple-600/40" : "bg-transparent border-slate-700/30"}`}
+                className={`w-14 h-8 rounded-full transition-all relative border-2 shrink-0 ${featureFlags[exp.id] ? "bg-purple-600/30 border-purple-600/40" : "bg-transparent border-slate-700/30"}`}
               >
                 <motion.div 
                   animate={{ 
-                    x: featureFlags[exp.id] ? 38 : 4,
+                    x: featureFlags[exp.id] ? 24 : 4,
                   }}
                   initial={false}
                   transition={{ type: "spring", damping: 20, stiffness: 200 }}
-                  className={`absolute top-[3px] h-[30px] w-[34px] rounded-full shadow-sm transition-colors ${featureFlags[exp.id] ? "bg-white" : "bg-white"}`}
+                  className={`absolute top-[2px] h-[24px] w-[24px] rounded-full shadow-sm transition-colors ${featureFlags[exp.id] ? "bg-white" : "bg-white"}`}
                 />
               </button>
             </div>
 
-            {idx < EXPERIMENTS.length - 1 && <div className={`h-[1px] mx-8 ${isDark ? "bg-white/10" : "bg-slate-200"}`} />}
+            {idx < EXPERIMENTS.length - 1 && <div className={`h-[1px] mx-6 ${isDark ? "bg-white/10" : "bg-slate-200"}`} />}
           </div>
         ))}
       </div>
@@ -5442,13 +5464,148 @@ function NavigationContextMenu({ x, y, onClose, isDark, liquidGlass, setLiquidGl
   );
 }
 
+function TicTacToeGame({ isDark }: { isDark: boolean }) {
+  const [board, setBoard] = useState(Array(9).fill(null));
+  const [xIsNext, setXIsNext] = useState(true);
+  const [mode, setMode] = useState<'selection' | 'pvp' | 'bot'>('selection');
+  const [winner, setWinner] = useState<string | null>(null);
+
+  const calculateWinner = (squares: (string | null)[]) => {
+    const lines = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6],
+    ];
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+        return squares[a];
+      }
+    }
+    return squares.includes(null) ? null : 'Draw';
+  };
+
+  const handleClick = (i: number) => {
+    if (winner || board[i]) return;
+    const newBoard = board.slice();
+    newBoard[i] = xIsNext ? 'X' : 'O';
+    setBoard(newBoard);
+    setXIsNext(!xIsNext);
+    const win = calculateWinner(newBoard);
+    if (win) setWinner(win);
+  };
+
+  const handleBotMove = useCallback((currentBoard: (string | null)[]) => {
+    const emptyIndices = currentBoard.map((v, i) => v === null ? i : null).filter(v => v !== null) as number[];
+    if (emptyIndices.length === 0) return;
+    
+    // Bot takes center if available
+    if (currentBoard[4] === null) {
+        const newBoard = currentBoard.slice();
+        newBoard[4] = 'O';
+        setBoard(newBoard);
+        setXIsNext(true);
+        const win = calculateWinner(newBoard);
+        if (win) setWinner(win);
+        return;
+    }
+
+    const getRandomMove = () => emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+    const move = getRandomMove();
+    const newBoard = currentBoard.slice();
+    newBoard[move] = 'O';
+    setBoard(newBoard);
+    setXIsNext(true);
+    const win = calculateWinner(newBoard);
+    if (win) setWinner(win);
+  }, []);
+
+  useEffect(() => {
+    if (mode === 'bot' && !xIsNext && !winner) {
+      const timer = setTimeout(() => handleBotMove(board), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [xIsNext, mode, winner, board, handleBotMove]);
+
+  const resetGame = () => {
+    setBoard(Array(9).fill(null));
+    setXIsNext(true);
+    setWinner(null);
+  };
+
+  if (mode === 'selection') {
+    return (
+      <div className="flex flex-col items-center justify-center p-4 space-y-4 h-full">
+        <div className="text-center">
+            <h3 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"} mb-1`}>Tic Tac Toe</h3>
+            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Select Mode</p>
+        </div>
+        <div className="grid grid-cols-2 gap-3 w-full">
+          <button 
+            onClick={() => setMode('pvp')}
+            className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all group ${isDark ? "bg-white/5 border-white/10 hover:border-blue-500 text-white" : "bg-slate-50 border-slate-100 hover:border-blue-500 text-slate-900"}`}
+          >
+            <Users size={20} className="mb-2 text-slate-400 group-hover:text-blue-500 transition-colors" />
+            <span className="text-[9px] font-bold uppercase tracking-widest">PVP</span>
+          </button>
+          <button 
+            onClick={() => setMode('bot')}
+            className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all group ${isDark ? "bg-white/5 border-white/10 hover:border-purple-500 text-white" : "bg-slate-50 border-slate-100 hover:border-purple-500 text-slate-900"}`}
+          >
+            <Bot size={20} className="mb-2 text-slate-400 group-hover:text-purple-500 transition-colors" />
+            <span className="text-[9px] font-bold uppercase tracking-widest">BOT</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center h-full p-2">
+      <div className="flex items-center justify-between w-full mb-3 px-1">
+        <p className={`text-[9px] font-bold uppercase tracking-[0.2em] ${winner ? "text-emerald-500 animate-pulse" : "text-slate-400"}`}>
+            {winner ? (winner === 'Draw' ? "Draw Game" : `${winner} Wins!`) : (xIsNext ? "X Turn" : "O Turn")}
+        </p>
+        <button onClick={() => { setMode('selection'); resetGame(); }} className="p-1 rounded-lg hover:bg-black/5 text-slate-400 transition-colors">
+           <RotateCcw size={12} />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-3 gap-1.5 w-full aspect-square max-h-[140px]">
+        {board.map((cell, i) => (
+          <button
+            key={i}
+            onClick={() => handleClick(i)}
+            disabled={!!cell || (mode === 'bot' && !xIsNext) || !!winner}
+            className={`rounded-xl flex items-center justify-center text-lg font-black transition-all ${
+                cell === 'X' ? "text-blue-500" : cell === 'O' ? "text-fuchsia-500" : ""
+            } ${isDark ? "bg-white/5" : "bg-slate-50 shadow-sm border border-black/5"}`}
+          >
+            {cell}
+          </button>
+        ))}
+      </div>
+      
+      {winner && (
+          <button 
+            onClick={resetGame}
+            className={`mt-3 w-full py-2 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all ${isDark ? "bg-blue-600 text-white" : "bg-blue-600 text-white shadow-lg shadow-blue-500/10"}`}
+          >
+            Reset Table
+          </button>
+      )}
+    </div>
+  );
+}
+
 function WidgetContainer({ 
   id,
   children, 
   isDark, 
   onRemove, 
   onContextMenu,
-  isLocked
+  isLocked,
+  onResize
 }: { 
   id: string,
   children: React.ReactNode, 
@@ -5456,7 +5613,8 @@ function WidgetContainer({
   onRemove?: () => void,
   onContextMenu: (e: React.MouseEvent, id: string) => void,
   isLocked?: boolean,
-  key?: React.Key
+  key?: React.Key,
+  onResize?: (id: string) => void
 }) {
   return (
     <motion.div 
@@ -5469,9 +5627,16 @@ function WidgetContainer({
       }`}
     >
       {onRemove && !isLocked && (
-        <button onClick={onRemove} className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-xl hover:bg-red-500/10 text-red-400">
-          <X size={14} />
-        </button>
+        <div className="absolute top-4 right-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {onResize && (
+            <button onClick={() => onResize(id)} className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400">
+              <Maximize2 size={12} />
+            </button>
+          )}
+          <button onClick={onRemove} className="p-1.5 rounded-xl hover:bg-red-500/10 text-red-400">
+            <X size={14} />
+          </button>
+        </div>
       )}
       {isLocked && (
         <div className="absolute top-4 right-4 text-slate-300">
@@ -5540,10 +5705,78 @@ function WidgetsDashboard({
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, id: string } | null>(null);
   const [activeDashboardTab, setActiveDashboardTab] = useState<"widgets" | "changelogs" | "labs">("widgets");
   const [widgetSearchQuery, setWidgetSearchQuery] = useState("");
+  const [pickerSearchQuery, setPickerSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedPickerWidget, setSelectedPickerWidget] = useState<any>(null);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [widgetSizes, setWidgetSizes] = useState<Record<string, { w: number, h: number }>>(() => {
+    const saved = localStorage.getItem("vplay_widget_sizes");
+    return saved ? JSON.parse(saved) : {
+      market: { w: 2, h: 1 },
+      calendar: { w: 1, h: 1 },
+      clock: { w: 1, h: 1 },
+      weather: { w: 1, h: 1 },
+      version: { w: 1, h: 1 },
+      quick_settings: { w: 1, h: 1 },
+      channels: { w: 1, h: 1 }
+    };
+  });
 
   useEffect(() => {
-    localStorage.setItem("vplay_pinned_widgets", JSON.stringify(pinnedWidgets));
-  }, [pinnedWidgets]);
+    localStorage.setItem("vplay_widget_sizes", JSON.stringify(widgetSizes));
+  }, [widgetSizes]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsLoading(true);
+      const timer = setTimeout(() => setIsLoading(false), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, activeDashboardTab]);
+
+  const allAvailableWidgets = [
+    { id: "clock", name: "Đồng hồ", icon: Clock, category: "M365", description: "Hiển thị thời gian hệ thống và ngày tháng chính xác nhất." },
+    { id: "weather", name: "Thời tiết", icon: Cloud, category: "M365", description: "Dự báo thời tiết tại vị trí của bạn theo thời gian thực." },
+    { id: "calendar", name: "Lịch", icon: Calendar, category: "Outlook", description: "Theo dõi các sự kiện và lịch trình sắp tới của bạn." },
+    { id: "market", name: "Thị trường", icon: TrendingUp, category: "Finance", description: "Cập nhật chỉ số VN-INDEX và tình hình thị trường tài chính." },
+    { id: "quick_settings", name: "Cài đặt nhanh", icon: Sliders, category: "Entertainment", description: "Bảng điều khiển nhanh các thiết lập âm thanh và màn hình." },
+    { id: "tictactoe", name: "Cờ Caro", icon: Hash, category: "Games", description: "Chơi Cờ Caro giải trí với bạn bè hoặc với Bot thông minh." },
+    { id: "version", name: "Phiên bản", icon: Info, category: "Tips", description: "Thông tin chi tiết về phiên bản Vplay Canary hiện tại." },
+    { id: "channels", name: "Kênh yêu thích", icon: Tv, category: "Entertainment", description: "Danh sách các kênh truyền hình bạn xem thường xuyên nhất." }
+  ];
+
+  const toggleResize = (id: string) => {
+    setWidgetSizes(prev => {
+      const current = prev[id] || { w: 1, h: 1 };
+      return {
+        ...prev,
+        [id]: { ...current, w: current.w === 1 ? 2 : 1 }
+      };
+    });
+  };
+
+  const filteredPinnedWidgets = pinnedWidgets.filter(widgetId => {
+    if (!widgetSearchQuery) return true;
+    const widget = allAvailableWidgets.find(w => w.id === widgetId);
+    return widget?.name.toLowerCase().includes(widgetSearchQuery.toLowerCase()) || 
+           widget?.category.toLowerCase().includes(widgetSearchQuery.toLowerCase());
+  });
+
+  const searchResults = useMemo(() => {
+    if (!widgetSearchQuery) return { widgets: [], channels: [], tabs: [], settings: [] };
+    const q = widgetSearchQuery.toLowerCase();
+    
+    return {
+      widgets: allAvailableWidgets.filter(w => !pinnedWidgets.includes(w.id) && (w.name.toLowerCase().includes(q) || w.category.toLowerCase().includes(q))),
+      channels: channels.filter(c => c.name.toLowerCase().includes(q)),
+      tabs: baseTabs.filter(t => t.name.toLowerCase().includes(q)),
+      settings: [
+        { name: "Hồ sơ cá nhân", icon: User, tab: "Cài đặt", desc: "Quản lý thông tin tài khoản Vplay" },
+        { name: "Phòng thí nghiệm", icon: Pizza, tab: "Labs", desc: "Các tính năng thử nghiệm Canary" },
+        { name: "Lịch sử cập nhật", icon: Newspaper, tab: "Changelogs", desc: "Xem nhật ký thay đổi phiên bản" }
+      ].filter(s => s.name.toLowerCase().includes(q))
+    };
+  }, [widgetSearchQuery, allAvailableWidgets, channels, pinnedWidgets]);
 
   useEffect(() => {
     localStorage.setItem("vplay_locked_widgets", JSON.stringify(lockedWidgets));
@@ -5555,6 +5788,7 @@ function WidgetsDashboard({
     { id: "calendar", name: "Lịch", icon: Calendar },
     { id: "weather", name: "Thời tiết", icon: Cloud },
     { id: "quick_settings", name: "Quick Settings", icon: Sliders },
+    { id: "tictactoe", name: "Cờ Caro", icon: Hash },
     { id: "search", name: "Tìm kiếm", icon: Search },
     { id: "version", name: "Phiên bản Vplay", icon: Info },
     { id: "channels", name: "Kênh truyền hình", icon: Tv },
@@ -5623,318 +5857,482 @@ function WidgetsDashboard({
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className={`fixed left-4 top-4 bottom-4 z-[1000] w-full max-w-sm md:max-w-2xl lg:max-w-3xl shadow-2xl overflow-hidden flex flex-row rounded-2xl border border-white/20 bg-[#f8fafc] text-slate-900`}
+            className={`fixed left-4 top-4 bottom-4 z-[1000] w-full max-w-sm md:max-w-3xl lg:max-w-4xl shadow-2xl overflow-hidden flex flex-row rounded-xl border border-white/20 bg-[#f8fafc] text-slate-900`}
             onClick={() => setContextMenu(null)}
           >
              {/* Sidebar */}
-             <div className="w-16 md:w-20 bg-[#f0f2f5] border-r border-slate-200/50 flex flex-col items-center py-8 gap-4 shrink-0 relative">
-                <div className="flex flex-col items-center gap-4 w-full">
+             <div className="w-16 md:w-20 bg-[#f0f2f5] border-r border-slate-200/50 flex flex-col items-center py-6 gap-3 shrink-0 relative">
+                <div className="flex flex-col items-center gap-3 w-full">
                   <button 
                     onClick={() => setActiveDashboardTab("widgets")}
                     className={`relative p-2.5 rounded-xl transition-all ${activeDashboardTab === "widgets" ? "bg-white shadow-xl text-blue-600 scale-110" : "text-slate-400 hover:bg-white/50"}`}
                   >
                     <LayoutPanelLeft size={22} />
                     {activeDashboardTab === "widgets" && (
-                      <motion.div layoutId="active-indicator" className="absolute left-[-16px] md:left-[-20px] w-1.5 h-8 bg-blue-600 rounded-r-full" />
+                      <motion.div layoutId="active-indicator" className="absolute left-[-2px] top-1/2 -translate-y-1/2 w-1.5 h-6 bg-blue-600 rounded-r-full" />
                     )}
                   </button>
                   <button 
                     onClick={() => setActiveDashboardTab("changelogs")}
-                    className={`relative p-2.5 rounded-xl transition-all ${activeDashboardTab === "changelogs" ? "bg-white shadow-xl text-blue-600 scale-110" : "text-slate-400 hover:bg-white/50"}`}
+                    className={`relative flex items-center justify-center p-2.5 rounded-xl transition-all ${activeDashboardTab === "changelogs" ? "bg-white shadow-xl text-blue-600 scale-110" : "text-slate-400 hover:bg-white/50"}`}
                   >
                     <Newspaper size={22} />
                     {activeDashboardTab === "changelogs" && (
-                      <motion.div layoutId="active-indicator" className="absolute left-[-16px] md:left-[-20px] w-1.5 h-8 bg-blue-600 rounded-r-full" />
+                      <motion.div layoutId="active-indicator" className="absolute left-[-2px] top-1/2 -translate-y-1/2 w-1.5 h-6 bg-blue-600 rounded-r-full" />
                     )}
                   </button>
                   <button 
                     onClick={() => setActiveDashboardTab("labs")}
-                    className={`relative p-2.5 rounded-xl transition-all ${activeDashboardTab === "labs" ? "bg-white shadow-xl text-blue-600 scale-110" : "text-slate-400 hover:bg-white/50"}`}
+                    className={`relative flex items-center justify-center p-2.5 rounded-xl transition-all ${activeDashboardTab === "labs" ? "bg-white shadow-xl text-blue-600 scale-110" : "text-slate-400 hover:bg-white/50"}`}
                   >
                     <Pizza size={22} />
                     {activeDashboardTab === "labs" && (
-                      <motion.div layoutId="active-indicator" className="absolute left-[-16px] md:left-[-20px] w-1.5 h-8 bg-blue-600 rounded-r-full" />
+                      <motion.div layoutId="active-indicator" className="absolute left-[-2px] top-1/2 -translate-y-1/2 w-1.5 h-6 bg-blue-600 rounded-r-full" />
                     )}
                   </button>
                 </div>
 
-                <div className="mt-auto flex flex-col items-center gap-4 w-full pb-2">
+                <div className="mt-auto flex flex-col items-center gap-3 w-full pb-2">
                   <button onClick={() => { setActiveTab("Cài đặt"); onClose(); }} className="p-2.5 rounded-xl hover:bg-white/50 text-slate-400 transition-colors cursor-pointer">
                     <Settings size={22} />
                   </button>
                   <button 
-                    onClick={() => {
-                        onOpenUserMenu?.();
-                        onClose();
-                    }}
-                    className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-black text-sm shadow-lg shadow-blue-600/30 cursor-pointer hover:scale-105 transition-transform overflow-hidden border-2 border-white"
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-black text-sm shadow-lg cursor-pointer hover:scale-105 transition-all overflow-hidden border-2 ${isUserMenuOpen ? "border-blue-500 ring-4 ring-blue-500/20 bg-blue-700" : "border-white bg-blue-600 shadow-blue-600/30"}`}
                   >
                     {user?.photoURL ? (
                         <img src={user.photoURL} className="w-full h-full object-cover" referrerPolicy="no-referrer" alt="User" />
                     ) : (
-                        "v"
+                        <User size={20} />
                     )}
                   </button>
                 </div>
              </div>
 
              {/* Main Area */}
-             <div className="flex-1 flex flex-col h-full overflow-hidden bg-white/40 backdrop-blur-md">
-                {activeDashboardTab === "widgets" && (
-                  <>
-                    {/* Header */}
-                    <div className="p-8 pb-4 flex items-center justify-between">
-                      <div>
-                        <h2 className="text-2xl font-bold tracking-tight text-slate-800">{getGreeting()}</h2>
+             <div className="flex-1 flex flex-col h-full overflow-hidden bg-white/40 backdrop-blur-md relative">
+                {/* Mini Account Menu Overlay */}
+                <AnimatePresence>
+                  {isUserMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -20, scale: 0.95 }}
+                      animate={{ opacity: 1, x: 0, scale: 1 }}
+                      exit={{ opacity: 0, x: -20, scale: 0.95 }}
+                      className="absolute left-4 bottom-4 z-[1002] w-64 bg-white/80 backdrop-blur-2xl border border-slate-200 shadow-2xl rounded-3xl overflow-hidden p-2"
+                    >
+                      <div className="p-4 flex items-center gap-4 border-b border-slate-100/50 mb-2">
+                        <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg overflow-hidden">
+                          {user?.photoURL ? <img src={user.photoURL} className="w-full h-full object-cover" referrerPolicy="no-referrer" /> : <User size={24} />}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-slate-900">{user?.displayName || "Guest User"}</p>
+                          <p className="text-[10px] text-slate-400 font-medium">#{user?.uid?.slice(-6).toUpperCase() || "CANARY"}</p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <button 
-                          onClick={() => setIsPickerOpen(true)}
-                          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full font-bold text-[10px] shadow-lg shadow-blue-600/20 hover:scale-[1.02] active:scale-95 transition-all"
-                        >
-                          <Pin size={12} className="rotate-45" />
-                          Pin widgets
+                      <div className="space-y-0.5">
+                        <button className="w-full px-3 py-2.5 flex items-center gap-3 text-[11px] font-bold text-slate-600 hover:bg-white rounded-2xl transition-colors">
+                          <SettingsIcon size={16} className="text-slate-400" /> Hồ sơ ứng dụng
                         </button>
-                        <div className="flex items-center gap-1">
+                        <button className="w-full px-3 py-2.5 flex items-center gap-3 text-[11px] font-bold text-slate-600 hover:bg-white rounded-2xl transition-colors text-red-500">
+                          <LogOut size={16} /> Đăng xuất Canary
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {isLoading ? (
+                  <div className="flex-1 flex flex-col items-center justify-center">
+                    <LoadingSpinner isDark={false} className="w-16 h-16" />
+                  </div>
+                ) : (
+                  <>
+                    {activeDashboardTab === "widgets" && (
+                      <div className="flex-1 flex flex-col overflow-hidden">
+                        {/* Header */}
+                        <div className="p-8 pb-4 flex items-center justify-between">
+                          <div>
+                            <h2 className="text-2xl font-bold tracking-tight text-slate-800">{getGreeting()}</h2>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <button 
+                              onClick={() => setIsPickerOpen(true)}
+                              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full font-bold text-[10px] shadow-lg shadow-blue-600/20 hover:scale-[1.02] active:scale-95 transition-all"
+                            >
+                              <Pin size={12} className="rotate-45" />
+                              Pin widgets
+                            </button>
+                            <div className="flex items-center gap-1">
+                              <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 text-slate-400 transition-colors">
+                                <X size={16} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Content Area */}
+                        <div className="flex-1 overflow-y-auto px-8 py-2 custom-scrollbar space-y-6 relative">
+                          <div className="relative group">
+                             <div className={`group flex items-center gap-2.5 h-10 w-full transition-all relative rounded-xl border-b-[2px] transition-all duration-300 bg-white focus-within:bg-white border-black/10 text-slate-800 focus-within:border-fuchsia-500 shadow-sm`}>
+                                <Search size={16} className="ml-3 text-slate-400 group-focus-within:text-fuchsia-500" />
+                                <input 
+                                  type="text" 
+                                  value={widgetSearchQuery}
+                                  onChange={(e) => setWidgetSearchQuery(e.target.value)}
+                                  placeholder="Find and explore on Vplay" 
+                                  className="bg-transparent border-none outline-none w-full font-google font-bold text-slate-900 placeholder-slate-400 text-xs"
+                                />
+                                {widgetSearchQuery && (
+                                  <button onClick={() => setWidgetSearchQuery("")} className="p-1.5 hover:bg-black/10 rounded-full mr-2 transition-all">
+                                    <X size={14} className="text-slate-400" />
+                                  </button>
+                                )}
+                             </div>
+                          </div>
+
+                          {widgetSearchQuery ? (
+                             <div className="space-y-8 pb-20">
+                                {searchResults.tabs.length > 0 && (
+                                   <div className="space-y-3">
+                                      <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Tabs & Navigation</h3>
+                                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                         {searchResults.tabs.map(tab => (
+                                            <button 
+                                              key={tab.id}
+                                              onClick={() => { setActiveTab(tab.id); onClose(); }}
+                                              className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-slate-100 hover:border-blue-500 hover:shadow-lg transition-all text-left"
+                                            >
+                                               <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500">
+                                                  <tab.icon size={18} />
+                                               </div>
+                                               <span className="text-xs font-bold text-slate-800">{tab.name}</span>
+                                            </button>
+                                         ))}
+                                      </div>
+                                   </div>
+                                )}
+
+                                {searchResults.widgets.length > 0 && (
+                                   <div className="space-y-3">
+                                      <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Available Widgets</h3>
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                         {searchResults.widgets.map(w => (
+                                            <div key={w.id} className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-100">
+                                               <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                                                  <w.icon size={20} />
+                                               </div>
+                                               <div className="flex-1 min-w-0">
+                                                  <p className="text-xs font-bold text-slate-800 truncate">{w.name}</p>
+                                                  <p className="text-[9px] text-slate-400 uppercase tracking-widest">{w.category}</p>
+                                               </div>
+                                               <button onClick={() => addWidget(w.id)} className="p-2 rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20 active:scale-90">
+                                                  <Pin size={14} className="rotate-45" />
+                                               </button>
+                                            </div>
+                                         ))}
+                                      </div>
+                                   </div>
+                                )}
+
+                                {searchResults.channels.length > 0 && (
+                                   <div className="space-y-3">
+                                      <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">CHANNELS</h3>
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                         {searchResults.channels.map(ch => (
+                                            <button 
+                                              key={ch.name}
+                                              onClick={() => { setActiveChannel(ch); setActiveTab("Phát sóng"); onClose(); }}
+                                              className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-slate-100 hover:border-blue-500 hover:shadow-lg transition-all text-left"
+                                            >
+                                               <img src={ch.logo} className="w-10 h-10 rounded-xl object-contain bg-slate-50 p-2" referrerPolicy="no-referrer" />
+                                               <div className="flex-1 min-w-0">
+                                                  <p className="text-xs font-bold text-slate-800 truncate">{ch.name}</p>
+                                                  <p className="text-[9px] text-slate-400 uppercase tracking-widest">LIVE NOW</p>
+                                               </div>
+                                            </button>
+                                         ))}
+                                      </div>
+                                   </div>
+                                )}
+
+                                {searchResults.settings.length > 0 && (
+                                   <div className="space-y-3">
+                                      <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Settings & Systems</h3>
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                         {searchResults.settings.map(s => (
+                                            <button 
+                                              key={s.name}
+                                              onClick={() => { 
+                                                if (s.tab === "Labs") setActiveDashboardTab("labs");
+                                                else if (s.tab === "Changelogs") setActiveDashboardTab("changelogs");
+                                                else { setActiveTab(s.tab); onClose(); }
+                                              }}
+                                              className="flex items-center gap-3 p-4 rounded-2xl bg-white border border-slate-100 hover:border-blue-500 hover:shadow-lg transition-all text-left"
+                                            >
+                                               <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+                                                  <s.icon size={20} />
+                                               </div>
+                                               <div>
+                                                  <p className="text-xs font-bold text-slate-800">{s.name}</p>
+                                                  <p className="text-[9px] text-slate-400 uppercase font-medium">{s.desc}</p>
+                                               </div>
+                                            </button>
+                                         ))}
+                                      </div>
+                                   </div>
+                                )}
+
+                                {searchResults.widgets.length === 0 && searchResults.channels.length === 0 && searchResults.tabs.length === 0 && searchResults.settings.length === 0 && (
+                                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                                        <h3 className="text-sm font-bold text-slate-600 mb-1">Không có kết quả nào cho "{widgetSearchQuery}"</h3>
+                                        <p className="text-[10px] text-slate-400 uppercase tracking-widest">Thử tìm kiếm với từ khóa khác</p>
+                                    </div>
+                                )}
+                             </div>
+                          ) : (
+                            <>
+                              {filteredPinnedWidgets.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+                                   <div className="w-16 h-16 rounded-[24px] bg-slate-50 flex items-center justify-center text-slate-200 border border-slate-100">
+                                      <LayoutGrid size={32} />
+                                   </div>
+                                   <div>
+                                      <h3 className="text-base font-bold text-slate-900 mb-1">Chưa có tiện ích nào phù hợp</h3>
+                                      <p className="text-[10px] text-slate-400 max-w-[180px] mx-auto">Thử tìm kiếm với từ khóa khác</p>
+                                   </div>
+                                </div>
+                              ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 auto-rows-min pb-20">
+                                  {filteredPinnedWidgets.map(widgetId => {
+                                    if (widgetId === "search") return null;
+                                    const isLocked = lockedWidgets.includes(widgetId);
+                                    const size = widgetSizes[widgetId] || { w: 1, h: 1 };
+                                    
+                                    return (
+                                        <div key={widgetId} className={size.w === 2 ? "md:col-span-2" : "md:col-span-1"}>
+                                            {(() => {
+                                                if (widgetId === "market") {
+                                                    return (
+                                                      <WidgetContainer id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked} onResize={toggleResize}>
+                                                         <div className="flex items-start gap-4 mb-3">
+                                                           <div className="w-9 h-9 rounded-2xl bg-green-50 text-emerald-500 flex items-center justify-center">
+                                                              <TrendingUp size={18} />
+                                                           </div>
+                                                           <div>
+                                                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Reference</p>
+                                                              <p className="text-[10px] font-bold text-slate-800 leading-tight">Local Market</p>
+                                                           </div>
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                           <div className="p-2.5 rounded-2xl bg-emerald-50/50 border border-emerald-100">
+                                                              <p className="text-[8px] font-bold text-emerald-600 uppercase tracking-wider mb-0.5">VN-INDEX</p>
+                                                              <p className="text-lg font-bold text-emerald-700 tracking-tight">+12.4</p>
+                                                           </div>
+                                                           <div className="p-2.5 rounded-2xl bg-emerald-50/50 border border-emerald-100">
+                                                              <p className="text-[8px] font-bold text-emerald-600 uppercase tracking-wider mb-0.5">VPLAY_INC</p>
+                                                              <p className="text-lg font-bold text-emerald-700 tracking-tight">+1.1m</p>
+                                                           </div>
+                                                        </div>
+                                                      </WidgetContainer>
+                                                    );
+                                                  }
+                                                  if (widgetId === "calendar") {
+                                                    return (
+                                                      <WidgetContainer id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked} onResize={toggleResize}>
+                                                        <div className="flex items-center gap-4 py-1">
+                                                          <div className="w-12 h-12 rounded-2xl bg-red-500 text-white flex flex-col items-center justify-center overflow-hidden shadow-lg shadow-red-500/10">
+                                                            <div className="bg-red-600/50 w-full text-[8px] font-bold text-center py-0.5 uppercase">{new Intl.DateTimeFormat('en-US', { month: 'short' }).format(currentTime)}</div>
+                                                            <div className="text-xl font-bold pb-0.5">{currentTime.getDate()}</div>
+                                                          </div>
+                                                          <div>
+                                                            <p className="text-sm font-bold text-slate-900 leading-none">{new Intl.DateTimeFormat('vi-VN', { weekday: 'long' }).format(currentTime)}</p>
+                                                            <p className="text-[10px] text-slate-400 font-medium mt-1">Không có sự kiện</p>
+                                                          </div>
+                                                        </div>
+                                                      </WidgetContainer>
+                                                    );
+                                                  }
+                                                  if (widgetId === "clock") {
+                                                    return (
+                                                      <WidgetContainer id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked} onResize={toggleResize}>
+                                                        <div className="flex items-start gap-4 mb-3">
+                                                           <div className="w-9 h-9 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center">
+                                                              <Clock size={18} />
+                                                           </div>
+                                                           <div>
+                                                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">System</p>
+                                                              <p className="text-[10px] font-bold text-slate-800 leading-tight">{new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).format(currentTime)}</p>
+                                                           </div>
+                                                        </div>
+                                                        <div className="text-4xl font-bold tracking-tighter text-slate-900">{formatTime(currentTime)}</div>
+                                                        <p className="text-[9px] font-bold text-blue-500 uppercase tracking-widest mt-2">{featureFlags.performance_mode ? "PERF OPTIMIZED" : "CORE KERNEL ACTIVATED"}</p>
+                                                      </WidgetContainer>
+                                                    );
+                                                  }
+                                                  if (widgetId === "version") {
+                                                    return (
+                                                      <WidgetContainer id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked} onResize={toggleResize}>
+                                                         <div className="flex items-start gap-4 mb-3">
+                                                           <div className="w-9 h-9 rounded-2xl bg-purple-50 text-purple-500 flex items-center justify-center">
+                                                              <Info size={18} />
+                                                           </div>
+                                                           <div>
+                                                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Phiên bản</p>
+                                                              <p className="text-[10px] font-bold text-slate-800 leading-tight">Vplay Canary</p>
+                                                           </div>
+                                                        </div>
+                                                        <div className={`w-full space-y-1.5 p-3 rounded-2xl bg-black/5`}>
+                                                          <div className="flex justify-between items-center text-[10px]">
+                                                            <span className="opacity-50">Phát triển by</span>
+                                                            <span className="font-bold">VNRT</span>
+                                                          </div>
+                                                          <div className="flex justify-between items-center text-[10px]">
+                                                            <span className="opacity-50">Branch</span>
+                                                            <span className={`font-bold ${isDev ? "text-purple-600" : "text-green-600"}`}>{isDev ? "Developer" : "Production"}</span>
+                                                          </div>
+                                                          <div className="flex justify-between items-center text-[10px]">
+                                                            <span className="opacity-50">Build</span>
+                                                            <span className="font-bold text-purple-600">26606</span>
+                                                          </div>
+                                                          <div className="flex justify-between items-center text-[10px]">
+                                                            <span className="opacity-50">Compiled</span>
+                                                            <span className="font-bold">15/05/26</span>
+                                                          </div>
+                                                         </div>
+                                                       </WidgetContainer>
+                                                     );
+                                                  }
+                                                  if (widgetId === "weather") {
+                                                    return (
+                                                      <WidgetContainer id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked} onResize={toggleResize}>
+                                                         <div className="flex items-start gap-4 mb-3">
+                                                           <div className="w-9 h-9 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center">
+                                                              <Cloud size={18} />
+                                                           </div>
+                                                           <div>
+                                                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Environment</p>
+                                                              <p className="text-[10px] font-bold text-slate-800 leading-tight">Current Location</p>
+                                                           </div>
+                                                         </div>
+                                                         <div className="flex items-center justify-between">
+                                                            <div className="text-4xl font-bold tracking-tighter text-slate-900">{getTempDisplay()}</div>
+                                                            <div className="w-11 h-11 rounded-full bg-yellow-400 text-white flex items-center justify-center shadow-lg shadow-yellow-400/20">
+                                                              <Sun size={24} />
+                                                            </div>
+                                                         </div>
+                                                         <p className="text-[9px] font-bold text-orange-500 uppercase tracking-widest mt-2">{weather?.status || "SUNNY"}</p>
+                                                      </WidgetContainer>
+                                                    );
+                                                  }
+                                                  if (widgetId === "quick_settings") {
+                                                    return (
+                                                      <WidgetContainer id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked} onResize={toggleResize}>
+                                                        <div className="grid grid-cols-2 gap-2.5 py-0.5">
+                                                           <div className="p-3 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm cursor-pointer border border-slate-100">
+                                                              <Volume2 size={18} />
+                                                           </div>
+                                                           <div className="p-3 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm cursor-pointer border border-slate-100">
+                                                              <Maximize size={18} />
+                                                           </div>
+                                                           <div className="p-3 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm cursor-pointer border border-slate-100">
+                                                              <Activity size={18} />
+                                                           </div>
+                                                           <div className="p-3 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm cursor-pointer border border-slate-100">
+                                                              <Zap size={18} />
+                                                           </div>
+                                                        </div>
+                                                      </WidgetContainer>
+                                                    );
+                                                  }
+                                                  if (widgetId === "tictactoe") {
+                                                    return (
+                                                      <WidgetContainer id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked} onResize={toggleResize}>
+                                                        <TicTacToeGame isDark={false} />
+                                                      </WidgetContainer>
+                                                    );
+                                                  }
+                                                  if (widgetId === "channels") {
+                                                    return (
+                                                      <WidgetContainer id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked} onResize={toggleResize}>
+                                                        <div className="space-y-2.5 py-0.5">
+                                                          {channels.slice(0, 3).map(ch => (
+                                                            <button 
+                                                              key={ch.name} 
+                                                              onClick={() => { setActiveChannel(ch); setActiveTab("Phát sóng"); onClose(); }}
+                                                              className="w-full flex items-center gap-3 p-2.5 rounded-2xl hover:bg-slate-50 transition-all text-left border border-transparent hover:border-slate-100 shadow-sm bg-white"
+                                                            >
+                                                              <div className="w-8 h-8 rounded-xl bg-slate-50 p-1.5 flex items-center justify-center">
+                                                                <img src={ch.logo} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                                                              </div>
+                                                              <div>
+                                                                <span className="text-[10px] font-bold text-slate-800 block truncate max-w-[80px]">{ch.name}</span>
+                                                                <span className="text-[8px] text-slate-400 font-medium">Live</span>
+                                                              </div>
+                                                            </button>
+                                                          ))}
+                                                        </div>
+                                                      </WidgetContainer>
+                                                    );
+                                                  }
+                                                  return null;
+                                            })()}
+                                        </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {activeDashboardTab === "changelogs" && (
+                      <div className="flex-1 flex flex-col overflow-hidden">
+                        <div className="p-8 pb-4 flex items-center justify-between border-b border-black/5">
+                          <h2 className="text-2xl font-bold tracking-tight text-slate-800">Update Logs</h2>
                           <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 text-slate-400 transition-colors">
                             <X size={16} />
                           </button>
                         </div>
-                      </div>
-                    </div>
-
-                    {/* Content Area */}
-                    <div className="flex-1 overflow-y-auto px-8 py-2 custom-scrollbar space-y-6 relative">
-                      {/* Search Bar matching Top Bar styles */}
-                      <div className="relative group">
-                         <div className={`group flex items-center gap-2.5 h-10 w-full transition-all relative rounded-xl bg-black/2 hover:bg-black/5 focus-within:bg-black/[0.08] focus-within:ring-2 ring-blue-500/10 border-b-2 border-black/5 focus-within:border-blue-500 transition-all duration-300`}>
-                            <Search size={16} className="ml-3 text-slate-400 group-focus-within:text-blue-500" />
-                            <input 
-                              type="text" 
-                              value={widgetSearchQuery}
-                              onChange={(e) => setWidgetSearchQuery(e.target.value)}
-                              placeholder="Find and explore on Vplay" 
-                              className="bg-transparent border-none outline-none w-full font-google font-bold text-slate-900 placeholder-slate-400 text-xs"
-                            />
-                            {widgetSearchQuery && (
-                              <button onClick={() => setWidgetSearchQuery("")} className="p-1.5 hover:bg-black/10 rounded-full mr-2 transition-all">
-                                <X size={14} className="text-slate-400" />
-                              </button>
-                            )}
-                         </div>
-                      </div>
-
-                      {pinnedWidgets.filter(w => w !== "search").length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
-                           <div className="w-16 h-16 rounded-[24px] bg-slate-50 flex items-center justify-center text-slate-200 border border-slate-100">
-                              <LayoutGrid size={32} />
-                           </div>
-                           <div>
-                              <h3 className="text-base font-bold text-slate-900 mb-1">Chưa có tiện ích nào ở đây</h3>
-                              <p className="text-[10px] text-slate-400 max-w-[180px] mx-auto">Bấm "Pin widgets" để thêm tiện ích</p>
-                           </div>
+                        <div className="flex-1 overflow-y-auto px-8 py-6 custom-scrollbar">
+                          <UpdateLogsContent isDark={false} onBack={() => setActiveDashboardTab("widgets")} loadingTreatment={loadingTreatment || "shimmer"} />
                         </div>
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 auto-rows-min pb-20">
-                          {pinnedWidgets.map(widgetId => {
-                            if (widgetId === "search") return null;
-                            const isLocked = lockedWidgets.includes(widgetId);
-                            
-                            if (widgetId === "clock") {
-                              return (
-                                <WidgetContainer key={widgetId} id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked}>
-                                  <div className="flex items-start gap-4 mb-3">
-                                     <div className="w-9 h-9 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center">
-                                        <Clock size={18} />
-                                     </div>
-                                     <div>
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">System</p>
-                                        <p className="text-[10px] font-bold text-slate-800 leading-tight">{new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).format(currentTime)}</p>
-                                     </div>
-                                  </div>
-                                  <div className="text-4xl font-bold tracking-tighter text-slate-900">{formatTime(currentTime)}</div>
-                                  <p className="text-[9px] font-bold text-blue-500 uppercase tracking-widest mt-2">CORE KERNEL ACTIVATED</p>
-                                </WidgetContainer>
-                              );
-                            }
-                            if (widgetId === "market") {
-                              return (
-                                <WidgetContainer key={widgetId} id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked}>
-                                   <div className="flex items-start gap-4 mb-3">
-                                     <div className="w-9 h-9 rounded-2xl bg-green-50 text-emerald-500 flex items-center justify-center">
-                                        <TrendingUp size={18} />
-                                     </div>
-                                     <div>
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Reference</p>
-                                        <p className="text-[10px] font-bold text-slate-800 leading-tight">Local Market</p>
-                                     </div>
-                                  </div>
-                                  <div className="grid grid-cols-2 gap-3">
-                                     <div className="p-2.5 rounded-2xl bg-emerald-50/50 border border-emerald-100">
-                                        <p className="text-[8px] font-bold text-emerald-600 uppercase tracking-wider mb-0.5">VN-INDEX</p>
-                                        <p className="text-lg font-bold text-emerald-700 tracking-tight">+12.4</p>
-                                     </div>
-                                     <div className="p-2.5 rounded-2xl bg-emerald-50/50 border border-emerald-100">
-                                        <p className="text-[8px] font-bold text-emerald-600 uppercase tracking-wider mb-0.5">VPLAY_INC</p>
-                                        <p className="text-lg font-bold text-emerald-700 tracking-tight">+1.1m</p>
-                                     </div>
-                                  </div>
-                                </WidgetContainer>
-                              );
-                            }
-                            if (widgetId === "calendar") {
-                              return (
-                                <WidgetContainer key={widgetId} id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked}>
-                                  <div className="flex items-center gap-4 py-1">
-                                    <div className="w-12 h-12 rounded-2xl bg-red-500 text-white flex flex-col items-center justify-center overflow-hidden shadow-lg shadow-red-500/10">
-                                      <div className="bg-red-600/50 w-full text-[8px] font-bold text-center py-0.5 uppercase">{new Intl.DateTimeFormat('en-US', { month: 'short' }).format(currentTime)}</div>
-                                      <div className="text-xl font-bold pb-0.5">{currentTime.getDate()}</div>
-                                    </div>
-                                    <div>
-                                      <p className="text-sm font-bold text-slate-900 leading-none">{new Intl.DateTimeFormat('vi-VN', { weekday: 'long' }).format(currentTime)}</p>
-                                      <p className="text-[10px] text-slate-400 font-medium mt-1">Không có sự kiện</p>
-                                    </div>
-                                  </div>
-                                </WidgetContainer>
-                              );
-                            }
-                            if (widgetId === "weather") {
-                              return (
-                                <WidgetContainer key={widgetId} id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked}>
-                                   <div className="flex items-start gap-4 mb-3">
-                                     <div className="w-9 h-9 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center">
-                                        <Cloud size={18} />
-                                     </div>
-                                     <div>
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Environment</p>
-                                        <p className="text-[10px] font-bold text-slate-800 leading-tight">Current Location</p>
-                                     </div>
-                                  </div>
-                                  <div className="flex items-center justify-between">
-                                    <div className="text-4xl font-bold tracking-tighter text-slate-900">{getTempDisplay()}</div>
-                                    <div className="w-11 h-11 rounded-full bg-yellow-400 text-white flex items-center justify-center shadow-lg shadow-yellow-400/20">
-                                      <Sun size={24} />
-                                    </div>
-                                  </div>
-                                  <p className="text-[9px] font-bold text-orange-500 uppercase tracking-widest mt-2">{weather?.status || "SUNNY"}</p>
-                                </WidgetContainer>
-                              );
-                            }
-                            if (widgetId === "quick_settings") {
-                              return (
-                                <WidgetContainer key={widgetId} id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked}>
-                                  <div className="grid grid-cols-2 gap-2.5 py-0.5">
-                                     <div className="p-3 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm cursor-pointer border border-slate-100">
-                                        <Volume2 size={18} />
-                                     </div>
-                                     <div className="p-3 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm cursor-pointer border border-slate-100">
-                                        <Maximize size={18} />
-                                     </div>
-                                     <div className="p-3 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm cursor-pointer border border-slate-100">
-                                        <Activity size={18} />
-                                     </div>
-                                     <div className="p-3 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors shadow-sm cursor-pointer border border-slate-100">
-                                        <Zap size={18} />
-                                     </div>
-                                  </div>
-                                </WidgetContainer>
-                              );
-                            }
-                            if (widgetId === "version") {
-                              return (
-                                <WidgetContainer key={widgetId} id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked}>
-                                   <div className="flex items-start gap-4 mb-3">
-                                     <div className="w-9 h-9 rounded-2xl bg-purple-50 text-purple-500 flex items-center justify-center">
-                                        <Info size={18} />
-                                     </div>
-                                     <div>
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Phiên bản</p>
-                                        <p className="text-[10px] font-bold text-slate-800 leading-tight">Vplay Build Metadata</p>
-                                     </div>
-                                  </div>
-                                  <div className="text-2xl font-bold tracking-tight text-slate-900 mb-0.5">Build 26606</div>
-                                  <div className="flex flex-wrap gap-2 mt-2">
-                                    <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-600 text-[8px] font-bold uppercase tracking-wider">Dev Branch</span>
-                                    <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[8px] font-bold uppercase tracking-wider">Stable</span>
-                                  </div>
-                                </WidgetContainer>
-                              );
-                            }
-                            if (widgetId === "channels") {
-                              return (
-                                <WidgetContainer key={widgetId} id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked}>
-                                  <div className="space-y-2.5 py-0.5">
-                                    {channels.slice(0, 3).map(ch => (
-                                      <button 
-                                        key={ch.name} 
-                                        onClick={() => { setActiveChannel(ch); setActiveTab("Phát sóng"); onClose(); }}
-                                        className="w-full flex items-center gap-3 p-2.5 rounded-2xl hover:bg-slate-50 transition-all text-left border border-transparent hover:border-slate-100 shadow-sm bg-white"
-                                      >
-                                        <div className="w-8 h-8 rounded-xl bg-slate-50 p-1.5 flex items-center justify-center">
-                                          <img src={ch.logo} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
-                                        </div>
-                                        <div>
-                                          <span className="text-[10px] font-bold text-slate-800 block truncate max-w-[80px]">{ch.name}</span>
-                                          <span className="text-[8px] text-slate-400 font-medium">Live</span>
-                                        </div>
-                                      </button>
-                                    ))}
-                                  </div>
-                                </WidgetContainer>
-                              );
-                            }
-                            return null;
-                          })}
+                      </div>
+                    )}
+
+                    {activeDashboardTab === "labs" && (
+                      <div className="flex-1 flex flex-col overflow-hidden">
+                        <div className="p-8 pb-4 flex items-center justify-between border-b border-black/5">
+                          <h2 className="text-2xl font-bold tracking-tight text-slate-800">Experimental Content</h2>
+                          <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 text-slate-400 transition-colors">
+                            <X size={16} />
+                          </button>
                         </div>
-                      )}
-                    </div>
+                        <div className="flex-1 overflow-y-auto px-8 py-6 custom-scrollbar">
+                          <ExperimentalContent 
+                            isDark={false} 
+                            featureFlags={featureFlags} 
+                            setFeatureFlags={setFeatureFlags || (() => {})} 
+                            liquidGlass={liquidGlass || "glassy"} 
+                            loadingTreatment={loadingTreatment || "shimmer"}
+                            setLoadingTreatment={setLoadingTreatment || (() => {})}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </>
-                )}
-
-                {activeDashboardTab === "changelogs" && (
-                  <div className="flex-1 flex flex-col overflow-hidden">
-                    <div className="p-8 pb-4 flex items-center justify-between border-b border-black/5">
-                      <h2 className="text-2xl font-bold tracking-tight text-slate-800">Update Logs</h2>
-                      <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 text-slate-400 transition-colors">
-                        <X size={16} />
-                      </button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto px-8 py-6 custom-scrollbar">
-                      <UpdateLogsContent isDark={false} onBack={() => setActiveDashboardTab("widgets")} loadingTreatment={loadingTreatment || "shimmer"} />
-                    </div>
-                  </div>
-                )}
-
-                {activeDashboardTab === "labs" && (
-                  <div className="flex-1 flex flex-col overflow-hidden">
-                    <div className="p-8 pb-4 flex items-center justify-between border-b border-black/5">
-                      <h2 className="text-2xl font-bold tracking-tight text-slate-800">Experimental Content</h2>
-                      <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 text-slate-400 transition-colors">
-                        <X size={16} />
-                      </button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto px-8 py-6 custom-scrollbar">
-                      <ExperimentalContent 
-                        isDark={false} 
-                        featureFlags={featureFlags} 
-                        setFeatureFlags={setFeatureFlags || (() => {})} 
-                        liquidGlass={liquidGlass || "glassy"} 
-                        loadingTreatment={loadingTreatment || "shimmer"}
-                        setLoadingTreatment={setLoadingTreatment || (() => {})}
-                      />
-                    </div>
-                  </div>
                 )}
              </div>
 
              {/* Context Menu */}
              <AnimatePresence>
-                {contextMenu && (
+                {contextMenu?.id && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="fixed z-[300] w-48 bg-white border border-slate-100 shadow-2xl rounded-2xl p-2 flex flex-col gap-0.5"
+                    className="fixed z-[1002] w-48 bg-white border border-slate-100 shadow-2xl rounded-2xl p-2 flex flex-col gap-0.5"
                     style={{ left: contextMenu.x, top: contextMenu.y }}
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -5956,51 +6354,136 @@ function WidgetsDashboard({
                 )}
              </AnimatePresence>
 
-             {/* Internal Widget Picker Overlay */}
-             <AnimatePresence>
+              {/* Internal Widget Picker Overlay */}
+              <AnimatePresence>
                 {isPickerOpen && (
                   <motion.div 
-                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="absolute inset-0 z-50 bg-[#f5f7f9] p-8 overflow-y-auto custom-scrollbar"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    className="absolute inset-0 z-[1001] bg-[#f0f2f5] flex flex-col md:flex-row overflow-hidden"
                   >
-                    <div className="flex items-center justify-between mb-8">
-                       <h3 className="text-xl font-bold tracking-tight text-slate-900">Widget Picker</h3>
-                       <button onClick={() => setIsPickerOpen(false)} className="p-2 rounded-xl hover:bg-slate-200 text-slate-500">
-                          <X size={18} />
-                       </button>
+                    {/* Picker Sidebar */}
+                    <div className="w-full md:w-64 bg-white/50 border-r border-slate-200 flex flex-col shrink-0">
+                      <div className="p-6 pb-2">
+                        <h3 className="text-sm font-bold text-slate-500 mb-6 font-google uppercase tracking-widest">Pin widgets</h3>
+                        <div className="space-y-1">
+                          {Array.from(new Set(allAvailableWidgets.map(w => w.category))).map(cat => {
+                            const isSelected = selectedPickerWidget?.category === cat;
+                            return (
+                              <button
+                                key={cat}
+                                onClick={() => {
+                                  const widget = allAvailableWidgets.find(w => w.category === cat);
+                                  if (widget) setSelectedPickerWidget(widget);
+                                }}
+                                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${isSelected ? "bg-slate-100 text-slate-900 shadow-sm" : "text-slate-500 hover:bg-white/50"}`}
+                              >
+                                {cat === "Outlook" && <Calendar size={16} className="text-blue-500" />}
+                                {cat === "Entertainment" && <Tv size={16} className="text-orange-500" />}
+                                {cat === "M365" && <Clock size={16} className="text-blue-600" />}
+                                {cat === "Finance" && <TrendingUp size={16} className="text-green-500" />}
+                                {cat === "Tips" && <Info size={16} className="text-purple-600" />}
+                                <span className={isSelected ? "font-bold" : ""}>{cat}</span>
+                                {isSelected && (
+                                  <motion.div layoutId="picker-active" className="ml-auto w-1 h-4 bg-blue-600 rounded-full" />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      <div className="mt-auto p-4 border-t border-slate-100">
+                        <button className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-slate-100 transition-colors text-slate-500 font-bold uppercase tracking-widest text-[10px]">
+                          <LayoutGrid size={18} />
+                          Find more widgets
+                        </button>
+                      </div>
                     </div>
-                    
-                    <div className="space-y-2.5">
-                      {allWidgets.map(widget => {
-                        const isPinned = pinnedWidgets.includes(widget.id);
-                        const Icon = widget.icon;
-                        return (
-                          <button
-                            key={widget.id}
-                            onClick={() => {
-                              if (isPinned) removeWidget(widget.id);
-                              else addWidget(widget.id);
-                            }}
-                            className={`w-full flex items-center justify-between p-3.5 rounded-[20px] border transition-all ${
-                              isPinned ? "bg-primary/5 border-primary/20 shadow-sm" : "bg-white border-slate-100 hover:border-slate-200"
-                            }`}
-                          >
-                            <div className="flex items-center gap-4">
-                              <div className={`w-9 h-9 rounded-[14px] flex items-center justify-center ${isPinned ? "bg-primary text-white" : "bg-slate-50 text-slate-400"}`}>
-                                <Icon size={18} />
+
+                    {/* Picker Content */}
+                    <div className="flex-1 flex flex-col bg-white overflow-hidden relative">
+                        <button onClick={() => setIsPickerOpen(false)} className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 text-slate-400 z-10 transition-colors">
+                          <X size={20} />
+                        </button>
+
+                        <div className="flex-1 flex flex-col p-8 overflow-y-auto custom-scrollbar">
+                          <div className="mb-8">
+                             <div className="relative group">
+                                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                   <Search size={18} />
+                                </div>
+                                <input 
+                                  type="text" 
+                                  value={pickerSearchQuery}
+                                  onChange={(e) => setPickerSearchQuery(e.target.value)}
+                                  placeholder="Tìm kiếm tiện ích..." 
+                                  className="w-full h-12 pl-12 pr-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-xs outline-none focus:bg-white focus:border-blue-500 transition-all"
+                                />
+                             </div>
+                          </div>
+
+                          {selectedPickerWidget || pickerSearchQuery ? (
+                            <div className="w-full">
+                              <div className="mb-6 flex items-center justify-between">
+                                <div>
+                                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">{pickerSearchQuery ? "Search Results" : selectedPickerWidget.category}</p>
+                                  <h4 className="text-xl font-google font-black text-slate-900">{pickerSearchQuery ? `Kết quả cho "${pickerSearchQuery}"` : "Available Widgets"}</h4>
+                                </div>
                               </div>
-                              <span className={`text-xs font-bold ${isPinned ? "text-primary" : "text-slate-600"}`}>{widget.name}</span>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {allAvailableWidgets
+                                  .filter(w => {
+                                      if (pickerSearchQuery) {
+                                          return w.name.toLowerCase().includes(pickerSearchQuery.toLowerCase()) || 
+                                                 w.category.toLowerCase().includes(pickerSearchQuery.toLowerCase());
+                                      }
+                                      return w.category === selectedPickerWidget.category;
+                                  })
+                                  .map(widget => {
+                                    const isPinned = pinnedWidgets.includes(widget.id);
+                                    return (
+                                      <div key={widget.id} className="group p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all">
+                                        <div className="flex items-center gap-4">
+                                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform ${isPinned ? "bg-slate-100 text-slate-400" : "bg-blue-600 text-white"}`}>
+                                            <widget.icon size={24} />
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <h5 className="text-sm font-bold text-slate-900 truncate">{widget.name}</h5>
+                                            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-medium">Standard size</p>
+                                          </div>
+                                          <button 
+                                            onClick={() => isPinned ? removeWidget(widget.id) : addWidget(widget.id)}
+                                            className={`p-2.5 rounded-xl transition-all ${isPinned ? "bg-slate-100 text-slate-400" : "bg-blue-600 text-white shadow-lg shadow-blue-600/20 active:scale-90"}`}
+                                          >
+                                            {isPinned ? <CheckCircle2 size={18} /> : <Pin size={18} />}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                              </div>
+
+                              {(!pickerSearchQuery && selectedPickerWidget) && (
+                                <div className="mt-12 p-8 rounded-3xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-center">
+                                    <div className="w-20 h-20 rounded-[2rem] bg-white shadow-2xl flex items-center justify-center text-blue-600 mb-6 group-hover:rotate-12 transition-transform">
+                                      <selectedPickerWidget.icon size={40} />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-slate-900 mb-2">{selectedPickerWidget.name}</h3>
+                                    <p className="text-[11px] text-slate-400 max-w-[240px] font-medium leading-relaxed">
+                                      {selectedPickerWidget.description || "Thêm tiện ích này vào bảng tin của bạn để quản lý thông tin tốt hơn."}
+                                    </p>
+                                </div>
+                              )}
                             </div>
-                            {isPinned ? (
-                              <CheckCircle2 size={18} className="text-primary" />
-                            ) : (
-                              <Plus size={18} className="text-slate-300" />
-                            )}
-                          </button>
-                        );
-                      })}
+                          ) : (
+                            <div className="flex-1 flex flex-col items-center justify-center text-center opacity-20 py-20">
+                              <LayoutGrid size={120} strokeWidth={1} className="mb-6" />
+                              <p className="text-2xl font-google font-black uppercase tracking-widest">Select a category</p>
+                            </div>
+                          )}
+                        </div>
                     </div>
                   </motion.div>
                 )}
@@ -6011,6 +6494,7 @@ function WidgetsDashboard({
     </AnimatePresence>
   );
 }
+
 
 function GeoPopup({ isOpen, onClose, isDark, onAutoSelect, onManualSelect }: {
   isOpen: boolean;
