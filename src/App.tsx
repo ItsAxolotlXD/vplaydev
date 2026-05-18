@@ -55,22 +55,32 @@ const EXPERIMENTS = [
   {
     id: "widgets_dashboard",
     name: "Widgets Dashboard",
-    desc: "Enables brand-new widgets dashboard"
+    desc: "Enables brand-new widgets dashboard",
+    stability: "stable"
   },
   {
     id: "multiview_channels",
     name: "Multi-view",
-    desc: "Lựa chọn xem nhiều kênh truyền hình cùng một thời điểm"
-  },
-  {
-    id: "screen_recording",
-    name: "Ghi màn hình",
-    desc: "Cho phép ghi lại màn hình kênh truyền hình đang phát và lưu về thiết bị của bạn"
+    desc: "Lựa chọn xem nhiều kênh truyền hình cùng một thời điểm",
+    stability: "stable"
   },
   {
     id: "PiP_experimental",
     name: "Picture in Picture",
-    desc: "Hiển thị hình phát thu nhỏ của kênh đang xem khi chuyển sang trang khác hoặc cuộn xuống."
+    desc: "Hiển thị hình phát thu nhỏ của kênh đang xem khi chuyển sang trang khác hoặc cuộn xuống.",
+    stability: "stable"
+  },
+  {
+    id: "settings_in_widgets",
+    name: "Settings in Widgets",
+    desc: "Moves the app settings into the Widgets Dashboard",
+    stability: "unstable"
+  },
+  {
+    id: "screen_recording",
+    name: "Ghi màn hình",
+    desc: "Cho phép ghi lại màn hình kênh truyền hình đang phát và lưu về thiết bị của bạn",
+    stability: "unstable"
   }
 ];
 
@@ -765,6 +775,7 @@ function ExploreContent({
   onLogin,
   onLogout,
   setActiveTab,
+  handleOpenSettings,
   setIsDark,
   setLiquidGlass,
   setSortOrder,
@@ -795,6 +806,7 @@ function ExploreContent({
   onLogin: () => void,
   onLogout: () => void,
   setActiveTab: (tab: string) => void,
+  handleOpenSettings: () => void,
   setIsDark: (val: boolean) => void,
   setLiquidGlass: (val: "glassy" | "tinted") => void,
   setSortOrder: (val: "az" | "za") => void,
@@ -885,6 +897,7 @@ function ExploreContent({
               favorites={favorites}
               liquidGlass={liquidGlass}
               setActiveTab={setActiveTab}
+              handleOpenSettings={handleOpenSettings}
               setIsDark={setIsDark}
               setLiquidGlass={setLiquidGlass}
               onLogin={onLogin}
@@ -1939,7 +1952,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                 {filteredCategories.map((cat, catIdx) => (
             <div key={`${cat}-${catIdx}`} className="space-y-6 md:space-y-8">
               <div className="flex items-center gap-3 md:gap-4 px-2">
-                <div className="h-6 md:h-8 w-1 md:w-1.5 bg-purple-500 rounded-full" />
+                <div className="h-6 md:h-8 w-[4px] bg-purple-500 rounded-full" />
                 <div>
                   <h3 className={`text-xl md:text-3xl font-bold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-900"}`}>{cat}</h3>
                 </div>
@@ -1999,6 +2012,7 @@ function SearchPopup({
   favorites, 
   liquidGlass,
   setActiveTab,
+  handleOpenSettings,
   setIsDark,
   setLiquidGlass,
   onLogin,
@@ -2046,7 +2060,8 @@ function SearchPopup({
   setFeatureFlags?: (val: any) => void,
   setIsSidebarLocked?: (val: boolean) => void,
   setSearchQuery?: (val: string) => void,
-  searchFilter?: "all" | "channels" | "settings" | "experiments"
+  searchFilter?: "all" | "channels" | "settings" | "experiments",
+  handleOpenSettings: () => void
 }) {
   if (searchQuery.trim() === "" && !asContent) return null;
 
@@ -2064,10 +2079,10 @@ function SearchPopup({
     { name: "Lưu trữ", type: "tab", icon: FolderIcon, action: () => setActiveTab("Lưu trữ") },
     { name: "Thử nghiệm", type: "tab", icon: ExperimentalIcon, action: () => setActiveTab("Experimental"), isExp: true },
     { name: "Phòng thí nghiệm", type: "tab", icon: ExperimentalIcon, action: () => setActiveTab("Experimental"), isExp: true },
-    { name: "Cài đặt", type: "tab", icon: SettingsIcon, action: () => setActiveTab("Cài đặt") },
+    { name: "Cài đặt", type: "tab", icon: SettingsIcon, action: () => handleOpenSettings() },
     { name: "Quản trị", type: "tab", icon: ShieldCheck, action: () => setActiveTab("Quản trị") },
     { name: "Tài khoản", type: "tab", icon: AccountIcon, action: () => setActiveTab("Tài khoản") },
-    { name: "Cộng đồng", type: "tab", icon: CommunityIcon, action: () => setActiveTab("Cài đặt") },
+    { name: "Cộng đồng", type: "tab", icon: CommunityIcon, action: () => handleOpenSettings() },
     { name: "Nhật ký cập nhật", type: "tab", icon: Zap, action: () => setActiveTab("Update Logs") },
     
     { name: "Chế độ tối", type: "setting", icon: Moon, action: () => setIsDark(true) },
@@ -2089,7 +2104,7 @@ function SearchPopup({
     { name: "Lọc kênh Phim", type: "button", icon: Film, action: () => { onClose(); (document.querySelector('input') as HTMLInputElement).value = "Phim"; setSearchQuery?.("Phim"); } },
     { name: "Lọc kênh Bóng đá", type: "button", icon: Zap, action: () => { onClose(); (document.querySelector('input') as HTMLInputElement).value = "Bóng đá"; setSearchQuery?.("Bóng đá"); } },
     
-    { name: "Cài đặt nâng cao", type: "button", icon: SettingsIcon, action: () => setActiveTab("Cài đặt") },
+    { name: "Cài đặt nâng cao", type: "button", icon: SettingsIcon, action: () => handleOpenSettings() },
     { name: "Quản lý kênh", type: "button", icon: ShieldCheck, action: () => setActiveTab("Quản trị") },
     { name: "Tìm kiếm mở rộng", type: "button", icon: SearchIcon, action: () => setActiveTab("Khám phá") },
     
@@ -2103,7 +2118,7 @@ function SearchPopup({
     { name: "Kênh đã ghim", type: "element", icon: Pin, action: () => setActiveTab("Live") },
     { name: "Người dùng đăng nhập", type: "element", icon: User, action: onLogin },
     { name: "Bảng điều khiển", type: "element", icon: Layout, action: () => setActiveTab("Quản trị") },
-    { name: "Liên hệ hỗ trợ", type: "element", icon: Info, action: () => setActiveTab("Cài đặt") },
+    { name: "Liên hệ hỗ trợ", type: "element", icon: Info, action: () => handleOpenSettings() },
     
     { name: "Multiview Channels", type: "experiments", icon: LayoutGrid, action: () => setActiveTab("Experimental"), isExp: true },
     { name: "Screen Recording", type: "experiments", icon: Camera, action: () => setActiveTab("Experimental"), isExp: true },
@@ -2428,7 +2443,7 @@ function AdminContent({ isDark, liquidGlass }: { isDark: boolean, liquidGlass: "
 }
 
 
-function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment }: { isDark: boolean, onBack: () => void, featureFlags?: any, loadingTreatment: string }) {
+function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment, handleOpenSettings }: { isDark: boolean, onBack: () => void, featureFlags?: any, loadingTreatment: string, handleOpenSettings?: () => void }) {
   const [isLoading, setIsLoading] = useState(true);
   const [logSearchQuery, setLogSearchQuery] = useState("");
 
@@ -2751,7 +2766,7 @@ function ExperimentalContent({ isDark, featureFlags, setFeatureFlags, liquidGlas
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-2 md:p-4 space-y-6 pb-32 scale-[0.85] origin-top">
+    <div className="max-w-3xl mx-auto p-2 md:p-4 space-y-8 pb-32 scale-[0.85] origin-top">
       <div className={`p-5 rounded-[20px] border-2 transition-all shadow-md ${
         isDark ? "bg-amber-500/10 border-amber-500/20 text-amber-500" : "bg-amber-50 border-amber-200 text-amber-700"
       }`}>
@@ -2766,43 +2781,54 @@ function ExperimentalContent({ isDark, featureFlags, setFeatureFlags, liquidGlas
         </div>
       </div>
 
-      <div className="space-y-2 px-1">
-      </div>
-
-      <div className={`rounded-[20px] md:rounded-[24px] overflow-hidden border-2 transition-all ${isDark ? "bg-white/5 border-white/10 shadow-xl" : "bg-white border-slate-200 shadow-lg"}`}>
-        {EXPERIMENTS.map((exp, idx) => (
-          <div key={`exp-tab-${exp.id}`}>
-            <div className={`flex flex-col md:flex-row items-start md:items-center justify-between p-5 md:p-6 transition-all hover:bg-black/5 gap-5`}>
-              <div className="flex flex-col sm:flex-row items-start gap-4 text-left">
-                <div className={`p-2.5 md:p-3 rounded-2xl shrink-0 ${isDark ? "bg-white/5 text-white" : "bg-slate-100 text-slate-600"}`}>
-                  <ExperimentalIcon size={20} />
-                </div>
-                <div className="space-y-0.5">
-                  <p className={`text-base md:text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{exp.name}</p>
-                  <p className={`text-[10px] md:text-[11px] font-bold opacity-60 leading-relaxed max-w-sm ${isDark ? "text-white" : "text-slate-500"}`}>{exp.desc || "Nâng cấp trải nghiệm hệ thống với các tính năng thử nghiệm mới nhất"}</p>
-                  <div className="pt-1.5">
-                    <span className={`px-2.5 py-0.5 rounded-2xl text-[9px] md:text-[10px] font-bold font-mono border-2 ${isDark ? "bg-yellow-400/20 border-yellow-400 text-yellow-400" : "bg-yellow-400 border-yellow-500 text-yellow-950"}`}>
-                      REF_ID: {exp.id}
-                    </span>
+      <div className="space-y-8">
+        {[
+          { title: "Stable Experiments", stability: "stable" },
+          { title: "Unstable Experiments", stability: "unstable" }
+        ].map(section => (
+          <div key={section.stability} className="space-y-4">
+            <h3 className={`text-base font-bold px-1 ${isDark ? "text-white" : "text-slate-900"}`}>
+              {section.title}
+            </h3>
+            <div className={`rounded-[20px] md:rounded-[24px] overflow-hidden border-2 transition-all ${isDark ? "bg-white/5 border-white/10 shadow-xl" : "bg-white border-slate-200 shadow-lg"}`}>
+              {EXPERIMENTS
+                .filter(exp => exp.stability === section.stability)
+                .map((exp, idx, arr) => (
+                <div key={`exp-tab-${exp.id}`}>
+                  <div className={`flex flex-col md:flex-row items-start md:items-center justify-between p-5 md:p-6 transition-all hover:bg-black/5 gap-5`}>
+                    <div className="flex flex-col sm:flex-row items-start gap-4 text-left">
+                      <div className={`p-2.5 md:p-3 rounded-2xl shrink-0 ${isDark ? "bg-white/5 text-white" : "bg-slate-100 text-slate-600"}`}>
+                        <ExperimentalIcon size={20} />
+                      </div>
+                      <div className="space-y-0.5">
+                        <p className={`text-base md:text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{exp.name}</p>
+                        <p className={`text-[10px] md:text-[11px] font-bold opacity-60 leading-relaxed max-w-sm ${isDark ? "text-white" : "text-slate-500"}`}>{exp.desc || "Nâng cấp trải nghiệm hệ thống với các tính năng thử nghiệm mới nhất"}</p>
+                        <div className="pt-1.5">
+                          <span className={`px-2.5 py-0.5 rounded-2xl text-[9px] md:text-[10px] font-bold font-mono border-2 ${isDark ? "bg-yellow-400/20 border-yellow-400 text-yellow-400" : "bg-yellow-400 border-yellow-500 text-yellow-950"}`}>
+                            REF_ID: {exp.id}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setFeatureFlags(prev => ({ ...prev, [exp.id]: !prev[exp.id] }))}
+                      className={`w-14 h-8 rounded-full transition-all relative border-2 shrink-0 ${featureFlags[exp.id] ? "bg-purple-600/30 border-purple-600/40" : "bg-transparent border-slate-700/30"}`}
+                    >
+                      <motion.div 
+                        animate={{ 
+                          x: featureFlags[exp.id] ? 24 : 4,
+                        }}
+                        initial={false}
+                        transition={{ type: "spring", damping: 20, stiffness: 200 }}
+                        className={`absolute top-[2px] h-[24px] w-[24px] rounded-full shadow-sm transition-colors ${featureFlags[exp.id] ? "bg-white" : "bg-white"}`}
+                      />
+                    </button>
                   </div>
-                </div>
-              </div>
-              <button 
-                onClick={() => setFeatureFlags(prev => ({ ...prev, [exp.id]: !prev[exp.id] }))}
-                className={`w-14 h-8 rounded-full transition-all relative border-2 shrink-0 ${featureFlags[exp.id] ? "bg-purple-600/30 border-purple-600/40" : "bg-transparent border-slate-700/30"}`}
-              >
-                <motion.div 
-                  animate={{ 
-                    x: featureFlags[exp.id] ? 24 : 4,
-                  }}
-                  initial={false}
-                  transition={{ type: "spring", damping: 20, stiffness: 200 }}
-                  className={`absolute top-[2px] h-[24px] w-[24px] rounded-full shadow-sm transition-colors ${featureFlags[exp.id] ? "bg-white" : "bg-white"}`}
-                />
-              </button>
-            </div>
 
-            {idx < EXPERIMENTS.length - 1 && <div className={`h-[1px] mx-6 ${isDark ? "bg-white/10" : "bg-slate-200"}`} />}
+                  {idx < arr.length - 1 && <div className={`h-[1px] mx-6 ${isDark ? "bg-white/10" : "bg-slate-200"}`} />}
+                </div>
+              ))}
+            </div>
           </div>
         ))}
       </div>
@@ -2856,7 +2882,8 @@ function RejuvenatedSettings(props: any) {
     topbarSearchType, setTopbarSearchType,
     locationDetection, setLocationDetection,
     timeZone, setTimeZone,
-    setActiveDashboardTab, setIsWidgetsOpen, setActiveTab
+    setActiveDashboardTab, setIsWidgetsOpen, setActiveTab,
+    isFlat = false
   } = props;
 
   const [activeCategory, setActiveCategory] = useState("SystemInfo");
@@ -2883,8 +2910,9 @@ function RejuvenatedSettings(props: any) {
     );
   };
 
-  const renderContent = () => {
-    switch (activeCategory) {
+  const renderContent = (catId?: string) => {
+    const id = catId || activeCategory;
+    switch (id) {
       case "SystemInfo":
         return (
           <div className="space-y-6 text-left">
@@ -3271,87 +3299,81 @@ function RejuvenatedSettings(props: any) {
     }
   };
 
+  if (isFlat) {
+    return (
+      <div className="space-y-12 pb-32 max-w-4xl mx-auto px-4 md:px-0">
+        <div className="relative group mb-10">
+          <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-purple-500 transition-colors" />
+          <input 
+            type="text" 
+            placeholder="Tìm cài đặt..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={`w-full h-14 pl-14 pr-6 rounded-[24px] text-sm font-bold outline-none transition-all border-2 bg-white border-slate-200 focus:border-purple-500 shadow-sm placeholder:text-slate-300`}
+          />
+        </div>
+        {categories.map((cat) => (
+          <div key={cat.id} className="space-y-6">
+            <div className="flex items-center gap-4 px-2">
+              <div className="h-4 w-[6px] bg-blue-600 rounded-full" />
+              <h3 className={`text-sm font-bold tracking-tight text-slate-400`}>{cat.name}</h3>
+            </div>
+            {renderContent(cat.id)}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col md:flex-row h-full w-full gap-8 overflow-hidden pt-4">
-       {/* Left sidebar for categories */}
-       <div className="w-full md:w-80 flex flex-col gap-1 py-4 shrink-0 overflow-y-auto">
-          <div className="px-4 mb-6 relative">
-             <input 
-               type="text" 
-               placeholder="Tìm cài đặt..." 
-               value={searchQuery}
-               onChange={(e) => setSearchQuery(e.target.value)}
-               className={`w-full py-2.5 px-10 rounded-lg border-b text-sm transition-all ${isDark ? "bg-white/5 border-white/10 text-white placeholder-white/20" : "bg-black/5 border-slate-200 text-slate-900"}`}
-             />
-             <Search size={14} className="absolute left-7 top-1/2 -translate-y-1/2 opacity-30" />
+    <div className={`flex flex-col lg:flex-row h-full overflow-hidden ${isDark ? "bg-vplay-background" : "bg-white"}`}>
+      <div className={`w-full lg:w-[320px] shrink-0 p-6 flex flex-col gap-10 border-r border-black/5 z-10 ${isDark ? "bg-black/20" : "bg-slate-50/10"}`}>
+        <div className="space-y-4">
+          <div className="relative group">
+            <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-purple-500 transition-colors" />
+            <input 
+              type="text" 
+              placeholder="Tìm cài đặt..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={`w-full h-14 pl-14 pr-6 rounded-[24px] text-sm font-bold outline-none transition-all border-2 ${
+                isDark 
+                  ? "bg-white/5 border-white/5 focus:border-purple-500 text-white placeholder:text-white/20" 
+                  : "bg-white border-slate-200 focus:border-purple-500 shadow-sm placeholder:text-slate-300"
+              }`}
+            />
           </div>
+        </div>
 
-          <div className="space-y-0.5 px-2">
-            {categories.filter(c => 
-              !searchQuery || 
-              c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              c.keywords.some(k => k.toLowerCase().includes(searchQuery.toLowerCase()))
-            ).map(cat => {
-              const Icon = cat.icon;
-              const isActive = activeCategory === cat.id;
-              return (
-                <button
-                  key={`cat-${cat.id}`}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all relative group ${
-                    isActive 
-                      ? (isDark ? "bg-white/10 text-white" : "bg-white shadow-sm text-slate-900 border border-slate-100") 
-                      : (isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-slate-600 hover:text-slate-900 hover:bg-black/5")
-                  }`}
-                >
-                  {isActive && (
-                    <motion.div 
-                      layoutId="catActivePill"
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-4 bg-purple-500 rounded-r-md shadow-[0_0_8px_rgba(168,85,247,0.5)]" 
-                    />
-                  )}
-                  <Icon size={18} strokeWidth={isActive ? 2 : 1.5} className={isActive ? "text-purple-500" : ""} />
-                  <span className={`text-sm ${isActive ? "font-bold" : "font-medium"}`}>{cat.name}</span>
-                </button>
-              );
-            })}
-          </div>
-       </div>
+        <div className="flex-1 overflow-y-auto custom-scrollbar -mx-2 px-2 space-y-1">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`w-full flex items-center gap-5 px-5 py-4 rounded-[22px] transition-all relative group ${
+                activeCategory === cat.id 
+                  ? (isDark ? "bg-purple-600 text-white shadow-xl shadow-purple-500/30" : "bg-white text-purple-600 shadow-xl shadow-purple-100 border border-purple-100")
+                  : (isDark ? "text-white/40 hover:text-white hover:bg-white/5" : "text-slate-500 hover:bg-white")
+              }`}
+            >
+              <cat.icon size={20} strokeWidth={activeCategory === cat.id ? 2.5 : 1.5} />
+              <span className={`text-[13px] font-bold tracking-tight ${activeCategory === cat.id ? "font-black" : ""}`}>{cat.name}</span>
+              {activeCategory === cat.id && (
+                <motion.div 
+                  layoutId="activeCat"
+                  className={`absolute left-0 w-1.5 h-4 rounded-full ${isDark ? "bg-white" : "bg-purple-600"}`} 
+                />
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
 
-       {/* Right content area */}
-       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-8 pb-32">
-          <div className="space-y-1 mb-8">
-             <h2 className={`text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
-               {categories.find(c => c.id === activeCategory)?.name}
-             </h2>
-             {activeCategory === "System" && (
-                <div className="flex items-center gap-4 mt-6">
-                   <div className={`p-6 rounded-3xl border flex items-center gap-4 flex-1 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white shadow-xl">
-                         <Zap size={24} />
-                      </div>
-                      <div>
-                         <p className="text-sm font-bold truncate">Vplay Desktop</p>
-                         <button className="text-xs text-purple-500 font-bold hover:underline">Rename PC</button>
-                      </div>
-                   </div>
-                   <div className={`p-6 rounded-3xl border flex items-center gap-4 flex-1 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
-                      <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-500">
-                         <Cloud size={24} />
-                      </div>
-                      <div>
-                         <p className="text-sm font-bold truncate">OneDrive</p>
-                         <p className="text-xs opacity-50">Backing up files</p>
-                      </div>
-                   </div>
-                </div>
-             )}
-          </div>
-          
-          <div className="space-y-4">
-             {renderContent()}
-          </div>
-       </div>
+      <div className={`flex-1 overflow-y-auto p-6 md:p-12 custom-scrollbar animate-in fade-in slide-in-from-right-4 duration-500 ${isDark ? "" : "bg-slate-50/5"}`}>
+        <div className="max-w-4xl mx-auto">
+          {renderContent()}
+        </div>
+      </div>
     </div>
   );
 }
@@ -4701,6 +4723,7 @@ function OnboardingWizard({
     isSidebarRight: false,
     isPinningEnabled: false,
     featureFlags: { 
+      settings_in_widgets: false,
       widgets_dashboard: false, 
       multiview_channels: false, 
       disable_animation: false, 
@@ -5326,8 +5349,8 @@ function SearchContextMenu({
   );
 }
 
-function SidebarContextMenu({ x, y, onClose, isDark, setActiveTab, setUseSidebar, setIsSidebarRight, isSidebarRight, setIsDev }: { 
-  x: number, y: number, onClose: () => void, isDark: boolean, setActiveTab: (t: string) => void,
+function SidebarContextMenu({ x, y, onClose, isDark, setActiveTab, handleOpenSettings, setUseSidebar, setIsSidebarRight, isSidebarRight, setIsDev }: { 
+  x: number, y: number, onClose: () => void, isDark: boolean, setActiveTab: (t: string) => void, handleOpenSettings: () => void,
   setUseSidebar: (v: boolean) => void, setIsSidebarRight: (v: boolean) => void, isSidebarRight: boolean,
   setIsDev: (v: boolean) => void
 }) {
@@ -5344,7 +5367,7 @@ function SidebarContextMenu({ x, y, onClose, isDark, setActiveTab, setUseSidebar
           isDark ? "bg-vplay-background/95 border-white/10 text-white" : "bg-white/95 border-slate-200 text-slate-900 shadow-xl"
         } backdrop-blur-3xl`}
       >
-        <button onClick={() => { setActiveTab("Cài đặt"); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
+        <button onClick={() => { handleOpenSettings(); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
           <SettingsIcon size={16} />
           <span className="text-sm font-medium">Sidebar settings</span>
         </button>
@@ -5365,8 +5388,8 @@ function SidebarContextMenu({ x, y, onClose, isDark, setActiveTab, setUseSidebar
   );
 }
 
-function TopBarContextMenu({ x, y, onClose, isDark, setActiveTab, setHeadingBar, headingBar, showTempInClock, setShowTempInClock, showClock, setShowClock, showDate, setShowDate, setIsDev }: { 
-  x: number, y: number, onClose: () => void, isDark: boolean, setActiveTab: (t: string) => void,
+function TopBarContextMenu({ x, y, onClose, isDark, setActiveTab, handleOpenSettings, setHeadingBar, headingBar, showTempInClock, setShowTempInClock, showClock, setShowClock, showDate, setShowDate, setIsDev }: { 
+  x: number, y: number, onClose: () => void, isDark: boolean, setActiveTab: (t: string) => void, handleOpenSettings: () => void,
   setHeadingBar: (v: boolean) => void, headingBar: boolean, showTempInClock: boolean, setShowTempInClock: (v: boolean) => void,
   showClock: boolean, setShowClock: (v: boolean) => void, showDate: boolean, setShowDate: (v: boolean) => void, setIsDev: (v: boolean) => void
 }) {
@@ -5387,7 +5410,7 @@ function TopBarContextMenu({ x, y, onClose, isDark, setActiveTab, setHeadingBar,
           {headingBar ? <EyeOff size={18} /> : <Eye size={18} />}
           <span className="text-xs font-bold">{headingBar ? "Ẩn Top bar" : "Hiện Top bar"}</span>
         </button>
-        <button onClick={() => { setActiveTab("Cài đặt"); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
+        <button onClick={() => { handleOpenSettings(); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
           <SettingsIcon size={18} />
           <span className="text-xs font-bold">Cài đặt thanh điều hướng</span>
         </button>
@@ -5918,9 +5941,67 @@ function WidgetsDashboard({
   isDev,
   setIsDev,
   liquidGlass,
+  setLiquidGlass,
   onOpenUserMenu,
   activeDashboardTab,
-  setActiveDashboardTab
+  setActiveDashboardTab,
+  setIsDark,
+  useSidebar,
+  setUseSidebar,
+  isSidebarRight,
+  setIsSidebarRight,
+  isSidebarLocked,
+  setIsSidebarLocked,
+  sidebarDisplay,
+  setSidebarDisplay,
+  isPinningEnabled,
+  setIsPinningEnabled,
+  setUserData,
+  onAlert,
+  handleLogin,
+  handleResetOnboarding,
+  favorites,
+  bypassed,
+  tempUnit,
+  setTempUnit,
+  location,
+  setLocation,
+  timeFormat,
+  setTimeFormat,
+  clockFormat,
+  setClockFormat,
+  dateFormat,
+  setDateFormat,
+  showClock,
+  setShowClock,
+  showDate,
+  setShowDate,
+  showTempInClock,
+  setShowTempInClock,
+  headingBar,
+  setHeadingBar,
+  isSearchCompact,
+  setIsSearchCompact,
+  handleLogout,
+  customColors,
+  setCustomColors,
+  setShowGeoPopup,
+  handleGeolocation,
+  searchQuery,
+  setSearchQuery,
+  isCompactMode,
+  setIsCompactMode,
+  isTouchInterface,
+  setIsTouchInterface,
+  sidebarQuickAccess,
+  setSidebarQuickAccess,
+  topbarSearchType,
+  setTopbarSearchType,
+  locationDetection,
+  setLocationDetection,
+  timeZone,
+  setTimeZone,
+  onCloseDashboard
 }: {
   isOpen: boolean,
   onClose: () => void, 
@@ -5943,8 +6024,67 @@ function WidgetsDashboard({
   setIsDev?: (v: boolean) => void,
   liquidGlass?: "glassy" | "tinted",
   onOpenUserMenu?: () => void,
-  activeDashboardTab: "widgets" | "changelogs" | "labs",
-  setActiveDashboardTab: (val: "widgets" | "changelogs" | "labs") => void
+  setLiquidGlass: (v: "glassy" | "tinted") => void,
+  activeDashboardTab: "widgets" | "changelogs" | "labs" | "settings",
+  setActiveDashboardTab: (val: "widgets" | "changelogs" | "labs" | "settings") => void,
+  // Add remaining settings props needed for RejuvenatedSettings
+  setIsDark: (v: boolean) => void,
+  useSidebar: boolean,
+  setUseSidebar: (v: boolean) => void,
+  isSidebarRight: boolean,
+  setIsSidebarRight: (v: boolean) => void,
+  isSidebarLocked: boolean,
+  setIsSidebarLocked: (v: boolean) => void,
+  sidebarDisplay: "always" | "hover" | "condensed",
+  setSidebarDisplay: (v: "always" | "hover" | "condensed") => void,
+  isPinningEnabled: boolean,
+  setIsPinningEnabled: (v: boolean) => void,
+  setUserData: (d: any) => void,
+  onAlert: (t: string, m: string, tp: any) => void,
+  handleLogin: (u: any) => void,
+  handleResetOnboarding: () => void,
+  favorites: string[],
+  bypassed: boolean,
+  tempUnit: "C" | "F",
+  setTempUnit: (u: "C" | "F") => void,
+  location: string,
+  setLocation: (l: string) => void,
+  timeFormat: "12h" | "24h",
+  setTimeFormat: (f: "12h" | "24h") => void,
+  clockFormat: "digital" | "analog",
+  setClockFormat: (f: "digital" | "analog") => void,
+  dateFormat: string,
+  setDateFormat: (f: string) => void,
+  showClock: boolean,
+  setShowClock: (v: boolean) => void,
+  showDate: boolean,
+  setShowDate: (v: boolean) => void,
+  showTempInClock: boolean,
+  setShowTempInClock: (v: boolean) => void,
+  headingBar: string,
+  setHeadingBar: (s: string) => void,
+  isSearchCompact: boolean,
+  setIsSearchCompact: (v: boolean) => void,
+  handleLogout: () => void,
+  customColors: any,
+  setCustomColors: (c: any) => void,
+  setShowGeoPopup: (v: boolean) => void,
+  handleGeolocation: () => void,
+  searchQuery: string,
+  setSearchQuery: (s: string) => void,
+  isCompactMode: boolean,
+  setIsCompactMode: (v: boolean) => void,
+  isTouchInterface: boolean,
+  setIsTouchInterface: (v: boolean) => void,
+  sidebarQuickAccess: boolean,
+  setSidebarQuickAccess: (v: boolean) => void,
+  topbarSearchType: "minimal" | "full" | "floating",
+  setTopbarSearchType: (v: "minimal" | "full" | "floating") => void,
+  locationDetection: "auto" | "manual",
+  setLocationDetection: (v: "auto" | "manual") => void,
+  timeZone: string,
+  setTimeZone: (v: string) => void,
+  onCloseDashboard: () => void
 }) {
   const [pinnedWidgets, setPinnedWidgets] = useState<string[]>(() => {
     const saved = localStorage.getItem("vplay_pinned_widgets");
@@ -5955,6 +6095,7 @@ function WidgetsDashboard({
     return saved ? JSON.parse(saved) : [];
   });
   const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [isDashSidebarOpen, setIsDashSidebarOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, id: string } | null>(null);
   const [widgetSearchQuery, setWidgetSearchQuery] = useState("");
   const [pickerSearchQuery, setPickerSearchQuery] = useState("");
@@ -6111,64 +6252,104 @@ function WidgetsDashboard({
             className="fixed inset-0 z-[190] bg-black/10"
           />
           <motion.div
-            initial={{ x: "-100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className={`fixed left-4 top-4 bottom-4 z-[1000] w-full max-w-sm md:max-w-3xl lg:max-w-4xl shadow-2xl overflow-hidden flex flex-row rounded-xl border border-white/20 bg-[#f8fafc] text-slate-900`}
+            className={`fixed left-0 md:left-4 top-0 md:top-4 bottom-0 md:bottom-4 z-[1000] w-full max-w-sm md:max-w-3xl lg:max-w-5xl shadow-2xl overflow-hidden flex flex-row md:rounded-3xl border border-black/5 bg-[#f8fafc] text-slate-900`}
             onClick={() => setContextMenu(null)}
           >
-             {/* Sidebar */}
-             <div className="w-16 md:w-20 bg-[#f0f2f5] border-r border-slate-200/50 flex flex-col items-center py-6 gap-3 shrink-0 relative">
-                <div className="flex flex-col items-center gap-3 w-full">
+             {/* Sidebar (Tablet/Desktop) */}
+             <div className={`${isDashSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 fixed md:relative left-0 top-0 bottom-0 z-[1001] md:z-auto w-24 bg-[#f0f2f5] border-r border-slate-200/50 flex flex-col items-center py-6 gap-6 shrink-0 transition-transform duration-300 md:transition-none`}>
+                <div className="flex flex-col items-center gap-6 w-full overflow-y-auto custom-scrollbar flex-1 pb-4">
                   <button 
-                    onClick={() => setActiveDashboardTab("widgets")}
-                    className={`relative p-2.5 rounded-xl transition-all ${activeDashboardTab === "widgets" ? "bg-white shadow-xl text-blue-600 scale-110" : "text-slate-400 hover:bg-white/50"}`}
+                    onClick={() => { setActiveDashboardTab("widgets"); setIsDashSidebarOpen(false); }}
+                    className={`relative flex flex-col items-center gap-1.5 p-2 w-full transition-all group ${activeDashboardTab === "widgets" ? "text-blue-600 scale-105" : "text-slate-400 hover:text-slate-600"}`}
                   >
-                    <LayoutPanelLeft size={22} />
+                    <div className={`p-2.5 rounded-xl transition-all ${activeDashboardTab === "widgets" ? "bg-white shadow-xl" : "hover:bg-white/50"}`}>
+                      <LayoutPanelLeft size={22} />
+                    </div>
+                    <span className={`text-[9px] font-bold tracking-tight ${activeDashboardTab === "widgets" ? "text-blue-600" : "text-slate-400"}`}>Widgets</span>
                     {activeDashboardTab === "widgets" && (
-                      <motion.div layoutId="active-indicator" className="absolute left-[-2px] top-1/2 -translate-y-1/2 w-1.5 h-6 bg-blue-600 rounded-r-full" />
+                      <motion.div layoutId="active-indicator" className="absolute left-0 top-6 w-[4px] h-4 bg-blue-600 rounded-full" />
                     )}
                   </button>
                   <button 
-                    onClick={() => setActiveDashboardTab("changelogs")}
-                    className={`relative flex items-center justify-center p-2.5 rounded-xl transition-all ${activeDashboardTab === "changelogs" ? "bg-white shadow-xl text-blue-600 scale-110" : "text-slate-400 hover:bg-white/50"}`}
+                    onClick={() => { setActiveDashboardTab("changelogs"); setIsDashSidebarOpen(false); }}
+                    className={`relative flex flex-col items-center gap-1.5 p-2 w-full transition-all group ${activeDashboardTab === "changelogs" ? "text-blue-600 scale-105" : "text-slate-400 hover:text-slate-600"}`}
                   >
-                    <Newspaper size={22} />
+                    <div className={`p-2.5 rounded-xl transition-all ${activeDashboardTab === "changelogs" ? "bg-white shadow-xl" : "hover:bg-white/50"}`}>
+                      <Newspaper size={22} />
+                    </div>
+                    <span className={`text-[9px] font-bold tracking-tight ${activeDashboardTab === "changelogs" ? "text-blue-600" : "text-slate-400"}`}>Updates</span>
                     {activeDashboardTab === "changelogs" && (
-                      <motion.div layoutId="active-indicator" className="absolute left-[-2px] top-1/2 -translate-y-1/2 w-1.5 h-6 bg-blue-600 rounded-r-full" />
+                      <motion.div layoutId="active-indicator" className="absolute left-0 top-6 w-[4px] h-4 bg-blue-600 rounded-full" />
                     )}
                   </button>
                   <button 
-                    onClick={() => setActiveDashboardTab("labs")}
-                    className={`relative flex items-center justify-center p-2.5 rounded-xl transition-all ${activeDashboardTab === "labs" ? "bg-white shadow-xl text-blue-600 scale-110" : "text-slate-400 hover:bg-white/50"}`}
+                    onClick={() => { setActiveDashboardTab("labs"); setIsDashSidebarOpen(false); }}
+                    className={`relative flex flex-col items-center gap-1.5 p-2 w-full transition-all group ${activeDashboardTab === "labs" ? "text-blue-600 scale-105" : "text-slate-400 hover:text-slate-600"}`}
                   >
-                    <Pizza size={22} />
+                    <div className={`p-2.5 rounded-xl transition-all ${activeDashboardTab === "labs" ? "bg-white shadow-xl" : "hover:bg-white/50"}`}>
+                      <Pizza size={22} />
+                    </div>
+                    <span className={`text-[9px] font-bold tracking-tight ${activeDashboardTab === "labs" ? "text-blue-600" : "text-slate-400"}`}>Labs</span>
                     {activeDashboardTab === "labs" && (
-                      <motion.div layoutId="active-indicator" className="absolute left-[-2px] top-1/2 -translate-y-1/2 w-1.5 h-6 bg-blue-600 rounded-r-full" />
+                      <motion.div layoutId="active-indicator" className="absolute left-0 top-6 w-[4px] h-4 bg-blue-600 rounded-full" />
                     )}
                   </button>
-                </div>
 
-                <div className="mt-auto flex flex-col items-center gap-3 w-full pb-2">
-                  <button onClick={() => { setActiveTab("Cài đặt"); onClose(); }} className="p-2.5 rounded-xl hover:bg-white/50 text-slate-400 transition-colors cursor-pointer">
-                    <Settings size={22} />
-                  </button>
-                  <button 
-                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-black text-sm shadow-lg cursor-pointer hover:scale-105 transition-all overflow-hidden border-2 ${isUserMenuOpen ? "border-blue-500 ring-4 ring-blue-500/20 bg-blue-700" : "border-white bg-blue-600 shadow-blue-600/30"}`}
-                  >
-                    {user?.photoURL ? (
-                        <img src={user.photoURL} className="w-full h-full object-cover" referrerPolicy="no-referrer" alt="User" />
-                    ) : (
-                        <User size={20} />
+                  <div className="mt-auto pt-6 border-t border-slate-200/50 w-full flex flex-col items-center gap-6">
+                    {featureFlags?.settings_in_widgets && (
+                      <button 
+                        onClick={() => { setActiveDashboardTab("settings"); setIsDashSidebarOpen(false); }}
+                        className={`relative flex flex-col items-center gap-1.5 p-2 w-full transition-all group ${activeDashboardTab === "settings" ? "text-blue-600 scale-105" : "text-slate-400 hover:text-slate-600"}`}
+                      >
+                        <div className={`p-2.5 rounded-xl transition-all ${activeDashboardTab === "settings" ? "bg-white shadow-xl" : "hover:bg-white/50"}`}>
+                          <Settings size={22} />
+                        </div>
+                        <span className={`text-[9px] font-bold tracking-tight ${activeDashboardTab === "settings" ? "text-blue-600" : "text-slate-400"}`}>Settings</span>
+                        {activeDashboardTab === "settings" && (
+                          <motion.div layoutId="active-indicator" className="absolute left-0 top-6 w-[4px] h-4 bg-blue-600 rounded-full" />
+                        )}
+                      </button>
                     )}
-                  </button>
+
+                    <button 
+                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-black text-sm shadow-lg cursor-pointer hover:scale-105 transition-all overflow-hidden border-2 ${isUserMenuOpen ? "border-blue-500 ring-4 ring-blue-500/20 bg-blue-700" : "border-white bg-blue-600 shadow-blue-600/30"}`}
+                    >
+                      {user?.photoURL ? (
+                          <img src={user.photoURL} className="w-full h-full object-cover" referrerPolicy="no-referrer" alt="User" />
+                      ) : (
+                          <User size={20} />
+                      )}
+                    </button>
+                  </div>
                 </div>
              </div>
 
+             {/* Backdrop for mobile sidebar */}
+             {isDashSidebarOpen && (
+               <div 
+                 className="fixed inset-0 z-[1000] bg-black/20 md:hidden" 
+                 onClick={() => setIsDashSidebarOpen(false)}
+               />
+             )}
+
              {/* Main Area */}
              <div className="flex-1 flex flex-col h-full overflow-hidden bg-white/40 backdrop-blur-md relative">
+                {/* Mobile Header Toggle */}
+                <div className="md:hidden p-4 flex items-center justify-between border-b border-black/5 shrink-0 bg-white/50">
+                  <button 
+                    onClick={() => setIsDashSidebarOpen(true)}
+                    className="p-2 rounded-xl bg-white shadow-sm border border-black/5"
+                  >
+                    <Menu size={20} className="text-slate-600" />
+                  </button>
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Canary Dashboard</p>
+                  <div className="w-10" />
+                </div>
                 {/* Mini Account Menu Overlay */}
                 <AnimatePresence>
                   {isUserMenuOpen && (
@@ -6215,7 +6396,7 @@ function WidgetsDashboard({
                           <div className="flex items-center gap-3">
                             <button 
                               onClick={() => setIsPickerOpen(true)}
-                              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full font-bold text-[10px] shadow-lg shadow-blue-600/20 hover:scale-[1.02] active:scale-95 transition-all"
+                              className="btn-vibrant-3d flex items-center gap-2 px-6 py-2.5 !bg-blue-600 text-white !rounded-xl font-bold text-[10px] shadow-lg shadow-blue-600/20 hover:scale-[1.02] active:scale-95 transition-all !border-none"
                             >
                               <Pin size={12} className="rotate-45" />
                               Pin widgets
@@ -6600,6 +6781,91 @@ function WidgetsDashboard({
                         </div>
                       </div>
                     )}
+                    
+                    {activeDashboardTab === "settings" && (
+                      <div className="flex-1 flex flex-col overflow-hidden">
+                        <div className="p-8 pb-4 flex items-center justify-between border-b border-black/5">
+                          <h2 className="text-2xl font-bold tracking-tight text-slate-800">Settings</h2>
+                          <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 text-slate-400 transition-colors">
+                            <X size={16} />
+                          </button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto px-4 py-8 custom-scrollbar bg-white">
+                           <RejuvenatedSettings
+                              isDark={false} 
+                              isFlat={true}
+                              setIsDark={setIsDark} 
+                              isDev={isDev || false} 
+                              setIsDev={setIsDev || (() => {})} 
+                              featureFlags={featureFlags}
+                              setFeatureFlags={setFeatureFlags || (() => {})}
+                              liquidGlass={liquidGlass || "glassy"} 
+                              setLiquidGlass={setLiquidGlass}
+                              useSidebar={useSidebar}
+                              setUseSidebar={setUseSidebar}
+                              isSidebarRight={isSidebarRight}
+                              setIsSidebarRight={setIsSidebarRight}
+                              isSidebarLocked={isSidebarLocked}
+                              setIsSidebarLocked={setIsSidebarLocked}
+                              sidebarDisplay={sidebarDisplay}
+                              setSidebarDisplay={setSidebarDisplay}
+                              isPinningEnabled={isPinningEnabled}
+                              setIsPinningEnabled={setIsPinningEnabled}
+                              user={user}
+                              userData={userData}
+                              setUserData={setUserData}
+                              onAlert={onAlert}
+                              onLogin={handleLogin}
+                              onUpdateLogsClick={() => setActiveDashboardTab("changelogs")}
+                              onResetOnboarding={handleResetOnboarding}
+                              favorites={favorites}
+                              bypassed={bypassed}
+                              loadingTreatment={loadingTreatment || "shimmer"}
+                              setLoadingTreatment={setLoadingTreatment || (() => {})}
+                              tempUnit={tempUnit}
+                              setTempUnit={setTempUnit}
+                              location={location}
+                              setLocation={setLocation}
+                              timeFormat={timeFormat}
+                              setTimeFormat={setTimeFormat}
+                              clockFormat={clockFormat}
+                              setClockFormat={setClockFormat}
+                              dateFormat={dateFormat}
+                              setDateFormat={setDateFormat}
+                              showClock={showClock}
+                              setShowClock={setShowClock}
+                              showDate={showDate}
+                              setShowDate={setShowDate}
+                              showTempInClock={showTempInClock}
+                              setShowTempInClock={setShowTempInClock}
+                              headingBar={headingBar}
+                              setHeadingBar={setHeadingBar}
+                              isSearchCompact={isSearchCompact}
+                              setIsSearchCompact={setIsSearchCompact}
+                              onLogout={handleLogout}
+                              customColors={customColors}
+                              setCustomColors={setCustomColors}
+                              setShowGeoPopup={setShowGeoPopup}
+                              handleGeolocation={handleGeolocation}
+                              externalSearchQuery={searchQuery}
+                              onExternalSearchClear={() => setSearchQuery("")}
+                              isCompactMode={isCompactMode}
+                              setIsCompactMode={setIsCompactMode}
+                              isTouchInterface={isTouchInterface}
+                              setIsTouchInterface={setIsTouchInterface}
+                              sidebarQuickAccess={sidebarQuickAccess}
+                              setSidebarQuickAccess={setSidebarQuickAccess}
+                              topbarSearchType={topbarSearchType}
+                              setTopbarSearchType={setTopbarSearchType}
+                              locationDetection={locationDetection}
+                              setLocationDetection={setLocationDetection}
+                              timeZone={timeZone}
+                              setTimeZone={setTimeZone}
+                              setActiveDashboardTab={setActiveDashboardTab}
+                           />
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
              </div>
@@ -6615,16 +6881,16 @@ function WidgetsDashboard({
                     style={{ left: contextMenu.x, top: contextMenu.y }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <button onClick={() => moveWidget(contextMenu.id, 'up')} className="w-full px-3 py-2 flex items-center gap-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
+                    <button onClick={() => moveWidget(contextMenu.id!, 'up')} className="w-full px-3 py-2 flex items-center gap-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
                        <ArrowUp size={14} /> Move up
                     </button>
-                    <button onClick={() => moveWidget(contextMenu.id, 'down')} className="w-full px-3 py-2 flex items-center gap-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
+                    <button onClick={() => moveWidget(contextMenu.id!, 'down')} className="w-full px-3 py-2 flex items-center gap-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
                        <ArrowDown size={14} /> Move down
                     </button>
                     <div className="h-[1px] bg-slate-100 my-1 mx-2" />
-                    <button onClick={() => toggleLock(contextMenu.id)} className="w-full px-3 py-2 flex items-center gap-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
-                       {lockedWidgets.includes(contextMenu.id) ? <Unlock size={14} /> : <Lock size={14} />} 
-                       {lockedWidgets.includes(contextMenu.id) ? "Unlock" : "Lock"}
+                    <button onClick={() => toggleLock(contextMenu.id!)} className="w-full px-3 py-2 flex items-center gap-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
+                       {lockedWidgets.includes(contextMenu.id!) ? <Unlock size={14} /> : <Lock size={14} />} 
+                       {lockedWidgets.includes(contextMenu.id!) ? "Unlock" : "Lock"}
                     </button>
                     <button onClick={() => { removeWidget(contextMenu.id); setContextMenu(null); }} className="w-full px-3 py-2 flex items-center gap-3 text-[11px] font-bold text-red-500 hover:bg-red-50 rounded-xl transition-colors">
                        <Trash2 size={14} /> Remove
@@ -6644,39 +6910,35 @@ function WidgetsDashboard({
                   >
                     {/* Picker Sidebar */}
                     <div className="w-full md:w-64 bg-white/50 border-r border-slate-200 flex flex-col shrink-0">
-                      <div className="p-6 pb-2">
+                      <div className="p-6 pb-2 flex-1 overflow-y-auto custom-scrollbar">
                         <h3 className="text-sm font-bold text-slate-500 mb-6 font-google uppercase tracking-widest">Pin widgets</h3>
                         <div className="space-y-1">
-                          {Array.from(new Set(allAvailableWidgets.map(w => w.category))).map(cat => {
-                            const isSelected = selectedPickerWidget?.category === cat;
+                          {allAvailableWidgets.map(widget => {
+                            const isSelected = selectedPickerWidget?.id === widget.id;
+                            const isPinned = pinnedWidgets.includes(widget.id);
                             return (
                               <button
-                                key={cat}
-                                onClick={() => {
-                                  const widget = allAvailableWidgets.find(w => w.category === cat);
-                                  if (widget) setSelectedPickerWidget(widget);
-                                }}
-                                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${isSelected ? "bg-slate-100 text-slate-900 shadow-sm" : "text-slate-500 hover:bg-white/50"}`}
+                                key={widget.id}
+                                onClick={() => setSelectedPickerWidget(widget)}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${isSelected ? "bg-slate-100 text-slate-900 shadow-sm" : "text-slate-500 hover:bg-white/50"}`}
                               >
-                                {cat === "Outlook" && <Calendar size={16} className="text-blue-500" />}
-                                {cat === "Entertainment" && <Tv size={16} className="text-orange-500" />}
-                                {cat === "M365" && <Clock size={16} className="text-blue-600" />}
-                                {cat === "Finance" && <TrendingUp size={16} className="text-green-500" />}
-                                {cat === "Tips" && <Info size={16} className="text-purple-600" />}
-                                <span className={isSelected ? "font-bold" : ""}>{cat}</span>
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSelected ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-400"}`}>
+                                  <widget.icon size={16} />
+                                </div>
+                                <div className="flex flex-col text-left">
+                                  <span className={isSelected ? "font-bold" : ""}>{widget.name}</span>
+                                  <span className="text-[9px] uppercase tracking-wider text-slate-400">{widget.category}</span>
+                                </div>
                                 {isSelected && (
-                                  <motion.div layoutId="picker-active" className="ml-auto w-1 h-4 bg-blue-600 rounded-full" />
+                                  <motion.div layoutId="picker-active" className="ml-auto w-[4px] h-4 bg-blue-600 rounded-full" />
+                                )}
+                                {isPinned && !isSelected && (
+                                  <CheckCircle2 size={12} className="ml-auto text-blue-500" />
                                 )}
                               </button>
                             );
                           })}
                         </div>
-                      </div>
-                      <div className="mt-auto p-4 border-t border-slate-100">
-                        <button className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-slate-100 transition-colors text-slate-500 font-bold uppercase tracking-widest text-[10px]">
-                          <LayoutGrid size={18} />
-                          Find more widgets
-                        </button>
                       </div>
                     </div>
 
@@ -6689,79 +6951,74 @@ function WidgetsDashboard({
                         <div className="flex-1 flex flex-col p-8 overflow-y-auto custom-scrollbar">
                           <div className="mb-8">
                              <div className="relative group">
-                                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
-                                   <Search size={18} />
+                                <div className="group flex items-center gap-2.5 h-12 w-full transition-all relative rounded-xl border-b-[2px] transition-all duration-300 bg-white focus-within:bg-white border-black/10 text-slate-800 focus-within:border-fuchsia-500 shadow-sm">
+                                   <Search size={18} className="ml-4 text-slate-400 group-focus-within:text-fuchsia-500" />
+                                   <input 
+                                     type="text" 
+                                     value={pickerSearchQuery}
+                                     onChange={(e) => setPickerSearchQuery(e.target.value)}
+                                     placeholder="Tìm kiếm tiện ích..." 
+                                     className="flex-1 bg-transparent border-none outline-none text-sm font-bold font-google placeholder:text-slate-400 px-2"
+                                   />
+                                   {pickerSearchQuery && (
+                                      <button onClick={() => setPickerSearchQuery("")} className="p-2 hover:bg-black/10 rounded-full mr-2 transition-all">
+                                        <X size={16} className="text-slate-400" />
+                                      </button>
+                                   )}
                                 </div>
-                                <input 
-                                  type="text" 
-                                  value={pickerSearchQuery}
-                                  onChange={(e) => setPickerSearchQuery(e.target.value)}
-                                  placeholder="Tìm kiếm tiện ích..." 
-                                  className="w-full h-12 pl-12 pr-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-xs outline-none focus:bg-white focus:border-blue-500 transition-all"
-                                />
                              </div>
                           </div>
 
-                          {selectedPickerWidget || pickerSearchQuery ? (
-                            <div className="w-full">
-                              <div className="mb-6 flex items-center justify-between">
-                                <div>
-                                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">{pickerSearchQuery ? "Search Results" : selectedPickerWidget.category}</p>
-                                  <h4 className="text-xl font-google font-black text-slate-900">{pickerSearchQuery ? `Kết quả cho "${pickerSearchQuery}"` : "Available Widgets"}</h4>
-                                </div>
-                              </div>
+                          <div className="w-full">
+                            <div className="mb-8">
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">{pickerSearchQuery ? "Search Results" : "All Available Widgets"}</p>
+                                <h4 className="text-2xl font-google font-black text-slate-900">{pickerSearchQuery ? `Kết quả cho "${pickerSearchQuery}"` : "Tiện ích khả dụng"}</h4>
+                            </div>
 
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {allAvailableWidgets
-                                  .filter(w => {
-                                      if (pickerSearchQuery) {
-                                          return w.name.toLowerCase().includes(pickerSearchQuery.toLowerCase()) || 
-                                                 w.category.toLowerCase().includes(pickerSearchQuery.toLowerCase());
-                                      }
-                                      return w.category === selectedPickerWidget.category;
-                                  })
-                                  .map(widget => {
-                                    const isPinned = pinnedWidgets.includes(widget.id);
-                                    return (
-                                      <div key={widget.id} className="group p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all">
-                                        <div className="flex items-center gap-4">
-                                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform ${isPinned ? "bg-slate-100 text-slate-400" : "bg-blue-600 text-white"}`}>
-                                            <widget.icon size={24} />
-                                          </div>
-                                          <div className="flex-1 min-w-0">
-                                            <h5 className="text-sm font-bold text-slate-900 truncate">{widget.name}</h5>
-                                            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-medium">Standard size</p>
-                                          </div>
-                                          <button 
-                                            onClick={() => isPinned ? removeWidget(widget.id) : addWidget(widget.id)}
-                                            className={`p-2.5 rounded-xl transition-all ${isPinned ? "bg-slate-100 text-slate-400" : "bg-blue-600 text-white shadow-lg shadow-blue-600/20 active:scale-90"}`}
-                                          >
-                                            {isPinned ? <CheckCircle2 size={18} /> : <Pin size={18} />}
-                                          </button>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                              {allAvailableWidgets
+                                .filter(w => {
+                                    if (pickerSearchQuery) {
+                                        return w.name.toLowerCase().includes(pickerSearchQuery.toLowerCase()) || 
+                                               w.category.toLowerCase().includes(pickerSearchQuery.toLowerCase());
+                                    }
+                                    return true;
+                                })
+                                .map(widget => {
+                                  const isPinned = pinnedWidgets.includes(widget.id);
+                                  const isSelected = selectedPickerWidget?.id === widget.id;
+                                  return (
+                                    <div 
+                                      key={widget.id} 
+                                      onClick={() => setSelectedPickerWidget(widget)}
+                                      className={`group p-6 rounded-[32px] border-2 transition-all cursor-pointer ${isSelected ? "border-blue-600 bg-white shadow-2xl shadow-blue-600/10 scale-[1.02]" : "border-slate-100 bg-slate-50/50 hover:bg-white hover:border-slate-200"}`}
+                                    >
+                                      <div className="flex flex-col items-center text-center gap-5">
+                                        <div className={`w-16 h-16 rounded-[2rem] flex items-center justify-center transition-transform group-hover:rotate-6 ${isPinned ? "bg-slate-100 text-slate-400" : (isSelected ? "bg-blue-600 text-white shadow-xl shadow-blue-600/30" : "bg-white text-blue-600 shadow-lg")}`}>
+                                          <widget.icon size={32} />
                                         </div>
+                                        <div className="flex-1 w-full">
+                                          <h5 className="text-base font-bold text-slate-900 mb-1">{widget.name}</h5>
+                                          <p className="text-[11px] text-slate-400 font-medium line-clamp-2 min-h-[2rem] leading-relaxed px-2">
+                                            {widget.description || "Thêm tiện ích này vào bảng tin của bạn."}
+                                          </p>
+                                        </div>
+                                        <button 
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            isPinned ? removeWidget(widget.id) : addWidget(widget.id);
+                                          }}
+                                          className={`btn-vibrant-3d w-full py-2.5 !rounded-lg flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-tight transition-all ${isPinned ? "!bg-slate-200 !text-slate-500" : "!bg-blue-600 !text-white shadow-lg shadow-blue-900/30 active:scale-95"} !border-none`}
+                                        >
+                                          {isPinned ? <CheckCircle2 size={14} /> : <Pin size={14} />}
+                                          {isPinned ? "Pinned" : "Pin to Dashboard"}
+                                        </button>
                                       </div>
-                                    );
-                                  })}
-                              </div>
-
-                              {(!pickerSearchQuery && selectedPickerWidget) && (
-                                <div className="mt-12 p-8 rounded-3xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-center">
-                                    <div className="w-20 h-20 rounded-[2rem] bg-white shadow-2xl flex items-center justify-center text-blue-600 mb-6 group-hover:rotate-12 transition-transform">
-                                      <selectedPickerWidget.icon size={40} />
                                     </div>
-                                    <h3 className="text-xl font-bold text-slate-900 mb-2">{selectedPickerWidget.name}</h3>
-                                    <p className="text-[11px] text-slate-400 max-w-[240px] font-medium leading-relaxed">
-                                      {selectedPickerWidget.description || "Thêm tiện ích này vào bảng tin của bạn để quản lý thông tin tốt hơn."}
-                                    </p>
-                                </div>
-                              )}
+                                  );
+                                })}
                             </div>
-                          ) : (
-                            <div className="flex-1 flex flex-col items-center justify-center text-center opacity-20 py-20">
-                              <LayoutGrid size={120} strokeWidth={1} className="mb-6" />
-                              <p className="text-2xl font-google font-black uppercase tracking-widest">Select a category</p>
-                            </div>
-                          )}
+                          </div>
                         </div>
                     </div>
                   </motion.div>
@@ -6851,7 +7108,7 @@ function App() {
     return localStorage.getItem("vplay_onboarding_completed") !== "true";
   });
   const [isWidgetsOpen, setIsWidgetsOpen] = useState(false);
-  const [activeDashboardTab, setActiveDashboardTab] = useState<"widgets" | "changelogs" | "labs">("widgets");
+  const [activeDashboardTab, setActiveDashboardTab] = useState<"widgets" | "changelogs" | "labs" | "settings">("widgets");
   const [activeTab, setActiveTab] = useState("Trang chủ");
   const [isSettingsLoading, setIsSettingsLoading] = useState(false);
 
@@ -7100,6 +7357,7 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
   const [featureFlags, setFeatureFlags] = useState<{ [key: string]: boolean }>(() => {
     const saved = localStorage.getItem("vplay_feature_flags");
     const defaults = { 
+      settings_in_widgets: false,
       widgets_dashboard: false, 
       multiview_channels: false, 
       disable_animation: false, 
@@ -7151,7 +7409,7 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
     return saved ? JSON.parse(saved) : {
       primary: "#a855f7", // purple-500
       sidebar: "#1a0121",
-      background: "#121212",
+      background: "var(--color-vplay-background)",
       topbar: "#0a0118"
     };
   });
@@ -7582,8 +7840,18 @@ const [headingBar, setHeadingBar] = useState(() => {
     setShowOnboarding(true);
   };
 
+  const handleOpenSettings = () => {
+    if (featureFlags.settings_in_widgets) {
+      setIsWidgetsOpen(true);
+      setActiveDashboardTab("settings");
+    } else {
+      setActiveTab("Cài đặt");
+    }
+  };
+
   const tabs = baseTabs.filter(t => {
     if (t.id === "Widgets" && !featureFlags.widgets_dashboard) return false;
+    if (t.id === "Cài đặt" && featureFlags.settings_in_widgets) return false;
     if (t.id === "Quản trị" && !isAdmin) return false;
     if (t.id === "Khám phá" && headingBar) return false;
     return true;
@@ -7646,9 +7914,67 @@ const [headingBar, setHeadingBar] = useState(() => {
         isDev={isDev}
         setIsDev={setIsDev}
         liquidGlass={liquidGlass}
+        setLiquidGlass={setLiquidGlass}
         onOpenUserMenu={() => setIsUserMenuOpen(true)}
         activeDashboardTab={activeDashboardTab}
         setActiveDashboardTab={setActiveDashboardTab}
+        setIsDark={setIsDark}
+        useSidebar={useSidebar}
+        setUseSidebar={setUseSidebar}
+        isSidebarRight={isSidebarRight}
+        setIsSidebarRight={setIsSidebarRight}
+        isSidebarLocked={isSidebarLocked}
+        setIsSidebarLocked={setIsSidebarLocked}
+        sidebarDisplay={sidebarDisplay}
+        setSidebarDisplay={setSidebarDisplay}
+        isPinningEnabled={isPinningEnabled}
+        setIsPinningEnabled={setIsPinningEnabled}
+        setUserData={setUserData}
+        onAlert={onAlert}
+        handleLogin={handleLogin}
+        handleResetOnboarding={handleResetOnboarding}
+        favorites={favorites}
+        bypassed={bypassed}
+        tempUnit={tempUnit}
+        setTempUnit={setTempUnit}
+        location={location}
+        setLocation={setLocation}
+        timeFormat={timeFormat}
+        setTimeFormat={setTimeFormat}
+        clockFormat={clockFormat}
+        setClockFormat={setClockFormat}
+        dateFormat={dateFormat}
+        setDateFormat={setDateFormat}
+        showClock={showClock}
+        setShowClock={setShowClock}
+        showDate={showDate}
+        setShowDate={setShowDate}
+        showTempInClock={showTempInClock}
+        setShowTempInClock={setShowTempInClock}
+        headingBar={headingBar}
+        setHeadingBar={setHeadingBar}
+        isSearchCompact={isSearchCompact}
+        setIsSearchCompact={setIsSearchCompact}
+        handleLogout={handleLogout}
+        customColors={customColors}
+        setCustomColors={setCustomColors}
+        setShowGeoPopup={setShowGeoPopup}
+        handleGeolocation={handleGeolocation}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        isCompactMode={isCompactMode}
+        setIsCompactMode={setIsCompactMode}
+        isTouchInterface={isTouchInterface}
+        setIsTouchInterface={setIsTouchInterface}
+        sidebarQuickAccess={sidebarQuickAccess}
+        setSidebarQuickAccess={setSidebarQuickAccess}
+        topbarSearchType={topbarSearchType}
+        setTopbarSearchType={setTopbarSearchType}
+        locationDetection={locationDetection}
+        setLocationDetection={setLocationDetection}
+        timeZone={timeZone}
+        setTimeZone={setTimeZone}
+        onCloseDashboard={() => setIsWidgetsOpen(false)}
       />
       <AnimatePresence>
         {isVTV6DialogOpen && (
@@ -7763,7 +8089,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             />
           </motion.div>
         </AnimatePresence>
-        <div className={`absolute inset-0 transition-colors duration-1000 ${isDark ? "bg-[#121212]/90" : "bg-white/60"}`} />
+        <div className={`absolute inset-0 transition-colors duration-1000 ${isDark ? "bg-vplay-background/90" : "bg-white/60"}`} />
       </div>
 
       <AnimatePresence>
@@ -7814,6 +8140,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             isSidebarRight={isSidebarRight}
             onClose={() => setContextMenu(null)} 
             setActiveTab={setActiveTab}
+            handleOpenSettings={handleOpenSettings}
             setUseSidebar={setUseSidebar}
             setIsSidebarRight={setIsSidebarRight}
             setIsDev={setIsDev}
@@ -7826,6 +8153,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             isDark={isDark} 
             onClose={() => setContextMenu(null)} 
             setActiveTab={setActiveTab}
+            handleOpenSettings={handleOpenSettings}
             setHeadingBar={setHeadingBar}
             headingBar={headingBar}
             showTempInClock={showTempInClock}
@@ -7994,6 +8322,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   favorites={favorites}
                   liquidGlass={liquidGlass}
                   setActiveTab={setActiveTab}
+                  handleOpenSettings={handleOpenSettings}
                   setIsDark={setIsDark}
                   setLiquidGlass={setLiquidGlass}
                   onLogin={handleLogin}
@@ -8062,7 +8391,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         </LiquidModal>
 
 
-        <div className={`flex-1 overflow-y-auto pb-32 flex flex-col w-full max-w-full overflow-x-hidden ${isDark ? "bg-[#121212]" : ""}`}>
+        <div className={`flex-1 overflow-y-auto pb-32 flex flex-col w-full max-w-full overflow-x-hidden ${isDark ? "bg-vplay-background" : ""}`}>
           {/* Large Tab Header */}
           {!(displayTab === "Cài đặt" && isSettingsLoading) && (
             <div className="px-5 md:px-12 pt-12 pb-4">
@@ -8118,6 +8447,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   onLogin={handleLogin}
                   onLogout={handleLogout}
                   setActiveTab={setActiveTab}
+                  handleOpenSettings={handleOpenSettings}
                   setIsDark={setIsDark}
                   setLiquidGlass={setLiquidGlass}
                   setSortOrder={setSortOrder}
@@ -8256,7 +8586,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                 </div>
               )}
               {displayTab === "Update Logs" && (
-                <UpdateLogsContent isDark={isDark} onBack={() => setActiveTab("Cài đặt")} featureFlags={featureFlags} loadingTreatment={loadingTreatment} />
+                <UpdateLogsContent isDark={isDark} onBack={() => handleOpenSettings()} featureFlags={featureFlags} loadingTreatment={loadingTreatment} handleOpenSettings={handleOpenSettings} />
               )}
               {displayTab === "Lưu trữ" && (
                 <EventsContent isDark={isDark} liquidGlass={liquidGlass} />
@@ -8456,8 +8786,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                           <motion.div 
                             layoutId="sidebarActivePill"
                             className={isCompact
-                                ? "absolute left-2 top-1/2 -translate-y-1/2 w-[2px] h-10 bg-fuchsia-400 rounded-full shadow-[0_0_12px_rgba(232,121,249,0.8)]"
-                                : "absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-fuchsia-400 rounded-full shadow-[0_0_12px_rgba(232,121,249,0.8)]"
+                                ? "absolute left-0 top-1/2 -translate-y-1/2 w-[4px] h-6 bg-fuchsia-400 rounded-full shadow-[0_0_12px_rgba(232,121,249,0.8)]"
+                                : "absolute left-0 top-1/2 -translate-y-1/2 w-[4px] h-4 bg-fuchsia-400 rounded-full shadow-[0_0_12px_rgba(232,121,249,0.8)]"
                             }
                           />
                         )}
@@ -8662,8 +8992,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                               <div className="p-2.5 space-y-2">
                                 {[
                                   { icon: Info, label: "Phiên bản Vplay", action: () => setShowVersionInfo(true) },
-                                  { icon: Smartphone, label: "Quản lý hồ sơ", action: () => { setActiveTab("Cài đặt"); setIsUserMenuOpen(false); } },
-                                  { icon: Settings, label: "Cài đặt hệ thống", action: () => { setActiveTab("Cài đặt"); setIsUserMenuOpen(false); } },
+                                  { icon: Smartphone, label: "Quản lý hồ sơ", action: () => { handleOpenSettings(); setIsUserMenuOpen(false); } },
+                                  { icon: Settings, label: "Cài đặt hệ thống", action: () => { handleOpenSettings(); setIsUserMenuOpen(false); } },
                                   { icon: Send, label: "Send Feedback", action: () => { window.open("https://discord.gg/CNKFTUBSty"); setIsUserMenuOpen(false); } },
                                 ].map((item, idx) => (
                                   <button
