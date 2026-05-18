@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode, useMemo } from "react";
 import { 
-  Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer, Check, Plus, AppWindow, Compass, Trash2, Newspaper,
+  Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer, Check, Plus, AppWindow, Compass, Trash2, Newspaper, Shuffle, Link, StickyNote, Bold, Italic, Underline,
   Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, FolderOpen, Pizza, Cloud, CreditCard, Gift, HelpCircle, FlaskConical as Flask, GlassWater, Grid, ArrowUp, ArrowDown, ArrowRightLeft, Bot, Hash
 } from "lucide-react";
 import Hls from "hls.js";
@@ -88,6 +88,15 @@ const LoadingSpinner = ({ isDark, className = "w-6 h-6" }: { isDark: boolean, cl
       xmlns="http://www.w3.org/2000/svg"
       style={{ animationDuration: '0.8s' }}
     >
+      <circle 
+        className="opacity-20" 
+        cx="12" 
+        cy="12" 
+        r="10" 
+        stroke="currentColor" 
+        strokeWidth="3" 
+        style={{ color: isDark ? 'white' : 'black' }}
+      />
       <path 
         className="opacity-100" 
         fill="none" 
@@ -218,7 +227,7 @@ const baseTabs = [
   { name: "Trang chủ", icon: HomeIcon, id: "Trang chủ" },
   { name: "Widgets", icon: WidgetsIcon, id: "Widgets" },
   { name: "Khám phá", icon: SearchIcon, id: "Khám phá" },
-  { name: "Phát sóng", icon: TvIcon, id: "Phát sóng" },
+  { name: "Live", icon: TvIcon, id: "Live" },
   { name: "Lưu trữ", icon: FolderIcon, id: "Lưu trữ" },
   { name: "Cài đặt", icon: SettingsIcon, id: "Cài đặt" },
   { name: "Quản trị", icon: AdminIcon, id: "Quản trị" },
@@ -610,7 +619,7 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
               className="hover:scale-105"
               onClick={() => {
                 setActiveChannel(ch);
-                setActiveTab("Phát sóng");
+                setActiveTab("Live");
               }} 
               isDark={isDark} 
               favorites={favorites} 
@@ -728,7 +737,7 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
                 className="hover:scale-105"
                 onClick={() => {
                   setActiveChannel(ch);
-                  setActiveTab("Phát sóng");
+                  setActiveTab("Live");
                 }} 
                 isDark={isDark} 
                 favorites={favorites} 
@@ -2050,7 +2059,7 @@ function SearchPopup({
 
   const systemItems = [
     { name: "Trang chủ", type: "tab", icon: HomeIcon, action: () => setActiveTab("Trang chủ") },
-    { name: "Phát sóng", type: "tab", icon: TvIcon, action: () => setActiveTab("Phát sóng") },
+    { name: "Live", type: "tab", icon: TvIcon, action: () => setActiveTab("Live") },
     { name: "Khám phá", type: "tab", icon: SearchIcon, action: () => setActiveTab("Khám phá") },
     { name: "Lưu trữ", type: "tab", icon: FolderIcon, action: () => setActiveTab("Lưu trữ") },
     { name: "Thử nghiệm", type: "tab", icon: ExperimentalIcon, action: () => setActiveTab("Experimental"), isExp: true },
@@ -2091,7 +2100,7 @@ function SearchPopup({
     
     { name: "Thời tiết hôm nay", type: "element", icon: Cloud, action: () => setActiveTab("Trang chủ") },
     { name: "Đồng hồ hệ thống", type: "element", icon: Clock, action: () => setActiveTab("Trang chủ") },
-    { name: "Kênh đã ghim", type: "element", icon: Pin, action: () => setActiveTab("Phát sóng") },
+    { name: "Kênh đã ghim", type: "element", icon: Pin, action: () => setActiveTab("Live") },
     { name: "Người dùng đăng nhập", type: "element", icon: User, action: onLogin },
     { name: "Bảng điều khiển", type: "element", icon: Layout, action: () => setActiveTab("Quản trị") },
     { name: "Liên hệ hỗ trợ", type: "element", icon: Info, action: () => setActiveTab("Cài đặt") },
@@ -2587,7 +2596,7 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment }: {
           title: '🎨 USER INTERFACE',
           items: [
             'Thêm slogan của Vplay vào phần splash screen',
-            'Đã tái cấu trúc lại Home page, Phát sóng và Cài đặt nhìn layout đẹp hơn',
+            'Đã tái cấu trúc lại Home page, Live và Cài đặt nhìn layout đẹp hơn',
             'Đã thêm option Interface',
             'Sẽ có 2 tuỳ chọn: Desktop Interface (khuyến khích sử dụng trên máy tính) và Touch Interface (khuyến khích sử dụng cho các thiết bị cảm ứng)',
             'Khi bật Desktop Interface trên thiết bị cảm ứng, thay vì navigation bar bị kéo dãn thì bây giờ sẽ ẩn dưới dạng hamburger menu',
@@ -2758,14 +2767,6 @@ function ExperimentalContent({ isDark, featureFlags, setFeatureFlags, liquidGlas
       </div>
 
       <div className="space-y-2 px-1">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-purple-600 flex items-center justify-center text-white shadow-lg">
-            <ExperimentalIcon size={20} />
-          </div>
-          <div>
-            <h2 className={`text-xl md:text-2xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Experimental Labs</h2>
-          </div>
-        </div>
       </div>
 
       <div className={`rounded-[20px] md:rounded-[24px] overflow-hidden border-2 transition-all ${isDark ? "bg-white/5 border-white/10 shadow-xl" : "bg-white border-slate-200 shadow-lg"}`}>
@@ -2813,28 +2814,28 @@ function RejuvenatedSettingsItem({ icon: Icon, title, description, onClick, isDa
   return (
     <button 
       onClick={onClick}
-      className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all border group ${
+      className={`w-full flex items-center gap-6 p-6 rounded-[24px] transition-all border group ${
         isDark 
-          ? "bg-white/[0.03] border-white/5 hover:bg-white/[0.08] hover:border-white/10" 
+          ? "bg-white/[0.03] border-white/5 hover:bg-white/[0.08] hover:border-white/10 shadow-inner" 
           : "bg-white border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300"
       }`}
     >
-      <div className={`p-3 rounded-lg ${isDark ? "bg-white/5 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
-        <Icon size={20} />
+      <div className={`p-4 rounded-2xl ${isDark ? "bg-white/5 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
+        <Icon size={24} />
       </div>
       <div className="flex-1 text-left">
-        <h4 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h4>
-        {description && <p className="text-[11px] opacity-50 font-medium">{description}</p>}
+        <h4 className={`text-lg font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h4>
+        {description && <p className="text-sm opacity-50 font-medium tracking-tight mt-0.5">{description}</p>}
       </div>
       {isToggleable ? (
-        <div className={`w-9 h-5 rounded-full p-1 transition-colors duration-300 flex items-center ${isToggled ? "bg-purple-500" : (isDark ? "bg-white/10" : "bg-slate-200")}`}>
+        <div className={`w-11 h-6 rounded-full p-1 transition-colors duration-300 flex items-center ${isToggled ? "bg-purple-500" : (isDark ? "bg-white/10" : "bg-slate-200")}`}>
           <motion.div 
-            animate={{ x: isToggled ? 16 : 0 }}
-            className="w-3 h-3 bg-white rounded-full shadow-sm" 
+            animate={{ x: isToggled ? 20 : 0 }}
+            className="w-4 h-4 bg-white rounded-full shadow-md" 
           />
         </div>
       ) : (
-        <ChevronRight size={16} className={`opacity-20 group-hover:opacity-100 transition-opacity ${isDark ? "text-white" : "text-black"}`} />
+        <ChevronRight size={20} className={`opacity-20 group-hover:opacity-100 transition-all group-hover:translate-x-1 ${isDark ? "text-white" : "text-black"}`} />
       )}
     </button>
   );
@@ -2848,31 +2849,37 @@ function RejuvenatedSettings(props: any) {
     onAlert, onLogin, onUpdateLogsClick, favorites, bypassed, loadingTreatment,
     tempUnit, setTempUnit, location, setLocation, timeFormat, setTimeFormat, clockFormat, setClockFormat,
     dateFormat, setDateFormat, showClock, setShowClock, showDate, setShowDate, showTempInClock, setShowTempInClock, headingBar, setHeadingBar,
-    isSearchCompact, setIsSearchCompact
+    isSearchCompact, setIsSearchCompact,
+    isCompactMode, setIsCompactMode,
+    isTouchInterface, setIsTouchInterface,
+    sidebarQuickAccess, setSidebarQuickAccess,
+    topbarSearchType, setTopbarSearchType,
+    locationDetection, setLocationDetection,
+    timeZone, setTimeZone,
+    setActiveDashboardTab, setIsWidgetsOpen, setActiveTab
   } = props;
 
   const [activeCategory, setActiveCategory] = useState("SystemInfo");
-  const [expandedOption, setExpandedOption] = useState<string | null>(null);
 
-  const toggleGeolocation = () => {
-    props.setShowGeoPopup(true);
-  };
-  
   const categories = [
-    { id: "SystemInfo", name: "Thông tin hệ thống", icon: Info, keywords: ["phiên bản", "build", "nhà phát triển", "cập nhật", "trạng thái"] },
-    { id: "Profile", name: "Quản lý hồ sơ", icon: User, keywords: ["tên", "email", "avatar", "đăng xuất", "hồ sơ", "vip"] },
-    { id: "Appearance", name: "Chủ đề giao diện", icon: Palette, keywords: ["tối", "sáng", "màu", "sidebar", "navbar", "kính", "touch", "desktop", "chủ đạo", "nền"] },
-    { id: "TopBar", name: "Thanh tiêu đề", icon: Monitor, keywords: ["đồng hồ", "lịch", "thời tiết", "nhiệt độ", "giờ", "định vị", "clock", "weather"] },
-    { id: "Experiments", name: "Tính năng thử nghiệm", icon: Pizza, keywords: ["multiview", "quay màn hình", "pip", "thử nghiệm", "widgets", "dashboard", "widget"] },
+    { id: "SystemInfo", name: "Thông tin phiên bản", icon: Info, keywords: ["phiên bản", "build", "nhà phát triển", "cập nhật", "trạng thái", "ổn định", "vplay", "canary", "metadata", "vnrt"] },
+    { id: "Profile", name: "Quản lý hồ sơ", icon: User, keywords: ["tên", "email", "avatar", "đăng xuất", "hồ sơ", "vip", "account", "user", "hồ sơ", "tài khoản", "đổi tên", "ảnh đại diện"] },
+    { id: "Appearance", name: "Chủ đề giao diện", icon: Palette, keywords: ["tối", "sáng", "màu", "sidebar", "navbar", "kính", "touch", "desktop", "chủ đạo", "nền", "màn hình", "interface", "light", "dark", "chế độ", "màu sắc", "màu chính"] },
+    { id: "TopBar", name: "Topbar", icon: Monitor, keywords: ["đồng hồ", "lịch", "thời tiết", "nhiệt độ", "giờ", "định vị", "clock", "weather", "search", "tìm kiếm", "thanh tiêu đề", "topbar", "định dạng", "múi giờ", "nhiệt độ"] },
+    { id: "Sidebar", name: "Sidebar", icon: Columns, keywords: ["sidebar", "phải", "trái", "co gọn", "compact", "quick access", "truy cập nhanh", "vị trí", "thanh bên"] },
+    { id: "Floatbar", name: "Floatbar", icon: GlassWater, keywords: ["floatbar", "liquid glass", "kính", "glassy", "tinted", "mờ", "trong suốt", "hiệu ứng"] },
+    { id: "Experiments", name: "Tính năng thử nghiệm", icon: Pizza, keywords: ["multiview", "quay màn hình", "pip", "thử nghiệm", "widgets", "dashboard", "widget", "phòng thí nghiệm", "labs", "experimental"] },
   ];
 
   const [searchQuery, setSearchQuery] = useState("");
 
   const filterItems = (items: any[]) => {
     if (!searchQuery) return items;
+    const lowerQuery = searchQuery.toLowerCase();
     return items.filter(item => 
-      item.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      item.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      item.title?.toLowerCase().includes(lowerQuery) || 
+      item.description?.toLowerCase().includes(lowerQuery) ||
+      (item.keywords && item.keywords.some((k: string) => k.toLowerCase().includes(lowerQuery)))
     );
   };
 
@@ -2880,74 +2887,74 @@ function RejuvenatedSettings(props: any) {
     switch (activeCategory) {
       case "SystemInfo":
         return (
-          <div className="space-y-4">
-            <div className={`p-8 rounded-[32px] border ${isDark ? "bg-[#050110]/40 border-white/10 shadow-inner" : "bg-white border-slate-200 shadow-sm"}`}>
-              <div className="flex items-center gap-6 mb-8">
-                <div className={`w-16 h-16 rounded-3xl flex items-center justify-center ${isDark ? "bg-purple-500/10 text-purple-400 border border-purple-500/20" : "bg-purple-50 text-purple-600 border border-purple-100"}`}>
-                  <Zap size={32} />
+          <div className="space-y-6 text-left">
+            <div className={`p-10 rounded-[40px] border ${isDark ? "bg-vplay-background/40 border-white/10 shadow-inner" : "bg-white border-slate-200 shadow-sm"}`}>
+              <div className="flex items-center gap-8 mb-10">
+                <div className={`w-20 h-20 rounded-[32px] flex items-center justify-center ${isDark ? "bg-purple-500/10 text-purple-400 border border-purple-500/20" : "bg-purple-50 text-purple-600 border border-purple-100"}`}>
+                  <Zap size={40} />
                 </div>
                 <div>
-                  <h3 className={`font-bold text-2xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Hệ thống Vplay</h3>
-                  <p className={`text-[10px] font-bold uppercase tracking-[0.2em] px-2 py-0.5 rounded-lg mt-1 inline-block ${isDark ? "bg-purple-500/10 text-purple-400" : "bg-purple-100 text-purple-700"}`}>
+                  <h3 className={`font-bold text-3xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Hệ thống Vplay</h3>
+                  <p className={`text-xs font-bold uppercase tracking-[0.3em] px-3 py-1 rounded-xl mt-2 inline-block ${isDark ? "bg-purple-500/10 text-purple-400" : "bg-purple-100 text-purple-700"}`}>
                     Vplay Metadata Information
                   </p>
                 </div>
               </div>
               
-              <div className={`w-full space-y-3 p-6 rounded-3xl ${isDark ? "bg-white/[0.03] border border-white/5 shadow-inner" : "bg-slate-50 border border-slate-100"}`}>
-                <div className="flex justify-between items-center py-2 border-b border-white/5">
-                  <span className={`text-xs font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Phát triển by</span>
-                  <span className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>VNRT</span>
+              <div className={`w-full space-y-4 p-8 rounded-[32px] ${isDark ? "bg-white/[0.03] border border-white/5 shadow-inner" : "bg-slate-50 border border-slate-100"}`}>
+                <div className="flex justify-between items-center py-3 border-b border-white/5">
+                  <span className={`text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Phát triển by</span>
+                  <span className={`text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>VNRT</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-white/5">
-                  <span className={`text-xs font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Branch</span>
-                  <span className="text-sm font-bold text-emerald-500">Dev</span>
+                <div className="flex justify-between items-center py-3 border-b border-white/5">
+                  <span className={`text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Branch</span>
+                  <span className="text-base font-bold text-emerald-500">Dev</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-white/5">
-                  <span className={`text-xs font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Build</span>
-                  <span className="text-sm font-bold text-purple-400">26606</span>
+                <div className="flex justify-between items-center py-3 border-b border-white/5">
+                  <span className={`text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Build</span>
+                  <span className="text-base font-bold text-purple-400">26606</span>
                 </div>
-                <div className="flex justify-between items-center py-2">
-                  <span className={`text-xs font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Compiled</span>
-                  <span className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>15/05/26</span>
+                <div className="flex justify-between items-center py-3">
+                  <span className={`text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Compiled</span>
+                  <span className={`text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>15/05/26</span>
                 </div>
               </div>
 
-              <div className="mt-8 flex items-center justify-between p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
-                <div className="flex items-center gap-3 text-emerald-500">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs font-bold uppercase tracking-widest">Trạng thái hệ thống</span>
+              <div className="mt-10 flex items-center justify-between p-6 rounded-[24px] bg-emerald-500/5 border border-emerald-500/10">
+                <div className="flex items-center gap-4 text-emerald-500">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-sm font-bold uppercase tracking-[0.2em]">Trạng thái hệ thống</span>
                 </div>
-                <span className="text-xs font-bold text-emerald-500">ỔN ĐỊNH</span>
+                <span className="text-sm font-bold text-emerald-500">ỔN ĐỊNH</span>
               </div>
             </div>
           </div>
         );
       case "Profile":
         return (
-          <div className="space-y-4">
-            <div className={`p-8 rounded-3xl border flex items-center gap-6 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
-               <img src={user?.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop"} className="w-24 h-24 rounded-full border-4 border-white/10" />
-               <div className="space-y-1">
-                  <h3 className="text-2xl font-bold">{user?.displayName || "Người dùng Vplay"}</h3>
-                  <p className="opacity-50 text-sm">{user?.email || "Chưa xác minh email"}</p>
-                  <div className="pt-2 flex gap-2">
-                     <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-[10px] font-bold rounded-md uppercase">Vip Membership</span>
-                     <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-bold rounded-md uppercase">Beta Tester</span>
+          <div className="space-y-6">
+            <div className={`p-10 rounded-[32px] border flex items-center gap-8 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+               <img src={user?.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop"} className="w-28 h-28 rounded-full border-4 border-white/10 shadow-xl" />
+               <div className="space-y-2 text-left">
+                  <h3 className="text-3xl font-bold tracking-tight">{user?.displayName || "Người dùng Vplay"}</h3>
+                  <p className="opacity-50 text-base">{user?.email || "Chưa xác minh email"}</p>
+                  <div className="pt-3 flex gap-3">
+                     <span className="px-3 py-1 bg-purple-500/20 text-purple-400 text-xs font-bold rounded-lg uppercase tracking-wider">Vip Membership</span>
+                     <span className="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-bold rounded-lg uppercase tracking-wider">Beta Tester</span>
                   </div>
                </div>
             </div>
             <RejuvenatedSettingsItem 
               icon={Monitor} 
               title="Chỉnh sửa hồ sơ" 
-              description="Thay đổi tên hiển thị và ảnh đại diện"
+              description="Thay đổi tên hiển thị và ảnh đại diện để cá nhân hóa tài khoản của bạn"
               onClick={() => onAlert("Tính năng", "Coming soon in detailed view")}
               isDark={isDark}
             />
             <RejuvenatedSettingsItem 
               icon={LogOut} 
               title="Đăng xuất" 
-              description="Kết thúc phiên làm việc hiện tại"
+              description="Kết thúc phiên làm việc hiện tại và xóa các dữ liệu đăng nhập tạm thời"
               onClick={() => props.onLogout ? props.onLogout() : {}}
               isDark={isDark}
             />
@@ -2955,311 +2962,308 @@ function RejuvenatedSettings(props: any) {
         );
       case "Appearance":
         return (
-          <div className="space-y-4">
+          <div className="space-y-6 text-left">
              <RejuvenatedSettingsItem 
               icon={Sun} 
-              title="Chế độ tối" 
-              description={isDark ? "Đang bật" : "Đang tắt"}
+              title="Chế độ tối (Light/Dark)" 
+              description={isDark ? "Giao diện đang ở chế độ tối, giúp bảo vệ mắt và tiết kiệm pin" : "Giao diện đang ở chế độ sáng, hiển thị rõ ràng dưới ánh nắng"}
               onClick={() => setIsDark(!isDark)}
               isDark={isDark}
               isToggleable={true}
               isToggled={isDark}
             />
-            <div className={`p-4 rounded-xl border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
-              <div className="flex items-center gap-4 mb-4">
-                <div className={`p-2 rounded-lg ${isDark ? "bg-white/5 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
-                  <Palette size={20} />
+            <RejuvenatedSettingsItem 
+              icon={isTouchInterface ? Smartphone : Monitor} 
+              title="Giao diện Desktop/Touch" 
+              description={isTouchInterface ? "Đang tối ưu cho trải nghiệm chạm trên các thiết bị di động và máy tính bảng" : "Đang tối ưu cho trải nghiệm chuột và bàn phím trên máy tính"}
+              onClick={() => setIsTouchInterface(!isTouchInterface)}
+              isDark={isDark}
+              isToggleable={true}
+              isToggled={isTouchInterface}
+            />
+            <div className={`p-8 rounded-[32px] border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+              <div className="flex items-center gap-5 mb-8">
+                <div className={`p-3 rounded-2xl ${isDark ? "bg-white/5 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
+                  <Palette size={24} />
                 </div>
-                <h4 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Tùy chỉnh màu giao diện</h4>
+                <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Tùy chỉnh màu giao diện</h4>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-50">Màu chủ đạo (Nút)</label>
-                  <div className="flex items-center gap-2">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2 text-left">
+                  <label className="text-xs font-bold uppercase tracking-wider opacity-50 ml-1">Màu chủ đạo (Nút)</label>
+                  <div className="flex items-center gap-3">
                     <input 
                       type="color" 
-                      value={props.customColors.primary} 
+                      value={props.customColors?.primary || "#d946ef"} 
                       onChange={(e) => props.setCustomColors(prev => ({ ...prev, primary: e.target.value }))}
-                      className="w-full h-10 rounded-xl cursor-pointer border-2 border-white/10 p-0.5 bg-transparent"
+                      className="w-full h-12 rounded-[20px] cursor-pointer border-2 border-white/10 p-0.5 bg-transparent"
                     />
                   </div>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-50">Sidebar & Topbar</label>
-                  <div className="flex items-center gap-2">
+                <div className="space-y-2 text-left">
+                  <label className="text-xs font-bold uppercase tracking-wider opacity-50 ml-1">Sidebar & Topbar</label>
+                  <div className="flex items-center gap-3">
                     <input 
                       type="color" 
-                      value={props.customColors.sidebar} 
+                      value={props.customColors?.sidebar || "#000000"} 
                       onChange={(e) => {
                         props.setCustomColors(prev => ({ ...prev, sidebar: e.target.value, topbar: e.target.value }));
                       }}
-                      className="w-full h-10 rounded-xl cursor-pointer border-2 border-white/10 p-0.5 bg-transparent"
+                      className="w-full h-12 rounded-[20px] cursor-pointer border-2 border-white/10 p-0.5 bg-transparent"
                     />
                   </div>
                 </div>
-                <div className="space-y-1 col-span-2">
-                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-50">Màu Nền Chính</label>
-                  <div className="flex items-center gap-2">
+                <div className="space-y-2 col-span-2">
+                  <label className="text-xs font-bold uppercase tracking-wider opacity-50 ml-1">Màu Nền Chính</label>
+                  <div className="flex items-center gap-3">
                     <input 
                       type="color" 
-                      value={props.customColors.background} 
+                      value={props.customColors?.background || "#0a0118"} 
                       onChange={(e) => props.setCustomColors(prev => ({ ...prev, background: e.target.value }))}
-                      className="w-full h-10 rounded-xl cursor-pointer border-2 border-white/10 p-0.5 bg-transparent"
+                      className="w-full h-12 rounded-[20px] cursor-pointer border-2 border-white/10 p-0.5 bg-transparent"
                     />
                   </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="space-y-2">
-              <RejuvenatedSettingsItem 
-                icon={Layout} 
-                title="Cài đặt Sidebar" 
-                onClick={() => setExpandedOption(expandedOption === "sidebar" ? null : "sidebar")}
-                isDark={isDark}
-              />
-              <AnimatePresence>
-                {expandedOption === "sidebar" && (
-                  <motion.div 
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden space-y-2 ml-4 border-l-2 border-purple-500/20 pl-4"
-                  >
-                    <RejuvenatedSettingsItem 
-                      icon={ArrowRightLeft} 
-                      title="Vị trí Sidebar" 
-                      description={isSidebarRight ? "Bên phải" : "Bên trái"}
-                      onClick={() => setIsSidebarRight(!isSidebarRight)}
-                      isDark={isDark}
-                    />
-                    <RejuvenatedSettingsItem 
-                      icon={Zap} 
-                      title="Truy cập nhanh" 
-                      onClick={() => setIsPinningEnabled(!isPinningEnabled)}
-                      isDark={isDark}
-                      isToggleable={true}
-                      isToggled={isPinningEnabled}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <div className="space-y-2">
-              <RejuvenatedSettingsItem 
-                icon={Smartphone} 
-                title="Giao diện điều hướng" 
-                onClick={() => setExpandedOption(expandedOption === "navbar" ? null : "navbar")}
-                isDark={isDark}
-              />
-              <AnimatePresence>
-                {expandedOption === "navbar" && (
-                  <motion.div 
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden space-y-2 ml-4 border-l-2 border-purple-500/20 pl-4"
-                  >
-                    <RejuvenatedSettingsItem 
-                      icon={Droplet} 
-                      title="Hiệu ứng kính mờ/lỏng" 
-                      onClick={() => setLiquidGlass(liquidGlass === "glassy" ? "tinted" : "glassy")}
-                      isDark={isDark}
-                    />
-                    <RejuvenatedSettingsItem 
-                      icon={Monitor} 
-                      title="Chế độ Desktop" 
-                      onClick={() => setIsDev(false)}
-                      isDark={isDark}
-                      isToggleable={true}
-                      isToggled={!isDev}
-                    />
-                    <RejuvenatedSettingsItem 
-                      icon={LayoutGrid} 
-                      title="Số lượng kênh mỗi dòng" 
-                      description="Tùy chỉnh số lượng kênh hiển thị"
-                      onClick={() => {}}
-                      isDark={isDark}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
           </div>
         );
       case "TopBar":
         return (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <RejuvenatedSettingsItem 
-                icon={Clock} 
-                title="Đồng hồ và Lịch" 
-                description={showClock ? "Đang bật" : "Đang tắt"}
-                onClick={() => setExpandedOption(expandedOption === "clock" ? null : "clock")}
-                isDark={isDark}
-              />
-              <AnimatePresence>
-                {expandedOption === "clock" && (
-                  <motion.div 
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden space-y-2 ml-4 border-l-2 border-purple-500/20 pl-4"
-                  >
-                    <RejuvenatedSettingsItem 
-                      icon={CheckCircle2} 
-                      title="Hiển thị đồng hồ" 
-                      onClick={() => setShowClock(!showClock)}
-                      isDark={isDark}
-                      isToggleable={true}
-                      isToggled={showClock}
-                    />
-                    <RejuvenatedSettingsItem 
-                      icon={CheckCircle2} 
-                      title="Hiển thị ngày tháng" 
-                      onClick={() => setShowDate(!showDate)}
-                      isDark={isDark}
-                      isToggleable={true}
-                      isToggled={showDate}
-                    />
-                    <RejuvenatedSettingsItem 
-                      icon={History} 
-                      title="Định dạng thời gian" 
-                      description={`${timeFormat} (${clockFormat})`}
-                      onClick={() => {
-                        if (timeFormat === "24h") setTimeFormat("12h");
-                        else {
-                          setTimeFormat("24h");
-                          setClockFormat(clockFormat === "hh:mm" ? "hh:mm:ss" : "hh:mm");
-                        }
-                      }}
-                      isDark={isDark}
-                    />
-                    <RejuvenatedSettingsItem 
-                      icon={Calendar} 
-                      title="Định dạng ngày tháng" 
-                      description={dateFormat}
-                      onClick={() => {
-                        const formats: ("dd/mm/yyyy" | "dd/mm/yy" | "dd/mm")[] = ["dd/mm/yyyy", "dd/mm/yy", "dd/mm"];
-                        const next = formats[(formats.indexOf(dateFormat as any) + 1) % formats.length];
-                        setDateFormat(next);
-                      }}
-                      isDark={isDark}
-                    />
-                    <RejuvenatedSettingsItem 
-                      icon={Globe} 
-                      title="Múi giờ hệ thống" 
-                      description="GMT+7 (Hanoi)"
-                      onClick={() => onAlert("Tính năng", "Coming soon")}
-                      isDark={isDark}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <div className="space-y-2">
-              <RejuvenatedSettingsItem 
-                icon={Cloud} 
-                title="Thời tiết" 
-                description={showTempInClock ? "Đang bật" : "Đang tắt"}
-                onClick={() => setExpandedOption(expandedOption === "weather" ? null : "weather")}
-                isDark={isDark}
-              />
-              <AnimatePresence>
-                {expandedOption === "weather" && (
-                  <motion.div 
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden space-y-2 ml-4 border-l-2 border-purple-500/20 pl-4"
-                  >
-                    <RejuvenatedSettingsItem 
-                      icon={CheckCircle2} 
-                      title="Hiển thị nhiệt độ" 
-                      onClick={() => setShowTempInClock(!showTempInClock)}
-                      isDark={isDark}
-                      isToggleable={true}
-                      isToggled={showTempInClock}
-                    />
-                    <RejuvenatedSettingsItem 
-                      icon={Thermometer} 
-                      title="Đơn vị nhiệt độ" 
-                      description={`Độ ${tempUnit}`}
-                      onClick={() => setTempUnit(tempUnit === "C" ? "F" : "C")}
-                      isDark={isDark}
-                    />
-                    <RejuvenatedSettingsItem 
-                      icon={Navigation} 
-                      title="Bật tự động định vị" 
-                      description={location}
-                      onClick={toggleGeolocation}
-                      isDark={isDark}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+          <div className="space-y-6 text-left">
+             <RejuvenatedSettingsItem 
+              icon={Clock} 
+              title="Hiển thị Đồng hồ" 
+              description={showClock ? "Thời gian hiện tại đang được hiển thị trên thanh tiêu đề" : "Đồng hồ hiện đang được ẩn khỏi thanh tiêu đề"}
+              onClick={() => setShowClock(!showClock)}
+              isDark={isDark}
+              isToggleable={true}
+              isToggled={showClock}
+            />
+            {showClock && (
+                <div className={`ml-10 p-6 rounded-[24px] border space-y-6 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+                    <div className="flex items-center justify-between">
+                         <span className="text-sm font-bold opacity-60">Múi giờ</span>
+                         <select 
+                            value={timeZone} 
+                            onChange={(e) => setTimeZone(e.target.value)}
+                            className={`text-sm font-bold px-4 py-2 rounded-xl border-none outline-none ${isDark ? "bg-white/10" : "bg-slate-100"}`}
+                         >
+                            <option value="Asia/Ho_Chi_Minh">Hanoi (GMT+7)</option>
+                            <option value="Asia/Bangkok">Bangkok (GMT+7)</option>
+                            <option value="Asia/Tokyo">Tokyo (GMT+9)</option>
+                         </select>
+                    </div>
+                    <div className="flex items-center justify-between">
+                         <span className="text-sm font-bold opacity-60">Định dạng giờ</span>
+                         <select 
+                            value={timeFormat} 
+                            onChange={(e) => setTimeFormat(e.target.value as any)}
+                            className={`text-sm font-bold px-4 py-2 rounded-xl border-none outline-none ${isDark ? "bg-white/10" : "bg-slate-100"}`}
+                         >
+                            <option value="24h">24 Giờ</option>
+                            <option value="12h">12 Giờ (AM/PM)</option>
+                         </select>
+                    </div>
+                </div>
+            )}
+            <RejuvenatedSettingsItem 
+              icon={Calendar} 
+              title="Hiển thị Lịch" 
+              description={showDate ? "Ngày tháng năm hiện tại đang hiển thị cạnh đồng hồ" : "Lịch hiện đang được ẩn khỏi thanh tiêu đề"}
+              onClick={() => setShowDate(!showDate)}
+              isDark={isDark}
+              isToggleable={true}
+              isToggled={showDate}
+            />
+            {showDate && (
+                <div className={`ml-10 p-6 rounded-[24px] border space-y-6 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+                    <div className="flex items-center justify-between">
+                         <span className="text-sm font-bold opacity-60">Định dạng lịch</span>
+                         <select 
+                            value={dateFormat} 
+                            onChange={(e) => setDateFormat(e.target.value as any)}
+                            className={`text-sm font-bold px-4 py-2 rounded-xl border-none outline-none ${isDark ? "bg-white/10" : "bg-slate-100"}`}
+                         >
+                            <option value="dd/mm/yyyy">Ngày/Tháng/Năm</option>
+                            <option value="dd/mm/yy">Ngày/Tháng/Năm (Rút gọn)</option>
+                         </select>
+                    </div>
+                </div>
+            )}
+            <RejuvenatedSettingsItem 
+              icon={Cloud} 
+              title="Hiển thị Thời tiết" 
+              description={showTempInClock ? "Nhiệt độ và trạng thái thời tiết đang hiển thị trên thanh tiêu đề" : "Thông tin thời tiết hiện đang được ẩn"}
+              onClick={() => setShowTempInClock(!showTempInClock)}
+              isDark={isDark}
+              isToggleable={true}
+              isToggled={showTempInClock}
+            />
+            {showTempInClock && (
+                <div className={`ml-10 p-6 rounded-[24px] border space-y-6 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+                    <div className="flex items-center justify-between">
+                         <span className="text-sm font-bold opacity-60">Vị trí</span>
+                         <div className="flex gap-3">
+                             <button 
+                                onClick={() => setLocationDetection("auto")}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${locationDetection === "auto" ? "bg-purple-500 text-white shadow-lg shadow-purple-500/30" : isDark ? "bg-white/10" : "bg-slate-100 shadow-sm"}`}
+                             >
+                                 Auto
+                             </button>
+                             <button 
+                                onClick={() => setLocationDetection("manual")}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${locationDetection === "manual" ? "bg-purple-500 text-white shadow-lg shadow-purple-500/30" : isDark ? "bg-white/10" : "bg-slate-100 shadow-sm"}`}
+                             >
+                                 Manual
+                             </button>
+                         </div>
+                    </div>
+                    {locationDetection === "manual" && (
+                        <div className="flex items-center justify-between">
+                             <span className="text-sm font-bold opacity-60">Nhập vị trí</span>
+                             <input 
+                                value={location} 
+                                onChange={(e) => setLocation(e.target.value)}
+                                className={`text-sm font-bold px-4 py-2 rounded-xl border-none outline-none ${isDark ? "bg-white/10" : "bg-slate-100 shadow-inner"}`}
+                             />
+                        </div>
+                    )}
+                    <div className="flex items-center justify-between">
+                         <span className="text-sm font-bold opacity-60">Đơn vị nhiệt độ</span>
+                         <select 
+                            value={tempUnit} 
+                            onChange={(e) => setTempUnit(e.target.value as any)}
+                            className={`text-sm font-bold px-4 py-2 rounded-xl border-none outline-none ${isDark ? "bg-white/10" : "bg-slate-100"}`}
+                         >
+                            <option value="C">Celsius (°C)</option>
+                            <option value="F">Fahrenheit (°F)</option>
+                         </select>
+                    </div>
+                </div>
+            )}
+            <RejuvenatedSettingsItem 
+              icon={Search} 
+              title="Thanh tìm kiếm Topbar" 
+              description={topbarSearchType === "box" ? "Thanh tìm kiếm dạng rộng, dễ dàng nhìn thấy và thao tác" : "Thanh tìm kiếm co gọn thành biểu tượng, giúp Topbar thoáng hơn"}
+              onClick={() => setTopbarSearchType(topbarSearchType === "box" ? "icon" : "box")}
+              isDark={isDark}
+            />
           </div>
         );
       case "Sidebar":
         return (
-          <div className="space-y-4">
-            <RejuvenatedSettingsItem 
-              icon={Layout} 
-              title="Vị trí Sidebar" 
-              description={isSidebarRight ? "Bên phải" : "Bên trái"}
-              onClick={() => setIsSidebarRight(!isSidebarRight)}
-              isDark={isDark}
-            />
-            <RejuvenatedSettingsItem 
-              icon={Zap} 
-              title="Truy cập nhanh" 
-              description={isPinningEnabled ? "Đang bật" : "Đang tắt"}
-              onClick={() => setIsPinningEnabled(!isPinningEnabled)}
-              isDark={isDark}
-              isToggleable={true}
-              isToggled={isPinningEnabled}
-            />
-          </div>
+            <div className="space-y-6 text-left">
+                 <RejuvenatedSettingsItem 
+                  icon={LayoutPanelLeft} 
+                  title="Compact mode" 
+                  description={isCompactMode ? "Sidebar đang được co gọn, hiển thị các biểu tượng lớn và nhãn nhỏ" : "Sidebar đang hiển thị ở dạng đầy đủ với nhãn văn bản chi tiết"}
+                  onClick={() => setIsCompactMode(!isCompactMode)}
+                  isDark={isDark}
+                  isToggleable={true}
+                  isToggled={isCompactMode}
+                />
+                 <RejuvenatedSettingsItem 
+                  icon={ArrowRightLeft} 
+                  title="Vị trí Sidebar" 
+                  description={isSidebarRight ? "Sidebar đang nằm ở phía bên phải màn hình" : "Sidebar đang nằm ở phía bên trái màn hình (Mặc định)"}
+                  onClick={() => setIsSidebarRight(!isSidebarRight)}
+                  isDark={isDark}
+                />
+                 <RejuvenatedSettingsItem 
+                  icon={Zap} 
+                  title="Truy cập nhanh" 
+                  description={sidebarQuickAccess ? "Hiển thị danh sách các kênh ghim ngay trên thanh Sidebar để truy cập nhanh" : "Ẩn các mục ghim để Sidebar tối giản hơn"}
+                  onClick={() => setSidebarQuickAccess(!sidebarQuickAccess)}
+                  isDark={isDark}
+                  isToggleable={true}
+                  isToggled={sidebarQuickAccess}
+                />
+            </div>
         );
-      case "NavBar":
+      case "Floatbar":
         return (
-          <div className="space-y-4">
-            <RejuvenatedSettingsItem 
-              icon={Droplet} 
-              title="Đổi sang kính mờ/lỏng" 
-              description={liquidGlass === "glassy" ? "Hiện tại: Kính mờ" : "Hiện tại: Kính lỏng"}
-              onClick={() => setLiquidGlass(liquidGlass === "glassy" ? "tinted" : "glassy")}
-              isDark={isDark}
-            />
-            <RejuvenatedSettingsItem 
-              icon={Monitor} 
-              title="Chế độ Desktop" 
-              description={!isDev ? "Đang bật" : "Đang tắt"}
-              onClick={() => setIsDev(false)}
-              isDark={isDark}
-              isToggleable={true}
-              isToggled={!isDev}
-            />
-          </div>
+            <div className={`p-8 rounded-[32px] border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+                <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center gap-6">
+                        <div className={`p-3 rounded-2xl ${isDark ? "bg-white/5 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
+                            <GlassWater size={28} />
+                        </div>
+                        <div className="text-left">
+                            <h4 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Liquid Glass Engine</h4>
+                            <p className="text-sm opacity-50 font-medium tracking-tight">Lựa chọn phong cách hiển thị cho Floatbar và các cửa sổ con</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                    <button 
+                        onClick={() => setLiquidGlass("glassy")}
+                        className={`p-8 rounded-[32px] border-2 transition-all flex flex-col items-center gap-4 ${liquidGlass === "glassy" ? "border-purple-500 bg-purple-500/10 shadow-lg shadow-purple-500/10" : isDark ? "border-white/5 bg-white/5" : "border-slate-100 bg-slate-50"}`}
+                    >
+                         <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-inner">
+                            <div className="w-8 h-1 bg-white/40 rounded-full" />
+                         </div>
+                         <span className="text-sm font-bold uppercase tracking-widest">Glassy</span>
+                     </button>
+                    <button 
+                        onClick={() => setLiquidGlass("tinted")}
+                        className={`p-8 rounded-[32px] border-2 transition-all flex flex-col items-center gap-4 ${liquidGlass === "tinted" ? "border-purple-500 bg-purple-500/10 shadow-lg shadow-purple-500/10" : isDark ? "border-white/5 bg-white/5" : "border-slate-100 bg-slate-50"}`}
+                    >
+                         <div className="w-16 h-16 rounded-full bg-white border border-white flex items-center justify-center shadow-md">
+                            <div className="w-8 h-1 bg-black/10 rounded-full" />
+                         </div>
+                         <span className="text-sm font-bold uppercase tracking-widest">Tinted</span>
+                    </button>
+                </div>
+            </div>
         );
       case "Experiments":
+        if (!featureFlags.widgets_dashboard) {
+          return (
+            <div className="space-y-6">
+              <div className={`p-12 rounded-[48px] border flex flex-col items-center text-center space-y-8 ${isDark ? "bg-amber-500/10 border-white/5 shadow-2xl shadow-amber-500/5" : "bg-amber-100 border-amber-200 shadow-sm"}`}>
+                  <div className={`w-28 h-28 rounded-full flex items-center justify-center ${isDark ? "bg-amber-500/20 text-amber-400" : "bg-white text-amber-600 shadow-sm"}`}>
+                      <AlertCircle size={56} />
+                  </div>
+                  <div className="space-y-4">
+                      <h3 className={`text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Experimental Features</h3>
+                      <p className={`text-lg opacity-60 font-medium leading-relaxed max-w-lg ${isDark ? "text-white" : "text-slate-900"}`}>
+                          Experimental Features đã được di chuyển vào Widgets Dashboard. Để trải nghiệm các tính năng thử nghiệm mới nhất trên Vplay, vui lòng kích hoạt tính năng "Widgets Dashboard" dưới đây
+                      </p>
+                  </div>
+                  <button 
+                    onClick={() => setFeatureFlags((prev: any) => ({ ...prev, widgets_dashboard: true }))}
+                    className="w-full btn-vibrant-3d py-5 !rounded-[32px] font-bold tracking-widest text-sm shadow-2xl"
+                  >
+                      Activate Widgets Dashboard
+                  </button>
+              </div>
+            </div>
+          );
+        }
         return (
-          <div className="space-y-4">
-            {EXPERIMENTS.map((exp) => (
-              <RejuvenatedSettingsItem 
-                key={exp.id}
-                icon={Grid} 
-                title={exp.name} 
-                description={exp.desc}
-                onClick={() => setFeatureFlags((prev: any) => ({ ...prev, [exp.id]: !prev[exp.id] }))}
-                isDark={isDark}
-                isToggleable={true}
-                isToggled={!!featureFlags[exp.id]}
-              />
-            ))}
+          <div className="space-y-6">
+            <div className={`p-12 rounded-[48px] border flex flex-col items-center text-center space-y-8 ${isDark ? "bg-purple-500/10 border-white/5 shadow-2xl shadow-purple-500/5" : "bg-purple-50 border-purple-100 shadow-sm"}`}>
+                <div className={`w-28 h-28 rounded-full flex items-center justify-center ${isDark ? "bg-purple-500/20 text-purple-400" : "bg-purple-100 text-purple-600"}`}>
+                    <Flask size={56} />
+                </div>
+                <div className="space-y-4">
+                    <h3 className={`text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Experimental Features</h3>
+                    <p className={`text-lg opacity-50 font-medium leading-relaxed max-w-lg ${isDark ? "text-white" : "text-slate-900"}`}>
+                        Trải nghiệm các tính năng thử nghiệm mới nhất trên hệ thống Vplay Canary. Cẩn thận: các tính năng này có thể thay đổi hoặc biến mất bất cứ lúc nào.
+                    </p>
+                </div>
+                <button 
+                  onClick={() => {
+                    if (setIsWidgetsOpen) setIsWidgetsOpen(true);
+                    if (setActiveDashboardTab) setActiveDashboardTab("labs");
+                    if (setIsWidgetsOpen) setIsWidgetsOpen(true);
+                  }}
+                  className="w-full btn-vibrant-3d py-5 !rounded-[32px] font-bold tracking-widest text-sm shadow-2xl"
+                >
+                    MỞ PHÒNG THÍ NGHIỆM TIẾN HÓA
+                </button>
+            </div>
           </div>
         );
       default:
@@ -5202,7 +5206,7 @@ function TopBar({
                   <button
                     key={`search-preview-${c.name}`}
                     onClick={() => {
-                      setActiveTab("Phát sóng");
+                      setActiveTab("Live");
                       // setActiveChannel logic should be handled by App state
                       setSearchQuery("");
                     }}
@@ -5337,7 +5341,7 @@ function SidebarContextMenu({ x, y, onClose, isDark, setActiveTab, setUseSidebar
         transition={{ type: "spring", damping: 20, stiffness: 150 }}
         style={{ top: y, left: x }}
         className={`fixed z-[1001] w-56 rounded-2xl shadow-2xl border p-1.5 overflow-hidden ${
-          isDark ? "bg-[#050110]/95 border-white/10 text-white" : "bg-white/95 border-slate-200 text-slate-900 shadow-xl"
+          isDark ? "bg-vplay-background/95 border-white/10 text-white" : "bg-white/95 border-slate-200 text-slate-900 shadow-xl"
         } backdrop-blur-3xl`}
       >
         <button onClick={() => { setActiveTab("Cài đặt"); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
@@ -5461,6 +5465,251 @@ function NavigationContextMenu({ x, y, onClose, isDark, liquidGlass, setLiquidGl
         </button>
       </motion.div>
     </>
+  );
+}
+
+function WordScrambleGame({ isDark }: { isDark: boolean }) {
+  const [language, setLanguage] = useState<'vi' | 'en'>('vi');
+  const [score, setScore] = useState(0);
+  const [currentWord, setCurrentWord] = useState('');
+  const [scrambled, setScrambled] = useState('');
+  const [userGuess, setUserGuess] = useState('');
+  const [status, setStatus] = useState<'idle' | 'correct' | 'wrong'>('idle');
+
+  const words = {
+    vi: ['máy tính', 'vplay', 'truyền hình', 'phát triển', 'ứng dụng', 'âm nhạc', 'phim ảnh', 'công nghệ', 'sáng tạo', 'tương lai'],
+    en: ['computer', 'software', 'network', 'develop', 'programming', 'interface', 'canary', 'digital', 'science', 'creative']
+  };
+
+  const getRandomWord = () => {
+    const list = words[language];
+    const word = list[Math.floor(Math.random() * list.length)];
+    setCurrentWord(word);
+    setScrambled(word.split('').sort(() => Math.random() - 0.5).join(''));
+    setUserGuess('');
+    setStatus('idle');
+  };
+
+  useEffect(() => {
+    getRandomWord();
+  }, [language]);
+
+  const checkWord = () => {
+    if (userGuess.toLowerCase().trim() === currentWord.toLowerCase().trim()) {
+      setStatus('correct');
+      setScore(s => s + 10);
+      setTimeout(getRandomWord, 1000);
+    } else {
+      setStatus('wrong');
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className={`w-8 h-8 rounded-xl ${isDark ? "bg-white/10" : "bg-orange-50"} flex items-center justify-center text-orange-500`}>
+            <Shuffle size={16} />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold opacity-50 uppercase tracking-widest">Scramble</p>
+            <p className="text-xs font-bold">Sắp xếp từ</p>
+          </div>
+        </div>
+        <div className="flex gap-1 bg-slate-100 p-1 rounded-lg">
+          <button onClick={() => setLanguage('vi')} className={`text-[8px] font-bold px-2 py-0.5 rounded-md transition-all ${language === 'vi' ? "bg-white shadow-sm text-orange-500" : "text-slate-400"}`}>VI</button>
+          <button onClick={() => setLanguage('en')} className={`text-[8px] font-bold px-2 py-0.5 rounded-md transition-all ${language === 'en' ? "bg-white shadow-sm text-orange-500" : "text-slate-400"}`}>EN</button>
+        </div>
+      </div>
+      
+      <div className={`p-4 rounded-2xl ${isDark ? "bg-white/5 border-white/5" : "bg-slate-50 border-slate-100"} border text-center relative overflow-hidden`}>
+        {status === 'correct' && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute inset-0 bg-green-500/10 flex items-center justify-center text-green-600 font-black text-xs uppercase tracking-tighter">Chính xác!</motion.div>}
+        <p className="text-xl font-bold tracking-[0.3em] uppercase text-slate-800">{scrambled}</p>
+      </div>
+
+      <div className="flex gap-2">
+        <input 
+          value={userGuess}
+          onChange={(e) => setUserGuess(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && checkWord()}
+          placeholder="Nhập từ..."
+          className={`flex-1 h-10 px-3 rounded-xl border border-slate-100 outline-none text-xs font-bold focus:border-orange-500 transition-all ${status === 'wrong' ? "border-red-500 text-red-500 bg-red-50 animate-shake" : ""}`}
+        />
+        <button onClick={checkWord} className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center shadow-lg shadow-orange-500/20 active:scale-95 transition-all">
+          <Send size={16} />
+        </button>
+      </div>
+      <div className="flex justify-between items-center text-[10px] font-bold text-slate-400">
+        <span>Score: {score}</span>
+        <button onClick={getRandomWord} className="hover:text-orange-500 transition-colors">Đổi từ khác</button>
+      </div>
+    </div>
+  );
+}
+
+function WordChainGame({ isDark }: { isDark: boolean }) {
+  const [language, setLanguage] = useState<'vi' | 'en'>('vi');
+  const [history, setHistory] = useState<string[]>([]);
+  const [input, setInput] = useState('');
+  const [score, setScore] = useState(0);
+
+  const startWords = {
+    vi: ['vplay', 'máy tính', 'công nghệ', 'sáng tạo'],
+    en: ['vplay', 'computer', 'science', 'creative']
+  };
+
+  useEffect(() => {
+    setHistory([startWords[language][Math.floor(Math.random() * startWords[language].length)]]);
+    setScore(0);
+  }, [language]);
+
+  const handleSend = () => {
+    if (!input.trim()) return;
+    const word = input.toLowerCase().trim();
+    const lastWord = history[history.length - 1];
+    
+    // Simple validation: check last character of last word matches first character of new word
+    // In VN, "Nối từ" often works with syllables, but for simplicity we'll use characters or last syllable
+    const lastChar = lastWord.charAt(lastWord.length - 1);
+    const firstChar = word.charAt(0);
+
+    if (firstChar === lastChar && !history.includes(word)) {
+      setHistory(h => [...h, word]);
+      setScore(s => s + word.length);
+      setInput('');
+      // Bot reply placeholder or just score player
+    } else {
+      // Shaky animation or something
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className={`w-8 h-8 rounded-xl ${isDark ? "bg-white/10" : "bg-blue-50"} flex items-center justify-center text-blue-500`}>
+            <Link size={16} />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold opacity-50 uppercase tracking-widest">Word Chain</p>
+            <p className="text-xs font-bold">Nối từ</p>
+          </div>
+        </div>
+        <div className="flex gap-1 bg-slate-100 p-1 rounded-lg">
+          <button onClick={() => setLanguage('vi')} className={`text-[8px] font-bold px-2 py-0.5 rounded-md transition-all ${language === 'vi' ? "bg-white shadow-sm text-blue-500" : "text-slate-400"}`}>VI</button>
+          <button onClick={() => setLanguage('en')} className={`text-[8px] font-bold px-2 py-0.5 rounded-md transition-all ${language === 'en' ? "bg-white shadow-sm text-blue-500" : "text-slate-400"}`}>EN</button>
+        </div>
+      </div>
+
+      <div className={`h-24 overflow-y-auto px-1 py-1 custom-scrollbar space-y-1.5`}>
+        {history.map((word, i) => (
+          <div key={i} className={`flex items-center gap-2 ${i % 2 === 0 ? "justify-end text-right" : "justify-start text-left"}`}>
+             <div className={`px-3 py-1.5 rounded-xl text-[10px] font-bold shadow-sm ${i % 2 === 0 ? "bg-blue-500 text-white" : "bg-slate-100 text-slate-700"}`}>
+               {word}
+             </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex gap-2">
+        <input 
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          placeholder={`Bắt đầu bằng '${history[history.length-1]?.charAt(history[history.length-1]?.length-1)}'...`}
+          className="flex-1 h-10 px-3 rounded-xl border border-slate-100 outline-none text-xs font-bold focus:border-blue-500 transition-all"
+        />
+        <button onClick={handleSend} className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-lg shadow-blue-600/20 active:scale-95 transition-all">
+          <Send size={16} />
+        </button>
+      </div>
+      <div className="text-[10px] font-bold text-slate-400">Score: {score} pts</div>
+    </div>
+  );
+}
+
+function StickyNotesWidget({ isDark }: { isDark: boolean }) {
+  const [note, setNote] = useState(() => localStorage.getItem("vplay_sticky_note") || "Hôm nay tôi cần làm gì?");
+  const [bgColor, setBgColor] = useState(() => localStorage.getItem("vplay_note_bg") || "#fef3c7");
+  const [textColor, setTextColor] = useState(() => localStorage.getItem("vplay_note_txt") || "#92400e");
+  const [format, setFormat] = useState({ bold: false, italic: false, underline: false });
+
+  useEffect(() => {
+    localStorage.setItem("vplay_sticky_note", note);
+    localStorage.setItem("vplay_note_bg", bgColor);
+    localStorage.setItem("vplay_note_txt", textColor);
+  }, [note, bgColor, textColor]);
+
+  const colors = [
+    { bg: "#fef3c7", font: "#92400e" }, // Yellow
+    { bg: "#dcfce7", font: "#166534" }, // Green
+    { bg: "#e0f2fe", font: "#075985" }, // Blue
+    { bg: "#fce7f3", font: "#9d174d" }, // Pink
+    { bg: "#1f2937", font: "#ffffff" }  // Dark
+  ];
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className={`w-8 h-8 rounded-xl ${isDark ? "bg-white/10" : "bg-yellow-50"} flex items-center justify-center text-yellow-600`}>
+            <StickyNote size={16} />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold opacity-50 uppercase tracking-widest">Note</p>
+            <p className="text-xs font-bold">Ghi chú nhanh</p>
+          </div>
+        </div>
+        <div className="flex gap-3 items-center">
+            <div className="flex gap-1">
+              <button 
+                onClick={() => setFormat(f => ({ ...f, bold: !f.bold }))}
+                className={`p-1 rounded-md transition-all ${format.bold ? "bg-black/10 text-black" : "text-slate-400 hover:text-slate-600"}`}
+              >
+                <Bold size={12} />
+              </button>
+              <button 
+                onClick={() => setFormat(f => ({ ...f, italic: !f.italic }))}
+                className={`p-1 rounded-md transition-all ${format.italic ? "bg-black/10 text-black" : "text-slate-400 hover:text-slate-600"}`}
+              >
+                <Italic size={12} />
+              </button>
+              <button 
+                onClick={() => setFormat(f => ({ ...f, underline: !f.underline }))}
+                className={`p-1 rounded-md transition-all ${format.underline ? "bg-black/10 text-black" : "text-slate-400 hover:text-slate-600"}`}
+              >
+                <Underline size={12} />
+              </button>
+            </div>
+            <div className="flex gap-1">
+               {colors.map(c => (
+                 <button 
+                  key={c.bg} 
+                  onClick={() => { setBgColor(c.bg); setTextColor(c.font); }} 
+                  className={`w-3.5 h-3.5 rounded-full border border-black/5 shadow-sm transition-transform hover:scale-125 ${bgColor === c.bg ? "ring-2 ring-blue-500 ring-offset-2" : ""}`}
+                  style={{ backgroundColor: c.bg }}
+                 />
+               ))}
+            </div>
+        </div>
+      </div>
+      
+      <div 
+        className="w-full h-32 rounded-2xl p-4 shadow-inner relative transition-colors duration-500"
+        style={{ backgroundColor: bgColor }}
+      >
+        <textarea 
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          className={`w-full h-full bg-transparent border-none outline-none resize-none text-xs leading-relaxed ${format.bold ? "font-bold" : "font-medium"} ${format.italic ? "italic" : ""} ${format.underline ? "underline" : ""}`}
+          style={{ color: textColor }}
+          placeholder="Viết gì đó..."
+        />
+        <div className="absolute right-3 bottom-3 opacity-20">
+          <Palette size={14} style={{ color: textColor }} />
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -5669,7 +5918,9 @@ function WidgetsDashboard({
   isDev,
   setIsDev,
   liquidGlass,
-  onOpenUserMenu
+  onOpenUserMenu,
+  activeDashboardTab,
+  setActiveDashboardTab
 }: {
   isOpen: boolean,
   onClose: () => void, 
@@ -5691,7 +5942,9 @@ function WidgetsDashboard({
   isDev?: boolean,
   setIsDev?: (v: boolean) => void,
   liquidGlass?: "glassy" | "tinted",
-  onOpenUserMenu?: () => void
+  onOpenUserMenu?: () => void,
+  activeDashboardTab: "widgets" | "changelogs" | "labs",
+  setActiveDashboardTab: (val: "widgets" | "changelogs" | "labs") => void
 }) {
   const [pinnedWidgets, setPinnedWidgets] = useState<string[]>(() => {
     const saved = localStorage.getItem("vplay_pinned_widgets");
@@ -5703,7 +5956,6 @@ function WidgetsDashboard({
   });
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, id: string } | null>(null);
-  const [activeDashboardTab, setActiveDashboardTab] = useState<"widgets" | "changelogs" | "labs">("widgets");
   const [widgetSearchQuery, setWidgetSearchQuery] = useState("");
   const [pickerSearchQuery, setPickerSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -5742,6 +5994,9 @@ function WidgetsDashboard({
     { id: "quick_settings", name: "Cài đặt nhanh", icon: Sliders, category: "Entertainment", description: "Bảng điều khiển nhanh các thiết lập âm thanh và màn hình." },
     { id: "tictactoe", name: "Cờ Caro", icon: Hash, category: "Games", description: "Chơi Cờ Caro giải trí với bạn bè hoặc với Bot thông minh." },
     { id: "version", name: "Phiên bản", icon: Info, category: "Tips", description: "Thông tin chi tiết về phiên bản Vplay Canary hiện tại." },
+    { id: "sticky_notes", name: "Ghi chú nhanh", icon: StickyNote, category: "M365", description: "Ghi chép nhanh các ý tưởng với định dạng văn bản đa dạng." },
+    { id: "word_link", name: "Nối từ", icon: Link, category: "Games", description: "Trò chơi nối từ vựng tiếng Anh và tiếng Việt đầy thử thách." },
+    { id: "word_scramble", name: "Sắp xếp từ", icon: Shuffle, category: "Games", description: "Thử thách sắp xếp các chữ cái thành từ có nghĩa." },
     { id: "channels", name: "Kênh yêu thích", icon: Tv, category: "Entertainment", description: "Danh sách các kênh truyền hình bạn xem thường xuyên nhất." }
   ];
 
@@ -5791,6 +6046,9 @@ function WidgetsDashboard({
     { id: "tictactoe", name: "Cờ Caro", icon: Hash },
     { id: "search", name: "Tìm kiếm", icon: Search },
     { id: "version", name: "Phiên bản Vplay", icon: Info },
+    { id: "sticky_notes", name: "Ghi chú", icon: StickyNote },
+    { id: "word_link", name: "Nối từ", icon: Link },
+    { id: "word_scramble", name: "Sắp xếp từ", icon: Shuffle },
     { id: "channels", name: "Kênh truyền hình", icon: Tv },
   ];
 
@@ -6041,7 +6299,7 @@ function WidgetsDashboard({
                                          {searchResults.channels.map(ch => (
                                             <button 
                                               key={ch.name}
-                                              onClick={() => { setActiveChannel(ch); setActiveTab("Phát sóng"); onClose(); }}
+                                              onClick={() => { setActiveChannel(ch); setActiveTab("Live"); onClose(); }}
                                               className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-slate-100 hover:border-blue-500 hover:shadow-lg transition-all text-left"
                                             >
                                                <img src={ch.logo} className="w-10 h-10 rounded-xl object-contain bg-slate-50 p-2" referrerPolicy="no-referrer" />
@@ -6258,7 +6516,7 @@ function WidgetsDashboard({
                                                           {channels.slice(0, 3).map(ch => (
                                                             <button 
                                                               key={ch.name} 
-                                                              onClick={() => { setActiveChannel(ch); setActiveTab("Phát sóng"); onClose(); }}
+                                                              onClick={() => { setActiveChannel(ch); setActiveTab("Live"); onClose(); }}
                                                               className="w-full flex items-center gap-3 p-2.5 rounded-2xl hover:bg-slate-50 transition-all text-left border border-transparent hover:border-slate-100 shadow-sm bg-white"
                                                             >
                                                               <div className="w-8 h-8 rounded-xl bg-slate-50 p-1.5 flex items-center justify-center">
@@ -6271,6 +6529,27 @@ function WidgetsDashboard({
                                                             </button>
                                                           ))}
                                                         </div>
+                                                      </WidgetContainer>
+                                                    );
+                                                  }
+                                                  if (widgetId === "sticky_notes") {
+                                                    return (
+                                                      <WidgetContainer id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked} onResize={toggleResize}>
+                                                        <StickyNotesWidget isDark={false} />
+                                                      </WidgetContainer>
+                                                    );
+                                                  }
+                                                  if (widgetId === "word_link") {
+                                                    return (
+                                                      <WidgetContainer id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked} onResize={toggleResize}>
+                                                        <WordChainGame isDark={false} />
+                                                      </WidgetContainer>
+                                                    );
+                                                  }
+                                                  if (widgetId === "word_scramble") {
+                                                    return (
+                                                      <WidgetContainer id={widgetId} isDark={false} onRemove={() => removeWidget(widgetId)} onContextMenu={handleContextMenu} isLocked={isLocked} onResize={toggleResize}>
+                                                        <WordScrambleGame isDark={false} />
                                                       </WidgetContainer>
                                                     );
                                                   }
@@ -6304,7 +6583,7 @@ function WidgetsDashboard({
                     {activeDashboardTab === "labs" && (
                       <div className="flex-1 flex flex-col overflow-hidden">
                         <div className="p-8 pb-4 flex items-center justify-between border-b border-black/5">
-                          <h2 className="text-2xl font-bold tracking-tight text-slate-800">Experimental Content</h2>
+                          <h2 className="text-2xl font-bold tracking-tight text-slate-800">Experimental Features</h2>
                           <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 text-slate-400 transition-colors">
                             <X size={16} />
                           </button>
@@ -6509,7 +6788,7 @@ function GeoPopup({ isOpen, onClose, isDark, onAutoSelect, onManualSelect }: {
       {isOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className={`relative w-full max-w-md rounded-[32px] p-8 shadow-2xl ${isDark ? "bg-[#1A0121] text-white border border-white/10" : "bg-white text-slate-800"}`}>
+          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className={`relative w-full max-w-md rounded-[32px] p-8 shadow-2xl ${isDark ? "bg-vplay-sidebar text-white border border-white/10" : "bg-white text-slate-800"}`}>
             <div className="flex items-center justify-between mb-8">
               <h3 className="text-2xl font-bold tracking-tight">Chọn vị trí</h3>
               <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 transition-colors"><X size={20} /></button>
@@ -6572,6 +6851,7 @@ function App() {
     return localStorage.getItem("vplay_onboarding_completed") !== "true";
   });
   const [isWidgetsOpen, setIsWidgetsOpen] = useState(false);
+  const [activeDashboardTab, setActiveDashboardTab] = useState<"widgets" | "changelogs" | "labs">("widgets");
   const [activeTab, setActiveTab] = useState("Trang chủ");
   const [isSettingsLoading, setIsSettingsLoading] = useState(false);
 
@@ -6746,6 +7026,37 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
   const [isPinningEnabled, setIsPinningEnabled] = useState(() => {
     return localStorage.getItem("vplay_pinning") === "true";
   });
+
+  const [isCompactMode, setIsCompactMode] = useState(() => localStorage.getItem("vplay_compact_mode") === "true");
+  const [isTouchInterface, setIsTouchInterface] = useState(() => localStorage.getItem("vplay_touch_interface") === "true");
+  const [sidebarQuickAccess, setSidebarQuickAccess] = useState(() => localStorage.getItem("vplay_sidebar_quick_access") !== "false");
+  const [topbarSearchType, setTopbarSearchType] = useState<"box" | "icon">(() => (localStorage.getItem("vplay_topbar_search") as any) || "box");
+  const [locationDetection, setLocationDetection] = useState<"manual" | "auto">(() => (localStorage.getItem("vplay_location_detect") as any) || "manual");
+  const [timeZone, setTimeZone] = useState(() => localStorage.getItem("vplay_timezone") || "Asia/Ho_Chi_Minh");
+
+  useEffect(() => {
+    localStorage.setItem("vplay_compact_mode", isCompactMode.toString());
+  }, [isCompactMode]);
+
+  useEffect(() => {
+    localStorage.setItem("vplay_touch_interface", isTouchInterface.toString());
+  }, [isTouchInterface]);
+
+  useEffect(() => {
+    localStorage.setItem("vplay_sidebar_quick_access", sidebarQuickAccess.toString());
+  }, [sidebarQuickAccess]);
+
+  useEffect(() => {
+    localStorage.setItem("vplay_topbar_search", topbarSearchType);
+  }, [topbarSearchType]);
+
+  useEffect(() => {
+    localStorage.setItem("vplay_location_detect", locationDetection);
+  }, [locationDetection]);
+
+  useEffect(() => {
+    localStorage.setItem("vplay_timezone", timeZone);
+  }, [timeZone]);
 
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(window.innerWidth >= 768);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -7193,7 +7504,7 @@ const [headingBar, setHeadingBar] = useState(() => {
     }
     setActiveChannel(ch);
     setPipExplicitlyClosed(false);
-    setActiveTab("Phát sóng");
+    setActiveTab("Live");
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -7336,6 +7647,8 @@ const [headingBar, setHeadingBar] = useState(() => {
         setIsDev={setIsDev}
         liquidGlass={liquidGlass}
         onOpenUserMenu={() => setIsUserMenuOpen(true)}
+        activeDashboardTab={activeDashboardTab}
+        setActiveDashboardTab={setActiveDashboardTab}
       />
       <AnimatePresence>
         {isVTV6DialogOpen && (
@@ -7387,10 +7700,14 @@ const [headingBar, setHeadingBar] = useState(() => {
         isDark 
           ? "dark bg-gradient-to-br from-[#0a0118] via-[#4c0542] to-[#800539] text-white" 
           : "bg-gradient-to-br from-rose-50 via-purple-50 to-red-50 text-black"
-      } min-h-screen flex font-sans transition-all duration-500 overflow-x-hidden ${useSidebar ? "flex-row" : "flex-col"} ${featureFlags.disable_animation ? "reduce-animations" : ""}`}
+      } h-screen flex font-sans transition-all duration-500 overflow-hidden ${useSidebar ? "flex-row" : "flex-col"} ${featureFlags.disable_animation ? "reduce-animations" : ""}`}
       style={{
-        paddingLeft: useSidebar && !isMobile && !isSidebarRight ? (isSidebarExpanded ? sidebarWidth + (sidebarDisplay === "float" ? 24 : 0) : (sidebarDisplay === "float" ? 104 : 80)) : 0,
-        paddingRight: useSidebar && !isMobile && isSidebarRight ? (isSidebarExpanded ? sidebarWidth + (sidebarDisplay === "float" ? 24 : 0) : (sidebarDisplay === "float" ? 104 : 80)) : 0,
+        paddingLeft: useSidebar && !isMobile && !isSidebarRight 
+          ? (isSidebarExpanded ? (isCompactMode ? 100 : sidebarWidth) + (sidebarDisplay === "float" ? 24 : 0) : (sidebarDisplay === "float" ? 104 : 80)) 
+          : 0,
+        paddingRight: useSidebar && !isMobile && isSidebarRight 
+          ? (isSidebarExpanded ? (isCompactMode ? 100 : sidebarWidth) + (sidebarDisplay === "float" ? 24 : 0) : (sidebarDisplay === "float" ? 104 : 80)) 
+          : 0,
         paddingTop: headingBar ? 56 : 0,
       }}
       >
@@ -7745,7 +8062,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         </LiquidModal>
 
 
-        <div className={`flex-1 overflow-y-auto pb-32 flex flex-col w-full max-w-full overflow-x-hidden ${isDark && displayTab === "Trang chủ" ? "bg-[#121212]" : ""}`}>
+        <div className={`flex-1 overflow-y-auto pb-32 flex flex-col w-full max-w-full overflow-x-hidden ${isDark ? "bg-[#121212]" : ""}`}>
           {/* Large Tab Header */}
           {!(displayTab === "Cài đặt" && isSettingsLoading) && (
             <div className="px-5 md:px-12 pt-12 pb-4">
@@ -7821,7 +8138,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   searchFilter={searchFilter}
                 />
               )}
-              {displayTab === "Phát sóng" && (
+              {displayTab === "Live" && (
                 <TVContent 
                   active={activeChannel} 
                   setActive={handleChannelSelect} 
@@ -7843,7 +8160,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   currentTime={currentTime}
                 />
               )}
-              {displayTab === "Experimental" && (
+              {displayTab === "Experiments" && (
                 <ExperimentalContent 
                   isDark={isDark} 
                   featureFlags={featureFlags} 
@@ -7854,7 +8171,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                 />
               )}
               {displayTab === "Cài đặt" && (
-                <div className="flex-1 overflow-x-hidden md:overflow-y-auto">
+                <div className="flex-1 overflow-hidden">
                    {isSettingsLoading ? (
                   <div className="h-full flex flex-col items-center justify-center gap-6">
                      <LoadingSpinner isDark={isDark} className="w-16 h-16" />
@@ -7918,6 +8235,21 @@ const [headingBar, setHeadingBar] = useState(() => {
                           handleGeolocation={handleGeolocation}
                           externalSearchQuery={searchQuery}
                           onExternalSearchClear={() => setSearchQuery("")}
+                          isCompactMode={isCompactMode}
+                          setIsCompactMode={setIsCompactMode}
+                          isTouchInterface={isTouchInterface}
+                          setIsTouchInterface={setIsTouchInterface}
+                          sidebarQuickAccess={sidebarQuickAccess}
+                          setSidebarQuickAccess={setSidebarQuickAccess}
+                          topbarSearchType={topbarSearchType}
+                          setTopbarSearchType={setTopbarSearchType}
+                          locationDetection={locationDetection}
+                          setLocationDetection={setLocationDetection}
+                          timeZone={timeZone}
+                          setTimeZone={setTimeZone}
+                          setActiveDashboardTab={setActiveDashboardTab}
+                          setIsWidgetsOpen={setIsWidgetsOpen}
+                          setActiveTab={setActiveTab}
                         />
                     </div>
                    )}
@@ -7972,7 +8304,7 @@ const [headingBar, setHeadingBar] = useState(() => {
               initial={{ x: isSidebarRight ? sidebarWidth : -sidebarWidth }}
               animate={{ 
                 x: 0, 
-                width: isSidebarExpanded ? sidebarWidth : (isMobile ? "100%" : 80),
+                width: isSidebarExpanded ? (isCompactMode ? 100 : sidebarWidth) : (isMobile ? "100%" : 80),
                 opacity: (isMobile && !isSidebarExpanded) ? 0 : 1,
                 visibility: (isMobile && !isSidebarExpanded) ? "hidden" : "visible" as any
               }}
@@ -8008,17 +8340,23 @@ const [headingBar, setHeadingBar] = useState(() => {
 
               {/* Logo & Hamburger Section */}
               {!headingBar && (
-                <div className="p-6">
-                  <div className={`flex items-center gap-4 h-12 ${!isSidebarExpanded ? "justify-center" : ""}`}>
+                <div className={`p-6 ${isCompactMode ? "px-2" : ""}`}>
+                  <div className={`flex items-center gap-4 h-12 ${!isSidebarExpanded || isCompactMode ? "justify-center" : ""}`}>
                     <AnimatePresence mode="wait">
-                      {!isSidebarExpanded ? (
-                        <Tooltip text="Thu gọn/Mở rộng sidebar" isDark={isDark} position={isSidebarRight ? "left" : "right"} disabled={isSidebarExpanded}>
+                      {!isSidebarExpanded || isCompactMode ? (
+                        <Tooltip text="Thu gọn/Mở rộng sidebar" isDark={isDark} position={isSidebarRight ? "left" : "right"} disabled={isSidebarExpanded && !isCompactMode}>
                           <motion.button 
                             key="collapsed-logo"
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.8 }}
-                            onClick={() => setIsSidebarExpanded(true)}
+                            onClick={() => {
+                                if (isCompactMode) {
+                                    setIsSidebarExpanded(!isSidebarExpanded);
+                                } else {
+                                    setIsSidebarExpanded(true);
+                                }
+                            }}
                             className="w-10 h-10 flex items-center justify-center transition-all group overflow-hidden relative"
                           >
                             <img 
@@ -8063,7 +8401,7 @@ const [headingBar, setHeadingBar] = useState(() => {
               {/* Integrated Search Bar removed as per user request (already has Explore tab) */}
               <div className="mb-4" />
 
-              {isSidebarExpanded && user && (
+              {isSidebarExpanded && !isCompactMode && user && (
                 <div className={`mx-4 mb-6 p-4 rounded-2xl flex items-center gap-3 transition-all ${isDark ? "bg-white/5 border border-white/5" : "bg-white border border-slate-200"}`}>
                    <div className="relative">
                       <img src={user.photoURL || avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop"} className="w-10 h-10 rounded-full object-cover border border-white/20" />
@@ -8077,12 +8415,13 @@ const [headingBar, setHeadingBar] = useState(() => {
               )}
 
               {/* Navigation Items */}
-              <div className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar">
+              <div className={`flex-1 px-3 space-y-1 overflow-y-auto ${isCompactMode && isSidebarExpanded ? "no-scrollbar px-1.5 flex flex-col items-center" : "custom-scrollbar"}`}>
                 {tabs.map((tab, idx) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === (tab.id || tab.name);
+                  const isCompact = isCompactMode && isSidebarExpanded;
                   return (
-                    <Tooltip text={tab.name} isDark={isDark} position={isSidebarRight ? "left" : "right"} disabled={isSidebarExpanded}>
+                    <Tooltip text={tab.name} isDark={isDark} position={isSidebarRight ? "left" : "right"} disabled={isSidebarExpanded && !isCompactMode}>
                       <button
                         key={`side-nav-${tab.id || tab.name}-${idx}`}
                         onClick={() => {
@@ -8091,28 +8430,43 @@ const [headingBar, setHeadingBar] = useState(() => {
                             if (isMobile) setIsSidebarExpanded(false);
                             return;
                           }
-                          if (tab.id === "Phát sóng" && isBroadcastingLocked) {
+                          if (tab.id === "Experimental") {
+                            setActiveTab("Experiments");
+                            if (isMobile) setIsSidebarExpanded(false);
+                            return;
+                          }
+                          if (tab.id === "Live" && isBroadcastingLocked) {
                             setIsLockModalOpen(true);
                             return;
                           }
                           setActiveTab(tab.id || tab.name);
                           if (isMobile) setIsSidebarExpanded(false);
                         }}
-                        className={`w-full flex items-center gap-4 px-4 py-2 rounded-xl transition-all relative group h-[44px] overflow-hidden ${
+                        className={`transition-all relative group overflow-hidden ${
+                          isCompact 
+                            ? "flex-col items-center justify-center h-[80px] w-20 rounded-2xl gap-1.5 mb-1 px-1"
+                            : `w-full items-center gap-4 px-4 py-2 rounded-xl h-[44px] ${!isSidebarExpanded ? "justify-center" : ""}`
+                        } ${
                           isActive 
-                            ? (isDark ? "bg-white/10 text-fuchsia-400" : "bg-black/5 text-fuchsia-600") 
-                            : (isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5")
-                        } ${!isSidebarExpanded ? "justify-center" : ""}`}
+                            ? (isDark ? "bg-white/10 text-fuchsia-400" : "bg-black/5 text-fuchsia-600 shadow-sm") 
+                            : (isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black/60 hover:text-black hover:bg-black/5")
+                        } flex`}
                       >
                         {isActive && (
                           <motion.div 
                             layoutId="sidebarActivePill"
-                            className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-4 bg-fuchsia-400 rounded-r-sm shadow-[0_0_8px_rgba(232,121,249,0.5)]" 
+                            className={isCompact
+                                ? "absolute left-2 top-1/2 -translate-y-1/2 w-[2px] h-10 bg-fuchsia-400 rounded-full shadow-[0_0_12px_rgba(232,121,249,0.8)]"
+                                : "absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-fuchsia-400 rounded-full shadow-[0_0_12px_rgba(232,121,249,0.8)]"
+                            }
                           />
                         )}
-                        <Icon size={20} strokeWidth={tab.id === "Experimental" ? 1 : 1.5} className={`flex-shrink-0 transition-all ${isActive ? "text-fuchsia-400" : (isDark ? "text-white" : "text-black")} group-hover:scale-110`} />
-                        {isSidebarExpanded && (
-                          <span className="font-normal text-sm whitespace-nowrap">{tab.name}</span>
+                        <Icon size={isCompact ? 28 : 20} strokeWidth={tab.id === "Experimental" ? 1 : 1.5} className={`flex-shrink-0 transition-all ${isActive ? "text-fuchsia-400" : (isDark ? "text-white/70" : "text-slate-600")} group-hover:scale-110`} />
+                        {(isSidebarExpanded && !isCompactMode) && (
+                          <span className={`font-medium text-sm whitespace-nowrap ${isActive ? "font-bold" : ""}`}>{tab.name}</span>
+                        )}
+                        {isCompact && (
+                          <span className={`text-[10px] text-center leading-tight truncate w-full ${isActive ? "font-bold text-fuchsia-400" : "font-medium opacity-60"}`}>{tab.name}</span>
                         )}
                       </button>
                     </Tooltip>
@@ -8120,36 +8474,44 @@ const [headingBar, setHeadingBar] = useState(() => {
                 })}
 
                 {/* Channel Pinning Section */}
-                {isPinningEnabled && favorites.length > 0 && (
+                {isPinningEnabled && sidebarQuickAccess && favorites.length > 0 && (
                   <div className="pt-4 pb-2">
                     <div className={`h-px mx-3 mb-4 ${isDark ? "bg-white/5" : "bg-slate-100"}`} />
-                    {isSidebarExpanded && (
+                    {isSidebarExpanded && !isCompactMode && (
                       <span className="px-5 text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Ghim Kênh</span>
                     )}
-                    <div className="space-y-1">
+                    <div className={`space-y-1 ${isCompactMode && isSidebarExpanded ? "flex flex-col items-center" : ""}`}>
                       {Array.from(new Set(favorites)).map(favId => {
                         const channel = channels.find(c => c.name === favId);
                         if (!channel) return null;
+                        const isCompact = isCompactMode && isSidebarExpanded;
                         return (
                           <button
                             key={`side-pin-${favId}`}
                             onClick={() => {
-                              setActiveTab("Phát sóng");
+                              setActiveTab("Live");
                               setActiveChannel(channel);
                               if (isMobile) setIsSidebarExpanded(false);
                             }}
-                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all group h-[44px] ${
+                            className={`w-full flex transition-all group ${
+                                isCompact
+                                    ? "flex-col items-center justify-center h-[72px] rounded-2xl gap-1 mb-2"
+                                    : `items-center gap-3 px-3 py-2 rounded-lg h-[44px] ${!isSidebarExpanded ? "justify-center" : ""}`
+                            } ${
                               isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black hover:bg-black/5"
-                            } ${!isSidebarExpanded ? "justify-center" : ""}`}
+                            }`}
                           >
                             <img 
                               src={channel.logo} 
                               alt={channel.name}
-                              className={`w-8 h-8 object-contain transition-transform group-hover:scale-110 ${!isDark ? "bg-white rounded-md shadow-sm border border-slate-100 p-0.5" : ""}`}
+                              className={`${isCompact ? "w-10 h-10" : "w-8 h-8"} object-contain transition-transform group-hover:scale-110 ${!isDark ? "bg-white rounded-md shadow-sm border border-slate-100 p-0.5" : ""}`}
                               referrerPolicy="no-referrer"
                             />
-                            {isSidebarExpanded && (
+                            {isSidebarExpanded && !isCompactMode && (
                               <span className="font-normal text-sm whitespace-nowrap overflow-hidden text-ellipsis">{channel.name}</span>
+                            )}
+                            {isCompact && (
+                                <span className="text-[10px] font-bold text-center leading-tight truncate w-full">{channel.name}</span>
                             )}
                           </button>
                         );
@@ -8220,7 +8582,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                         className={`absolute bottom-full mb-3 w-[260px] rounded-[28px] shadow-2xl z-[100] overflow-hidden border ${
                           isSidebarRight ? "right-0" : "left-0"
                         } ${
-                          isDark ? "bg-[#050110]/95 border-white/10 text-white" : "bg-white border-slate-200 shadow-xl"
+                          isDark ? "bg-vplay-background/95 border-white/10 text-white" : "bg-white border-slate-200 shadow-xl"
                         } backdrop-blur-3xl`}
                       >
                          <div className="p-6 pb-4 flex flex-col items-center text-center">
@@ -8375,7 +8737,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                 >
                   {navPage === 0 && (
                     <>
-                      {baseTabs.filter(t => ["Trang chủ", "Khám phá", "Phát sóng"].includes(t.id || t.name)).map((tab) => {
+                      {baseTabs.filter(t => ["Trang chủ", "Khám phá", "Live"].includes(t.id || t.name)).map((tab) => {
                         const Icon = tab.icon;
                         const tabId = tab.id || tab.name;
                         const isActive = activeTab === tabId;
@@ -8385,7 +8747,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                           <div key={`mob-nav-${tabId}`} className="flex-1 flex justify-center">
                             <button
                               onClick={() => {
-                                if (tabId === "Phát sóng" && isBroadcastingLocked) {
+                                if (tabId === "Live" && isBroadcastingLocked) {
                                   setIsLockModalOpen(true);
                                   return;
                                 }
@@ -8433,7 +8795,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                           <div key={`mob-nav-${tabId}`} className="flex-1 flex justify-center">
                             <button
                               onClick={() => {
-                                if (tabId === "Phát sóng" && isBroadcastingLocked) {
+                                if (tabId === "Live" && isBroadcastingLocked) {
                                   setIsLockModalOpen(true);
                                   return;
                                 }
@@ -8512,7 +8874,7 @@ const [headingBar, setHeadingBar] = useState(() => {
           <FloatingTooltip text={hoveredTab || ""} show={!!hoveredTab} targetRect={hoveredTabRect} />
         </motion.div>
       </div>
-      {activeChannel && featureFlags.PiP_experimental && !pipExplicitlyClosed && (activeTab !== "Phát sóng" || !isPlayerInView) && (
+      {activeChannel && featureFlags.PiP_experimental && !pipExplicitlyClosed && (activeTab !== "Live" || !isPlayerInView) && (
         <MiniPlayer 
           channel={activeChannel} 
           isDark={isDark} 
