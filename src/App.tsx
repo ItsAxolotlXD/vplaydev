@@ -2877,6 +2877,7 @@ function RejuvenatedSettings(props: any) {
     widgetsBoardPosition, setWidgetsBoardPosition,
     hideSidebarInWidgets, setHideSidebarInWidgets,
     fullScreenWidgets, setFullScreenWidgets,
+    frostedGlassWidgets, setFrostedGlassWidgets,
     isFlat = false,
     searchQuery: propSearchQuery,
     setSearchQuery: propSetSearchQuery
@@ -2901,20 +2902,23 @@ function RejuvenatedSettings(props: any) {
   const activeSearchQuery = propSearchQuery !== undefined ? propSearchQuery : internalSearchQuery;
   const activeSetSearchQuery = propSetSearchQuery !== undefined ? propSetSearchQuery : setInternalSearchQuery;
 
-  const filterItems = (items: any[]) => {
-    if (!activeSearchQuery) return items;
-    const lowerQuery = activeSearchQuery.toLowerCase();
-    return items.filter(item => 
-      item.title?.toLowerCase().includes(lowerQuery) || 
-      item.description?.toLowerCase().includes(lowerQuery) ||
-      (item.keywords && item.keywords.some((k: string) => k.toLowerCase().includes(lowerQuery)))
-    );
+  const shouldShowSetting = (title: string, description?: string, keywords?: string[]) => {
+    if (!activeSearchQuery) return true;
+    const lowerQuery = activeSearchQuery.toLowerCase().trim();
+    if (!lowerQuery) return true;
+    
+    if (title.toLowerCase().includes(lowerQuery)) return true;
+    if (description && description.toLowerCase().includes(lowerQuery)) return true;
+    if (keywords && keywords.some((k: string) => k.toLowerCase().includes(lowerQuery))) return true;
+    return false;
   };
 
   const renderContent = (catId?: string) => {
     const id = catId || activeCategory;
     switch (id) {
-      case "SystemInfo":
+      case "SystemInfo": {
+        const showSystem = shouldShowSetting("Hệ thống Vplay", "Thông tin phiên bản Vplay VNRT, trạng thái hoạt động", ["phiên bản", "build", "nhà phát triển", "cập nhật", "trạng thái", "ổn định", "vplay", "canary", "metadata", "vnrt"]);
+        if (!showSystem) return null;
         return (
           <div className="space-y-6 text-left">
             <div className={`p-10 rounded-[40px] border ${isDark ? "bg-vplay-background/40 border-white/10 shadow-inner" : "bg-white border-slate-200 shadow-sm"}`}>
@@ -2959,136 +2963,161 @@ function RejuvenatedSettings(props: any) {
             </div>
           </div>
         );
-      case "Profile":
+      }
+      case "Profile": {
+        const showInfo = shouldShowSetting("Hồ sơ cá nhân", "Người dùng Vplay, tài khoản vip membership, email bte tester", ["tên", "email", "avatar", "hồ sơ", "vip", "account", "user", "đổi tên", "ảnh đại diện"]);
+        const showEdit = shouldShowSetting("Chỉnh sửa hồ sơ", "Thay đổi tên hiển thị và ảnh đại diện để cá nhân hóa tài khoản của bạn", ["profile", "hồ sơ", "tài khoản", "tên", "avatar"]);
+        const showLogout = shouldShowSetting("Đăng xuất", "Kết thúc phiên làm việc hiện tại và xóa các dữ liệu đăng nhập tạm thời", ["logout", "đăng xuất", "thoát", "session"]);
+        
+        if (!showInfo && !showEdit && !showLogout) return null;
         return (
           <div className="space-y-6">
-            <div className={`p-10 rounded-[32px] border flex items-center gap-8 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
-               <img src={user?.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop"} className="w-28 h-28 rounded-full border-4 border-white/10 shadow-xl" />
-               <div className="space-y-2 text-left">
-                  <h3 className="text-3xl font-bold tracking-tight">{user?.displayName || "Người dùng Vplay"}</h3>
-                  <p className="opacity-50 text-base">{user?.email || "Chưa xác minh email"}</p>
-                  <div className="pt-3 flex gap-3">
-                     <span className="px-3 py-1 bg-purple-500/20 text-purple-400 text-xs font-bold rounded-lg uppercase tracking-wider">Vip Membership</span>
-                     <span className="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-bold rounded-lg uppercase tracking-wider">Beta Tester</span>
-                  </div>
-               </div>
-            </div>
-            <RejuvenatedSettingsItem 
-              icon={Monitor} 
-              title="Chỉnh sửa hồ sơ" 
-              description="Thay đổi tên hiển thị và ảnh đại diện để cá nhân hóa tài khoản của bạn"
-              onClick={() => onAlert("Tính năng", "Coming soon in detailed view")}
-              isDark={isDark}
-            />
-            <RejuvenatedSettingsItem 
-              icon={LogOut} 
-              title="Đăng xuất" 
-              description="Kết thúc phiên làm việc hiện tại và xóa các dữ liệu đăng nhập tạm thời"
-              onClick={() => props.onLogout ? props.onLogout() : {}}
-              isDark={isDark}
-            />
+            {showInfo && (
+              <div className={`p-10 rounded-[32px] border flex items-center gap-8 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+                 <img src={user?.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop"} className="w-28 h-28 rounded-full border-4 border-white/10 shadow-xl" />
+                 <div className="space-y-2 text-left">
+                    <h3 className="text-3xl font-bold tracking-tight">{user?.displayName || "Người dùng Vplay"}</h3>
+                    <p className="opacity-50 text-base">{user?.email || "Chưa xác minh email"}</p>
+                    <div className="pt-3 flex gap-3">
+                       <span className="px-3 py-1 bg-purple-500/20 text-purple-400 text-xs font-bold rounded-lg uppercase tracking-wider">Vip Membership</span>
+                       <span className="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-bold rounded-lg uppercase tracking-wider">Beta Tester</span>
+                    </div>
+                 </div>
+              </div>
+            )}
+            {showEdit && (
+              <RejuvenatedSettingsItem 
+                icon={Monitor} 
+                title="Chỉnh sửa hồ sơ" 
+                description="Thay đổi tên hiển thị và ảnh đại diện để cá nhân hóa tài khoản của bạn"
+                onClick={() => onAlert("Tính năng", "Coming soon in detailed view")}
+                isDark={isDark}
+              />
+            )}
+            {showLogout && (
+              <RejuvenatedSettingsItem 
+                icon={LogOut} 
+                title="Đăng xuất" 
+                description="Kết thúc phiên làm việc hiện tại và xóa các dữ liệu đăng nhập tạm thời"
+                onClick={() => props.onLogout ? props.onLogout() : {}}
+                isDark={isDark}
+              />
+            )}
           </div>
         );
-      case "Appearance":
+      }
+      case "Appearance": {
+        const showMode = shouldShowSetting("Chế độ giao diện", "Tùy chỉnh giao diện sáng hoặc tối để bảo vệ mắt", ["tối", "sáng", "màu", "dark", "light", "chế độ", "màu sắc", "màu chính"]);
+        const showNav = shouldShowSetting("Giao diện điều hướng", "Tối ưu hóa hành vi điều hướng cho bàn phím chuột hoặc màn hình cảm ứng", ["touch", "desktop", "interface", "điều hướng"]);
+        const showColors = shouldShowSetting("Tùy chỉnh màu giao diện", "Tùy chỉnh màu chủ đạo (Nút), Sidebar & Topbar, Màu Nền Chính", ["màu sắc", "màu", "chủ đạo", "nút", "giao diện", "custom color"]);
+        
+        if (!showMode && !showNav && !showColors) return null;
         return (
           <div className="space-y-6 text-left">
-             <div className={`p-8 rounded-[32px] border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
-               <div className="flex items-center gap-5 mb-6">
-                 <div className={`p-4 rounded-2xl ${isDark ? "bg-white/5 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
-                   <Sun size={24} />
+             {showMode && (
+               <div className={`p-8 rounded-[32px] border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+                 <div className="flex items-center gap-5 mb-6">
+                   <div className={`p-4 rounded-2xl ${isDark ? "bg-white/5 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
+                     <Sun size={24} />
+                   </div>
+                   <div className="text-left">
+                     <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Chế độ giao diện</h4>
+                     <p className="text-sm opacity-50 font-medium tracking-tight">Tùy chỉnh giao diện sáng hoặc tối để bảo vệ mắt</p>
+                   </div>
                  </div>
-                 <div className="text-left">
-                   <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Chế độ giao diện</h4>
-                   <p className="text-sm opacity-50 font-medium tracking-tight">Tùy chỉnh giao diện sáng hoặc tối để bảo vệ mắt</p>
-                 </div>
-               </div>
-               <div className="grid grid-cols-2 gap-4">
-                 <button 
-                   onClick={() => setIsDark(false)}
-                   className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${!isDark ? "bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-500/20" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
-                 >
-                   <Sun size={16} /> Sáng
-                 </button>
-                 <button 
-                   onClick={() => setIsDark(true)}
-                   className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${isDark ? "bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-500/20" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
-                 >
-                   <Moon size={16} /> Tối
-                 </button>
-               </div>
-             </div>
-             <div className={`p-8 rounded-[32px] border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
-               <div className="flex items-center gap-5 mb-6">
-                 <div className={`p-4 rounded-2xl ${isDark ? "bg-white/5 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
-                   {isTouchInterface ? <Smartphone size={24} /> : <Monitor size={24} />}
-                 </div>
-                 <div className="text-left">
-                   <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Giao diện điều hướng</h4>
-                   <p className="text-sm opacity-50 font-medium tracking-tight">Tối ưu hóa hành vi điều hướng cho bàn phím chuột hoặc màn hình cảm ứng</p>
+                 <div className="grid grid-cols-2 gap-4">
+                   <button 
+                     onClick={() => setIsDark(false)}
+                     className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${!isDark ? "bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-500/20" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
+                   >
+                     <Sun size={16} /> Sáng
+                   </button>
+                   <button 
+                     onClick={() => setIsDark(true)}
+                     className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${isDark ? "bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-500/20" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
+                   >
+                     <Moon size={16} /> Tối
+                   </button>
                  </div>
                </div>
-               <div className="grid grid-cols-2 gap-4">
-                 <button 
-                   onClick={() => setIsTouchInterface(false)}
-                   className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${!isTouchInterface ? "bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-500/20" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
-                 >
-                   <Monitor size={16} /> Desktop
-                 </button>
-                 <button 
-                   onClick={() => setIsTouchInterface(true)}
-                   className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${isTouchInterface ? "bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-500/20" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
-                 >
-                   <Smartphone size={16} /> Touch
-                 </button>
+             )}
+             {showNav && (
+               <div className={`p-8 rounded-[32px] border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+                 <div className="flex items-center gap-5 mb-6">
+                   <div className={`p-4 rounded-2xl ${isDark ? "bg-white/5 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
+                     {isTouchInterface ? <Smartphone size={24} /> : <Monitor size={24} />}
+                   </div>
+                   <div className="text-left">
+                     <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Giao diện điều hướng</h4>
+                     <p className="text-sm opacity-50 font-medium tracking-tight">Tối ưu hóa hành vi điều hướng cho bàn phím chuột hoặc màn hình cảm ứng</p>
+                   </div>
+                 </div>
+                 <div className="grid grid-cols-2 gap-4">
+                   <button 
+                     onClick={() => setIsTouchInterface(false)}
+                     className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${!isTouchInterface ? "bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-500/20" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
+                   >
+                     <Monitor size={16} /> Desktop
+                   </button>
+                   <button 
+                     onClick={() => setIsTouchInterface(true)}
+                     className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${isTouchInterface ? "bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-500/20" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
+                   >
+                     <Smartphone size={16} /> Touch
+                   </button>
+                 </div>
                </div>
-             </div>
-            <div className={`p-8 rounded-[32px] border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
-              <div className="flex items-center gap-5 mb-8">
-                <div className={`p-3 rounded-2xl ${isDark ? "bg-white/5 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
-                  <Palette size={24} />
-                </div>
-                <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Tùy chỉnh màu giao diện</h4>
-              </div>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2 text-left">
-                  <label className="text-xs font-bold uppercase tracking-wider opacity-50 ml-1">Màu chủ đạo (Nút)</label>
-                  <div className="flex items-center gap-3">
-                    <input 
-                      type="color" 
-                      value={props.customColors?.primary || "#d946ef"} 
-                      onChange={(e) => props.setCustomColors(prev => ({ ...prev, primary: e.target.value }))}
-                      className="w-full h-12 rounded-[20px] cursor-pointer border-2 border-white/10 p-0.5 bg-transparent"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2 text-left">
-                  <label className="text-xs font-bold uppercase tracking-wider opacity-50 ml-1">Sidebar & Topbar</label>
-                  <div className="flex items-center gap-3">
-                    <input 
-                      type="color" 
-                      value={props.customColors?.sidebar || "#000000"} 
-                      onChange={(e) => {
-                        props.setCustomColors(prev => ({ ...prev, sidebar: e.target.value, topbar: e.target.value }));
-                      }}
-                      className="w-full h-12 rounded-[20px] cursor-pointer border-2 border-white/10 p-0.5 bg-transparent"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <label className="text-xs font-bold uppercase tracking-wider opacity-50 ml-1">Màu Nền Chính</label>
-                  <div className="flex items-center gap-3">
-                    <input 
-                      type="color" 
-                      value={props.customColors?.background || "#0a0118"} 
-                      onChange={(e) => props.setCustomColors(prev => ({ ...prev, background: e.target.value }))}
-                      className="w-full h-12 rounded-[20px] cursor-pointer border-2 border-white/10 p-0.5 bg-transparent"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+             )}
+             {showColors && (
+               <div className={`p-8 rounded-[32px] border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+                 <div className="flex items-center gap-5 mb-8">
+                   <div className={`p-3 rounded-2xl ${isDark ? "bg-white/5 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
+                     <Palette size={24} />
+                   </div>
+                   <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Tùy chỉnh màu giao diện</h4>
+                 </div>
+                 <div className="grid grid-cols-2 gap-6">
+                   <div className="space-y-2 text-left">
+                     <label className="text-xs font-bold uppercase tracking-wider opacity-50 ml-1">Màu chủ đạo (Nút)</label>
+                     <div className="flex items-center gap-3">
+                       <input 
+                         type="color" 
+                         value={props.customColors?.primary || "#d946ef"} 
+                         onChange={(e) => props.setCustomColors(prev => ({ ...prev, primary: e.target.value }))}
+                         className="w-full h-12 rounded-[20px] cursor-pointer border-2 border-white/10 p-0.5 bg-transparent"
+                       />
+                     </div>
+                   </div>
+                   <div className="space-y-2 text-left">
+                     <label className="text-xs font-bold uppercase tracking-wider opacity-50 ml-1">Sidebar & Topbar</label>
+                     <div className="flex items-center gap-3">
+                       <input 
+                         type="color" 
+                         value={props.customColors?.sidebar || "#000000"} 
+                         onChange={(e) => {
+                           props.setCustomColors(prev => ({ ...prev, sidebar: e.target.value, topbar: e.target.value }));
+                         }}
+                         className="w-full h-12 rounded-[20px] cursor-pointer border-2 border-white/10 p-0.5 bg-transparent"
+                       />
+                     </div>
+                   </div>
+                   <div className="space-y-2 col-span-2">
+                     <label className="text-xs font-bold uppercase tracking-wider opacity-50 ml-1">Màu Nền Chính</label>
+                     <div className="flex items-center gap-3">
+                       <input 
+                         type="color" 
+                         value={props.customColors?.background || "#0a0118"} 
+                         onChange={(e) => props.setCustomColors(prev => ({ ...prev, background: e.target.value }))}
+                         className="w-full h-12 rounded-[20px] cursor-pointer border-2 border-white/10 p-0.5 bg-transparent"
+                       />
+                     </div>
+                   </div>
+                 </div>
+               </div>
+             )}
           </div>
         );
+      }
       case "TopBar":
         return (
           <div className="space-y-6 text-left">
@@ -3415,6 +3444,17 @@ function RejuvenatedSettings(props: any) {
                isToggled={fullScreenWidgets}
              />
 
+             {/* Hiệu ứng Frosted Glass */}
+             <RejuvenatedSettingsItem 
+               icon={Droplet} 
+               title="Hiệu ứng Frosted Glass" 
+               description={frostedGlassWidgets ? "Đang bật hiệu ứng phủ mờ kính (Frosted Glass) cho toàn bộ Widgets board, đồng thời đổi toàn bộ text thành màu trắng" : "Bật hiệu ứng mờ kính cho toàn bộ bảng tiện ích"}
+               onClick={() => setFrostedGlassWidgets(!frostedGlassWidgets)}
+               isDark={isDark}
+               isToggleable={true}
+               isToggled={frostedGlassWidgets}
+             />
+
              {/* Experimental Features embedded inside widget settings */}
              <div className={`p-8 rounded-[32px] border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"} mt-8`}>
                <div className="flex items-center gap-5 mb-8 border-b border-black/5 pb-4">
@@ -3587,20 +3627,26 @@ function RejuvenatedSettings(props: any) {
   }
 
   return (
-    <div className={`flex flex-col lg:flex-row h-full overflow-hidden ${isDark ? "bg-vplay-background" : "bg-white"}`}>
-      <div className={`w-full lg:w-[320px] shrink-0 p-6 flex flex-col gap-10 border-r border-black/5 z-10 ${isDark ? "bg-black/20" : "bg-slate-50/10"}`}>
+    <div className={`flex flex-col lg:flex-row h-full overflow-hidden ${frostedGlassWidgets ? "bg-transparent text-white" : (isDark ? "bg-vplay-background" : "bg-white")}`}>
+      <div className={`w-full lg:w-[320px] shrink-0 p-6 flex flex-col gap-10 border-r z-10 ${
+        frostedGlassWidgets 
+          ? "bg-transparent border-white/10" 
+          : (isDark ? "bg-black/20 border-black/5" : "bg-slate-50/10 border-black/5")
+      }`}>
         <div className="space-y-4">
           <div className="relative group">
-            <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-purple-500 transition-colors" />
+            <Search size={18} className={`absolute left-5 top-1/2 -translate-y-1/2 transition-colors ${frostedGlassWidgets ? "text-white/40 group-focus-within:text-white" : "text-slate-400 group-focus-within:text-purple-500"}`} />
             <input 
               type="text" 
               placeholder="Tìm cài đặt..."
               value={activeSearchQuery}
               onChange={(e) => activeSetSearchQuery(e.target.value)}
               className={`w-full h-14 pl-14 pr-6 rounded-[24px] text-sm font-bold outline-none transition-all border-2 ${
-                isDark 
-                  ? "bg-white/5 border-white/5 focus:border-purple-500 text-white placeholder:text-white/20" 
-                  : "bg-white border-slate-200 focus:border-purple-500 shadow-sm placeholder:text-slate-300"
+                frostedGlassWidgets
+                  ? "bg-white/10 border-white/10 focus:border-white/25 text-white placeholder:text-white/45"
+                  : (isDark 
+                      ? "bg-white/5 border-white/5 focus:border-purple-500 text-white placeholder:text-white/20" 
+                      : "bg-white border-slate-200 focus:border-purple-500 shadow-sm placeholder:text-slate-300")
               }`}
             />
           </div>
@@ -3613,8 +3659,12 @@ function RejuvenatedSettings(props: any) {
               onClick={() => setActiveCategory(cat.id)}
               className={`w-full flex items-center gap-5 px-5 py-4 rounded-[22px] transition-all relative group ${
                 activeCategory === cat.id 
-                  ? (isDark ? "bg-purple-600 text-white shadow-xl shadow-purple-500/30" : "bg-white text-purple-600 shadow-xl shadow-purple-100 border border-purple-100")
-                  : (isDark ? "text-white/40 hover:text-white hover:bg-white/5" : "text-slate-500 hover:bg-white")
+                  ? (frostedGlassWidgets 
+                      ? "bg-white/15 text-white border border-white/20 shadow-none" 
+                      : (isDark ? "bg-purple-600 text-white shadow-xl shadow-purple-500/30" : "bg-white text-purple-600 shadow-xl shadow-purple-100 border border-purple-100"))
+                  : (frostedGlassWidgets
+                      ? "text-white/60 hover:text-white hover:bg-white/5"
+                      : (isDark ? "text-white/40 hover:text-white hover:bg-white/5" : "text-slate-500 hover:bg-white"))
               }`}
             >
               <cat.icon size={20} strokeWidth={activeCategory === cat.id ? 2.5 : 1.5} />
@@ -3622,7 +3672,7 @@ function RejuvenatedSettings(props: any) {
               {activeCategory === cat.id && (
                 <motion.div 
                   layoutId="activeCat"
-                  className={`absolute left-0 w-1.5 h-4 rounded-full ${isDark ? "bg-white" : "bg-purple-600"}`} 
+                  className={`absolute left-0 w-1.5 h-4 rounded-full ${frostedGlassWidgets ? "bg-white" : (isDark ? "bg-white" : "bg-purple-600")}`} 
                 />
               )}
             </button>
@@ -3630,7 +3680,11 @@ function RejuvenatedSettings(props: any) {
         </div>
       </div>
 
-      <div className={`flex-1 overflow-y-auto p-6 md:p-12 custom-scrollbar animate-in fade-in slide-in-from-right-4 duration-500 ${isDark ? "" : "bg-slate-50/5"}`}>
+      <div className={`flex-1 overflow-y-auto p-6 md:p-12 custom-scrollbar animate-in fade-in slide-in-from-right-4 duration-500 ${
+        frostedGlassWidgets 
+          ? "bg-transparent text-white" 
+          : (isDark ? "" : "bg-slate-50/5")
+      }`}>
         <div className="max-w-4xl mx-auto">
           {renderContent()}
         </div>
@@ -6482,7 +6536,9 @@ function WidgetsDashboard({
   hideSidebarInWidgets = false,
   setHideSidebarInWidgets,
   fullScreenWidgets = false,
-  setFullScreenWidgets
+  setFullScreenWidgets,
+  frostedGlassWidgets = false,
+  setFrostedGlassWidgets
 }: {
   isOpen: boolean,
   onClose: () => void, 
@@ -6571,7 +6627,9 @@ function WidgetsDashboard({
   hideSidebarInWidgets?: boolean,
   setHideSidebarInWidgets?: (v: boolean) => void,
   fullScreenWidgets?: boolean,
-  setFullScreenWidgets?: (v: boolean) => void
+  setFullScreenWidgets?: (v: boolean) => void,
+  frostedGlassWidgets?: boolean,
+  setFrostedGlassWidgets?: (v: boolean) => void
 }) {
   const [pinnedWidgets, setPinnedWidgets] = useState<string[]>(() => {
     const saved = localStorage.getItem("vplay_pinned_widgets");
@@ -6750,6 +6808,7 @@ function WidgetsDashboard({
             animate={{ opacity: 1, x: 0, y: 0 }}
             exit={{ opacity: 0, x: fullScreenWidgets ? 0 : (widgetsBoardPosition === "right" ? 100 : -100), y: fullScreenWidgets ? 50 : 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 200, mass: 0.8 }}
+            style={frostedGlassWidgets ? { color: "#ffffff" } : {}}
             className={`fixed ${
               fullScreenWidgets 
                 ? "inset-0 w-full max-w-none m-0 rounded-none border-0" 
@@ -6757,41 +6816,45 @@ function WidgetsDashboard({
                     widgetsBoardPosition === "right" 
                       ? "right-0 md:right-4 left-auto" 
                       : "left-0 md:left-4 right-auto"
-                  } top-0 md:top-4 bottom-0 md:bottom-4 w-full max-w-sm md:max-w-3xl lg:max-w-6xl md:rounded-3xl border border-[rgba(0,0,0,0.05)]`
-            } z-[1000] shadow-2xl overflow-hidden flex flex-row bg-[#f3f6f9] text-slate-900`}
+                  } top-0 md:top-4 bottom-0 md:bottom-4 w-full max-w-sm md:max-w-3xl lg:max-w-6xl md:rounded-3xl border ${frostedGlassWidgets ? "border-white/10" : "border-[rgba(0,0,0,0.05)]"}`
+            } z-[1000] shadow-2xl overflow-hidden flex flex-row ${
+              frostedGlassWidgets 
+                ? "bg-slate-950/40 backdrop-blur-3xl text-white frosted-glass-widgets-board" 
+                : "bg-[#f3f6f9] text-slate-900"
+            }`}
             onClick={() => setContextMenu(null)}
           >
              {/* Sidebar (Tablet/Desktop) */}
              {!hideSidebarInWidgets && (
-               <div className={`${isDashSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 fixed md:relative left-0 top-0 bottom-0 z-[1001] md:z-auto w-[100px] bg-[#f0f2f5] border-r border-slate-200/50 flex flex-col items-center py-6 gap-6 shrink-0 transition-transform duration-300 md:transition-none`}>
+               <div className={`${isDashSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 fixed md:relative left-0 top-0 bottom-0 z-[1001] md:z-auto w-[100px] ${frostedGlassWidgets ? "bg-slate-950/40 border-r border-white/10" : "bg-[#f0f2f5] border-r border-slate-200/50"} flex flex-col items-center py-6 gap-6 shrink-0 transition-transform duration-300 md:transition-none`}>
                 <div className="flex flex-col items-center gap-8 w-full overflow-y-auto scrollbar-hide flex-1 pb-4">
                   <button 
                     onClick={() => { setActiveDashboardTab("widgets"); setIsDashSidebarOpen(false); }}
-                    className={`relative flex flex-col items-center gap-2 p-2 w-full transition-all group ${activeDashboardTab === "widgets" ? "text-blue-600 scale-105" : "text-slate-400 hover:text-slate-600"}`}
+                    className={`relative flex flex-col items-center gap-2 p-2 w-full transition-all group ${activeDashboardTab === "widgets" ? (frostedGlassWidgets ? "text-blue-300 scale-105" : "text-blue-600 scale-105") : (frostedGlassWidgets ? "text-white/60 hover:text-white" : "text-slate-400 hover:text-slate-600")}`}
                   >
-                    <div className={`p-3 rounded-2xl transition-all ${activeDashboardTab === "widgets" ? "bg-white shadow-xl" : "hover:bg-white/50"}`}>
+                    <div className={`p-2 rounded-2xl transition-all ${activeDashboardTab === "widgets" ? (frostedGlassWidgets ? "bg-white/10 shadow-xl" : "bg-white shadow-xl") : (frostedGlassWidgets ? "hover:bg-white/10" : "hover:bg-white/50")}`}>
                       {!widgetsIconError ? (
                         <img 
                           src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Microsoft_Fluent_UI_%E2%80%93_ic_fluent_apps_32_color.svg/960px-Microsoft_Fluent_UI_%E2%80%93_ic_fluent_apps_32_color.svg.png?_=20241223132923" 
                           alt="Widgets" 
                           referrerPolicy="no-referrer"
                           onError={() => setWidgetsIconError(true)}
-                          className={`w-8 h-8 object-contain transition-all duration-300 ${activeDashboardTab === "widgets" ? "saturate-100 opacity-100 scale-110" : "saturate-50 opacity-70 group-hover:saturate-100 group-hover:opacity-100"}`}
+                          className={`w-10 h-10 object-contain transition-all duration-300 ${activeDashboardTab === "widgets" ? "saturate-100 opacity-100 scale-110" : "saturate-50 opacity-70 group-hover:saturate-100 group-hover:opacity-100"}`}
                         />
                       ) : (
-                        <WidgetsIcon size={32} />
+                        <WidgetsIcon size={40} />
                       )}
                     </div>
-                    <span className={`text-[12px] font-bold tracking-tight ${activeDashboardTab === "widgets" ? "text-blue-600" : "text-slate-400"}`}>Widgets</span>
+                    <span className={`text-[12px] font-bold tracking-tight ${activeDashboardTab === "widgets" ? (frostedGlassWidgets ? "text-blue-300" : "text-blue-600") : (frostedGlassWidgets ? "text-white/60" : "text-slate-400")}`}>Widgets</span>
                     {activeDashboardTab === "widgets" && (
-                      <motion.div layoutId="active-indicator" className="absolute left-0 top-6 w-[4px] h-6 bg-blue-600 rounded-full" />
+                      <motion.div layoutId="active-indicator" className={`absolute left-0 top-6 w-[4px] h-6 ${frostedGlassWidgets ? "bg-blue-300" : "bg-blue-600"} rounded-full`} />
                     )}
                   </button>
                   <button 
                     onClick={() => { setActiveDashboardTab("changelogs"); setIsDashSidebarOpen(false); }}
-                    className={`relative flex flex-col items-center gap-2 p-2 w-full transition-all group ${activeDashboardTab === "changelogs" ? "text-blue-600 scale-105" : "text-slate-400 hover:text-slate-600"}`}
+                    className={`relative flex flex-col items-center gap-2 p-2 w-full transition-all group ${activeDashboardTab === "changelogs" ? (frostedGlassWidgets ? "text-blue-300 scale-105" : "text-blue-600 scale-105") : (frostedGlassWidgets ? "text-white/60 hover:text-white" : "text-slate-400 hover:text-slate-600")}`}
                   >
-                    <div className={`p-3 rounded-2xl transition-all ${activeDashboardTab === "changelogs" ? "bg-white shadow-xl" : "hover:bg-white/50"}`}>
+                    <div className={`p-3 rounded-2xl transition-all ${activeDashboardTab === "changelogs" ? (frostedGlassWidgets ? "bg-white/10 shadow-xl" : "bg-white shadow-xl") : (frostedGlassWidgets ? "hover:bg-white/10" : "hover:bg-white/50")}`}>
                       {!updatesIconError ? (
                         <img 
                           src="https://img.utdstc.com/icon/97d/a7c/97da7ca8cb404c0dfdf4ae6fef15b81a54130097a8ecf24a2ce89c2addb1ba04:200" 
@@ -6804,36 +6867,36 @@ function WidgetsDashboard({
                         <Sparkles size={32} />
                       )}
                     </div>
-                    <span className={`text-[12px] font-bold tracking-tight ${activeDashboardTab === "changelogs" ? "text-blue-600" : "text-slate-400"}`}>Updates</span>
+                    <span className={`text-[12px] font-bold tracking-tight ${activeDashboardTab === "changelogs" ? (frostedGlassWidgets ? "text-blue-300" : "text-blue-600") : (frostedGlassWidgets ? "text-white/60" : "text-slate-400")}`}>Updates</span>
                     {activeDashboardTab === "changelogs" && (
-                      <motion.div layoutId="active-indicator" className="absolute left-0 top-6 w-[4px] h-6 bg-blue-600 rounded-full" />
+                      <motion.div layoutId="active-indicator" className={`absolute left-0 top-6 w-[4px] h-6 ${frostedGlassWidgets ? "bg-blue-300" : "bg-blue-600"} rounded-full`} />
                     )}
                   </button>
 
-                  <div className="mt-auto pt-6 border-t border-slate-200/50 w-full flex flex-col items-center gap-6">
+                  <div className={`mt-auto pt-6 border-t ${frostedGlassWidgets ? "border-white/10" : "border-slate-200/50"} w-full flex flex-col items-center gap-6`}>
                     {featureFlags?.settings_in_widgets && (
                       <button 
                         onClick={() => { setActiveDashboardTab("settings"); setIsDashSidebarOpen(false); }}
-                        className={`relative flex flex-col items-center gap-2 p-2 w-full transition-all group ${activeDashboardTab === "settings" ? "text-blue-600 scale-105" : "text-slate-400 hover:text-slate-600"}`}
+                        className={`relative flex flex-col items-center gap-2 p-2 w-full transition-all group ${activeDashboardTab === "settings" ? (frostedGlassWidgets ? "text-blue-300 scale-105" : "text-blue-600 scale-105") : (frostedGlassWidgets ? "text-white/60 hover:text-white" : "text-slate-400 hover:text-slate-600")}`}
                       >
-                        <div className={`p-3 rounded-2xl transition-all ${activeDashboardTab === "settings" ? "bg-white shadow-xl" : "hover:bg-white/50"}`}>
+                        <div className={`p-3 rounded-2xl transition-all ${activeDashboardTab === "settings" ? (frostedGlassWidgets ? "bg-white/10 shadow-xl" : "bg-white shadow-xl") : (frostedGlassWidgets ? "hover:bg-white/10" : "hover:bg-white/50")}`}>
                           <Settings size={32} />
                         </div>
-                        <span className={`text-[12px] font-bold tracking-tight ${activeDashboardTab === "settings" ? "text-blue-600" : "text-slate-400"}`}>Settings</span>
+                        <span className={`text-[12px] font-bold tracking-tight ${activeDashboardTab === "settings" ? (frostedGlassWidgets ? "text-blue-300" : "text-blue-600") : (frostedGlassWidgets ? "text-white/60" : "text-slate-400")}`}>Settings</span>
                         {activeDashboardTab === "settings" && (
-                          <motion.div layoutId="active-indicator" className="absolute left-0 top-6 w-[4px] h-6 bg-blue-600 rounded-full" />
+                          <motion.div layoutId="active-indicator" className={`absolute left-0 top-6 w-[4px] h-6 ${frostedGlassWidgets ? "bg-blue-300" : "bg-blue-600"} rounded-full`} />
                         )}
                       </button>
                     )}
 
                     <button 
                       onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center bg-white text-slate-800 font-black text-sm shadow-md cursor-pointer hover:scale-105 transition-all overflow-hidden border-2 ${isUserMenuOpen ? "border-blue-500 ring-4 ring-blue-500/20" : "border-slate-200/50 shadow-slate-200/30"}`}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${frostedGlassWidgets ? "bg-white/10 text-white" : "bg-white text-slate-800"} font-black text-sm shadow-md cursor-pointer hover:scale-105 transition-all overflow-hidden border-2 ${isUserMenuOpen ? "border-blue-500 ring-4 ring-blue-500/20" : (frostedGlassWidgets ? "border-white/10" : "border-slate-200/50 shadow-slate-200/30")}`}
                     >
                       {user?.photoURL ? (
                           <img src={user.photoURL} className="w-full h-full object-cover" referrerPolicy="no-referrer" alt="User" />
                       ) : (
-                          <User size={20} className="text-slate-600" />
+                          <User size={20} className={frostedGlassWidgets ? "text-white" : "text-slate-600"} />
                       )}
                     </button>
                   </div>
@@ -6850,16 +6913,16 @@ function WidgetsDashboard({
              )}
 
              {/* Main Area */}
-             <div className="flex-1 flex flex-col h-full overflow-hidden bg-white/40 backdrop-blur-md relative">
+             <div className={`flex-1 flex flex-col h-full overflow-hidden ${frostedGlassWidgets ? "bg-white/[0.03] backdrop-blur-3xl text-white" : "bg-white/40 backdrop-blur-md"} relative`}>
                 {/* Mobile Header Toggle */}
-                <div className="md:hidden p-4 flex items-center justify-between border-b border-black/5 shrink-0 bg-white/50">
+                <div className={`md:hidden p-4 flex items-center justify-between border-b ${frostedGlassWidgets ? "border-white/10 bg-slate-950/20" : "border-black/5 bg-white/50"} shrink-0`}>
                   <button 
                     onClick={() => setIsDashSidebarOpen(true)}
-                    className="p-2 rounded-xl bg-white shadow-sm border border-black/5"
+                    className={`p-2 rounded-xl border ${frostedGlassWidgets ? "bg-white/10 border-white/10 text-white shadow-none" : "bg-white border-black/5 shadow-sm"}`}
                   >
-                    <Menu size={20} className="text-slate-600" />
+                    <Menu size={20} className={frostedGlassWidgets ? "text-white" : "text-slate-600"} />
                   </button>
-                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Canary Dashboard</p>
+                  <p className={`text-xs font-bold uppercase tracking-widest ${frostedGlassWidgets ? "text-white/60" : "text-slate-400"}`}>Canary Dashboard</p>
                   <div className="w-10" />
                 </div>
                 {/* Mini Account Menu Overlay */}
@@ -6915,7 +6978,7 @@ function WidgetsDashboard({
                         {/* Header */}
                         <div className="p-8 pb-4 flex items-center justify-between">
                           <div>
-                            <h2 className="text-2xl font-bold tracking-tight text-slate-800">{getGreeting()}</h2>
+                            <h2 className={`text-2xl font-bold tracking-tight ${frostedGlassWidgets ? "text-white" : "text-slate-800"}`}>{getGreeting()}</h2>
                           </div>
                           <div className="flex items-center gap-3">
                             <button 
@@ -6936,14 +6999,14 @@ function WidgetsDashboard({
                         {/* Content Area */}
                         <div className="flex-1 overflow-y-auto px-8 py-2 custom-scrollbar space-y-6 relative">
                           <div className="relative group">
-                             <div className={`group flex items-center gap-2.5 h-10 w-full transition-all relative rounded-xl border-b-[2px] transition-all duration-300 bg-white focus-within:bg-white border-black/10 text-slate-800 focus-within:border-fuchsia-500 shadow-sm`}>
-                                <Search size={16} className="ml-3 text-slate-400 group-focus-within:text-fuchsia-500" />
+                             <div className={`group flex items-center gap-2.5 h-10 w-full transition-all relative rounded-xl border-b-[2px] transition-all duration-300 ${frostedGlassWidgets ? "bg-white/10 text-white border-white/10 focus-within:bg-white/20 focus-within:border-white/20" : "bg-white focus-within:bg-white border-black/10 text-slate-800 focus-within:border-fuchsia-500"} shadow-sm`}>
+                                <Search size={16} className={`ml-3 ${frostedGlassWidgets ? "text-white/60 group-focus-within:text-white" : "text-slate-400 group-focus-within:text-fuchsia-500"}`} />
                                 <input 
                                   type="text" 
                                   value={widgetSearchQuery}
                                   onChange={(e) => setWidgetSearchQuery(e.target.value)}
                                   placeholder="Find and explore on Vplay" 
-                                  className="bg-transparent border-none outline-none w-full font-google font-bold text-slate-900 placeholder-slate-400 text-xs"
+                                  className={`bg-transparent border-none outline-none w-full font-google font-bold placeholder-slate-400 text-xs ${frostedGlassWidgets ? "text-white" : "text-slate-900"}`}
                                 />
                                 {widgetSearchQuery && (
                                   <button onClick={() => setWidgetSearchQuery("")} className="p-1.5 hover:bg-black/10 rounded-full mr-2 transition-all">
@@ -7322,29 +7385,37 @@ function WidgetsDashboard({
                     
                     {activeDashboardTab === "settings" && (
                       <div className="flex-1 flex flex-col overflow-hidden">
-                        <div className="px-8 py-6 flex items-center justify-between gap-6 border-b border-black/5 bg-white/50 backdrop-blur-md">
-                          <h2 className="text-2xl font-bold tracking-tight text-slate-800">Settings</h2>
+                        <div className={`px-8 py-6 flex items-center justify-between gap-6 border-b ${
+                          frostedGlassWidgets 
+                            ? "border-white/10 bg-white/[0.03] backdrop-blur-3xl text-white" 
+                            : "border-black/5 bg-white/50 backdrop-blur-md"
+                        }`}>
+                          <h2 className={`text-2xl font-bold tracking-tight ${frostedGlassWidgets ? "text-white" : "text-slate-800"}`}>Settings</h2>
                           
                           <div className="flex-1 max-w-lg mx-4">
                             <div className="relative group w-full">
-                              <Search size={16} className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                              <Search size={16} className={`absolute left-0 top-1/2 -translate-y-1/2 transition-colors ${frostedGlassWidgets ? "text-white/60 group-focus-within:text-white" : "text-slate-400 group-focus-within:text-blue-500"}`} />
                               <input 
                                 type="text" 
                                 placeholder="Search settings"
                                 value={settingsSearchQuery}
                                 onChange={(e) => setSettingsSearchQuery(e.target.value)}
-                                className="w-full h-10 pl-8 pr-4 bg-transparent border-b-2 border-black/5 focus:border-blue-500 outline-none transition-all text-sm font-bold placeholder:text-slate-400 placeholder:font-medium"
+                                className={`w-full h-10 pl-8 pr-4 bg-transparent border-b-2 outline-none transition-all text-sm font-bold placeholder:font-medium ${
+                                  frostedGlassWidgets 
+                                    ? "border-white/10 focus:border-white/30 text-white placeholder:text-white/45" 
+                                    : "border-black/5 focus:border-blue-500 text-slate-800 placeholder:text-slate-400"
+                                }`}
                               />
                             </div>
                           </div>
 
                           <div className="flex items-center gap-2">
-                             <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 text-slate-400 transition-colors">
+                             <button onClick={onClose} className={`p-2 rounded-xl transition-colors ${frostedGlassWidgets ? "hover:bg-white/10 text-white/60 hover:text-white" : "hover:bg-black/5 text-slate-400"}`}>
                                <X size={20} />
                              </button>
                           </div>
                         </div>
-                        <div className="flex-1 overflow-y-auto custom-scrollbar bg-[#f3f6f9]">
+                        <div className={`flex-1 overflow-y-auto custom-scrollbar ${frostedGlassWidgets ? "bg-transparent text-white" : "bg-[#f3f6f9]"}`}>
                            <RejuvenatedSettings
                               isDark={false} 
                               isFlat={true}
@@ -7424,6 +7495,8 @@ function WidgetsDashboard({
                               setHideSidebarInWidgets={setHideSidebarInWidgets}
                               fullScreenWidgets={fullScreenWidgets}
                               setFullScreenWidgets={setFullScreenWidgets}
+                              frostedGlassWidgets={frostedGlassWidgets}
+                              setFrostedGlassWidgets={setFrostedGlassWidgets}
                            />
                         </div>
                       </div>
@@ -7853,6 +7926,7 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
   const [widgetsBoardPosition, setWidgetsBoardPosition] = useState<"left" | "right">(() => (localStorage.getItem("vplay_widgets_board_position") as any) || "left");
   const [hideSidebarInWidgets, setHideSidebarInWidgets] = useState(() => localStorage.getItem("vplay_hide_sidebar_in_widgets") === "true");
   const [fullScreenWidgets, setFullScreenWidgets] = useState(() => localStorage.getItem("vplay_fullscreen_widgets") === "true");
+  const [frostedGlassWidgets, setFrostedGlassWidgets] = useState(() => localStorage.getItem("vplay_frosted_glass_widgets") === "true");
   const [locationDetection, setLocationDetection] = useState<"manual" | "auto">(() => (localStorage.getItem("vplay_location_detect") as any) || "manual");
   const [timeZone, setTimeZone] = useState(() => localStorage.getItem("vplay_timezone") || "Asia/Ho_Chi_Minh");
 
@@ -7867,6 +7941,10 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
   useEffect(() => {
     localStorage.setItem("vplay_fullscreen_widgets", fullScreenWidgets.toString());
   }, [fullScreenWidgets]);
+
+  useEffect(() => {
+    localStorage.setItem("vplay_frosted_glass_widgets", frostedGlassWidgets.toString());
+  }, [frostedGlassWidgets]);
 
   useEffect(() => {
     localStorage.setItem("vplay_compact_mode", isCompactMode.toString());
@@ -8563,6 +8641,8 @@ const [headingBar, setHeadingBar] = useState(() => {
         setHideSidebarInWidgets={setHideSidebarInWidgets}
         fullScreenWidgets={fullScreenWidgets}
         setFullScreenWidgets={setFullScreenWidgets}
+        frostedGlassWidgets={frostedGlassWidgets}
+        setFrostedGlassWidgets={setFrostedGlassWidgets}
       />
       <AnimatePresence>
         {isVTV6DialogOpen && (
@@ -9174,6 +9254,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                           setHideSidebarInWidgets={setHideSidebarInWidgets}
                           fullScreenWidgets={fullScreenWidgets}
                           setFullScreenWidgets={setFullScreenWidgets}
+                          frostedGlassWidgets={frostedGlassWidgets}
+                          setFrostedGlassWidgets={setFrostedGlassWidgets}
                         />
                     </div>
                    )}

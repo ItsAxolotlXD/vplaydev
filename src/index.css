@@ -169,3 +169,52 @@
   transition-duration: 0.01ms !important;
   scroll-behavior: auto !important;
 }
+
+/* Custom styles for Frosted Glass Widgets board option */
+.frosted-glass-widgets-board {
+  color: #ffffff !important;
+}
+
+.frosted-glass-widgets-board .bg-white,
+.frosted-glass-widgets-board .bg-slate-50,
+.frosted-glass-widgets-board .bg-slate-100 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.frosted-glass-widgets-board .border-slate-100,
+.frosted-glass-widgets-board .border-slate-200,
+.frosted-glass-widgets-board .border-black\/5 {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.frosted-glass-widgets-board .text-slate-800,
+.frosted-glass-widgets-board .text-slate-900,
+.frosted-glass-widgets-board .text-slate-700,
+.frosted-glass-widgets-board .text-slate-600 {
+  color: #ffffff !important;
+}
+
+.frosted-glass-widgets-board .text-slate-400,
+.frosted-glass-widgets-board .text-slate-500 {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.frosted-glass-widgets-board .icon-fluent {
+  filter: brightness(0) invert(1) !important;
+}
+
+.frosted-glass-widgets-board input {
+  color: #ffffff !important;
+}
+
+.frosted-glass-widgets-board input::placeholder {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.frosted-glass-widgets-board .hover\:bg-slate-50:hover, 
+.frosted-glass-widgets-board .hover\:bg-slate-100:hover,
+.frosted-glass-widgets-board .hover\:bg-white\/50:hover {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
