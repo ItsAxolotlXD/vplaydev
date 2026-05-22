@@ -5,7 +5,7 @@
   --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-google: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --color-primary: var(--vplay-primary, #9333ea);
+  --color-primary: var(--vplay-primary, #4AC4FE);
   --color-vplay-sidebar: var(--vplay-sidebar, #1f1f1f);
   --color-vplay-background: var(--vplay-background, #1c1c1c);
   --color-vplay-topbar: var(--vplay-topbar, #1f1f1f);
@@ -28,7 +28,7 @@
 }
 
 .btn-purple-3d {
-  @apply bg-primary border-2 border-white/20 text-white font-bold uppercase tracking-widest px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] transition-all duration-75 relative isolate backdrop-blur-md;
+  @apply bg-primary border-2 border-white/20 text-black font-bold uppercase tracking-widest px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] transition-all duration-75 relative isolate backdrop-blur-md;
   transform: translate(0, 0);
   box-shadow: 4px 4px 0px 0px rgba(0,0,0,0.3);
 }
@@ -73,14 +73,14 @@
 }
 
 .btn-vibrant-3d {
-  @apply bg-purple-600 border-2 border-purple-400 text-white px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] font-bold transition-all duration-75 relative isolate backdrop-blur-md;
+  @apply bg-[#4AC4FE] border-2 border-[#6dd1ff] text-black px-8 py-4 min-h-16 flex items-center justify-center rounded-[32px] font-bold transition-all duration-75 relative isolate backdrop-blur-md;
   transform: translate(0, 0);
-  box-shadow: 4px 4px 0px 0px #4c1d95;
+  box-shadow: 4px 4px 0px 0px #1e8cbd;
 }
 .btn-vibrant-3d:hover {
-  @apply bg-purple-500;
+  @apply bg-[#32bcfc];
   transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0px 0px #4c1d95;
+  box-shadow: 5px 5px 0px 0px #1e8cbd;
 }
 .btn-vibrant-3d:active {
   transform: translate(4px, 4px) !important;
@@ -148,11 +148,14 @@
 .dark .icon-fluent,
 .icon-white,
 .text-white .icon-fluent,
-.btn-vibrant-3d .icon-fluent,
-.btn-purple-3d .icon-fluent,
 .bg-purple-600 .icon-fluent,
 .bg-red-500 .icon-fluent {
   filter: brightness(0) invert(1); /* Pure white */
+}
+
+.btn-vibrant-3d .icon-fluent,
+.btn-purple-3d .icon-fluent {
+  filter: brightness(0) !important; /* Keep black */
 }
 
 /* Purple-500 approximation for active state */
