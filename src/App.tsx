@@ -111,7 +111,7 @@ const LoadingSpinner = ({ isDark, className = "w-6 h-6" }: { isDark: boolean, cl
   </div>
 );
 
-const Tooltip = ({ text, children, position = "top", isDark, disabled }: { text: string, children: React.ReactNode, position?: "top" | "bottom" | "left" | "right", isDark: boolean, disabled?: boolean }) => {
+const Tooltip = ({ text, children, position = "top", isDark, disabled }: { text: string, children: React.ReactNode, position?: "top" | "bottom" | "left" | "right", isDark: boolean, disabled?: boolean, key?: any }) => {
   const [show, setShow] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
   const triggerRef = useRef<HTMLDivElement>(null);
@@ -182,11 +182,68 @@ const Tooltip = ({ text, children, position = "top", isDark, disabled }: { text:
   );
 };
 
-const SplashScreen = ({ isDark, onEnter, duration = 5000 }: { isDark: boolean, onEnter: () => void, duration?: number }) => {
+const SplashScreen = ({ 
+  isDark, 
+  onEnter, 
+  duration = 5000,
+  isReinstalling = false,
+  onReinstallComplete
+}: { 
+  isDark: boolean, 
+  onEnter: () => void, 
+  duration?: number,
+  isReinstalling?: boolean,
+  onReinstallComplete?: () => void
+}) => {
+  const [progress, setProgress] = useState(0);
+  const [currentFile, setCurrentFile] = useState("");
+
+  const systemFiles = [
+    "vplay_core_system.bin",
+    "vplay_kernel_v2.sys",
+    "ui_layout_config.json",
+    "channel_registry.db",
+    "widget_board_schema.xml",
+    "liquid_glass_engine.dll",
+    "audio_synthesizer.bin",
+    "experimental_labs_manifest.json",
+    "user_profile_template.dat",
+    "stream_provider_pipeline.sys",
+    "security_sandbox_isolated.so",
+    "vplay_cache_cleaner.sh",
+    "system_verification_handshake.cert"
+  ];
+
   useEffect(() => {
-    const timer = setTimeout(onEnter, duration);
-    return () => clearTimeout(timer);
-  }, [onEnter, duration]);
+    if (isReinstalling) {
+      const intervalTime = 600; // 600ms * 100 = 60,000ms (1 minute)
+      const timer = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(timer);
+            if (onReinstallComplete) {
+              // Execute clear and reload
+              setTimeout(onReinstallComplete, 200);
+            }
+            return 100;
+          }
+          const next = prev + 1;
+          const fileIdx = Math.min(
+            Math.floor((next / 100) * systemFiles.length),
+            systemFiles.length - 1
+          );
+          setCurrentFile(systemFiles[fileIdx]);
+          return next;
+        });
+      }, intervalTime);
+
+      setCurrentFile(systemFiles[0]);
+      return () => clearInterval(timer);
+    } else {
+      const timer = setTimeout(onEnter, duration);
+      return () => clearTimeout(timer);
+    }
+  }, [onEnter, duration, isReinstalling, onReinstallComplete]);
 
   return (
     <motion.div
@@ -199,9 +256,26 @@ const SplashScreen = ({ isDark, onEnter, duration = 5000 }: { isDark: boolean, o
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 flex flex-col items-center"
+        className="relative z-10 flex flex-col items-center gap-6"
       >
         <LoadingSpinner isDark={true} className="w-16 h-16" />
+        {isReinstalling && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center gap-1.5 text-center px-4"
+          >
+            <p className="text-white/95 font-mono text-xs md:text-sm tracking-wide bg-white/5 border border-white/10 px-4 py-2.5 rounded-2xl shadow-lg">
+              Re-installing <span className="text-blue-400 font-bold">{currentFile}</span> - <span className="text-emerald-400 font-extrabold">{progress}%</span> complete
+            </p>
+            <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden mt-2">
+              <div 
+                className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </motion.div>
+        )}
       </motion.div>
     </motion.div>
   );
@@ -226,7 +300,6 @@ const AdminIcon = ({ className, size, strokeWidth }: { className?: string, size?
 
 const baseTabs = [
   { name: "Trang chủ", icon: HomeIcon, id: "Trang chủ" },
-  { name: "Widgets", icon: WidgetsIcon, id: "Widgets" },
   { name: "Khám phá", icon: SearchIcon, id: "Khám phá" },
   { name: "Live", icon: TvIcon, id: "Live" },
   { name: "Lưu trữ", icon: FolderIcon, id: "Lưu trữ" },
@@ -463,8 +536,8 @@ const Countdown = ({ targetDate, isDark }: { targetDate: string, isDark: boolean
         { val: timeLeft.hours, unit: "Giờ" },
         { val: timeLeft.minutes, unit: "Phút" },
         { val: timeLeft.seconds, unit: "Giây" }
-      ].map((item, idx) => (
-        <div key={idx} className="flex flex-col items-center">
+      ].map((item) => (
+        <div key={item.unit} className="flex flex-col items-center">
           <div className={`text-4xl font-bold tracking-tighter ${isDark ? "text-white" : "text-black"}`}>
             {item.val.toString().padStart(2, '0')}
           </div>
@@ -479,13 +552,13 @@ const Countdown = ({ targetDate, isDark }: { targetDate: string, isDark: boolean
 
 const slides = [
   { 
-    url: "https://media.discordapp.net/attachments/1491785835912237209/1492909965617270784/image.png?ex=69f17b80&is=69f02a00&hm=964af4caa71a48dbb4abbc418c695bffdf32250ab7eab716c356bba75f5d4ece&=&format=webp&quality=lossless&width=800&height=450", 
+    url: "https://img.cand.com.vn/resize/800x800/NewFiles/Images/2023/03/30/Giai_tri_vtv-1680172145227.jpg", 
     title: "Giải trí không giới hạn", 
     desc: "Hơn 200+ kênh truyền hình HD chất lượng cao hoàn toàn miễn phí mỗi ngày.",
     tag: "Vplay Web"
   },
   { 
-    url: "https://media.discordapp.net/attachments/1491785835912237209/1492904393862025467/spc_20260412_220807.png?ex=69f17650&is=69f024d0&hm=ea45aa8e541ca18266a4b0557a2bd5e5bcb040060d1ef4949a4ca4c09a0a7d8b&=&format=webp&quality=lossless&width=605&height=340", 
+    url: "https://substackcdn.com/image/fetch/$s_!6L_D!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F1b529a92-54ae-477e-87f6-27674b483077_960x540.gif", 
     title: "Giao diện Liquid Glass", 
     desc: "Trải nghiệm xem truyền hình tương lai với hiệu ứng kính mờ và chuyển động mượt mà đầy mê hoặc.",
     tag: "Thiết kế"
@@ -977,9 +1050,9 @@ function ExploreContent({
                   </div>
                </div>
                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  {randomSettings.map((s, i) => (
+                  {randomSettings.map((s) => (
                     <button 
-                      key={i}
+                      key={`setting-${s.name}`}
                       onClick={s.action}
                       className={`p-8 rounded-[48px] border text-left group transition-all hover:scale-[1.02] active:scale-[0.98] ${isDark ? "bg-white/5 border-white/5 hover:bg-white/10" : "bg-slate-50 border-slate-100 hover:bg-white shadow-sm hover:shadow-xl"}`}
                     >
@@ -1962,9 +2035,9 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                     </div>
                   </div>
                 ) : (
-                  filteredChannels.filter(c => c.category === cat).map((ch, chIdx) => (
+                  filteredChannels.filter(c => c.category === cat).map((ch) => (
                     <ChannelCard 
-                      key={`tv-${cat}-${ch.name}-${chIdx}`} 
+                      key={`tv-${cat}-${ch.name}`} 
                       ch={ch} 
                       onClick={() => setActive(ch)} 
                       isDark={isDark} 
@@ -2881,11 +2954,14 @@ function RejuvenatedSettings(props: any) {
     colorWidgets, setColorWidgets,
     isFlat = false,
     searchQuery: propSearchQuery,
-    setSearchQuery: propSetSearchQuery
+    setSearchQuery: propSetSearchQuery,
+    setIsReinstalling = () => {},
+    setShowSplash = () => {}
   } = props;
 
   const [activeCategory, setActiveCategory] = useState("SystemInfo");
   const [drillDownCategory, setDrillDownCategory] = useState<string | null>(null);
+  const [showResetPopup, setShowResetPopup] = useState(false);
 
   const categories = [
     { id: "SystemInfo", name: "Thông tin phiên bản", icon: Info, keywords: ["phiên bản", "build", "nhà phát triển", "cập nhật", "trạng thái", "ổn định", "vplay", "canary", "metadata", "vnrt"] },
@@ -2922,44 +2998,44 @@ function RejuvenatedSettings(props: any) {
         if (!showSystem) return null;
         return (
           <div className="space-y-6 text-left">
-            <div className={`p-10 rounded-[40px] border ${isDark ? "bg-vplay-background/40 border-white/10 shadow-inner" : "bg-white border-slate-200 shadow-sm"}`}>
-              <div className="flex items-center gap-8 mb-10">
-                <div className={`w-20 h-20 rounded-[32px] flex items-center justify-center ${isDark ? "bg-[#4AC4FE]/10 text-[#4AC4FE] border border-[#4AC4FE]/20" : "bg-[#4AC4FE]/10 text-[#4AC4FE] border border-[#4AC4FE]/10"}`}>
-                  <Zap size={40} />
+            <div className={`p-5 md:p-10 rounded-[24px] md:rounded-[40px] border ${isDark ? "bg-vplay-background/40 border-white/10 shadow-inner" : "bg-white border-slate-200 shadow-sm"}`}>
+              <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-8 mb-6 md:mb-10">
+                <div className={`w-16 h-16 md:w-20 md:h-20 rounded-[20px] md:rounded-[32px] flex items-center justify-center shrink-0 ${isDark ? "bg-[#4AC4FE]/10 text-[#4AC4FE] border border-[#4AC4FE]/20" : "bg-[#4AC4FE]/10 text-[#4AC4FE] border border-[#4AC4FE]/10"}`}>
+                  <Zap size={32} className="md:w-10 md:h-10" />
                 </div>
                 <div>
-                  <h3 className={`font-bold text-3xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Hệ thống Vplay</h3>
-                  <p className={`text-xs font-bold uppercase tracking-[0.3em] px-3 py-1 rounded-xl mt-2 inline-block ${isDark ? "bg-[#4AC4FE]/10 text-[#4AC4FE]" : "bg-[#4AC4FE]/10 text-slate-700"}`}>
+                  <h3 className={`font-bold text-2xl md:text-3xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Hệ thống Vplay</h3>
+                  <p className={`text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] px-2.5 py-1 rounded-xl mt-2 inline-block ${isDark ? "bg-[#4AC4FE]/10 text-[#4AC4FE]" : "bg-[#4AC4FE]/10 text-slate-700"}`}>
                     Vplay Metadata Information
                   </p>
                 </div>
               </div>
               
-              <div className={`w-full space-y-4 p-8 rounded-[32px] ${isDark ? "bg-white/[0.03] border border-white/5 shadow-inner" : "bg-slate-50 border border-slate-100"}`}>
-                <div className="flex justify-between items-center py-3 border-b border-white/5">
-                  <span className={`text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Phát triển by</span>
-                  <span className={`text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>VNRT</span>
+              <div className={`w-full space-y-3 p-4 md:p-8 rounded-[20px] md:rounded-[32px] ${isDark ? "bg-white/[0.03] border border-white/5 shadow-inner" : "bg-slate-50 border border-slate-100"}`}>
+                <div className="flex justify-between items-center py-2.5 border-b border-white/5">
+                  <span className={`text-xs md:text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Phát triển by</span>
+                  <span className={`text-sm md:text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>VNRT</span>
                 </div>
-                <div className="flex justify-between items-center py-3 border-b border-white/5">
-                  <span className={`text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Branch</span>
-                  <span className="text-base font-bold text-emerald-500">Dev</span>
+                <div className="flex justify-between items-center py-2.5 border-b border-white/5">
+                  <span className={`text-xs md:text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Branch</span>
+                  <span className="text-sm md:text-base font-bold text-emerald-500">Dev</span>
                 </div>
-                <div className="flex justify-between items-center py-3 border-b border-white/5">
-                  <span className={`text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Build</span>
-                  <span className="text-base font-bold text-[#4AC4FE]">26606</span>
+                <div className="flex justify-between items-center py-2.5 border-b border-white/5">
+                  <span className={`text-xs md:text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Build</span>
+                  <span className="text-sm md:text-base font-bold text-[#4AC4FE]">26606</span>
                 </div>
-                <div className="flex justify-between items-center py-3">
-                  <span className={`text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Compiled</span>
-                  <span className={`text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>15/05/26</span>
+                <div className="flex justify-between items-center py-2.5">
+                  <span className={`text-xs md:text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Compiled</span>
+                  <span className={`text-sm md:text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>15/05/26</span>
                 </div>
               </div>
 
-              <div className="mt-10 flex items-center justify-between p-6 rounded-[24px] bg-emerald-500/5 border border-emerald-500/10">
-                <div className="flex items-center gap-4 text-emerald-500">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-sm font-bold uppercase tracking-[0.2em]">Trạng thái hệ thống</span>
+              <div className="mt-6 md:mt-10 flex flex-col sm:flex-row items-center justify-between p-4 md:p-6 rounded-[16px] md:rounded-[24px] bg-emerald-500/5 border border-emerald-500/10 gap-2 text-center sm:text-left">
+                <div className="flex items-center gap-3 text-emerald-555">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-xs md:text-sm font-bold uppercase tracking-[0.2em]">Trạng thái hệ thống</span>
                 </div>
-                <span className="text-sm font-bold text-emerald-500">ỔN ĐỊNH</span>
+                <span className="text-xs md:text-sm font-bold text-emerald-500">ỔN ĐỊNH</span>
               </div>
             </div>
           </div>
@@ -2974,14 +3050,14 @@ function RejuvenatedSettings(props: any) {
         return (
           <div className="space-y-6">
             {showInfo && (
-              <div className={`p-10 rounded-[32px] border flex items-center gap-8 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
-                 <img src={user?.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop"} className="w-28 h-28 rounded-full border-4 border-white/10 shadow-xl" />
+              <div className={`p-5 md:p-10 rounded-[20px] md:rounded-[32px] border flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-8 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+                 <img src={user?.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop"} className="w-20 h-20 md:w-28 md:h-28 rounded-full border-4 border-white/10 shadow-xl shrink-0" />
                  <div className="space-y-2 text-left">
-                    <h3 className="text-3xl font-bold tracking-tight">{user?.displayName || "Người dùng Vplay"}</h3>
-                    <p className="opacity-50 text-base">{user?.email || "Chưa xác minh email"}</p>
-                    <div className="pt-3 flex gap-3">
-                       <span className="px-3 py-1 bg-[#4AC4FE]/20 text-[#4AC4FE] text-xs font-bold rounded-lg uppercase tracking-wider">Vip Membership</span>
-                       <span className="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-bold rounded-lg uppercase tracking-wider">Beta Tester</span>
+                    <h3 className="text-2xl md:text-3xl font-bold tracking-tight">{user?.displayName || "Người dùng Vplay"}</h3>
+                    <p className="opacity-50 text-sm md:text-base">{user?.email || "Chưa xác minh email"}</p>
+                    <div className="pt-2 flex flex-wrap gap-2 justify-center sm:justify-start">
+                       <span className="px-2.5 py-0.5 bg-[#4AC4FE]/20 text-[#4AC4FE] text-[10px] md:text-xs font-bold rounded-lg uppercase tracking-wider">Vip Membership</span>
+                       <span className="px-2.5 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] md:text-xs font-bold rounded-lg uppercase tracking-wider">Beta Tester</span>
                     </div>
                  </div>
               </div>
@@ -3004,6 +3080,24 @@ function RejuvenatedSettings(props: any) {
                 isDark={isDark}
               />
             )}
+
+            <div className="pt-4 border-t border-white/5">
+              <button 
+                onClick={() => setShowResetPopup(true)}
+                className="w-full flex items-center justify-between p-5 rounded-[24px] text-[#FF453A] bg-[#FF453A]/10 border border-[#FF453A]/20 hover:bg-[#FF453A]/15 active:scale-[0.98] transition-all text-left shadow-sm"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-[#FF453A]/15 rounded-xl text-[#FF453A] shrink-0">
+                    <Trash2 size={24} />
+                  </div>
+                  <div>
+                    <h4 className="text-base font-bold text-[#FF453A]">Tẩy xóa và Đặt lại</h4>
+                    <p className={`text-xs opacity-75 mt-0.5 ${isDark ? "text-red-200" : "text-red-700"}`}>Xóa sạch bộ nhớ, tùy chỉnh và thiết lập lại ứng dụng từ đầu</p>
+                  </div>
+                </div>
+                <ChevronRight size={18} />
+              </button>
+            </div>
           </div>
         );
       }
@@ -3049,8 +3143,8 @@ function RejuvenatedSettings(props: any) {
                      {isTouchInterface ? <Smartphone size={24} /> : <Monitor size={24} />}
                    </div>
                    <div className="text-left">
-                     <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Giao diện điều hướng</h4>
-                     <p className="text-sm opacity-50 font-medium tracking-tight">Tối ưu hóa hành vi điều hướng cho bàn phím chuột hoặc màn hình cảm ứng</p>
+                     <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Chế độ điều hướng</h4>
+                     <p className="text-sm opacity-50 font-medium tracking-tight">Chọn kiểu bố cục điều hướng phù hợp cho thiết bị của bạn</p>
                    </div>
                  </div>
                  <div className="grid grid-cols-2 gap-4">
@@ -3058,13 +3152,13 @@ function RejuvenatedSettings(props: any) {
                      onClick={() => setIsTouchInterface(false)}
                      className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${!isTouchInterface ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-none" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
                    >
-                     <Monitor size={16} /> Desktop
+                     <Monitor size={16} /> Desktop (sidebar, topbar)
                    </button>
                    <button 
                      onClick={() => setIsTouchInterface(true)}
                      className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${isTouchInterface ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-none" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
                    >
-                     <Smartphone size={16} /> Touch
+                     <Smartphone size={16} /> Touch (navigation bar)
                    </button>
                  </div>
                </div>
@@ -3311,7 +3405,7 @@ function RejuvenatedSettings(props: any) {
                          <p className="text-sm opacity-50 font-medium tracking-tight">Thay đổi vị trí của thanh Sidebar sang bên trái hoặc bên phải màn hình</p>
                        </div>
                      </div>
-                     <div className="grid grid-cols-2 gap-4">
+                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                        <button 
                          onClick={() => setIsSidebarRight(false)}
                          className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${!isSidebarRight ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-none" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
@@ -3512,6 +3606,19 @@ function RejuvenatedSettings(props: any) {
                />
              )}
 
+             {/* Tô màu tiện ích */}
+             {showColorSetting && (
+               <RejuvenatedSettingsItem 
+                 icon={Palette} 
+                 title="Tô màu tiện ích" 
+                 description={colorWidgets ? "Hiển thị màu sắc sinh động, rực rỡ riêng cho từng ô tiện ích trong bảng" : "Bảng tiện ích hiển thị với màu sắc trung tính mặc định"}
+                 onClick={() => setColorWidgets(!colorWidgets)}
+                 isDark={isDark}
+                 isToggleable={true}
+                 isToggled={colorWidgets}
+               />
+             )}
+
              {/* Experimental Features embedded inside widget settings */}
              {showExpEmbed && (
                <div className={`p-8 rounded-[32px] border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"} mt-8`}>
@@ -3636,7 +3743,7 @@ function RejuvenatedSettings(props: any) {
                 </div>
               </div>
 
-              {/* Categoris List */}
+              {/* Categories list */}
               <div className="space-y-3">
                  {categories.map((cat) => {
                     // Skip SystemInfo in the list because it's handled by the "About" card
@@ -3663,52 +3770,67 @@ function RejuvenatedSettings(props: any) {
                              <cat.icon size={32} />}
                           </div>
                           <div className="flex-1">
-                            <h4 className={`text-base font-bold transition-colors ${
-                              isDark ? "text-white group-hover:text-blue-400" : "text-slate-700 group-hover:text-slate-900"
-                            }`}>
-                              {cat.id === "Profile" ? "Tài khoản" : 
-                               cat.id === "Appearance" ? "Chủ đề và Giao diện" : 
-                               cat.id === "TopBar" ? "Topbar (Desktop mode only)" :
-                               cat.id === "Sidebar" ? "Sidebar (Desktop mode only)" :
-                               cat.id === "Floatbar" ? "Floatbar (Touch mode only)" :
-                               cat.id === "Experiments" ? "Experimental Features" :
-                               cat.name}
-                            </h4>
-                            <p className={`text-xs font-medium mt-0.5 opacity-80 ${isDark ? "text-white/60" : "text-slate-400"}`}>
-                               {cat.id === "Profile" ? "Quản lý hồ sơ và tài khoản Vplay" : 
-                                cat.id === "Appearance" ? "Tùy biến giao diện và trải nghiệm người dùng theo ý thích" :
-                                cat.id === "TopBar" ? "Tùy chỉnh các tính năng và hành vi của thanh điều hướng trên" :
-                                cat.id === "Sidebar" ? "Tùy chỉnh các tính năng và hành vi của thanh điều hướng bên" :
-                                cat.id === "Floatbar" ? "Tùy chỉnh các tính năng và hành vi của thanh điều hướng dưới" :
-                                cat.id === "Experiments" ? "Trải nghiệm sớm các tính năng mới sắp ra mắt của Vplay" : "Quản lý cài đặt"}
-                            </p>
+                             <h4 className={`text-base font-bold transition-colors ${
+                               isDark ? "text-white group-hover:text-blue-400" : "text-slate-700 group-hover:text-slate-900"
+                             }`}>
+                               {cat.id === "Profile" ? "Tài khoản" : 
+                                cat.id === "Appearance" ? "Chủ đề và Giao diện" : 
+                                cat.id === "TopBar" ? "Topbar (Desktop mode only)" :
+                                cat.id === "Sidebar" ? "Sidebar (Desktop mode only)" :
+                                cat.id === "Floatbar" ? "Floatbar (Touch mode only)" :
+                                cat.id === "Experiments" ? "Experimental Features" :
+                                cat.id === "WidgetsBoard" ? "Widgets board" :
+                                cat.name}
+                             </h4>
+                             <p className={`text-xs font-medium mt-0.5 opacity-80 ${isDark ? "text-white/60" : "text-slate-400"}`}>
+                                {cat.id === "Profile" ? "Quản lý hồ sơ và tài khoản Vplay" : 
+                                 cat.id === "Appearance" ? "Tùy biến giao diện và trải nghiệm người dùng theo ý thích" :
+                                 cat.id === "TopBar" ? "Tùy chỉnh các tính năng và hành vi của thanh điều hướng trên" :
+                                 cat.id === "Sidebar" ? "Tùy chỉnh các tính năng và hành vi của thanh điều hướng bên" :
+                                 cat.id === "Floatbar" ? "Tùy chỉnh các tính năng và hành vi của thanh điều hướng dưới" :
+                                 cat.id === "Experiments" ? "Trải nghiệm sớm các tính năng mới sắp ra mắt của Vplay" : 
+                                 cat.id === "WidgetsBoard" ? "Tùy chỉnh các tính năng và hành vi của bảng tiện ích" : "Quản lý cài đặt"}
+                             </p>
                           </div>
                           <ChevronRight size={18} className={`transition-all opacity-0 group-hover:opacity-100 ${isDark ? "text-white/40 group-hover:text-blue-400" : "text-slate-300 group-hover:text-blue-500"}`} />
                         </button>
                     );
                  })}
-                 {/* Widgets Board Item (Simulated or actual) */}
-                 <button 
-                   onClick={() => setDrillDownCategory("WidgetsBoard")}
-                   className={`w-full flex items-center gap-6 p-5 rounded-xl transition-all group text-left border ${
-                     isDark 
-                       ? "bg-white/[0.03] border-white/10 hover:border-blue-400/40 hover:bg-white/[0.08]" 
-                       : "bg-white border-black/5 hover:border-blue-500/20 hover:shadow-lg"
-                   }`}
-                 >
-                    <div className={`w-12 h-12 flex items-center justify-center rounded-xl transition-all shrink-0 ${
-                      isDark ? "text-white/60 group-hover:text-blue-400" : "text-slate-400 group-hover:text-blue-500"
-                    }`}>
-                      <LayoutGrid size={32} />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className={`text-base font-bold transition-colors ${
-                        isDark ? "text-white group-hover:text-blue-400" : "text-slate-700 group-hover:text-slate-900"
-                      }`}>Widgets board</h4>
-                      <p className={`text-xs font-medium mt-0.5 opacity-80 ${isDark ? "text-white/60" : "text-slate-400"}`}>Tùy chỉnh các tính năng và hành vi của bảng tiện ích</p>
-                    </div>
-                    <ChevronRight size={18} className={`transition-all opacity-0 group-hover:opacity-100 ${isDark ? "text-white/40 group-hover:text-blue-400" : "text-slate-300 group-hover:text-blue-500"}`} />
-                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* Reset Confirmation Popup */}
+          {showResetPopup && (
+            <div id="reset-popup-overlay" className="fixed inset-0 bg-black/70 backdrop-blur-md z-[999] flex items-center justify-center p-4">
+              <div id="reset-popup" className={`p-8 rounded-[32px] max-w-md w-full border shadow-2xl text-center transform transition-all scale-100 ${isDark ? "bg-[#18181A] border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"}`}>
+                <div className="mx-auto w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-6">
+                  <Trash2 size={32} />
+                </div>
+                <h3 className="text-2xl font-black tracking-tight mb-3">Tẩy xóa và Đặt lại</h3>
+                <p className={`text-sm leading-relaxed mb-8 opacity-80 ${isDark ? "text-slate-300" : "text-slate-600"}`}>
+                  Hành động này sẽ xóa sạch mọi dữ liệu, bao gồm các cài đặt, tùy chỉnh và thông tin tài khoản Vplay và cài đặt lại từ đầu toàn bộ thông số về mặc định. Bạn có muốn tẩy xóa và đặt lại Vplay không?
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <button 
+                    id="reset-cancel-btn" 
+                    onClick={() => setShowResetPopup(false)} 
+                    className={`py-3.5 rounded-2xl font-bold text-sm transition-all border ${isDark ? "bg-white/5 border-white/5 text-slate-300 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
+                  >
+                    Hủy
+                  </button>
+                  <button 
+                    id="reset-agree-btn" 
+                    onClick={() => { 
+                      setShowResetPopup(false); 
+                      setIsReinstalling(true); 
+                      setShowSplash(true); 
+                    }} 
+                    className="py-3.5 rounded-2xl font-bold text-sm transition-all bg-[#FF453A] hover:bg-red-700 text-white shadow-lg shadow-red-600/20 active:scale-[0.98]"
+                  >
+                    Đồng ý
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -3719,20 +3841,20 @@ function RejuvenatedSettings(props: any) {
 
   return (
     <div className={`flex flex-col lg:flex-row h-full overflow-hidden ${frostedGlassWidgets ? "bg-transparent text-white" : (isDark ? "bg-vplay-background" : "bg-white")}`}>
-      <div className={`w-full lg:w-[320px] shrink-0 p-6 flex flex-col gap-10 border-r z-10 ${
+      <div className={`w-full lg:w-[320px] shrink-0 p-4 lg:p-6 flex flex-col gap-4 lg:gap-10 border-b lg:border-b-0 lg:border-r z-10 ${
         frostedGlassWidgets 
           ? "bg-transparent border-white/10" 
           : (isDark ? "bg-black/20 border-black/5" : "bg-slate-50/10 border-black/5")
       }`}>
         <div className="space-y-4">
           <div className="relative group">
-            <Search size={18} className={`absolute left-5 top-1/2 -translate-y-1/2 transition-colors ${frostedGlassWidgets ? "text-white/40 group-focus-within:text-white" : "text-slate-400 group-focus-within:text-[#4AC4FE]"}`} />
+            <Search size={16} className={`absolute left-4 lg:left-5 top-1/2 -translate-y-1/2 transition-colors ${frostedGlassWidgets ? "text-white/40 group-focus-within:text-white" : "text-slate-400 group-focus-within:text-[#4AC4FE]"}`} />
             <input 
               type="text" 
               placeholder="Tìm cài đặt..."
               value={activeSearchQuery}
               onChange={(e) => activeSetSearchQuery(e.target.value)}
-              className={`w-full h-14 pl-14 pr-6 rounded-[24px] text-sm font-bold outline-none transition-all border-2 ${
+              className={`w-full h-10 lg:h-14 pl-11 lg:pl-14 pr-4 lg:pr-6 rounded-[16px] lg:rounded-[24px] text-xs lg:text-sm font-bold outline-none transition-all border-2 ${
                 frostedGlassWidgets
                   ? "bg-white/10 border-white/10 focus:border-white/25 text-white placeholder:text-white/45"
                   : (isDark 
@@ -3743,12 +3865,12 @@ function RejuvenatedSettings(props: any) {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar -mx-2 px-2 space-y-1">
+        <div className="flex-1 lg:overflow-y-auto overflow-x-auto flex flex-row lg:flex-col gap-2 space-y-0 lg:space-y-1 py-1 px-1 custom-scrollbar scrollbar-hide">
           {categories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`w-full flex items-center gap-5 px-5 py-4 rounded-[22px] transition-all relative group ${
+              className={`shrink-0 w-auto lg:w-full flex items-center gap-3 lg:gap-5 px-4 lg:px-5 py-2.5 lg:py-4 rounded-[16px] lg:rounded-[22px] transition-all relative group ${
                 activeCategory === cat.id 
                   ? (frostedGlassWidgets 
                       ? "bg-white/15 text-white border border-white/20 shadow-none" 
@@ -3758,12 +3880,12 @@ function RejuvenatedSettings(props: any) {
                       : (isDark ? "text-white/40 hover:text-white hover:bg-white/5" : "text-slate-500 hover:bg-white"))
               }`}
             >
-              <cat.icon size={20} strokeWidth={activeCategory === cat.id ? 2.5 : 1.5} />
-              <span className={`text-[13px] font-bold tracking-tight ${activeCategory === cat.id ? "font-black" : ""}`}>{cat.name}</span>
+              <cat.icon className="w-[16px] h-[16px] lg:w-[20px] lg:h-[20px] shrink-0" strokeWidth={activeCategory === cat.id ? 2.5 : 1.5} />
+              <span className={`text-[12px] lg:text-[13px] font-bold tracking-tight ${activeCategory === cat.id ? "font-black" : ""}`}>{cat.name}</span>
               {activeCategory === cat.id && (
                 <motion.div 
                   layoutId="activeCat"
-                  className={`absolute left-0 w-1.5 h-4 rounded-full ${frostedGlassWidgets ? "bg-white" : (isDark ? "bg-white" : "bg-[#4AC4FE]")}`} 
+                  className={`absolute left-0 bottom-0 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2 h-[3px] lg:h-4 w-full lg:w-1.5 rounded-full ${frostedGlassWidgets ? "bg-white" : (isDark ? "bg-white" : "bg-[#4AC4FE]")}`} 
                 />
               )}
             </button>
@@ -3771,7 +3893,7 @@ function RejuvenatedSettings(props: any) {
         </div>
       </div>
 
-      <div className={`flex-1 overflow-y-auto p-6 md:p-12 custom-scrollbar animate-in fade-in slide-in-from-right-4 duration-500 ${
+      <div className={`flex-1 overflow-y-auto p-4 md:p-12 custom-scrollbar animate-in fade-in slide-in-from-right-4 duration-500 ${
         frostedGlassWidgets 
           ? "bg-transparent text-white" 
           : (isDark ? "" : "bg-slate-50/5")
@@ -4320,6 +4442,19 @@ function SettingsContent({
                     <Droplet size={20} className={liquidGlass === "tinted" ? "text-white" : "text-slate-400 group-hover:text-cyan-500"} />
                     <span className="text-base font-bold">Tinted</span>
                   </button>
+                </div>
+
+                {/* Preview Image for Liquid Glass */}
+                <div className="mt-4 rounded-3xl overflow-hidden border border-white/10 shadow-2xl aspect-video relative group">
+                  <img 
+                    src="https://substackcdn.com/image/fetch/$s_!6L_D!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F1b529a92-54ae-477e-87f6-27674b483077_960x540.gif"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    alt="Liquid Glass Preview"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-4">
+                    <p className="text-[10px] font-black text-white/80 uppercase tracking-[0.3em]">Bản xem trước Giao diện</p>
+                  </div>
                 </div>
               </motion.div>
           </AnimatePresence>
@@ -5209,42 +5344,10 @@ function OnboardingWizard({
 
   const steps = [
     {
-      title: "Chào mừng đến với Vplay!",
-      description: "Cảm ơn bạn đã lựa chọn Vplay - hãy dành một vài phút để thiết lập các cài đặt ban đầu nhé",
-      icon: Sparkles,
-      color: "text-amber-500"
-    },
-    {
-      title: "Chế độ hiển thị",
-      description: "Chọn chế độ hiển thị để phù hợp với cách nhìn của bạn",
-      icon: Palette,
-      color: "text-indigo-500"
-    },
-    {
       title: "Giao diện người dùng",
       description: "Bạn đang sử dụng thiết bị nào? Chúng tôi sẽ tối ưu hóa giao diện người dùng cho thiết bị của bạn",
       icon: Layout,
       color: "text-blue-500"
-    },
-    {
-      title: config.useSidebar ? "Cài đặt khác" : "Liquid Glass",
-      description: config.useSidebar 
-        ? "Tinh chỉnh thêm các cài đặt để phù hợp theo phong cách của bạn."
-        : "Tinh chỉnh giao diện kính lỏng theo phong cách của bạn",
-      icon: Sliders,
-      color: "text-[#4AC4FE]"
-    },
-    {
-      title: "Cá nhân hóa trải nghiệm",
-      description: "Đăng nhập để đồng bộ các kênh yêu thích và các tùy chỉnh của bạn trên mọi thiết bị.",
-      icon: AccountIcon,
-      color: "text-[#4AC4FE]"
-    },
-    {
-      title: "Sẵn sàng trải nghiệm!",
-      description: "Mọi thứ đã xong. Cảm ơn bạn đã lựa chọn Vplay!",
-      icon: CheckCircle2,
-      color: "text-emerald-500"
     }
   ];
 
@@ -5330,7 +5433,7 @@ function OnboardingWizard({
               >
                 <div className="space-y-2">
                   <p className="text-[10px] font-bold text-[#4AC4FE] uppercase tracking-[0.2em]">
-                    {step === 4 ? "Identity Setup" : step === 5 ? "Completion" : "Thiết lập hệ thống"}
+                    Cài đặt hệ thống
                   </p>
                   <h2 className={`text-xl md:text-3xl font-bold tracking-tight leading-tight ${config.isDark ? "text-white" : "text-slate-900"}`}>
                     {steps[step].title}
@@ -5342,37 +5445,6 @@ function OnboardingWizard({
 
                 <div className="py-2">
                   {step === 0 && (
-                    <div className="space-y-6">
-                      <div className={`p-8 rounded-[32px] ${config.isDark ? "bg-white/5" : "bg-slate-50"} border border-transparent`}>
-                        <p className={`text-base leading-relaxed font-medium ${config.isDark ? "text-slate-300" : "text-slate-600"}`}>
-                          Chào mừng bạn đã đến với thế giới của Vplay. Hãy khám phá kho tàng truyền hình phong phú và chất lượng nhất ngay hôm nay.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {step === 1 && (
-                    <div className="grid grid-cols-1 gap-4">
-                      {[
-                        { id: true, label: "Tối (Dark Mode)", icon: Moon, sub: "Tối ưu cho ban đêm và màn hình OLED" },
-                        { id: false, label: "Sáng (Light Mode)", icon: Sun, sub: "Rõ nét, tươi mới cho không gian sáng" }
-                      ].map(mode => (
-                        <button
-                          key={mode.id.toString()}
-                          onClick={() => setConfig({ ...config, isDark: mode.id })}
-                          className={`flex items-center gap-5 p-6 rounded-3xl border-2 transition-all ${config.isDark === mode.id ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-[0_10px_25px_rgba(147,51,234,0.3)]" : `${config.isDark ? "bg-white/5 border-transparent hover:bg-white/10" : "bg-slate-100 hover:bg-slate-200 border-transparent text-slate-900"}`}`}
-                        >
-                          <div className={`p-3.5 rounded-2xl ${config.isDark === mode.id ? "bg-white text-[#4AC4FE]" : "bg-white/10 text-slate-500"}`}><mode.icon size={24} /></div>
-                          <div className="text-left">
-                            <h4 className="text-base font-bold">{mode.label}</h4>
-                            <p className="text-xs opacity-70">{mode.sub}</p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  {step === 2 && (
                     <div className="grid grid-cols-1 gap-4">
                       {[
                         { id: true, label: "Desktop Interface", icon: Monitor, sub: "Tối ưu hóa cho chuột và phím" },
@@ -5392,119 +5464,6 @@ function OnboardingWizard({
                       ))}
                     </div>
                   )}
-
-                  {step === 3 && (
-                    <div className="space-y-4">
-                      {config.useSidebar ? (
-                        <>
-                          <div className={`flex items-center justify-between p-6 rounded-3xl ${config.isDark ? "bg-white/5" : "bg-slate-50"}`}>
-                            <div className="text-left space-y-1">
-                              <h4 className={`text-sm font-bold uppercase tracking-wider ${config.isDark ? "text-white" : "text-slate-900"}`}>Vị trí Sidebar</h4>
-                              <p className="text-xs text-slate-500 font-medium">Đặt menu bên trái hoặc phải</p>
-                            </div>
-                            <div className="flex bg-black/10 p-1.5 rounded-2xl">
-                              <button onClick={() => setConfig({...config, isSidebarRight: false})} className={`px-6 py-2 rounded-xl text-xs font-bold uppercase transition-all ${!config.isSidebarRight ? "bg-[#4AC4FE] text-white shadow-md" : "text-slate-500 hover:text-slate-300"}`}>L</button>
-                              <button onClick={() => setConfig({...config, isSidebarRight: true})} className={`px-6 py-2 rounded-xl text-xs font-bold uppercase transition-all ${config.isSidebarRight ? "bg-[#4AC4FE] text-white shadow-md" : "text-slate-500 hover:text-slate-300"}`}>R</button>
-                            </div>
-                          </div>
-                          <div className={`flex items-center justify-between p-6 rounded-3xl ${config.isDark ? "bg-white/5" : "bg-slate-50"}`}>
-                            <div className="text-left space-y-1">
-                              <h4 className={`text-sm font-bold uppercase tracking-wider ${config.isDark ? "text-white" : "text-slate-900"}`}>Ghim kênh</h4>
-                              <p className="text-xs text-slate-500 font-medium">Truy cập nhanh kênh yêu thích</p>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer">
-                              <input type="checkbox" checked={config.isPinningEnabled} onChange={(e) => setConfig({...config, isPinningEnabled: e.target.checked})} className="sr-only peer" />
-                              <div className="w-12 h-6 bg-slate-700 rounded-full peer peer-checked:bg-[#4AC4FE] relative after:content-[''] after:absolute after:top-1 after:left-[4px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-6"></div>
-                            </label>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="grid grid-cols-2 gap-4">
-                          <button onClick={() => setConfig({...config, liquidGlass: "glassy"})} className={`p-8 rounded-[32px] border-2 transition-all flex flex-col items-center gap-4 ${config.liquidGlass === "glassy" ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg" : "border-slate-200/50 hover:bg-black/5"}`}>
-                            <div className={`p-4 rounded-2xl ${config.liquidGlass === "glassy" ? "bg-white text-[#4AC4FE]" : "bg-[#4AC4FE]/10 text-[#4AC4FE]"}`}><Droplet size={32} /></div>
-                            <div className="text-center">
-                              <span className="text-sm font-bold uppercase tracking-widest block">Glassy</span>
-                              <span className="text-[10px] opacity-70 font-medium">Mờ ảo</span>
-                            </div>
-                          </button>
-                          <button onClick={() => setConfig({...config, liquidGlass: "tinted"})} className={`p-8 rounded-[32px] border-2 transition-all flex flex-col items-center gap-4 ${config.liquidGlass === "tinted" ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg" : "border-slate-200/50 hover:bg-black/5"}`}>
-                            <div className={`p-4 rounded-2xl ${config.liquidGlass === "tinted" ? "bg-white text-[#4AC4FE]" : "bg-[#4AC4FE]/10 text-[#4AC4FE]"}`}><Palette size={32} /></div>
-                            <div className="text-center">
-                              <span className="text-sm font-bold uppercase tracking-widest block">Tinted</span>
-                              <span className="text-[10px] opacity-70 font-medium">Màu sắc</span>
-                            </div>
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {step === 4 && (
-                    <div className="flex flex-col items-center justify-center py-4 space-y-8">
-                      <div className="grid grid-cols-1 gap-4 w-full max-w-sm">
-                        <button
-                          onClick={onLogin}
-                          className="flex items-center gap-5 p-6 rounded-3xl border-2 border-[#4AC4FE] bg-[#4AC4FE] text-white shadow-lg transition-all active:scale-95"
-                        >
-                          <div className="p-3.5 rounded-2xl bg-white text-[#4AC4FE]"><SignInIcon size={24} /></div>
-                          <div className="text-left">
-                            <h4 className="text-base font-bold">Đăng nhập tài khoản</h4>
-                            <p className="text-xs opacity-70">Sử dụng tài khoản Vplay của bạn</p>
-                          </div>
-                        </button>
-                        <button
-                          onClick={nextStep}
-                          className={`flex items-center gap-5 p-6 rounded-3xl border-2 transition-all ${config.isDark ? "bg-white/5 border-white/10 hover:bg-white/10 text-white" : "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-900"}`}
-                        >
-                          <div className={`p-3.5 rounded-2xl ${config.isDark ? "bg-white/10" : "bg-white"} text-slate-50`}><AccountIcon size={24} /></div>
-                          <div className="text-left">
-                            <h4 className="text-base font-bold">Sử dụng tài khoản đăng xuất</h4>
-                            <p className="text-xs opacity-70">Tiếp tục mà không cần đồng bộ</p>
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {step === 5 && (
-                    <div className="flex flex-col items-center justify-center py-8 space-y-8">
-                      <motion.div 
-                        initial={{ scale: 0, rotate: -180 }} 
-                        animate={{ scale: 1, rotate: 0 }} 
-                        transition={{ type: "spring", damping: 12, stiffness: 100 }}
-                        className="relative"
-                      >
-                        <div className="absolute inset-0 bg-green-400/30 blur-3xl rounded-full animate-pulse" />
-                        <div className="relative w-32 h-32 rounded-[40px] bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center shadow-[0_20px_40px_rgba(16,185,129,0.3)]">
-                          <CheckCircle2 size={64} className="text-white" strokeWidth={2} />
-                        </div>
-                      </motion.div>
-                      <div className="text-center space-y-4 max-w-sm">
-                        <motion.h3 
-                          initial={{ y: 20, opacity: 0 }}
-                          animate={{ y: 0, opacity: 1 }}
-                          transition={{ delay: 0.2 }}
-                          className={`text-2xl md:text-3xl font-bold tracking-tight ${config.isDark ? "text-white" : "text-slate-900"}`}
-                        >
-                          Sẵn sàng trải nghiệm!
-                        </motion.h3>
-                        <motion.div
-                          initial={{ y: 20, opacity: 0 }}
-                          animate={{ y: 0, opacity: 1 }}
-                          transition={{ delay: 0.3 }}
-                          className="space-y-4"
-                        >
-                          <p className={`text-base font-medium opacity-60 leading-relaxed ${config.isDark ? "text-white" : "text-slate-600"}`}>
-                            Cài đặt hoàn tất. Cảm ơn bạn đã lựa chọn và tin tưởng sử dụng dịch vụ của <span className="text-[#4AC4FE] font-bold">Vplay</span>.
-                          </p>
-                          <div className={`h-1 w-12 mx-auto rounded-full ${config.isDark ? "bg-white/10" : "bg-slate-200"}`} />
-                          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#4AC4FE]">
-                            Enjoy your journey
-                          </p>
-                        </motion.div>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 <div className="flex items-center justify-between pt-6 border-t border-white/10">
@@ -5514,10 +5473,7 @@ function OnboardingWizard({
                     ))}
                   </div>
                   <div className="flex gap-4">
-                    {step > 0 && step < 5 && (
-                      <button onClick={prevStep} className={`px-6 py-2.5 rounded-2xl font-bold text-sm transition-all ${config.isDark ? "text-white hover:bg-white/5" : "text-slate-600 hover:bg-black/5"}`}>Quay lại</button>
-                    )}
-                    {step < 5 ? (
+                    {step < steps.length - 1 ? (
                       <button onClick={nextStep} className="px-8 py-2.5 bg-[#4AC4FE] hover:bg-[#4AC4FE] text-white rounded-2xl font-bold text-sm shadow-lg shadow-none transition-all active:scale-95">Tiếp theo</button>
                     ) : (
                       <button onClick={() => onComplete(config)} className="px-10 py-3 bg-gradient-to-r from-indigo-600 to-[#4AC4FE] hover:from-indigo-500 hover:to-purple-500 text-white rounded-[24px] font-bold text-sm shadow-xl shadow-none transition-all active:scale-95 hover:shadow-2xl">Bắt đầu ngay</button>
@@ -5568,7 +5524,10 @@ function TopBar({
   isSearchCompact,
   startListening,
   isListening,
+  isListeningFailed,
   activeTab,
+  onSystemTrayClick,
+  location = "Hanoi",
   topbarSearchType = "box"
 }: { 
   isDark: boolean, 
@@ -5593,7 +5552,10 @@ function TopBar({
   isSearchCompact?: boolean,
   startListening?: () => void,
   isListening?: boolean,
+  isListeningFailed?: boolean,
   activeTab: string,
+  onSystemTrayClick?: () => void,
+  location?: string,
   topbarSearchType?: "box" | "icon"
 }) {
   const [isSearchButtonExpanded, setIsSearchButtonExpanded] = React.useState(false);
@@ -5602,6 +5564,16 @@ function TopBar({
   const WeatherIcon = isDaytime ? Sun : Moon;
   const weatherColor = isDaytime ? "text-yellow-400" : "text-blue-400";
   const dateStr = formatDateString(currentTime);
+
+  const getSearchPlaceholder = () => {
+    if (isListening) return "Speak something, I'm listening...";
+    if (isListeningFailed) return "I couldn't hear you. Let's try again";
+    if (activeTab === "Trang chủ") return "Search Home";
+    if (activeTab === "Live") return "Search Live";
+    if (activeTab === "Lưu trữ") return "Search Archives";
+    if (activeTab === "Cài đặt") return "Search for options";
+    return "Find and explore";
+  };
 
   return (
     <div 
@@ -5673,7 +5645,7 @@ function TopBar({
                 }}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onContextMenu={handleSearchContextMenu}
-                placeholder={isListening ? "Listening to your voice..." : (activeTab === "Cài đặt" ? "Tìm cài đặt..." : "Tìm kiếm trên Vplay...")}
+                placeholder={getSearchPlaceholder()}
                 className={`flex-1 bg-transparent border-none outline-none text-sm font-medium ${isDark ? "placeholder:text-slate-100/30 text-slate-100" : "placeholder:text-slate-400 text-slate-800"}`}
               />
               {searchQuery && (
@@ -5719,7 +5691,7 @@ function TopBar({
               }}
               onChange={(e) => setSearchQuery(e.target.value)}
               onContextMenu={handleSearchContextMenu}
-              placeholder={isListening ? "Listening..." : (activeTab === "Cài đặt" ? "Tìm cài đặt..." : "Tìm kiếm trên Vplay...")}
+              placeholder={getSearchPlaceholder()}
               className={`flex-1 bg-transparent border-none outline-none text-sm font-medium ${isDark ? "placeholder:text-slate-100/30 text-slate-100" : "placeholder:text-slate-400"}`}
             />
             {searchQuery && (
@@ -5789,14 +5761,20 @@ function TopBar({
       <div className="flex items-center gap-4">
         {weather && showTempInClock && (
           <Tooltip text={`Thời tiết tại ${location}`} isDark={isDark} position="bottom">
-            <div className="flex items-center gap-2 mr-2 px-3 py-1 rounded-full bg-white/10 border border-white/10">
+            <div 
+              onClick={onSystemTrayClick}
+              className="flex items-center gap-2 mr-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 cursor-pointer hover:bg-white/20 transition-all active:scale-95"
+            >
               <WeatherIcon size={16} className={weatherColor} />
               <span className={`text-xs font-bold ${isDark ? "text-white/90" : "text-slate-900"}`}>{getTempDisplay()}</span>
             </div>
           </Tooltip>
         )}
         {(showClock || showDate) && (
-          <div className="hidden sm:flex flex-col items-end text-right leading-none mr-3 font-google">
+          <div 
+            onClick={onSystemTrayClick}
+            className="hidden sm:flex flex-col items-end text-right leading-none mr-3 font-google cursor-pointer hover:opacity-80 transition-all active:scale-95"
+          >
             {showClock && (
               <div className={`text-sm font-bold tracking-tight mb-0.5 ${isDark ? "text-white/90" : "text-slate-900"}`}>
                 {formatTime(currentTime)}
@@ -5827,7 +5805,8 @@ function SearchContextMenu({
   onClose: () => void, 
   onSelect: (filter: "all" | "channels" | "settings" | "experiments") => void,
   activeFilter: string,
-  isDark: boolean
+  isDark: boolean,
+  key?: any
 }) {
   const menuItems = [
     { id: "all", label: "Tìm kiếm tất cả", icon: Search },
@@ -5876,7 +5855,8 @@ function SearchContextMenu({
 function SidebarContextMenu({ x, y, onClose, isDark, setActiveTab, handleOpenSettings, setUseSidebar, setIsSidebarRight, isSidebarRight, setIsDev }: { 
   x: number, y: number, onClose: () => void, isDark: boolean, setActiveTab: (t: string) => void, handleOpenSettings: () => void,
   setUseSidebar: (v: boolean) => void, setIsSidebarRight: (v: boolean) => void, isSidebarRight: boolean,
-  setIsDev: (v: boolean) => void
+  setIsDev: (v: boolean) => void,
+  key?: any
 }) {
   return (
     <>
@@ -5915,7 +5895,8 @@ function SidebarContextMenu({ x, y, onClose, isDark, setActiveTab, handleOpenSet
 function TopBarContextMenu({ x, y, onClose, isDark, setActiveTab, handleOpenSettings, setHeadingBar, headingBar, showTempInClock, setShowTempInClock, showClock, setShowClock, showDate, setShowDate, setIsDev }: { 
   x: number, y: number, onClose: () => void, isDark: boolean, setActiveTab: (t: string) => void, handleOpenSettings: () => void,
   setHeadingBar: (v: boolean) => void, headingBar: boolean, showTempInClock: boolean, setShowTempInClock: (v: boolean) => void,
-  showClock: boolean, setShowClock: (v: boolean) => void, showDate: boolean, setShowDate: (v: boolean) => void, setIsDev: (v: boolean) => void
+  showClock: boolean, setShowClock: (v: boolean) => void, showDate: boolean, setShowDate: (v: boolean) => void, setIsDev: (v: boolean) => void,
+  key?: any
 }) {
   return (
     <>
@@ -5971,7 +5952,8 @@ function TopBarContextMenu({ x, y, onClose, isDark, setActiveTab, handleOpenSett
 }
 
 function NavigationContextMenu({ x, y, onClose, isDark, liquidGlass, setLiquidGlass, setIsDev }: {
-  x: number, y: number, onClose: () => void, isDark: boolean, liquidGlass: string, setLiquidGlass: (v: "glassy" | "tinted") => void, setIsDev: (v: boolean) => void
+  x: number, y: number, onClose: () => void, isDark: boolean, liquidGlass: string, setLiquidGlass: (v: "glassy" | "tinted") => void, setIsDev: (v: boolean) => void,
+  key?: any
 }) {
   return (
     <>
@@ -6330,9 +6312,9 @@ function CalculatorWidget({ isDark }: { isDark: boolean }) {
         <p className="text-2xl font-black tracking-tighter truncate">{display}</p>
       </div>
       <div className="grid grid-cols-4 gap-2 flex-1">
-        {buttons.map((btn, i) => (
+        {buttons.map((btn) => (
           <button
-            key={i}
+            key={`calc-btn-${btn}`}
             onClick={btn.action}
             className={`flex items-center justify-center p-3 rounded-xl text-xs font-black transition-all active:scale-95 ${
               btn.type === "num" ? (isDark ? "bg-white/5 text-white" : "bg-slate-100 text-slate-800") :
@@ -6400,9 +6382,9 @@ function ScientificCalculatorWidget({ isDark }: { isDark: boolean }) {
       <div className="grid grid-cols-4 gap-1.5 flex-1 overflow-y-auto pr-1 scrollbar-hide">
         <button onClick={() => { setDisplay("0"); setEquation(""); }} className="col-span-2 p-2 rounded-lg bg-red-500/10 text-red-500 text-[10px] font-bold uppercase">Clear</button>
         <button onClick={() => setDisplay(display.length > 1 ? display.slice(0, -1) : "0")} className="col-span-2 p-2 rounded-lg bg-slate-500/10 text-slate-500 text-[10px] font-bold uppercase">Del</button>
-        {basicBtns.flat().map((btn, i) => (
+        {basicBtns.flat().map((btn) => (
           <button
-            key={i}
+            key={`sci-calc-btn-${btn}`}
             onClick={() => btn === "=" ? calculate() : append(btn)}
             className={`flex items-center justify-center p-2 rounded-lg text-[10px] font-bold transition-all active:scale-95 ${
               btn === "=" ? "bg-[#4AC4FE] text-white shadow-lg" :
@@ -6699,7 +6681,9 @@ function WidgetsDashboard({
   frostedGlassWidgets = false,
   setFrostedGlassWidgets,
   colorWidgets = false,
-  setColorWidgets
+  setColorWidgets,
+  setIsReinstalling = () => {},
+  setShowSplash = () => {}
 }: {
   isOpen: boolean,
   onClose: () => void, 
@@ -6792,11 +6776,13 @@ function WidgetsDashboard({
   frostedGlassWidgets?: boolean,
   setFrostedGlassWidgets?: (v: boolean) => void,
   colorWidgets?: boolean,
-  setColorWidgets?: (v: boolean) => void
+  setColorWidgets?: (v: boolean) => void,
+  setIsReinstalling?: (v: boolean) => void,
+  setShowSplash?: (v: boolean) => void
 }) {
   const [pinnedWidgets, setPinnedWidgets] = useState<string[]>(() => {
     const saved = localStorage.getItem("vplay_pinned_widgets");
-    return saved ? JSON.parse(saved) : ["clock", "weather", "discover"];
+    return saved ? JSON.parse(saved) : ["weather", "clock", "calendar", "discover"];
   });
   const [lockedWidgets, setLockedWidgets] = useState<string[]>(() => {
     const saved = localStorage.getItem("vplay_locked_widgets");
@@ -7243,11 +7229,11 @@ function WidgetsDashboard({
                     {activeDashboardTab === "widgets" && (
                       <div className="flex-1 flex flex-col overflow-hidden">
                         {/* Header */}
-                        <div className="p-8 pb-4 flex items-center justify-between">
+                        <div className="p-4 md:p-8 pb-2 md:pb-4 flex flex-col sm:flex-row items-center justify-between gap-3">
                           <div>
-                            <h2 className={`text-2xl font-bold tracking-tight ${frostedGlassWidgets ? "text-white" : "text-slate-800"}`}>{getGreeting()}</h2>
+                            <h2 className={`text-xl md:text-2xl font-bold tracking-tight ${frostedGlassWidgets ? "text-white" : "text-slate-800"}`}>{getGreeting()}</h2>
                           </div>
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
                             <button 
                               onClick={() => {
                                 setIsPickerLoading(true);
@@ -7256,39 +7242,21 @@ function WidgetsDashboard({
                                   setIsPickerLoading(false);
                                 }, 3000);
                               }}
-                              className="flex items-center gap-2.5 px-5 py-2.5 bg-[#4AC4FE] text-black rounded-xl font-normal text-sm shadow-none hover:scale-[1.05] active:scale-95 transition-all border-none outline-none"
+                              className="flex items-center gap-2 px-3 md:px-5 py-2 md:py-2.5 bg-[#4AC4FE] text-black rounded-xl font-normal text-xs md:text-sm shadow-none hover:scale-[1.05] active:scale-95 transition-all border-none outline-none shrink-0"
                             >
-                              <Pin size={18} className="rotate-45 text-black" />
+                              <Pin size={16} className="rotate-45 text-black" />
                               Pin widgets
                             </button>
                             <div className="flex items-center gap-1">
-                              <button onClick={onClose} className="p-2.5 rounded-xl hover:bg-black/5 text-slate-400 hover:text-slate-900 transition-colors" title="Close widgets">
-                                <X size={26} className="stroke-[2.5]" />
+                              <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 text-slate-400 hover:text-slate-900 transition-colors" title="Close widgets">
+                                <X size={22} className="stroke-[2.5]" />
                               </button>
                             </div>
                           </div>
                         </div>
 
                         {/* Content Area */}
-                        <div className="flex-1 overflow-y-auto px-8 py-2 custom-scrollbar space-y-6 relative">
-                          <div className="relative group flex justify-center">
-                             <div className={`group flex items-center gap-2.5 h-12 w-full max-w-md transition-all relative rounded-xl border-b-[2px] transition-all duration-300 ${frostedGlassWidgets ? "bg-white/10 text-white border-white/10 focus-within:bg-white/20 focus-within:border-white/20" : "bg-white focus-within:bg-white border-black/10 text-slate-800 focus-within:border-[#4AC4FE]"} shadow-sm`}>
-                                <Search size={18} className={`ml-3 ${frostedGlassWidgets ? "text-white/60 group-focus-within:text-white" : "text-slate-400 group-focus-within:text-[#4AC4FE]"}`} />
-                                <input 
-                                  type="text" 
-                                  value={widgetSearchQuery}
-                                  onChange={(e) => setWidgetSearchQuery(e.target.value)}
-                                  placeholder="Find and explore on Vplay" 
-                                  className={`bg-transparent border-none outline-none w-full font-google font-bold placeholder-slate-400 text-sm ${frostedGlassWidgets ? "text-white" : "text-slate-900"}`}
-                                />
-                                {widgetSearchQuery && (
-                                  <button onClick={() => setWidgetSearchQuery("")} className="p-1.5 hover:bg-black/10 rounded-full mr-2 transition-all">
-                                    <X size={14} className="text-slate-400" />
-                                  </button>
-                                )}
-                             </div>
-                          </div>
-
+                        <div className="flex-1 overflow-y-auto px-4 md:px-8 py-2 custom-scrollbar space-y-4 md:space-y-6 relative">
                           {widgetSearchQuery ? (
                              <div className="space-y-8 pb-20">
                                 {searchResults.tabs.length > 0 && (
@@ -7401,7 +7369,7 @@ function WidgetsDashboard({
                                    </div>
                                 </div>
                               ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 auto-rows-min pb-20">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 auto-rows-min pb-20">
                                   {filteredPinnedWidgets.map(widgetId => {
                                     if (widgetId === "search") return null;
                                     const isLocked = lockedWidgets.includes(widgetId);
@@ -8055,6 +8023,8 @@ function WidgetsDashboard({
                               setIsDark={setIsDark} 
                               isDev={isDev || false} 
                               setIsDev={setIsDev || (() => {})} 
+                              setIsReinstalling={setIsReinstalling}
+                              setShowSplash={setShowSplash}
                               featureFlags={featureFlags}
                               setFeatureFlags={setFeatureFlags || (() => {})}
                               liquidGlass={liquidGlass || "glassy"} 
@@ -8460,6 +8430,7 @@ function App() {
 
   const isResizing = useRef(false);
   const [showSplash, setShowSplash] = useState(false);
+  const [isReinstalling, setIsReinstalling] = useState(false);
   const [splashDuration, setSplashDuration] = useState(5000);
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return localStorage.getItem("vplay_onboarding_completed") !== "true";
@@ -8579,7 +8550,8 @@ function App() {
   const [menuView, setMenuView] = useState<"main" | "profile" | "version" | "feedback">("main");
   const [sidebarDisplay, setSidebarDisplay] = useState<"float" | "attach">(() => {
     const saved = localStorage.getItem("vplay_sidebar_display");
-    return (saved as "float" | "attach") || "float";
+    if (saved === "float") return "attach";
+    return (saved as "float" | "attach") || "attach";
   });
   const [isBroadcastingLocked, setIsBroadcastingLocked] = useState(false);
   const [isLockModalOpen, setIsLockModalOpen] = useState(false);
@@ -8921,20 +8893,25 @@ const [headingBar, setHeadingBar] = useState(() => {
 
   const updateWeather = useCallback(async () => {
     try {
-      // Mocking weather based on location or using a simple geocode + open-meteo
-      // For this demo, we'll fetch for Hanoi if location is Hanoi, or random-ish for others
-      const lat = location.toLowerCase().includes("hanoi") ? 21.0285 : 10.8231; // Hanoi or Saigon
+      const lat = location.toLowerCase().includes("hanoi") ? 21.0285 : 10.8231;
       const lon = location.toLowerCase().includes("hanoi") ? 105.8542 : 106.6297;
-      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+      const res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
+      if (!res.ok) {
+        setWeather({ temp: 25, status: "N/A" });
+        return;
+      }
       const data = await res.json();
       if (data.current_weather) {
         setWeather({
-          temp: data.current_weather.temperature,
-          status: "Sunny" // Simple mock status
+          temp: Math.round(data.current_weather.temperature),
+          status: "Sunny"
         });
+      } else {
+        setWeather({ temp: 25, status: "N/A" });
       }
     } catch (e) {
-      console.error("Failed to fetch weather", e);
+      console.warn("Weather service is temporarily limited:", e);
+      setWeather({ temp: 25, status: "N/A" });
     }
   }, [location]);
 
@@ -8953,17 +8930,25 @@ const [headingBar, setHeadingBar] = useState(() => {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isListening, setIsListening] = useState(false);
+  const [isListeningFailed, setIsListeningFailed] = useState(false);
 
   const handleStartListening = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
       recognition.lang = "vi-VN";
-      recognition.onstart = () => setIsListening(true);
+      setIsListeningFailed(false);
+      recognition.onstart = () => {
+        setIsListening(true);
+        setIsListeningFailed(false);
+      };
       recognition.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
         setSearchQuery(transcript);
         setActiveTab("Khám phá");
+      };
+      recognition.onerror = () => {
+        setIsListeningFailed(true);
       };
       recognition.onend = () => setIsListening(false);
       recognition.start();
@@ -9095,15 +9080,24 @@ const [headingBar, setHeadingBar] = useState(() => {
       navigator.geolocation.getCurrentPosition(async (position) => {
         const { latitude, longitude } = position.coords;
         try {
-          const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+          const res = await fetch(`/api/geocode?lat=${latitude}&lon=${longitude}`);
+          if (!res.ok) {
+             onAlert("Thông báo", "Không thể lấy tên thành phố lúc này. Vui lòng thử lại sau.");
+             setIsLocationDetected(false);
+             return;
+          }
           const data = await res.json();
           if (data.city) {
             setLocation(data.city);
             setIsLocationDetected(true);
             onAlert("Vị trí", `Đã cập nhật vị trí tự động: ${data.city}`);
+          } else {
+            onAlert("Thông báo", "Không thể xác định tên địa điểm tại tọa độ này.");
+            setIsLocationDetected(false);
           }
         } catch (e) {
-          onAlert("Lỗi", "Không thể xác định tên địa điểm");
+          console.warn("Geocode fetch limited:", e);
+          onAlert("Thông báo", "Dịch vụ định vị đang tạm bận.");
           setIsLocationDetected(false);
         }
       }, (error) => {
@@ -9243,7 +9237,7 @@ const [headingBar, setHeadingBar] = useState(() => {
   };
 
   const handleOpenSettings = () => {
-    if (featureFlags.settings_in_widgets) {
+    if (!isTouchInterface) {
       setIsWidgetsOpen(true);
       setActiveDashboardTab("settings");
     } else {
@@ -9320,6 +9314,8 @@ const [headingBar, setHeadingBar] = useState(() => {
         activeDashboardTab={activeDashboardTab}
         setActiveDashboardTab={setActiveDashboardTab}
         setIsDark={setIsDark}
+        setIsReinstalling={setIsReinstalling}
+        setShowSplash={setShowSplash}
         useSidebar={useSidebar}
         setUseSidebar={setUseSidebar}
         isSidebarRight={isSidebarRight}
@@ -9478,6 +9474,12 @@ const [headingBar, setHeadingBar] = useState(() => {
             isSearchCompact={isSearchCompact}
             startListening={handleStartListening}
             isListening={isListening}
+            isListeningFailed={isListeningFailed}
+            location={location}
+            onSystemTrayClick={() => {
+              setIsWidgetsOpen(true);
+              setActiveDashboardTab("widgets");
+            }}
           />
         </div>
       )}
@@ -9505,7 +9507,7 @@ const [headingBar, setHeadingBar] = useState(() => {
 
       <AnimatePresence>
         {showSplash && (
-          <div onClick={handleEnterApp} className="cursor-pointer z-[110]">
+          <div key="splash-container" onClick={handleEnterApp} className="cursor-pointer z-[110]">
             <SplashScreen 
               isDark={isDark} 
               onEnter={handleEnterApp} 
@@ -9514,7 +9516,7 @@ const [headingBar, setHeadingBar] = useState(() => {
           </div>
         )}
         {showOnboarding && (
-          <div className="z-[155]">
+          <div key="onboarding-container" className="z-[155]">
             <OnboardingWizard isDark={isDark} onComplete={handleOnboardingComplete} onLogin={handleLogin} />
           </div>
         )}
@@ -9535,6 +9537,7 @@ const [headingBar, setHeadingBar] = useState(() => {
       <AnimatePresence>
         {contextMenu && contextMenu.type === "search" && (
           <SearchContextMenu 
+            key="search-context-menu"
             x={contextMenu.x} 
             y={contextMenu.y} 
             isDark={isDark} 
@@ -9545,6 +9548,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         )}
         {contextMenu && contextMenu.type === "sidebar" && (
           <SidebarContextMenu 
+            key="sidebar-context-menu"
             x={contextMenu.x} 
             y={contextMenu.y} 
             isDark={isDark} 
@@ -9559,6 +9563,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         )}
         {contextMenu && contextMenu.type === "topbar" && (
           <TopBarContextMenu 
+            key="topbar-context-menu"
             x={contextMenu.x} 
             y={contextMenu.y} 
             isDark={isDark} 
@@ -9578,6 +9583,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         )}
         {contextMenu && (contextMenu.type as any) === "navbar" && (
           <NavigationContextMenu 
+            key="navbar-context-menu"
             x={contextMenu.x} 
             y={contextMenu.y} 
             isDark={isDark} 
@@ -9924,6 +9930,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                           setIsDark={setIsDark} 
                           isDev={isDev} 
                           setIsDev={setIsDev} 
+                          setIsReinstalling={setIsReinstalling}
+                          setShowSplash={setShowSplash}
                           featureFlags={featureFlags}
                           setFeatureFlags={setFeatureFlags}
                           liquidGlass={liquidGlass} 
@@ -10172,9 +10180,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                                    (tab.id === "Cài đặt" && isWidgetsOpen && activeDashboardTab === "settings");
                   const isCompact = isCompactMode && isSidebarExpanded;
                   return (
-                    <Tooltip text={tab.name} isDark={isDark} position={isSidebarRight ? "left" : "right"} disabled={isSidebarExpanded && !isCompactMode}>
+                    <Tooltip key={`side-nav-${tab.id || tab.name}-${idx}`} text={tab.name} isDark={isDark} position={isSidebarRight ? "left" : "right"} disabled={isSidebarExpanded && !isCompactMode}>
                       <button
-                        key={`side-nav-${tab.id || tab.name}-${idx}`}
                         onClick={() => {
                           if (tab.id === "Widgets") {
                             setIsWidgetsOpen(true);
@@ -10212,7 +10219,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                           isActive 
                             ? (isDark ? "bg-white/10 text-[#4AC4FE]" : "bg-black/5 text-[#4AC4FE] shadow-sm") 
                             : (isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-black/60 hover:text-black hover:bg-black/5")
-                        } flex`}
+                        } flex select-none cursor-default`}
                       >
                         {isActive && (
                           <motion.div 
@@ -10427,9 +10434,9 @@ const [headingBar, setHeadingBar] = useState(() => {
                                   { icon: Smartphone, label: "Quản lý hồ sơ", action: () => { handleOpenSettings(); setIsUserMenuOpen(false); } },
                                   { icon: Settings, label: "Cài đặt hệ thống", action: () => { handleOpenSettings(); setIsUserMenuOpen(false); } },
                                   { icon: Send, label: "Send Feedback", action: () => { window.open("https://discord.gg/CNKFTUBSty"); setIsUserMenuOpen(false); } },
-                                ].map((item, idx) => (
+                                ].map((item) => (
                                   <button
-                                    key={idx}
+                                    key={`user-menu-${item.label}`}
                                     onClick={item.action}
                                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all group ${
                                       isDark ? "hover:bg-white/5" : "hover:bg-black/5"
@@ -10609,7 +10616,11 @@ const [headingBar, setHeadingBar] = useState(() => {
 
                   {navPage === 2 && (
                     <motion.div 
-                      className="flex flex-col items-center justify-center h-full gap-0"
+                      onClick={() => {
+                        setIsWidgetsOpen(true);
+                        setActiveDashboardTab("widgets");
+                      }}
+                      className="flex flex-col items-center justify-center h-full gap-0 cursor-pointer hover:opacity-85 transition-all active:scale-95"
                       initial={{ scale: 0.9, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                     >
