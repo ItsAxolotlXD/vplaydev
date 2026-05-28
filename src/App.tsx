@@ -6117,7 +6117,7 @@ function TopBar({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-full max-w-lg rounded-2xl shadow-2xl border p-2 z-[200] ${
-                isDark ? "bg-[#0a0118] border-white/10 text-white" : "bg-white border-slate-200 text-slate-900"
+                isDark ? "bg-[#11131c] border-white/10 text-white" : "bg-white border-slate-200 text-slate-900"
               }`}
             >
               <div className="max-h-80 overflow-y-auto px-1 space-y-1 custom-scrollbar">
@@ -6129,7 +6129,7 @@ function TopBar({
                       // setActiveChannel logic should be handled by App state
                       setSearchQuery("");
                     }}
-                    className={`w-full flex items-center gap-3 p-2.5 rounded-xl transition-all ${isDark ? "hover:bg-white/5" : "hover:bg-slate-100"}`}
+                    className={`w-full flex items-center gap-3 p-2.5 rounded-xl transition-all ${isDark ? "hover:bg-white/5 font-medium" : "hover:bg-slate-100"}`}
                   >
                     <div className="w-10 h-10 rounded-lg bg-white/5 p-1.5 flex items-center justify-center border border-white/5">
                       <img src={c.logo} alt={c.name} className="w-full h-full object-contain" />
@@ -6218,15 +6218,12 @@ function SearchContextMenu({
   return (
     <>
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+      <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
+      <div
         style={{ top: y, left: x }}
         className={`fixed z-[1001] w-56 rounded-2xl shadow-2xl border p-1.5 overflow-hidden ${
-          isDark ? "bg-[#1a0121]/95 border-white/10 text-white" : "bg-white/95 border-slate-200 text-slate-900"
-        } backdrop-blur-xl`}
+          isDark ? "bg-[#11131c] border-white/10 text-white" : "bg-white border-slate-200 text-slate-900 shadow-xl"
+        }`}
       >
         {menuItems.map((item) => {
           const Icon = item.icon;
@@ -6238,161 +6235,139 @@ function SearchContextMenu({
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
                 isActive 
                   ? "bg-[#4AC4FE]/20 text-[#4AC4FE]" 
-                  : isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"
+                  : isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
               }`}
             >
               <Icon size={16} />
-              <span className="text-sm font-medium truncate">{item.label}</span>
-              {isActive && <CheckCircle2 size={14} className="ml-auto" />}
+              <span className="text-sm font-medium">{item.label}</span>
+              {isActive && <CheckCircle2 size={14} className="ml-auto text-[#4AC4FE]" />}
             </button>
           );
         })}
-      </motion.div>
+      </div>
     </>
   );
 }
 
-function SidebarContextMenu({ x, y, onClose, isDark, setActiveTab, handleOpenSettings, setUseSidebar, setIsSidebarRight, isSidebarRight, setIsDev }: { 
-  x: number, y: number, onClose: () => void, isDark: boolean, setActiveTab: (t: string) => void, handleOpenSettings: () => void,
-  setUseSidebar: (v: boolean) => void, setIsSidebarRight: (v: boolean) => void, isSidebarRight: boolean,
-  setIsDev: (v: boolean) => void,
+function UnifiedContextMenu({ 
+  x, 
+  y, 
+  onClose, 
+  isDark, 
+  headingBar, 
+  setHeadingBar, 
+  useSidebar, 
+  setUseSidebar, 
+  showClock, 
+  setShowClock, 
+  showDate, 
+  setShowDate, 
+  showTempInClock, 
+  setShowTempInClock, 
+  handleOpenSettings 
+}: {
+  x: number, y: number, onClose: () => void, isDark: boolean,
+  headingBar: boolean, setHeadingBar: (v: boolean) => void,
+  useSidebar: boolean, setUseSidebar: (v: boolean) => void,
+  showClock: boolean, setShowClock: (v: boolean) => void,
+  showDate: boolean, setShowDate: (v: boolean) => void,
+  showTempInClock: boolean, setShowTempInClock: (v: boolean) => void,
+  handleOpenSettings: () => void,
   key?: any
 }) {
+  const hasClockOrDate = showClock || showDate;
+  
+  const handleToggleTimer = () => {
+    const targetState = !hasClockOrDate;
+    setShowClock(targetState);
+    setShowDate(targetState);
+    onClose();
+  };
+
   return (
     <>
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
-      <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 120, scale: 0.85 }}
-        transition={{ type: "spring", damping: 20, stiffness: 150 }}
+      <div
         style={{ top: y, left: x }}
-        className={`fixed z-[1001] w-56 rounded-2xl shadow-2xl border p-1.5 overflow-hidden ${
-          isDark ? "bg-vplay-background/95 border-white/10 text-white" : "bg-white/95 border-slate-200 text-slate-900 shadow-xl"
+        className={`fixed z-[1001] w-60 rounded-2xl shadow-2xl border p-1.5 overflow-hidden ${
+          isDark 
+            ? "bg-[#11131c]/95 border-white/10 text-white shadow-[0_12px_40px_rgba(0,0,0,0.5)]" 
+            : "bg-white/95 border-slate-200 text-[#11131c] shadow-[0_12px_30px_rgba(15,23,42,0.15)]"
         } backdrop-blur-3xl`}
       >
-        <button onClick={() => { handleOpenSettings(); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
-          <SettingsIcon size={16} />
-          <span className="text-sm font-medium">Sidebar settings</span>
+        {/* Section 1: UI Layout */}
+        <button 
+          onClick={() => { setHeadingBar(!headingBar); onClose(); }} 
+          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
+            isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
+          }`}
+        >
+          {headingBar ? <EyeOff size={16} /> : <Eye size={16} />}
+          <span className="text-sm font-medium">{headingBar ? "Ẩn Top bar" : "Hiện Top bar"}</span>
         </button>
-        <button onClick={() => { setIsSidebarRight(!isSidebarRight); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
-          <ArrowRightLeft size={16} />
-          <span className="text-sm font-medium">Move to {isSidebarRight ? "Left" : "Right"}</span>
-        </button>
-        <button onClick={() => { setIsDev(true); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
-          <Smartphone size={16} />
-          <span className="text-sm font-medium">Chuyển qua Touch Mode</span>
-        </button>
-        <button onClick={() => { setUseSidebar(false); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${isDark ? "hover:bg-white/5 text-white/70" : "hover:bg-slate-100 text-slate-700"}`}>
-          <ArrowDown size={16} />
-          <span className="text-sm font-medium">Dùng Bottom Nav</span>
-        </button>
-      </motion.div>
-    </>
-  );
-}
 
-function TopBarContextMenu({ x, y, onClose, isDark, setActiveTab, handleOpenSettings, setHeadingBar, headingBar, showTempInClock, setShowTempInClock, showClock, setShowClock, showDate, setShowDate, setIsDev }: { 
-  x: number, y: number, onClose: () => void, isDark: boolean, setActiveTab: (t: string) => void, handleOpenSettings: () => void,
-  setHeadingBar: (v: boolean) => void, headingBar: boolean, showTempInClock: boolean, setShowTempInClock: (v: boolean) => void,
-  showClock: boolean, setShowClock: (v: boolean) => void, showDate: boolean, setShowDate: (v: boolean) => void, setIsDev: (v: boolean) => void,
-  key?: any
-}) {
-  return (
-    <>
-      <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
-      <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 120, scale: 0.85 }}
-        transition={{ type: "spring", damping: 20, stiffness: 150 }}
-        style={{ left: x, top: y }}
-        className={`fixed z-[1001] w-64 rounded-2xl shadow-2xl border p-1 overflow-hidden ${
-          isDark ? "bg-[#050110]/95 border-white/10 text-white" : "bg-white border-slate-200 text-slate-800 shadow-xl"
-        } backdrop-blur-3xl`}
-      >
-        <button onClick={() => { setHeadingBar(!headingBar); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
-          {headingBar ? <EyeOff size={18} /> : <Eye size={18} />}
-          <span className="text-xs font-bold">{headingBar ? "Ẩn Top bar" : "Hiện Top bar"}</span>
+        <button 
+          onClick={() => { setUseSidebar(!useSidebar); onClose(); }} 
+          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
+            isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
+          }`}
+        >
+          {useSidebar ? <Smartphone size={16} /> : <Columns size={16} />}
+          <span className="text-sm font-medium">{useSidebar ? "Sử dụng Floatbar" : "Sử dụng Sidebar"}</span>
         </button>
-        <button onClick={() => { handleOpenSettings(); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
-          <SettingsIcon size={18} />
-          <span className="text-xs font-bold">Cài đặt thanh điều hướng</span>
-        </button>
-        <div className={`h-px my-1 ${isDark ? "bg-white/5" : "bg-black/5"}`} />
-        <button onClick={() => { setShowClock(!showClock); onClose(); }} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
+
+        <div className={`h-[1px] ${isDark ? "bg-white/10" : "bg-slate-200"} my-1.5 mx-1`} />
+
+        {/* Section 2: Time & Weather */}
+        <button 
+          onClick={handleToggleTimer} 
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all ${
+            isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
+          }`}
+        >
           <div className="flex items-center gap-3">
-            <Clock size={18} />
-            <span className="text-xs font-bold">Hiện đồng hồ</span>
+            <Clock size={16} />
+            <span className="text-sm font-medium">{hasClockOrDate ? "Ẩn đồng hồ và lịch" : "Hiện đồng hồ và lịch"}</span>
           </div>
-          {showClock && <Check size={14} className="text-[#4AC4FE]" />}
+          {hasClockOrDate && <Check size={14} className="text-[#4AC4FE]" />}
         </button>
-        <button onClick={() => { setShowTempInClock(!showTempInClock); onClose(); }} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
+
+        <button 
+          onClick={() => { setShowTempInClock(!showTempInClock); onClose(); }} 
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all ${
+            isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
+          }`}
+        >
           <div className="flex items-center gap-3">
-            <Thermometer size={18} />
-            <span className="text-xs font-bold">Hiện nhiệt độ</span>
+            <Thermometer size={16} />
+            <span className="text-sm font-medium">Hiện nhiệt độ</span>
           </div>
           {showTempInClock && <Check size={14} className="text-[#4AC4FE]" />}
         </button>
-        <button onClick={() => { setShowDate(!showDate); onClose(); }} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
-          <div className="flex items-center gap-3">
-            <Calendar size={18} />
-            <span className="text-xs font-bold">Hiện ngày tháng</span>
-          </div>
-          {showDate && <Check size={14} className="text-[#4AC4FE]" />}
-        </button>
-        <div className={`h-px my-1 ${isDark ? "bg-white/5" : "bg-black/5"}`} />
-        <button onClick={() => { setIsDev(true); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
-          <Zap size={18} />
-          <span className="text-xs font-bold">Developer Mode</span>
-        </button>
-      </motion.div>
-    </>
-  );
-}
 
-function NavigationContextMenu({ x, y, onClose, isDark, liquidGlass, setLiquidGlass, setIsDev }: {
-  x: number, y: number, onClose: () => void, isDark: boolean, liquidGlass: string, setLiquidGlass: (v: "glassy" | "tinted") => void, setIsDev: (v: boolean) => void,
-  key?: any
-}) {
-  return (
-    <>
-      <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
-      <motion.div
-        initial={{ opacity: 0, y: 40, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 150, scale: 0.85 }}
-        transition={{ type: "spring", damping: 18, stiffness: 120 }}
-        style={{ left: x, top: y }}
-        className={`fixed z-[1001] w-64 rounded-2xl shadow-2xl border p-1 overflow-hidden ${
-          isDark ? "bg-[#050110]/95 border-white/10 text-white" : "bg-white border-slate-200 text-slate-800 shadow-xl"
-        } backdrop-blur-3xl`}
-      >
-        <div className="px-3 py-2">
-          <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mb-2">Giao diện Navigation</p>
-          <div className="grid grid-cols-2 gap-2">
-            <button 
-              onClick={() => { setLiquidGlass("glassy"); onClose(); }}
-              className={`flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all border ${liquidGlass === "glassy" ? "bg-[#4AC4FE]/20 border-[#4AC4FE] text-[#4AC4FE]" : "bg-white/5 border-transparent opacity-60"}`}
-            >
-              <Droplet size={18} />
-              <span className="text-[10px] font-bold">Glassy</span>
-            </button>
-            <button 
-              onClick={() => { setLiquidGlass("tinted"); onClose(); }}
-              className={`flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all border ${liquidGlass === "tinted" ? "bg-[#4AC4FE]/20 border-[#4AC4FE] text-[#4AC4FE]" : "bg-white/5 border-transparent opacity-60"}`}
-            >
-              <Palette size={18} />
-              <span className="text-[10px] font-bold">Tinted</span>
-            </button>
-          </div>
-        </div>
-        <div className={`h-px my-1 ${isDark ? "bg-white/5" : "bg-black/5"}`} />
-        <button onClick={() => { setIsDev(true); onClose(); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
-          <Zap size={18} />
-          <span className="text-xs font-bold">Developer Mode</span>
+        <div className={`h-[1px] ${isDark ? "bg-white/10" : "bg-slate-200"} my-1.5 mx-1`} />
+
+        {/* Section 3: App Controls */}
+        <button 
+          onClick={() => { window.location.reload(); }} 
+          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
+            isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
+          }`}
+        >
+          <RotateCcw size={16} />
+          <span className="text-sm font-medium">Refresh</span>
         </button>
-      </motion.div>
+
+        <button 
+          onClick={() => { handleOpenSettings(); onClose(); }} 
+          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
+            isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
+          }`}
+        >
+          <SettingsIcon size={16} />
+          <span className="text-sm font-medium">Cài đặt</span>
+        </button>
+      </div>
     </>
   );
 }
@@ -8514,29 +8489,28 @@ function WidgetsDashboard({
              {/* Context Menu */}
              <AnimatePresence>
                 {contextMenu?.id && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    className="fixed z-[1002] w-48 bg-white border border-slate-100 shadow-2xl rounded-2xl p-2 flex flex-col gap-0.5"
+                  <div
+                    className={`fixed z-[1002] w-48 border shadow-2xl rounded-2xl p-1.5 flex flex-col gap-0.5 backdrop-blur-3xl ${
+                      isDark ? "bg-vplay-background/95 border-white/10 text-white" : "bg-white/95 border-slate-200 text-slate-900 shadow-xl"
+                    }`}
                     style={{ left: contextMenu.x, top: contextMenu.y }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <button onClick={() => moveWidget(contextMenu.id!, 'up')} className="w-full px-3 py-2 flex items-center gap-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
-                       <ArrowUp size={14} /> Move up
+                    <button onClick={() => moveWidget(contextMenu.id!, 'up')} className={`w-full px-3 py-2 flex items-center gap-3 text-sm font-medium rounded-xl transition-colors ${isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"}`}>
+                       <ArrowUp size={16} /> Move up
                     </button>
-                    <button onClick={() => moveWidget(contextMenu.id!, 'down')} className="w-full px-3 py-2 flex items-center gap-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
-                       <ArrowDown size={14} /> Move down
+                    <button onClick={() => moveWidget(contextMenu.id!, 'down')} className={`w-full px-3 py-2 flex items-center gap-3 text-sm font-medium rounded-xl transition-colors ${isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"}`}>
+                       <ArrowDown size={16} /> Move down
                     </button>
-                    <div className="h-[1px] bg-slate-100 my-1 mx-2" />
-                    <button onClick={() => toggleLock(contextMenu.id!)} className="w-full px-3 py-2 flex items-center gap-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
-                       {lockedWidgets.includes(contextMenu.id!) ? <Unlock size={14} /> : <Lock size={14} />} 
+                    <div className={`h-[1px] ${isDark ? "bg-white/10" : "bg-slate-200"} my-1.5 mx-2`} />
+                    <button onClick={() => toggleLock(contextMenu.id!)} className={`w-full px-3 py-2 flex items-center gap-3 text-sm font-medium rounded-xl transition-colors ${isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"}`}>
+                       {lockedWidgets.includes(contextMenu.id!) ? <Unlock size={16} /> : <Lock size={16} />} 
                        {lockedWidgets.includes(contextMenu.id!) ? "Unlock" : "Lock"}
                     </button>
-                    <button onClick={() => { removeWidget(contextMenu.id); setContextMenu(null); }} className="w-full px-3 py-2 flex items-center gap-3 text-[11px] font-bold text-red-500 hover:bg-red-50 rounded-xl transition-colors">
-                       <Trash2 size={14} /> Remove
+                    <button onClick={() => { removeWidget(contextMenu.id); setContextMenu(null); }} className="w-full px-3 py-2 flex items-center gap-3 text-sm font-medium text-red-500 hover:bg-red-50 rounded-xl transition-colors">
+                       <Trash2 size={16} /> Remove
                     </button>
-                  </motion.div>
+                  </div>
                 )}
              </AnimatePresence>
 
@@ -8808,27 +8782,18 @@ function GeoPopup({ isOpen, onClose, isDark, onAutoSelect, onManualSelect }: {
 
 function App() {
   const [searchFilter, setSearchFilter] = useState<"all" | "channels" | "settings" | "experiments">("all");
-  const [contextMenu, setContextMenu] = useState<{ x: number, y: number, type: "search" | "sidebar" | "topbar" } | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ x: number, y: number, type: "search" | "unified" } | null>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const handleSearchContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setContextMenu({ x: e.clientX, y: e.clientY, type: "search" });
   };
 
-  const handleSidebarContextMenu = (e: React.MouseEvent) => {
+  const handleGlobalContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
-    setContextMenu({ x: e.clientX, y: e.clientY, type: "sidebar" });
-  };
-
-  const handleTopBarContextMenu = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setContextMenu({ x: e.clientX, y: e.clientY, type: "topbar" });
-  };
-
-  const handleNavigationContextMenu = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setContextMenu({ x: e.clientX, y: e.clientY, type: "navbar" as any });
+    setContextMenu({ x: e.clientX, y: e.clientY, type: "unified" });
   };
 
   const isResizing = useRef(false);
@@ -9189,20 +9154,20 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
         if (parsed.primary === "#a855f7" || !parsed.primary) {
           parsed.primary = "#4AC4FE";
         }
-        if (parsed.sidebar === "#1a0121" || !parsed.sidebar) {
-          parsed.sidebar = "#0a0f1d";
+        if (parsed.sidebar === "#1a0121" || parsed.sidebar === "#0a0f1d" || !parsed.sidebar) {
+          parsed.sidebar = "#11131c";
         }
-        if (parsed.topbar === "#0a0118" || !parsed.topbar) {
-          parsed.topbar = "#090d16";
+        if (parsed.topbar === "#0a0118" || parsed.topbar === "#090d16" || !parsed.topbar) {
+          parsed.topbar = "#11131c";
         }
         return parsed;
       } catch (e) {}
     }
     return {
       primary: "#4AC4FE",
-      sidebar: "#0a0f1d",
+      sidebar: "#11131c",
       background: "var(--color-vplay-background)",
-      topbar: "#090d16"
+      topbar: "#11131c"
     };
   });
 
@@ -9866,6 +9831,7 @@ const [headingBar, setHeadingBar] = useState(() => {
           ? "dark bg-[#121214] text-white" 
           : "bg-[#f8fafc] text-black"
       } h-screen flex font-sans transition-all duration-500 overflow-hidden ${useSidebar ? "flex-row" : "flex-col"} ${featureFlags.disable_animation ? "reduce-animations" : ""}`}
+      onContextMenu={handleGlobalContextMenu}
       style={{
         paddingLeft: useSidebar && !isMobile && !isSidebarRight 
           ? (isSidebarExpanded ? (isCompactMode ? 100 : sidebarWidth) + (sidebarDisplay === "float" ? 24 : 0) : (sidebarDisplay === "float" ? 104 : 80)) 
@@ -9902,7 +9868,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             formatDateString={formatDateString}
             setActiveTab={setActiveTab}
             handleSearchContextMenu={handleSearchContextMenu}
-            onContextMenu={handleTopBarContextMenu}
+            onContextMenu={handleGlobalContextMenu}
             isSearchCompact={isSearchCompact}
             startListening={handleStartListening}
             isListening={isListening}
@@ -10049,51 +10015,24 @@ const [headingBar, setHeadingBar] = useState(() => {
             onSelect={(f) => setSearchFilter(f)} 
           />
         )}
-        {contextMenu && contextMenu.type === "sidebar" && (
-          <SidebarContextMenu 
-            key="sidebar-context-menu"
-            x={contextMenu.x} 
-            y={contextMenu.y} 
-            isDark={isDark} 
-            isSidebarRight={isSidebarRight}
-            onClose={() => setContextMenu(null)} 
-            setActiveTab={setActiveTab}
-            handleOpenSettings={handleOpenSettings}
-            setUseSidebar={setUseSidebar}
-            setIsSidebarRight={setIsSidebarRight}
-            setIsDev={setIsDev}
-          />
-        )}
-        {contextMenu && contextMenu.type === "topbar" && (
-          <TopBarContextMenu 
-            key="topbar-context-menu"
+        {contextMenu && contextMenu.type === "unified" && (
+          <UnifiedContextMenu 
+            key="unified-context-menu"
             x={contextMenu.x} 
             y={contextMenu.y} 
             isDark={isDark} 
             onClose={() => setContextMenu(null)} 
-            setActiveTab={setActiveTab}
-            handleOpenSettings={handleOpenSettings}
-            setHeadingBar={setHeadingBar}
             headingBar={headingBar}
-            showTempInClock={showTempInClock}
-            setShowTempInClock={setShowTempInClock}
+            setHeadingBar={setHeadingBar}
+            useSidebar={useSidebar}
+            setUseSidebar={setUseSidebar}
             showClock={showClock}
             setShowClock={setShowClock}
             showDate={showDate}
             setShowDate={setShowDate}
-            setIsDev={setIsDev}
-          />
-        )}
-        {contextMenu && (contextMenu.type as any) === "navbar" && (
-          <NavigationContextMenu 
-            key="navbar-context-menu"
-            x={contextMenu.x} 
-            y={contextMenu.y} 
-            isDark={isDark} 
-            onClose={() => setContextMenu(null)} 
-            liquidGlass={liquidGlass}
-            setLiquidGlass={setLiquidGlass}
-            setIsDev={setIsDev}
+            showTempInClock={showTempInClock}
+            setShowTempInClock={setShowTempInClock}
+            handleOpenSettings={handleOpenSettings}
           />
         )}
       </AnimatePresence>
@@ -10541,7 +10480,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             )}
             
             <motion.div
-              onContextMenu={handleSidebarContextMenu}
+              onContextMenu={handleGlobalContextMenu}
               initial={{ x: isSidebarRight ? sidebarWidth : -sidebarWidth }}
               animate={{ 
                 x: 0, 
@@ -10955,7 +10894,7 @@ const [headingBar, setHeadingBar] = useState(() => {
           ? "bottom-[-100%] opacity-0 pointer-events-none" 
           : "bottom-0 left-0 w-full flex justify-center pb-4 md:pb-8"
       }`}
-      onContextMenu={handleNavigationContextMenu}
+      onContextMenu={handleGlobalContextMenu}
       >
         <motion.div 
           initial={{ y: 100, opacity: 0 }}

@@ -6,9 +6,9 @@
   --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-google: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --color-primary: var(--vplay-primary, #4AC4FE);
-  --color-vplay-sidebar: var(--vplay-sidebar, #1f1f1f);
-  --color-vplay-background: var(--vplay-background, #1c1c1c);
-  --color-vplay-topbar: var(--vplay-topbar, #1f1f1f);
+  --color-vplay-sidebar: var(--vplay-sidebar, #11131c);
+  --color-vplay-background: var(--vplay-background, #11131c);
+  --color-vplay-topbar: var(--vplay-topbar, #11131c);
 }
 
 @layer base {
