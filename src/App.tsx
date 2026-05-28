@@ -22,20 +22,27 @@ const SettingsIcon = ({ className, size, strokeWidth }: { className?: string, si
 const SignInIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <LogIn className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 const SignOutIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <LogOut className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 const ExperimentalIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Pizza className={className} size={size || 22} strokeWidth={strokeWidth || 1} />;
-const LikeIcon = ({ className, size, filled, strokeWidth }: { className?: string, size?: number | string, filled?: boolean, strokeWidth?: number }) => (
-  <img 
-    src={filled 
-      ? "https://static.wikia.nocookie.net/ftv/images/7/72/Ic_fluent_thumb_like_24_filled.png/revision/latest?cb=20260508152818&path-prefix=vi" 
-      : "https://static.wikia.nocookie.net/ftv/images/a/a7/Ic_fluent_thumb_like_24_regular.png/revision/latest?cb=20260508152817&path-prefix=vi"}
-    alt={filled ? "Yêu thích" : "Chưa yêu thích"}
-    referrerPolicy="no-referrer"
-    style={{ 
-      width: typeof size === 'number' ? `${size}px` : (size || '20px'), 
-      height: typeof size === 'number' ? `${size}px` : (size || '20px') 
-    }}
-    className={`${className} select-none pointer-events-none object-contain dark:invert`}
-  />
-);
+const LikeIcon = ({ className, size, filled, forceWhite, strokeWidth }: { className?: string, size?: number | string, filled?: boolean, forceWhite?: boolean, strokeWidth?: number }) => {
+  const baseSize = typeof size === 'number' ? size : parseInt(String(size || '20'), 10);
+  const finalSize = Math.round(baseSize * 1.35);
+  const shouldBeWhite = filled || forceWhite;
+
+  return (
+    <img 
+      src={filled 
+        ? "https://static.wikia.nocookie.net/ftv/images/7/72/Ic_fluent_thumb_like_24_filled.png/revision/latest?cb=20260508152818&path-prefix=vi" 
+        : "https://static.wikia.nocookie.net/ftv/images/a/a7/Ic_fluent_thumb_like_24_regular.png/revision/latest?cb=20260508152817&path-prefix=vi"}
+      alt={filled ? "Yêu thích" : "Chưa yêu thích"}
+      referrerPolicy="no-referrer"
+      style={{ 
+        width: `${finalSize}px`, 
+        height: `${finalSize}px`,
+        filter: shouldBeWhite ? 'brightness(0) invert(1)' : undefined
+      }}
+      className={`${className} select-none pointer-events-none object-contain ${!shouldBeWhite ? 'dark:brightness-0 dark:invert' : ''}`}
+    />
+  );
+};
 const CommunityIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Users className={className} size={size || 20} strokeWidth={strokeWidth || 1.5} />;
 const AccountIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <User className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 const WidgetsIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => (
@@ -604,7 +611,7 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
         onClick={(e) => { e.stopPropagation(); toggleFavorite(ch); }}
         className={`absolute top-1.5 right-1.5 xs:top-2.5 xs:right-2.5 p-1 xs:p-1.5 rounded-full backdrop-blur-md opacity-80 sm:opacity-0 group-hover:opacity-100 transition-all hover:scale-110 z-20 ${
           favorites.includes(ch.name) 
-            ? "text-red-500 bg-red-500/10 border border-red-500/20" 
+            ? "text-white bg-[#4AC4FE] border border-[#4AC4FE] shadow-sm shadow-[#4AC4FE]/20" 
             : isDark 
               ? "text-white/60 bg-white/5 border border-white/10 hover:text-white" 
               : "text-slate-600 bg-slate-100/80 border border-slate-200 hover:text-slate-900"
@@ -1732,12 +1739,32 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   };
 
   const toggleFullscreen = () => {
-    const container = videoRef.current?.parentElement;
-    if (!container) return;
+    const video = videoRef.current;
+    if (!video) return;
+    const container = video.parentElement;
+
     if (!document.fullscreenElement) {
-      container.requestFullscreen();
+      if (container && container.requestFullscreen) {
+        container.requestFullscreen().catch(() => {
+          if (typeof (video as any).webkitEnterFullscreen === 'function') {
+            (video as any).webkitEnterFullscreen();
+          }
+        });
+      } else if (typeof (video as any).webkitEnterFullscreen === 'function') {
+        try {
+          (video as any).webkitEnterFullscreen();
+        } catch (err) {
+          console.error("webkitEnterFullscreen list failed", err);
+        }
+      } else if (container && (container as any).webkitRequestFullscreen) {
+        (container as any).webkitRequestFullscreen();
+      }
     } else {
-      document.exitFullscreen();
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      }
     }
   };
 
@@ -2156,11 +2183,11 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                             onClick={() => toggleFavorite(active)}
                             className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
                               favorites.includes(active.name)
-                                ? "bg-red-500/10 border-red-500 text-red-500"
+                                ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-[#4AC4FE]/20"
                                 : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"
                             }`}
                           >
-                            <LikeIcon size={20} filled={favorites.includes(active.name)} />
+                            <LikeIcon size={20} filled={favorites.includes(active.name)} forceWhite={true} />
                           </button>
                          <button onClick={toggleFullscreen} className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"}`}>
                             <Maximize size={18} className="md:w-5 md:h-5" />
@@ -2258,11 +2285,11 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
              onClick={() => toggleFavorite(active)}
              className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
                favorites.includes(active.name)
-                 ? "bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20"
+                 ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-[#4AC4FE]/20"
                  : isDark ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm"
              }`}
            >
-             <LikeIcon size={16} filled={favorites.includes(active.name)} />
+             <LikeIcon size={16} filled={favorites.includes(active.name)} forceWhite={true} />
            </button>
         </div>
       </div>
