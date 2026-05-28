@@ -320,26 +320,12 @@ const SplashScreen = ({
           </div>
         ) : (
           <div className="flex flex-col items-center gap-6 text-center">
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.8 }}
-              className="flex flex-col items-center"
-            >
-              <span className="text-7xl font-black italic tracking-tighter bg-gradient-to-br from-[#4AC4FE] via-sky-400 to-blue-500 bg-clip-text text-transparent leading-none drop-shadow-md select-none">
-                Vplay
+            <div className="flex flex-col items-center gap-3">
+              <LoadingSpinner isDark={true} className="w-12 h-12 text-[#4AC4FE] opacity-90 animate-spin" />
+              <span className="text-white/60 text-xs font-semibold tracking-wide mt-2 select-none">
+                Đang khởi động hệ thống... {progress}%
               </span>
-              <span className="text-[10px] tracking-[0.25em] text-white/40 font-bold uppercase mt-3 select-none">
-                Hệ thống số thông minh
-              </span>
-            </motion.div>
-
-            <div className="flex flex-col items-center gap-3 mt-4">
-              <LoadingSpinner isDark={true} className="w-8 h-8 text-[#4AC4FE] opacity-80" />
-              <span className="text-white/50 text-[11px] font-medium tracking-wide mt-1 select-none">
-                Khởi động hệ thống... {progress}%
-              </span>
-              <div className="w-32 h-1 bg-white/5 rounded-full overflow-hidden border border-white/5">
+              <div className="w-40 h-1 bg-white/5 rounded-full overflow-hidden border border-white/5 mt-1">
                 <div 
                   className="h-full bg-[#4AC4FE] transition-all duration-100"
                   style={{ width: `${progress}%` }}
@@ -589,6 +575,34 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
 }
 
 
+const AnimatedTimeBox = ({ value, label, isDark }: { value: number, label: string, isDark: boolean }) => {
+  const formattedValue = String(value).padStart(2, '0');
+  return (
+    <div className="flex flex-col items-center select-none">
+      <div className={`relative w-11 h-11 md:w-14 md:h-14 rounded-2xl flex items-center justify-center overflow-hidden font-mono text-base md:text-lg font-black ${
+        isDark 
+          ? "bg-white/5 border border-white/10 shadow-[inner_y_1px_4px_rgba(255,255,255,0.05)] text-white" 
+          : "bg-slate-100 border border-slate-200/85 shadow-inner text-slate-800"
+      }`}>
+        <AnimatePresence mode="popLayout">
+          <motion.span
+            key={formattedValue}
+            initial={{ y: 22, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -22, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 350, damping: 24 }}
+            className="absolute flex items-center justify-center w-full h-full text-rose-500 font-extrabold"
+          >
+            {formattedValue}
+          </motion.span>
+        </AnimatePresence>
+      </div>
+      <span className={`text-[10px] uppercase font-bold mt-1.5 ${isDark ? "text-slate-500" : "text-slate-400"}`}>{label}</span>
+    </div>
+  );
+};
+
+
 const Countdown = ({ targetDate, isDark }: { targetDate: string, isDark: boolean }) => {
   const [timeLeft, setTimeLeft] = useState<{ days: number, hours: number, minutes: number, seconds: number } | null>(null);
 
@@ -667,8 +681,45 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
   
   useEffect(() => {
     const shuffled = [...channels].sort(() => 0.5 - Math.random());
-    setRandomChannels(shuffled.slice(0, 12));
+    setRandomChannels(shuffled.slice(0, 16));
   }, []);
+
+  const [startIndex, setStartIndex] = useState(0);
+
+  const getItemWidthAndGap = () => {
+    if (typeof window !== "undefined") {
+      if (window.innerWidth < 640) return { width: 140, gap: 16 };
+      if (window.innerWidth < 1024) return { width: 185, gap: 20 };
+    }
+    return { width: 215, gap: 24 };
+  };
+
+  const [itemConfig, setItemConfig] = useState({ width: 215, gap: 24 });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setItemConfig(getItemWidthAndGap());
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const getVisibleCount = () => {
+    if (itemConfig.width === 140) return 2;
+    if (itemConfig.width === 185) return 3;
+    return 5;
+  };
+  const activeVisibleCount = getVisibleCount();
+
+  const scrollPrev = () => {
+    setStartIndex((prev) => Math.max(0, prev - 1));
+  };
+  
+  const scrollNext = () => {
+    const maxIdx = Math.max(0, randomChannels.length - activeVisibleCount);
+    setStartIndex((prev) => Math.min(maxIdx, prev + 1));
+  };
 
   const variants = {
     enter: (direction: number) => ({
@@ -697,7 +748,7 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
   });
 
   useEffect(() => {
-    const targetDate = new Date("2026-06-01T00:00:00+07:00").getTime();
+    const targetDate = new Date("2026-06-08T00:00:00+07:00").getTime();
 
     const updateTimer = () => {
       const now = new Date().getTime();
@@ -723,52 +774,6 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
 
   return (
     <div className="relative space-y-16 pb-32 max-w-7xl mx-auto px-4 md:px-8">
-      {/* VTV6 Return Countdown Banner */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-500 via-pink-500 to-red-500 p-5 md:p-6 text-white shadow-xl shadow-rose-500/10 flex flex-col md:flex-row items-center justify-between gap-5 border border-white/10"
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.15),transparent)] pointer-events-none" />
-        <div className="flex items-center gap-4 relative z-10 w-full md:w-auto">
-          <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center font-black italic tracking-tighter text-xl border border-white/25 shrink-0 select-none shadow-inner text-white">
-            VTV6
-          </div>
-          <div>
-            <h3 className="font-extrabold text-base md:text-lg tracking-tight leading-tight select-none">
-              VTV6 - Kênh truyền hình Thể thao chính thức trở lại
-            </h3>
-            <p className="text-white/85 text-xs font-semibold select-none flex items-center gap-2 mt-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-md shadow-emerald-400/50" /> Sắp phát sóng đầy đủ các giải đấu hấp dẫn
-            </p>
-          </div>
-        </div>
-
-        {/* Countdown Timer */}
-        <div className="flex items-center gap-2.5 relative z-10 text-xs md:text-sm tracking-tight font-bold shrink-0 self-center md:self-auto bg-black/10 px-4 py-2 rounded-2xl border border-white/5 backdrop-blur-md">
-          <div className="flex flex-col items-center">
-            <span className="w-10 h-10 md:w-11 md:h-11 bg-white/10 border border-white/10 rounded-xl flex items-center justify-center text-sm md:text-base font-extrabold font-mono shadow-sm">{timeLeft.days}</span>
-            <span className="text-[9px] uppercase font-bold text-white/70 mt-1 select-none">Ngày</span>
-          </div>
-          <span className="text-lg font-bold -mt-3 text-white/50">:</span>
-          <div className="flex flex-col items-center">
-            <span className="w-10 h-10 md:w-11 md:h-11 bg-white/10 border border-white/10 rounded-xl flex items-center justify-center text-sm md:text-base font-extrabold font-mono shadow-sm">{timeLeft.hours}</span>
-            <span className="text-[9px] uppercase font-bold text-white/70 mt-1 select-none">Giờ</span>
-          </div>
-          <span className="text-lg font-bold -mt-3 text-white/50">:</span>
-          <div className="flex flex-col items-center">
-            <span className="w-10 h-10 md:w-11 md:h-11 bg-white/10 border border-white/10 rounded-xl flex items-center justify-center text-sm md:text-base font-extrabold font-mono shadow-sm">{timeLeft.minutes}</span>
-            <span className="text-[9px] uppercase font-bold text-white/70 mt-1 select-none">Phút</span>
-          </div>
-          <span className="text-lg font-bold -mt-3 text-white/50">:</span>
-          <div className="flex flex-col items-center">
-            <span className="w-10 h-10 md:w-11 md:h-11 bg-white/10 border border-white/10 rounded-xl flex items-center justify-center text-sm md:text-base font-extrabold font-mono shadow-sm text-pink-200">{timeLeft.seconds}</span>
-            <span className="text-[9px] uppercase font-bold text-white/70 mt-1 select-none">Giây</span>
-          </div>
-        </div>
-      </motion.div>
-
       {/* Dynamic Hero Section */}
       <div className="relative overflow-hidden rounded-[40px] aspect-[16/9] md:aspect-[2.5/1] group shadow-2xl border border-white/5">
         <AnimatePresence initial={false} custom={direction}>
@@ -831,6 +836,47 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
         </div>
       </div>
 
+      {/* VTV6 Return Countdown Banner */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="relative py-8 flex flex-col lg:flex-row items-center justify-between gap-8 border-b border-white/5 pb-10 select-none"
+      >
+        <div className="flex flex-col md:flex-row items-center gap-6 lg:gap-8 flex-1">
+          {/* Magnified VTV6 Logo */}
+          <div className="relative shrink-0 flex items-center justify-center p-3 rounded-2xl bg-white/5 border border-white/10 shadow-lg shadow-black/30">
+            <img 
+              src="https://static.wikia.nocookie.net/logos/images/2/21/VTV6_logo_%282026%29.png/revision/latest/scale-to-width-down/1000?cb=20260508074729&path-prefix=vi"
+              alt="VTV6 Logo"
+              className="w-32 md:w-44 h-auto object-contain"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+          
+          <div className="space-y-3 text-center md:text-left">
+            <h2 className="text-xl md:text-2xl font-black tracking-tight leading-tight bg-gradient-to-r from-rose-400 via-pink-400 to-red-500 bg-clip-text text-transparent">
+              VTV6 - Kênh Truyền hình Thể thao chính thức trở lại!
+            </h2>
+            <p className={`text-xs md:text-sm font-medium leading-relaxed max-w-3xl ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+              Kênh VTV6 dự kiến trở lại vào ngày 08/06/2026 sau gần 4 năm dừng phát sóng, với mục tiêu là kênh chuyên biệt thể thao của Đài Truyền hình Việt Nam, do Trung tâm Truyền hình Thể thao (trước kia là Ban thể thao) quản lý. Vplay cũng đã sẵn sàng cho sự trở lại này - Mời quý khán giả đón xem!
+            </p>
+          </div>
+        </div>
+
+        {/* Beautiful Animated Countdown Timer */}
+        <div className="flex items-center gap-3 shrink-0 bg-white/5 border border-white/15 p-4 rounded-3xl shadow-2xl shadow-black/40 backdrop-blur-md">
+          <AnimatedTimeBox value={timeLeft.days} label="Ngày" isDark={isDark} />
+          <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
+          <AnimatedTimeBox value={timeLeft.hours} label="Giờ" isDark={isDark} />
+          <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
+          <AnimatedTimeBox value={timeLeft.minutes} label="Phút" isDark={isDark} />
+          <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
+          <AnimatedTimeBox value={timeLeft.seconds} label="Giây" isDark={isDark} />
+        </div>
+      </motion.div>
+
       {/* Suggested Section - Moved up */}
       <div className="space-y-10">
         <div className="flex flex-col gap-2 px-2">
@@ -838,31 +884,74 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
             <div className="w-8 h-8 rounded-full bg-[#4AC4FE]/10 flex items-center justify-center text-[#4AC4FE]">
               <Sparkles size={18} />
             </div>
-            <motion.h1 
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              className={`text-2xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
-            >
+            <h1 className={`text-2xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
               Gợi ý cho bạn
-            </motion.h1>
+            </h1>
           </div>
         </div>
-        <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6">
-          {randomChannels.map((ch, idx) => (
-            <ChannelCard 
-              key={`home-random-${ch.name}-${idx}`} 
-              ch={ch} 
-              className="hover:scale-105"
-              onClick={() => {
-                setActiveChannel(ch);
-                setActiveTab("Live");
-              }} 
-              isDark={isDark} 
-              favorites={favorites} 
-              toggleFavorite={toggleFavorite} 
-              liquidGlass={liquidGlass}
-            />
-          ))}
+
+        <div className="relative group/carousel">
+          {/* Arrow Left */}
+          {startIndex > 0 && (
+            <button 
+              onClick={scrollPrev}
+              className={`absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-30 p-3 rounded-full shadow-lg border backdrop-blur-md transition-all active:scale-95 ${
+                isDark 
+                  ? "bg-slate-900/90 border-white/10 text-white hover:bg-slate-800" 
+                  : "bg-white/90 border-slate-200 text-slate-800 hover:bg-slate-50"
+              }`}
+            >
+              <ChevronLeft size={20} />
+            </button>
+          )}
+
+          {/* Arrow Right */}
+          {startIndex < Math.max(0, randomChannels.length - activeVisibleCount) && (
+            <button 
+              onClick={scrollNext}
+              className={`absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-30 p-3 rounded-full shadow-lg border backdrop-blur-md transition-all active:scale-95 ${
+                isDark 
+                  ? "bg-slate-900/90 border-white/10 text-white hover:bg-slate-800" 
+                  : "bg-white/90 border-slate-200 text-slate-800 hover:bg-slate-50"
+              }`}
+            >
+              <ChevronRight size={20} />
+            </button>
+          )}
+
+          {/* Carousel Viewport */}
+          <div className="overflow-hidden px-1 py-4">
+            <motion.div 
+              animate={{ x: -startIndex * (itemConfig.width + itemConfig.gap) }}
+              transition={{ type: "spring", stiffness: 220, damping: 26 }}
+              className="flex font-sans"
+              style={{ gap: `${itemConfig.gap}px` }}
+            >
+              {randomChannels.map((ch, idx) => (
+                <div 
+                  key={`home-random-${ch.name}-${idx}`} 
+                  style={{ width: `${itemConfig.width}px` }}
+                  className="shrink-0 group relative"
+                >
+                  <ChannelCard 
+                    ch={ch} 
+                    className="hover:scale-105"
+                    onClick={() => {
+                      setActiveChannel(ch);
+                      setActiveTab("Live");
+                    }} 
+                    isDark={isDark} 
+                    favorites={favorites} 
+                    toggleFavorite={toggleFavorite} 
+                    liquidGlass={liquidGlass}
+                  />
+                  <div className={`mt-3 text-center text-xs font-bold truncate tracking-wide ${isDark ? "text-slate-350" : "text-slate-600"}`}>
+                    {ch.name}
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          </div>
         </div>
       </div>
 
