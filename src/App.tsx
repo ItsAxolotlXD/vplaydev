@@ -22,7 +22,20 @@ const SettingsIcon = ({ className, size, strokeWidth }: { className?: string, si
 const SignInIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <LogIn className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 const SignOutIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <LogOut className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 const ExperimentalIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Pizza className={className} size={size || 22} strokeWidth={strokeWidth || 1} />;
-const LikeIcon = ({ className, size, filled, strokeWidth }: { className?: string, size?: number | string, filled?: boolean, strokeWidth?: number }) => <Heart className={className} size={size || 20} fill={filled ? "currentColor" : "none"} strokeWidth={strokeWidth || 1.5} />;
+const LikeIcon = ({ className, size, filled, strokeWidth }: { className?: string, size?: number | string, filled?: boolean, strokeWidth?: number }) => (
+  <img 
+    src={filled 
+      ? "https://static.wikia.nocookie.net/ftv/images/7/72/Ic_fluent_thumb_like_24_filled.png/revision/latest?cb=20260508152818&path-prefix=vi" 
+      : "https://static.wikia.nocookie.net/ftv/images/a/a7/Ic_fluent_thumb_like_24_regular.png/revision/latest?cb=20260508152817&path-prefix=vi"}
+    alt={filled ? "Yêu thích" : "Chưa yêu thích"}
+    referrerPolicy="no-referrer"
+    style={{ 
+      width: typeof size === 'number' ? `${size}px` : (size || '20px'), 
+      height: typeof size === 'number' ? `${size}px` : (size || '20px') 
+    }}
+    className={`${className} select-none pointer-events-none object-contain dark:invert`}
+  />
+);
 const CommunityIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Users className={className} size={size || 20} strokeWidth={strokeWidth || 1.5} />;
 const AccountIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <User className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 const WidgetsIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => (
@@ -439,35 +452,48 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status }: { src
     );
   }
 
-  const scaleMap: { [key: string]: string } = {
-    "Lâm Đồng 1 (LTV1)": "scale-[1.6]",
-    "Đà Nẵng 1 (DNRT1)": "scale-[1.8]",
-    "Đà Nẵng 2 (DNRT2)": "scale-[1.8]",
-    "Thái Nguyên (TN)": "scale-[1.6]",
-    "Điện Biên (ĐTV)": "scale-[0.9]",
-    "Hưng Yên (HYTV)": "scale-[1.8]",
-    "Đồng Tháp 1 (THĐT1)": "scale-[1.8]",
-    "Huế (HueTV)": "scale-[1.6]",
-    "Tây Ninh (TN)": "scale-[1.6]",
-    "H1": "scale-[2.0]",
-    "H2": "scale-[2.0]",
-    "Đắk Lắk (DRT)": "scale-[1.5]",
-    "ĐNNRTV1": "scale-[1.2]",
-    "ĐNNRTV2": "scale-[1.2]",
-    "Nghệ An (NTV)": "scale-[1.5]",
-    "Quảng Ngãi 1 (QNgTV1)": "scale-[1.6]",
-    "Quảng Ngãi 2 (QNgTV2)": "scale-[1.6]",
-    "HTV Thể Thao": "scale-[1.7]",
-    "VTV1": "scale-[1.1]",
-    "VTV7": "scale-[1.2]",
-    "VTV10": "scale-[1.2]"
-  };
+  let finalSrc = src;
+  if (alt === "Vietnam Today") {
+    finalSrc = !isDark 
+      ? "https://static.wikia.nocookie.net/logos/images/0/0d/Vietnam_Today_black%2C_vertical%2C_gradient.png/revision/latest/scale-to-width-down/1000?cb=20260527071119&path-prefix=uk"
+      : "https://img.vtvprime.vn/poWO4cMIOvlO4LFEoljeRHTNK-92PkmcxEiRMCjB4pM/rs:fit:836:468/czM6Ly9wcmQtc24taW1hZ2VzL2NoYW5uZWwvMTE5YTVjNDYtMTZiMC00ZTUwLTlkNjItZmM1ZTJjZjQ3OTU4LnBuZw==.png";
+  }
 
-  const scaleClass = scaleMap[alt] || (alt.startsWith("VTV") ? "scale-[1.3]" : "scale-[1.1]");
+  let scaleClass = "scale-[1.1]";
+  if (alt.includes("VTV6") || alt.includes("VTV7")) {
+    scaleClass = "scale-[1.25]";
+  }
+
+  const isVTV5_TN = alt === "VTV5 Tây Nguyên";
+  const isVTV5_TNB = alt === "VTV5 Tây Nam Bộ";
+
+  if (isVTV5_TN || isVTV5_TNB) {
+    return (
+      <div className="relative flex items-center justify-center w-full h-full select-none">
+        <img 
+          src={finalSrc} 
+          alt={alt} 
+          referrerPolicy="no-referrer"
+          onError={() => setError(true)}
+          className={`${className} object-contain p-0 transition-all duration-300 ${
+            liquidGlass === "tinted" 
+              ? "opacity-100" 
+              : !isDark ? "drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]" : ""
+          } ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
+        />
+        <span 
+          className="absolute -bottom-3 sm:-bottom-3.5 left-1/2 transform -translate-x-1/2 text-[9px] sm:text-[10px] font-black text-white tracking-wider uppercase text-center whitespace-nowrap leading-none filter drop-shadow-[0_1.5px_2px_rgba(0,0,0,1)] drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]"
+          style={{ fontFamily: "Montserrat, sans-serif" }}
+        >
+          {isVTV5_TN ? "TÂY NGUYÊN" : "TÂY NAM BỘ"}
+        </span>
+      </div>
+    );
+  }
 
   return (
     <img 
-      src={src} 
+      src={finalSrc} 
       alt={alt} 
       referrerPolicy="no-referrer"
       onError={() => setError(true)}
@@ -515,20 +541,13 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
         className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border ${
           isActive
             ? isDark
-              ? "border-[#4AC4FE] shadow-lg shadow-[#4AC4FE]/25"
-              : "border-[#4AC4FE] shadow-md shadow-[#4AC4FE]/10"
+              ? "bg-[#252529] border-[#4AC4FE] shadow-lg shadow-[#4AC4FE]/25"
+              : "bg-[#e2e8f0] border-[#4AC4FE] shadow-md shadow-[#4AC4FE]/15"
             : isDark
-              ? "border-white/5 hover:border-white/15"
-              : "border-slate-200/80 hover:border-slate-300"
+              ? "bg-[#18181b] border-white/5 hover:border-white/15 hover:bg-[#202024]"
+              : "bg-[#f1f5f9] border-[#e2e8f0] hover:bg-[#e2e8f0] hover:border-slate-300"
         }`}
       >
-        {/* Real tile background bypasses Wikia's anti-hotlinking */}
-        <img 
-          src="https://static.wikia.nocookie.net/ftv/images/b/bf/Abc.png/revision/latest/scale-to-width-down/1000?cb=20260528051515&path-prefix=vi" 
-          alt="" 
-          referrerPolicy="no-referrer"
-          className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none z-0"
-        />
 
         {isMaintenance && (
           <div className="absolute top-2 left-2 bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
@@ -903,60 +922,91 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
       </motion.div>
 
       {/* Suggested Section - Moved up */}
-      <div className="space-y-10">
+      <div className="space-y-6 md:space-y-10">
         <div className="flex flex-col gap-2 px-2">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-[#4AC4FE]/10 flex items-center justify-center text-[#4AC4FE]">
               <Sparkles size={18} />
             </div>
-            <h1 className={`text-2xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
+            <h1 className={`text-xl md:text-3xl font-black tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
               Gợi ý cho bạn
             </h1>
           </div>
         </div>
 
-        <div className="relative group/carousel">
-          {/* Arrow Left */}
-          {startIndex > 0 && (
-            <button 
-              onClick={scrollPrev}
-              className={`absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-30 p-3 rounded-full shadow-lg border backdrop-blur-md transition-all active:scale-95 ${
-                isDark 
-                  ? "bg-slate-900/90 border-white/10 text-white hover:bg-slate-800" 
-                  : "bg-white/90 border-slate-200 text-slate-800 hover:bg-slate-50"
-              }`}
-            >
-              <ChevronLeft size={20} />
-            </button>
-          )}
+        <div className="relative">
+          {/* On Desktop/Larger Screens: Beautiful interactive sliding Carousel */}
+          <div className="hidden md:block relative group/carousel">
+            {/* Arrow Left */}
+            {startIndex > 0 && (
+              <button 
+                onClick={scrollPrev}
+                className={`absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-30 p-3 rounded-full shadow-lg border backdrop-blur-md transition-all active:scale-95 ${
+                  isDark 
+                    ? "bg-slate-900/90 border-white/10 text-white hover:bg-slate-800" 
+                    : "bg-white/90 border-slate-200 text-slate-800 hover:bg-slate-50"
+                }`}
+              >
+                <ChevronLeft size={20} />
+              </button>
+            )}
 
-          {/* Arrow Right */}
-          {startIndex < Math.max(0, randomChannels.length - activeVisibleCount) && (
-            <button 
-              onClick={scrollNext}
-              className={`absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-30 p-3 rounded-full shadow-lg border backdrop-blur-md transition-all active:scale-95 ${
-                isDark 
-                  ? "bg-slate-900/90 border-white/10 text-white hover:bg-slate-800" 
-                  : "bg-white/90 border-slate-200 text-slate-800 hover:bg-slate-50"
-              }`}
-            >
-              <ChevronRight size={20} />
-            </button>
-          )}
+            {/* Arrow Right */}
+            {startIndex < Math.max(0, randomChannels.length - activeVisibleCount) && (
+              <button 
+                onClick={scrollNext}
+                className={`absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-30 p-3 rounded-full shadow-lg border backdrop-blur-md transition-all active:scale-95 ${
+                  isDark 
+                    ? "bg-slate-900/90 border-white/10 text-white hover:bg-slate-800" 
+                    : "bg-white/90 border-slate-200 text-slate-800 hover:bg-slate-50"
+                }`}
+              >
+                <ChevronRight size={20} />
+              </button>
+            )}
 
-          {/* Carousel Viewport */}
-          <div className="overflow-hidden px-1 py-4">
-            <motion.div 
-              animate={{ x: -startIndex * (itemConfig.width + itemConfig.gap) }}
-              transition={{ type: "spring", stiffness: 220, damping: 26 }}
-              className="flex font-sans"
-              style={{ gap: `${itemConfig.gap}px` }}
-            >
-              {randomChannels.map((ch, idx) => (
+            {/* Carousel Viewport */}
+            <div className="overflow-hidden px-1 py-4">
+              <motion.div 
+                animate={{ x: -startIndex * (itemConfig.width + itemConfig.gap) }}
+                transition={{ type: "spring", stiffness: 220, damping: 26 }}
+                className="flex font-sans"
+                style={{ gap: `${itemConfig.gap}px` }}
+              >
+                {randomChannels.map((ch, idx) => (
+                  <div 
+                    key={`home-random-${ch.name}-${idx}`} 
+                    style={{ width: `${itemConfig.width}px` }}
+                    className="shrink-0 group relative"
+                  >
+                    <ChannelCard 
+                      ch={ch} 
+                      className="hover:scale-105"
+                      onClick={() => {
+                        setActiveChannel(ch);
+                        setActiveTab("Live");
+                      }} 
+                      isDark={isDark} 
+                      favorites={favorites} 
+                      toggleFavorite={toggleFavorite} 
+                      liquidGlass={liquidGlass}
+                    />
+                    <div className={`mt-3 text-center text-xs font-bold truncate tracking-wide ${isDark ? "text-slate-350" : "text-slate-600"}`}>
+                      {ch.name}
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+          </div>
+
+          {/* On Mobile/Tablet Screens: Perfectly responsive, wrapping grid (no awkward cropping / hidden items) */}
+          <div className="block md:hidden">
+            <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 gap-4 px-1 pb-4">
+              {randomChannels.slice(0, 8).map((ch, idx) => (
                 <div 
-                  key={`home-random-${ch.name}-${idx}`} 
-                  style={{ width: `${itemConfig.width}px` }}
-                  className="shrink-0 group relative"
+                  key={`home-grid-suggested-${ch.name}-${idx}`} 
+                  className="group relative"
                 >
                   <ChannelCard 
                     ch={ch} 
@@ -970,12 +1020,12 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
                     toggleFavorite={toggleFavorite} 
                     liquidGlass={liquidGlass}
                   />
-                  <div className={`mt-3 text-center text-xs font-bold truncate tracking-wide ${isDark ? "text-slate-350" : "text-slate-600"}`}>
+                  <div className={`mt-2 text-center text-[11px] font-black truncate tracking-wide ${isDark ? "text-slate-400" : "text-slate-700"}`}>
                     {ch.name}
                   </div>
                 </div>
               ))}
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
@@ -2153,6 +2203,32 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
         </div>
         
         <div className="flex items-center gap-2 md:gap-3">
+           {/* Mobile-only Play/Pause button */}
+           <button 
+             onClick={togglePlay}
+             className={`md:hidden p-3 rounded-xl border transition-all ${
+               isDark 
+                 ? "bg-white/5 border-white/10 text-white hover:bg-white/10" 
+                 : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm"
+             }`}
+             title={isPlaying ? "Tạm dừng" : "Phát"}
+           >
+             {isPlaying ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />}
+           </button>
+
+           {/* Mobile-only Fullscreen button */}
+           <button 
+             onClick={toggleFullscreen}
+             className={`md:hidden p-3 rounded-xl border transition-all ${
+               isDark 
+                 ? "bg-white/5 border-white/10 text-white hover:bg-white/10" 
+                 : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm"
+             }`}
+             title="Phóng to"
+           >
+             <Maximize size={16} />
+           </button>
+
            {featureFlags.screen_recording && (
              <button 
                onClick={toggleRecording}
