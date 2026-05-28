@@ -96,7 +96,7 @@ const LoadingSpinner = ({ isDark, className = "w-6 h-6" }: { isDark: boolean, cl
       viewBox="0 0 24 24" 
       fill="none" 
       xmlns="http://www.w3.org/2000/svg"
-      style={{ animationDuration: '0.8s' }}
+      style={{ animationDuration: '1.22s' }}
     >
       <path 
         className="opacity-100" 
@@ -214,6 +214,18 @@ const SplashScreen = ({
     "system_verification_handshake.cert"
   ];
 
+  // Keep latest callback references in refs to avoid restarting intervals/timers
+  const onEnterRef = useRef(onEnter);
+  const onReinstallCompleteRef = useRef(onReinstallComplete);
+
+  useEffect(() => {
+    onEnterRef.current = onEnter;
+  }, [onEnter]);
+
+  useEffect(() => {
+    onReinstallCompleteRef.current = onReinstallComplete;
+  }, [onReinstallComplete]);
+
   useEffect(() => {
     if (isReinstalling) {
       const intervalTime = 600; // 600ms * 100 = 60,000ms (1 minute)
@@ -221,8 +233,10 @@ const SplashScreen = ({
         setProgress((prev) => {
           if (prev >= 100) {
             clearInterval(timer);
-            if (onReinstallComplete) {
-              setTimeout(onReinstallComplete, 200);
+            if (onReinstallCompleteRef.current) {
+              setTimeout(() => {
+                onReinstallCompleteRef.current?.();
+              }, 200);
             }
             return 100;
           }
@@ -250,20 +264,34 @@ const SplashScreen = ({
         });
       }, intervalTime);
 
-      const enterTimeout = setTimeout(onEnter, duration);
+      const enterTimeout = setTimeout(() => {
+        if (onEnterRef.current) {
+          onEnterRef.current();
+        }
+      }, duration);
+
       return () => {
         clearInterval(timer);
         clearTimeout(enterTimeout);
       };
     }
-  }, [onEnter, duration, isReinstalling, onReinstallComplete]);
+  }, [duration, isReinstalling]);
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 10) return "Chào buổi sáng!";
+    if (hour >= 10 && hour < 13) return "Chào buổi trưa!";
+    if (hour >= 13 && hour < 17) return "Chào buổi chiều!";
+    if (hour >= 17 && hour < 23) return "Chào buổi tối!";
+    return "Chào buổi đêm!";
+  };
 
   return (
     <motion.div
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.8 }}
-      className="fixed inset-0 z-[110] flex flex-col items-center justify-center overflow-hidden bg-[#0c0c0e]"
+      className="fixed inset-0 z-[110] flex flex-col items-center justify-center overflow-hidden bg-[#1c1c1e]"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(74,196,254,0.03),transparent_70%)] pointer-events-none" />
       
@@ -274,63 +302,26 @@ const SplashScreen = ({
         className="relative z-10 flex flex-col items-center gap-8"
       >
         {isReinstalling ? (
-          <div className="flex flex-col items-center gap-7">
-            <div className="relative flex items-center justify-center">
-              <svg className="w-24 h-24 transform -rotate-90">
-                <circle
-                  cx="48"
-                  cy="48"
-                  r="40"
-                  stroke="rgba(255,255,255,0.03)"
-                  strokeWidth="4"
-                  fill="transparent"
-                />
-                <circle
-                  cx="48"
-                  cy="48"
-                  r="40"
-                  stroke="#4AC4FE"
-                  strokeWidth="4"
-                  fill="transparent"
-                  strokeDasharray={2 * Math.PI * 40}
-                  strokeDashoffset={2 * Math.PI * 40 * (1 - progress / 100)}
-                  className="transition-all duration-300"
-                />
-              </svg>
-              <div className="absolute">
-                <LoadingSpinner isDark={true} className="w-10 h-10 text-emerald-400" />
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center gap-3 text-center max-w-md px-6">
-              <span className="text-white/40 font-mono text-[10px] tracking-widest uppercase select-none">
-                HỆ THỐNG ĐANG KHÔI PHỤC CÀI ĐẶT GỐC
-              </span>
-              <p className="text-white/95 font-mono text-sm md:text-base tracking-wide whitespace-nowrap">
-                Re-installing <span className="text-[#4AC4FE] font-bold">{currentFile}</span> - <span className="text-emerald-400 font-extrabold">{progress}%</span> complete
-              </p>
-              
-              <div className="w-64 h-1.5 bg-white/5 rounded-full overflow-hidden mt-3 border border-white/5">
-                <div 
-                  className="h-full bg-gradient-to-r from-[#4AC4FE] to-emerald-400 transition-all duration-300"
-                  style={{ width: `${progress}%` }}
-                />
+          <div className="flex flex-col items-center gap-6 text-center">
+            <div className="flex flex-col items-center gap-3">
+              <LoadingSpinner isDark={true} className="w-12 h-12 text-[#4AC4FE] opacity-90" />
+              <div className="flex flex-col items-center gap-2 mt-2">
+                <span className="text-white/50 text-xs md:text-sm tracking-wide select-none font-normal" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                  Vplay is erasing - This might take several minutes
+                </span>
+                <p className="text-white/80 text-sm md:text-base tracking-wide whitespace-nowrap font-normal" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                  Re-installing <span className="text-[#4AC4FE] font-bold">{currentFile}</span> - <span className="text-emerald-400 font-extrabold">{progress}%</span> complete
+                </p>
               </div>
             </div>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-6 text-center">
             <div className="flex flex-col items-center gap-3">
-              <LoadingSpinner isDark={true} className="w-12 h-12 text-[#4AC4FE] opacity-90 animate-spin" />
-              <span className="text-white/60 text-xs font-semibold tracking-wide mt-2 select-none">
-                Đang khởi động hệ thống... {progress}%
+              <LoadingSpinner isDark={true} className="w-12 h-12 text-[#4AC4FE] opacity-90" />
+              <span className="text-white/80 text-sm font-semibold tracking-wide mt-2 select-none animate-pulse">
+                {getGreeting()}
               </span>
-              <div className="w-40 h-1 bg-white/5 rounded-full overflow-hidden border border-white/5 mt-1">
-                <div 
-                  className="h-full bg-[#4AC4FE] transition-all duration-100"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
             </div>
           </div>
         )}
@@ -520,7 +511,7 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
         whileHover={{ scale: 1.03 }}
         whileTap={{ scale: 0.98 }}
         onClick={onClick}
-        className={`w-full aspect-square p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border ${
+        className={`w-full aspect-square p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border ${
           isActive
             ? isDark
               ? "bg-[#1e1e20] border-[#4AC4FE] shadow-lg shadow-[#4AC4FE]/15"
@@ -560,7 +551,7 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
       
       <button 
         onClick={(e) => { e.stopPropagation(); toggleFavorite(ch); }}
-        className={`absolute top-2.5 right-2.5 p-1.5 rounded-full backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all hover:scale-110 z-20 ${
+        className={`absolute top-1.5 right-1.5 xs:top-2.5 xs:right-2.5 p-1 xs:p-1.5 rounded-full backdrop-blur-md opacity-80 sm:opacity-0 group-hover:opacity-100 transition-all hover:scale-110 z-20 ${
           favorites.includes(ch.name) 
             ? "text-red-500 bg-red-500/10 border border-red-500/20" 
             : isDark 
@@ -568,7 +559,7 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
               : "text-slate-600 bg-slate-100/80 border border-slate-200 hover:text-slate-900"
         }`}
       >
-        <LikeIcon size={14} filled={favorites.includes(ch.name)} />
+        <LikeIcon size={12} className="xs:w-3.5 xs:h-3.5" filled={favorites.includes(ch.name)} />
       </button>
     </div>
   );
@@ -688,6 +679,7 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
 
   const getItemWidthAndGap = () => {
     if (typeof window !== "undefined") {
+      if (window.innerWidth < 380) return { width: 110, gap: 12 };
       if (window.innerWidth < 640) return { width: 140, gap: 16 };
       if (window.innerWidth < 1024) return { width: 185, gap: 20 };
     }
@@ -706,6 +698,7 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
   }, []);
 
   const getVisibleCount = () => {
+    if (itemConfig.width === 110) return 2;
     if (itemConfig.width === 140) return 2;
     if (itemConfig.width === 185) return 3;
     return 5;
@@ -796,18 +789,18 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
         </AnimatePresence>
         
         {/* Glass Overlay for Text */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-8 md:p-14 z-20">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-4 md:p-14 z-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             key={`text-${slideIndex}`}
-            className="space-y-4"
+            className="space-y-2 md:space-y-4"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-semibold uppercase tracking-widest mb-2">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 md:px-4 md:py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[8px] md:text-[10px] font-semibold uppercase tracking-widest mb-1 md:mb-2">
               <img 
                 src="https://static.wikia.nocookie.net/ftv/images/d/d9/SMR26.png/revision/latest?cb=20260427024320&path-prefix=vi"
                 alt="26M6"
-                className="w-4 h-4 object-contain"
+                className="w-3.5 h-3.5 md:w-4 md:h-4 object-contain"
                 referrerPolicy="no-referrer"
               />
               {slides[slideIndex].tag}
@@ -815,11 +808,11 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
             <motion.h1 
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
-              className="text-3xl md:text-5xl font-bold tracking-tighter text-white uppercase leading-tight max-w-2xl"
+              className="text-lg xs:text-2xl sm:text-3xl md:text-5xl font-black tracking-tighter text-white uppercase leading-tight max-w-2xl"
             >
               {slides[slideIndex].title}
             </motion.h1>
-            <p className="text-white/70 text-sm md:text-base font-medium max-w-xl leading-relaxed">
+            <p className="text-white/70 text-[10px] xs:text-xs md:text-base font-medium max-w-xl leading-relaxed line-clamp-2 md:line-clamp-none">
               {slides[slideIndex].desc}
             </p>
           </motion.div>
@@ -842,9 +835,9 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="relative py-8 flex flex-col lg:flex-row items-center justify-between gap-8 border-b border-white/5 pb-10 select-none"
+        className="relative py-8 flex flex-col items-center justify-center text-center gap-8 border-b border-white/5 pb-10 select-none max-w-4xl mx-auto"
       >
-        <div className="flex flex-col md:flex-row items-center gap-6 lg:gap-8 flex-1">
+        <div className="flex flex-col items-center gap-6">
           {/* Magnified VTV6 Logo */}
           <div className="relative shrink-0 flex items-center justify-center p-3 rounded-2xl bg-white/5 border border-white/10 shadow-lg shadow-black/30">
             <img 
@@ -855,18 +848,18 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
             />
           </div>
           
-          <div className="space-y-3 text-center md:text-left">
+          <div className="space-y-3 max-w-2xl text-center">
             <h2 className="text-xl md:text-2xl font-black tracking-tight leading-tight bg-gradient-to-r from-rose-400 via-pink-400 to-red-500 bg-clip-text text-transparent">
               VTV6 - Kênh Truyền hình Thể thao chính thức trở lại!
             </h2>
-            <p className={`text-xs md:text-sm font-medium leading-relaxed max-w-3xl ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+            <p className={`text-xs md:text-sm font-medium leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
               Kênh VTV6 dự kiến trở lại vào ngày 08/06/2026 sau gần 4 năm dừng phát sóng, với mục tiêu là kênh chuyên biệt thể thao của Đài Truyền hình Việt Nam, do Trung tâm Truyền hình Thể thao (trước kia là Ban thể thao) quản lý. Vplay cũng đã sẵn sàng cho sự trở lại này - Mời quý khán giả đón xem!
             </p>
           </div>
         </div>
 
         {/* Beautiful Animated Countdown Timer */}
-        <div className="flex items-center gap-3 shrink-0 bg-white/5 border border-white/15 p-4 rounded-3xl shadow-2xl shadow-black/40 backdrop-blur-md">
+        <div className="flex items-center gap-1.5 xs:gap-3 shrink-0 bg-white/5 border border-white/15 p-2.5 xs:p-4 rounded-2xl xs:rounded-3xl shadow-2xl shadow-black/40 backdrop-blur-md justify-center">
           <AnimatedTimeBox value={timeLeft.days} label="Ngày" isDark={isDark} />
           <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
           <AnimatedTimeBox value={timeLeft.hours} label="Giờ" isDark={isDark} />
@@ -961,20 +954,20 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className={`p-10 md:p-16 rounded-[64px] relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-10 shadow-2xl transition-all border ${isDark ? "bg-[#4AC4FE]/10 border-white/5" : "bg-[#4AC4FE]/10 border-[#4AC4FE]/10"}`}
+          className={`p-6 xs:p-8 md:p-16 rounded-[32px] md:rounded-[64px] relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 md:gap-10 shadow-2xl transition-all border ${isDark ? "bg-[#4AC4FE]/10 border-white/5" : "bg-[#4AC4FE]/10 border-[#4AC4FE]/10"}`}
         >
           <div className="absolute top-0 right-0 w-96 h-96 bg-[#4AC4FE]/10 blur-[100px] -mr-48 -mt-48" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 blur-[80px] -ml-32 -mb-32" />
           
-          <div className="relative z-10 space-y-6 text-center md:text-left flex-1">
-            <div className={`inline-flex items-center gap-3 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] ${isDark ? "bg-[#4AC4FE]/20 text-[#4AC4FE]" : "bg-[#4AC4FE]/10 text-[#4AC4FE]"}`}>
-              <Crown size={14} /> VIP Membership
+          <div className="relative z-10 space-y-4 md:space-y-6 text-center md:text-left flex-1">
+            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] ${isDark ? "bg-[#4AC4FE]/20 text-[#4AC4FE]" : "bg-[#4AC4FE]/10 text-[#4AC4FE]"}`}>
+              <Crown size={12} /> VIP Membership
             </div>
-            <h2 className={`text-4xl md:text-6xl font-bold tracking-tight leading-[0.95] ${isDark ? "text-white" : "text-slate-900"}`}>
+            <h2 className={`text-2xl xs:text-3xl md:text-6xl font-bold tracking-tight leading-[1.05] md:leading-[0.95] ${isDark ? "text-white" : "text-slate-900"}`}>
               Khám phá nhiều hơn <br /> 
               <span className="text-[#4AC4FE]">với Vplay Beta</span>
             </h2>
-            <p className={`max-w-xl font-medium text-base md:text-lg leading-relaxed ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+            <p className={`max-w-xl font-medium text-xs md:text-lg leading-relaxed ${isDark ? "text-slate-400" : "text-slate-500"}`}>
               Đăng nhập ngay để đồng bộ các kênh yêu thích của bạn, nhận được đề xuất chính xác nhất từ hệ thống AI và trải nghiệm tốc độ truyền tải vượt trội.
             </p>
           </div>
@@ -982,7 +975,7 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
           <div className="relative z-10 shrink-0 w-full md:w-auto">
             <button 
               onClick={onLogin} 
-              className="w-full md:w-auto btn-vibrant-3d px-16 py-7 text-xl font-bold tracking-widest !rounded-[40px] !border-none !bg-[#4AC4FE] hover:!bg-[#4AC4FE] shadow-[0_20px_50px_rgba(147,51,234,0.3)]"
+              className="w-full md:w-auto btn-vibrant-3d px-8 py-4 md:px-16 md:py-7 text-sm md:text-xl font-bold tracking-widest rounded-2xl md:!rounded-[40px] !border-none !bg-[#4AC4FE] hover:!bg-[#4AC4FE] shadow-[0_20px_50px_rgba(147,51,234,0.3)]"
             >
               ĐĂNG NHẬP
             </button>
@@ -991,47 +984,47 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
       )}
 
       {/* Featured Ad Banner - System Highlight */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className={`p-8 md:p-12 rounded-[48px] border relative overflow-hidden flex flex-col justify-between group cursor-pointer ${isDark ? "bg-slate-900 border-white/5" : "bg-white border-slate-200 shadow-xl"}`}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        <div className={`p-6 md:p-12 rounded-[32px] md:rounded-[48px] border relative overflow-hidden flex flex-col justify-between group cursor-pointer ${isDark ? "bg-slate-900 border-white/5" : "bg-white border-slate-200 shadow-xl"}`}>
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-3xl -mr-32 -mt-32 transition-all group-hover:scale-110" />
           <div className="space-y-4 relative z-10">
             <div className="p-3 w-fit rounded-2xl bg-blue-500/10 text-blue-500">
-              <Monitor size={28} />
+              <Monitor size={24} className="md:w-7 md:h-7" />
             </div>
           <motion.h3 
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
-            className={`text-3xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
+            className={`text-xl md:text-3xl font-black tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
           >
             XEM VPLAY MỌI NƠI
           </motion.h3>
-            <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-xs">
+            <p className="text-slate-500 text-xs md:text-sm font-medium leading-relaxed max-w-xs">
               Ứng dụng nền tảng Web mang lại trải nghiệm xem truyền hình mượt mà trên cả máy tính, máy tính bảng và điện thoại mà không cần cài đặt.
             </p>
           </div>
-          <div className="mt-8 flex items-center gap-2 text-blue-500 font-semibold text-[10px] uppercase tracking-widest group-hover:translate-x-2 transition-transform">
+          <div className="mt-6 md:mt-8 flex items-center gap-2 text-blue-500 font-semibold text-[10px] uppercase tracking-widest group-hover:translate-x-2 transition-transform">
             Khám phá công nghệ <ArrowRight size={14} />
           </div>
         </div>
 
-        <div className={`p-8 md:p-12 rounded-[48px] border relative overflow-hidden flex flex-col justify-between group cursor-pointer ${isDark ? "bg-slate-900 border-white/5" : "bg-white border-slate-200 shadow-xl"}`}>
+        <div className={`p-6 md:p-12 rounded-[32px] md:rounded-[48px] border relative overflow-hidden flex flex-col justify-between group cursor-pointer ${isDark ? "bg-slate-900 border-white/5" : "bg-white border-slate-200 shadow-xl"}`}>
           <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-3xl -mr-32 -mt-32 transition-all group-hover:scale-110" />
           <div className="space-y-4 relative z-10">
             <div className="p-3 w-fit rounded-2xl bg-amber-500/10 text-amber-500">
-              <Zap size={28} />
+              <Zap size={24} className="md:w-7 md:h-7" />
             </div>
           <motion.h3 
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
-            className={`text-3xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
+            className={`text-xl md:text-3xl font-black tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
           >
             TỐC ĐỘ 4K SIÊU NHANH
           </motion.h3>
-            <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-xs">
+            <p className="text-slate-500 text-xs md:text-sm font-medium leading-relaxed max-w-xs">
               Sử dụng CDN đa khu vực giúp luồng phát video đạt chất lượng 4K AI sắc nét với độ trễ tối thiểu, không giật lag ngay cả giờ cao điểm.
             </p>
           </div>
-          <div className="mt-8 flex items-center gap-2 text-amber-500 font-semibold text-[10px] uppercase tracking-widest group-hover:translate-x-2 transition-transform">
+          <div className="mt-6 md:mt-8 flex items-center gap-2 text-amber-500 font-semibold text-[10px] uppercase tracking-widest group-hover:translate-x-2 transition-transform">
             Kiểm tra đường truyền <ArrowRight size={14} />
           </div>
         </div>
@@ -3207,7 +3200,8 @@ function RejuvenatedSettings(props: any) {
     searchQuery: propSearchQuery,
     setSearchQuery: propSetSearchQuery,
     setIsReinstalling = () => {},
-    setShowSplash = () => {}
+    setShowSplash = () => {},
+    setSplashDuration = () => {}
   } = props;
 
   const [activeCategory, setActiveCategory] = useState("SystemInfo");
@@ -3634,17 +3628,6 @@ function RejuvenatedSettings(props: any) {
         if (!showCompact && !showPosition && !showQuickAccess) return null;
         return (
             <div className="space-y-6 text-left">
-                 {showCompact && (
-                   <RejuvenatedSettingsItem 
-                    icon={LayoutPanelLeft} 
-                    title="Compact mode" 
-                    description={isCompactMode ? "Sidebar đang được co gọn, hiển thị các biểu tượng lớn và nhãn nhỏ" : "Sidebar đang hiển thị ở dạng đầy đủ với nhãn văn bản chi tiết"}
-                    onClick={() => setIsCompactMode(!isCompactMode)}
-                    isDark={isDark}
-                    isToggleable={true}
-                    isToggled={isCompactMode}
-                  />
-                 )}
                  {showPosition && (
                    <div className={`p-8 rounded-[32px] border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
                      <div className="flex items-center gap-5 mb-6">
@@ -4103,6 +4086,7 @@ function RejuvenatedSettings(props: any) {
                       onClick={() => { 
                         setShowResetPopup(false); 
                         setIsReinstalling(true); 
+                        setSplashDuration(60000);
                         setShowSplash(true); 
                       }} 
                       className="py-3.5 rounded-2xl font-bold text-sm transition-all bg-[#FF453A] hover:bg-red-700 text-white shadow-lg shadow-red-600/20 active:scale-[0.98]"
@@ -6963,7 +6947,8 @@ function WidgetsDashboard({
   colorWidgets = false,
   setColorWidgets,
   setIsReinstalling = () => {},
-  setShowSplash = () => {}
+  setShowSplash = () => {},
+  setSplashDuration = () => {}
 }: {
   isOpen: boolean,
   onClose: () => void, 
@@ -7058,7 +7043,8 @@ function WidgetsDashboard({
   colorWidgets?: boolean,
   setColorWidgets?: (v: boolean) => void,
   setIsReinstalling?: (v: boolean) => void,
-  setShowSplash?: (v: boolean) => void
+  setShowSplash?: (v: boolean) => void,
+  setSplashDuration?: (v: number) => void
 }) {
   const [pinnedWidgets, setPinnedWidgets] = useState<string[]>(() => {
     const saved = localStorage.getItem("vplay_pinned_widgets");
@@ -8305,6 +8291,7 @@ function WidgetsDashboard({
                               setIsDev={setIsDev || (() => {})} 
                               setIsReinstalling={setIsReinstalling}
                               setShowSplash={setShowSplash}
+                              setSplashDuration={setSplashDuration}
                               featureFlags={featureFlags}
                               setFeatureFlags={setFeatureFlags || (() => {})}
                               liquidGlass={liquidGlass || "glassy"} 
@@ -8712,6 +8699,24 @@ function App() {
   const [showSplash, setShowSplash] = useState(false);
   const [isReinstalling, setIsReinstalling] = useState(false);
   const [splashDuration, setSplashDuration] = useState(5000);
+
+  const settingsClickCountRef = useRef(0);
+  const lastSettingsClickTimeRef = useRef(0);
+  const [showForceResetPopup, setShowForceResetPopup] = useState(false);
+
+  const handleSettingsTabClick = () => {
+    const now = Date.now();
+    if (now - lastSettingsClickTimeRef.current < 1500) {
+      settingsClickCountRef.current += 1;
+    } else {
+      settingsClickCountRef.current = 1;
+    }
+    lastSettingsClickTimeRef.current = now;
+    if (settingsClickCountRef.current >= 5) {
+      settingsClickCountRef.current = 0;
+      setShowForceResetPopup(true);
+    }
+  };
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return localStorage.getItem("vplay_onboarding_completed") !== "true";
   });
@@ -8817,7 +8822,8 @@ function App() {
   const [hoveredTabRect, setHoveredTabRect] = useState<DOMRect | null>(null);
   const [liquidGlass, setLiquidGlass] = useState<"glassy" | "tinted">("glassy");
   const [useSidebar, setUseSidebar] = useState(() => {
-    return localStorage.getItem("vplay_sidebar") === "true";
+    const saved = localStorage.getItem("vplay_sidebar");
+    return saved === null ? true : saved === "true";
   });
   const [isSidebarRight, setIsSidebarRight] = useState(() => {
     return localStorage.getItem("vplay_sidebar_right") === "true";
@@ -8840,7 +8846,8 @@ function App() {
 const [sidebarWidth, setSidebarWidth] = useState(() => {
     const saved = localStorage.getItem("vplay_sidebar_width");
     const baseWidth = saved ? parseInt(saved, 10) : sidebarWidthDefault;
-    const isHeading = localStorage.getItem("vplay_heading_bar") === "true";
+    const savedHeading = localStorage.getItem("vplay_heading_bar");
+    const isHeading = savedHeading === null ? true : savedHeading === "true";
     return isHeading && baseWidth > 180 ? 180 : baseWidth;
   });
 
@@ -8893,7 +8900,7 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
     return localStorage.getItem("vplay_pinning") === "true";
   });
 
-  const [isCompactMode, setIsCompactMode] = useState(() => localStorage.getItem("vplay_compact_mode") === "true");
+  const [isCompactMode, setIsCompactMode] = useState(true);
   const [isTouchInterface, setIsTouchInterface] = useState(() => localStorage.getItem("vplay_touch_interface") === "true");
   const [sidebarQuickAccess, setSidebarQuickAccess] = useState(() => localStorage.getItem("vplay_sidebar_quick_access") !== "false");
   const [topbarSearchType, setTopbarSearchType] = useState<"box" | "icon">(() => (localStorage.getItem("vplay_topbar_search") as any) || "box");
@@ -9076,8 +9083,12 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
   const [showGeoPopup, setShowGeoPopup] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 const [headingBar, setHeadingBar] = useState(() => {
-    return localStorage.getItem("vplay_heading_bar") === "true";
+    const saved = localStorage.getItem("vplay_heading_bar");
+    return saved === null ? true : saved === "true";
   });
+  useEffect(() => {
+    localStorage.setItem("vplay_heading_bar", headingBar ? "true" : "false");
+  }, [headingBar]);
   useEffect(() => {
     const handleResize = () => {
       const isMobileSize = window.innerWidth < 768;
@@ -9536,8 +9547,12 @@ const [headingBar, setHeadingBar] = useState(() => {
 
   const handleEnterApp = useCallback(() => {
     setShowSplash(false);
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    audioContext.resume();
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioContext.resume();
+    } catch (e) {
+      console.warn("AudioContext initialization skipped or blocked by browser policies:", e);
+    }
   }, []);
 
   const [isVTV6DialogOpen, setIsVTV6DialogOpen] = useState(false);
@@ -9596,6 +9611,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         setIsDark={setIsDark}
         setIsReinstalling={setIsReinstalling}
         setShowSplash={setShowSplash}
+        setSplashDuration={setSplashDuration}
         useSidebar={useSidebar}
         setUseSidebar={setUseSidebar}
         isSidebarRight={isSidebarRight}
@@ -9812,6 +9828,68 @@ const [headingBar, setHeadingBar] = useState(() => {
       </AnimatePresence>
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} isDark={isDark} liquidGlass={liquidGlass} setIsDev={setIsDev} setUserData={setUserData} />
       
+      <AnimatePresence>
+        {showForceResetPopup && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              onClick={() => setShowForceResetPopup(false)} 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.9, y: 20 }} 
+              className={`relative w-full max-w-sm rounded-[32px] p-6 shadow-2xl ${
+                isDark ? "bg-[#1c1c1e] text-white border border-white/10" : "bg-white text-slate-800 border border-slate-200"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold tracking-tight">Kích hoạt khẩn cấp</h3>
+                <button 
+                  onClick={() => setShowForceResetPopup(false)} 
+                  className={`p-1.5 rounded-xl transition-colors ${isDark ? "hover:bg-white/10 text-white/60" : "hover:bg-black/5 text-slate-400"}`}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="mx-auto w-12 h-12 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-4">
+                <Trash2 size={24} />
+              </div>
+
+              <p className={`text-xs leading-relaxed mb-6 text-center opacity-85 ${isDark ? "text-slate-300" : "text-slate-600"}`} style={{ fontFamily: "Montserrat, sans-serif" }}>
+                Hệ thống chuẩn bị tẩy xóa sạch mọi tùy biến và khôi phục cài đặt gốc cấp tốc (Force Reinstall). Hệ thống sẽ tự động tải lại sau khi hoàn thành. Bạn có đồng ý tiếp tục không?
+              </p>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button 
+                  onClick={() => setShowForceResetPopup(false)} 
+                  className={`py-2.5 rounded-xl font-bold text-xs transition-all border ${
+                    isDark ? "bg-white/5 border-white/5 text-slate-300 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
+                  }`}
+                >
+                  Bỏ qua
+                </button>
+                <button 
+                  onClick={() => { 
+                    setShowForceResetPopup(false); 
+                    setIsReinstalling(true); 
+                    setSplashDuration(60000); 
+                    setShowSplash(true); 
+                  }} 
+                  className="py-2.5 rounded-xl font-bold text-xs transition-all bg-[#FF453A] hover:bg-red-700 text-white shadow-lg shadow-red-600/20 active:scale-[0.98]"
+                >
+                  Đồng ý
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <GeoPopup 
         isOpen={showGeoPopup} 
         onClose={() => setShowGeoPopup(false)} 
@@ -10193,8 +10271,9 @@ const [headingBar, setHeadingBar] = useState(() => {
                      <LoadingSpinner isDark={isDark} className="w-16 h-16" />
                   </div>
                ) : (
-                    <div className="p-4 md:p-8 space-y-12 max-w-6xl mx-auto w-full h-full flex flex-col pt-0">
+                    <div id="settings-tab-container-main" className="p-2.5 xs:p-4 md:p-8 space-y-6 md:space-y-12 max-w-6xl mx-auto w-full h-full flex flex-col pt-0">
                         <RejuvenatedSettings
+                          setSplashDuration={setSplashDuration}
                           isDark={isDark} 
                           setIsDark={setIsDark} 
                           isDev={isDev} 
@@ -10459,6 +10538,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                             return;
                           }
                           if (tab.id === "Cài đặt") {
+                            handleSettingsTabClick();
                             if (featureFlags.settings_in_widgets) {
                               setIsWidgetsOpen(true);
                               setActiveDashboardTab("settings");
@@ -10499,11 +10579,11 @@ const [headingBar, setHeadingBar] = useState(() => {
                             }
                           />
                         )}
-                        <Icon size={isCompact ? 28 : 20} strokeWidth={tab.id === "Experimental" ? 1 : 1.5} className={`flex-shrink-0 transition-all ${isActive ? "text-[#4AC4FE]" : (isDark ? "text-white/70" : "text-slate-600")} group-hover:scale-110`} />
-                        {(isSidebarExpanded && !isCompactMode) && (
+                        <Icon size={isCompact ? (isActive ? 30 : 24) : 20} strokeWidth={tab.id === "Experimental" ? 1 : 1.5} className={`flex-shrink-0 transition-all ${isActive ? "text-[#4AC4FE]" : (isDark ? "text-white/70" : "text-slate-600")} group-hover:scale-110`} />
+                        {(isSidebarExpanded && !isCompactMode && !isActive) && (
                           <span className={`font-medium text-sm whitespace-nowrap ${isActive ? "font-bold" : ""}`}>{tab.name}</span>
                         )}
-                        {isCompact && (
+                        {(isCompact && !isActive) && (
                           <span className={`text-[10px] text-center leading-tight truncate w-full ${isActive ? "font-bold text-[#4AC4FE]" : "font-medium opacity-60"}`}>{tab.name}</span>
                         )}
                       </button>
@@ -10542,7 +10622,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                             <img 
                               src={channel.logo} 
                               alt={channel.name}
-                              className={`${isCompact ? "w-10 h-10" : "w-8 h-8"} object-contain transition-transform group-hover:scale-110 ${!isDark ? "bg-white rounded-md shadow-sm border border-slate-100 p-0.5" : ""}`}
+                              className={`${isCompact ? "w-8 h-8" : "w-6 h-6"} object-contain transition-transform group-hover:scale-110 ${!isDark ? "bg-white rounded-md shadow-sm border border-slate-100 p-0.5" : ""}`}
                               referrerPolicy="no-referrer"
                             />
                             {isSidebarExpanded && !isCompactMode && (
@@ -10836,6 +10916,9 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 if (tabId === "Live" && isBroadcastingLocked) {
                                   setIsLockModalOpen(true);
                                   return;
+                                }
+                                if (tabId === "Cài đặt") {
+                                  handleSettingsTabClick();
                                 }
                                 setActiveTab(tabId);
                               }}
