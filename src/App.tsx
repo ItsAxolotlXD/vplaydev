@@ -480,7 +480,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status }: { src
   );
 }
 
-function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className }: {
+function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab }: {
   ch: Channel,
   onClick: () => void,
   isDark: boolean,
@@ -489,7 +489,8 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
   toggleFavorite: (ch: Channel) => void,
   liquidGlass: "glassy" | "tinted",
   className?: string,
-  key?: string | number
+  key?: string | number,
+  isLiveTab?: boolean
 }) {
   const isMaintenance = ch.status === "maintenance";
   const isComingSoon = ch.status === "coming-soon";
@@ -511,21 +512,24 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
         whileHover={{ scale: 1.03 }}
         whileTap={{ scale: 0.98 }}
         onClick={onClick}
-        style={{
-          backgroundImage: `url("https://static.wikia.nocookie.net/ftv/images/b/bf/Abc.png/revision/latest/scale-to-width-down/1000?cb=20260528051515&path-prefix=vi")`,
-          backgroundSize: "cover",
-          backgroundPosition: "center"
-        }}
-        className={`w-full aspect-square p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border ${
+        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border ${
           isActive
             ? isDark
-              ? "border-[#4AC4FE] shadow-lg shadow-[#4AC4FE]/25 bg-black/45"
-              : "border-[#4AC4FE] shadow-md shadow-[#4AC4FE]/10 bg-white/45"
+              ? "border-[#4AC4FE] shadow-lg shadow-[#4AC4FE]/25"
+              : "border-[#4AC4FE] shadow-md shadow-[#4AC4FE]/10"
             : isDark
-              ? "border-white/5 hover:border-white/15 bg-black/60 hover:bg-black/50"
-              : "border-slate-200/80 hover:border-slate-300 bg-white/70 hover:bg-white/60"
+              ? "border-white/5 hover:border-white/15"
+              : "border-slate-200/80 hover:border-slate-300"
         }`}
       >
+        {/* Real tile background bypasses Wikia's anti-hotlinking */}
+        <img 
+          src="https://static.wikia.nocookie.net/ftv/images/b/bf/Abc.png/revision/latest/scale-to-width-down/1000?cb=20260528051515&path-prefix=vi" 
+          alt="" 
+          referrerPolicy="no-referrer"
+          className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none z-0"
+        />
+
         {isMaintenance && (
           <div className="absolute top-2 left-2 bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
             BẢO TRÌ
@@ -542,9 +546,10 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
           </div>
         )}
         
-        <div className="w-full h-full flex flex-col items-center justify-center relative mt-1.5">
-          {/* Main Logo */}
-          <div className="relative z-10 flex items-center justify-center w-full h-[62%] group-hover:scale-105 transition-transform duration-300">
+        {/* Logo parent perfectly centered vertically and horizontally inside the tile */}
+        <div className="absolute inset-0 flex items-center justify-center z-10 p-3 sm:p-4">
+          <div className="relative w-full h-[62%] flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+            {/* Main Centered Logo */}
             <ChannelLogo 
               src={ch.logo} 
               alt={ch.name} 
@@ -553,25 +558,25 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
               liquidGlass={liquidGlass} 
               status={ch.status} 
             />
-          </div>
 
-          {/* Reflection */}
-          <div 
-            className="absolute top-[65%] w-full h-[35%] flex items-center justify-center select-none pointer-events-none origin-top overflow-hidden opacity-25 filter blur-[0.4px]"
-            style={{
-              transform: "scaleY(-0.6)",
-              maskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)",
-              WebkitMaskImage: "-webkit-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)"
-            }}
-          >
-            <ChannelLogo 
-              src={ch.logo} 
-              alt={ch.name} 
-              className="max-w-[85%] max-h-[85%] object-contain"
-              isDark={isDark} 
-              liquidGlass={liquidGlass} 
-              status={ch.status} 
-            />
+            {/* Reflection Effect inside tiles */}
+            <div 
+              className="absolute top-[90%] left-0 w-full h-[35%] flex items-center justify-center select-none pointer-events-none origin-top overflow-hidden opacity-25 filter blur-[0.4px]"
+              style={{
+                transform: "scaleY(-0.6)",
+                maskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)",
+                WebkitMaskImage: "-webkit-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)"
+              }}
+            >
+              <ChannelLogo 
+                src={ch.logo} 
+                alt={ch.name} 
+                className="max-w-[85%] max-h-[85%] object-contain"
+                isDark={isDark} 
+                liquidGlass={liquidGlass} 
+                status={ch.status} 
+              />
+            </div>
           </div>
         </div>
       </motion.button>
@@ -2316,6 +2321,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                       favorites={favorites} 
                       toggleFavorite={toggleFavorite} 
                       liquidGlass={liquidGlass}
+                      isLiveTab={true}
                     />
                   ))
                 )}
