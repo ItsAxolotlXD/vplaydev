@@ -697,28 +697,61 @@ const Countdown = ({ targetDate, isDark }: { targetDate: string, isDark: boolean
   );
 };
 
-const slides = [
-  { 
-    url: "https://img.cand.com.vn/resize/800x800/NewFiles/Images/2023/03/30/Giai_tri_vtv-1680172145227.jpg", 
-    title: "Giải trí không giới hạn", 
-    desc: "Khám phá thế giới truyền hình đặc sắc cùng hơn 200+ kênh giải trí đỉnh cao hoàn toàn miễn phí.",
-    tag: "Vplay Web"
-  },
-  { 
-    url: "https://substackcdn.com/image/fetch/$s_!6L_D!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F1b529a92-54ae-477e-87f6-27674b483077_960x540.gif", 
-    title: "Giao diện Liquid Glass", 
-    desc: "Trải nghiệm xem truyền hình tương lai với hiệu ứng kính mờ và chuyển động mượt mà đầy mê hoặc.",
-    tag: "Thiết kế"
-  },
-  { 
-    url: "/src/assets/images/vtv1_thoisu_banner_1780035677079.png", 
-    title: "Bản tin Thời sự đặc sắc", 
-    desc: "Cập nhật nhanh chóng, chuẩn xác dòng chảy tin tức chính thống trong nước và toàn cầu suốt 24h.",
-    tag: "VTV1"
-  }
-];
+const RenderSlideContent = ({ slide }: { slide: any }) => {
+  if (slide.logo) {
+    return (
+      <div className="relative w-full h-full bg-gradient-to-br from-[#131520] via-[#1a1c29] to-[#0f111a] flex flex-col items-center justify-center p-6 select-none overflow-hidden group">
+        {/* Modern clean stripes backdrop detail */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,0.035)_0%,transparent_70%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.01)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.01)_50%,rgba(255,255,255,0.01)_75%,transparent_75%,transparent)] bg-[size:24px_24px] opacity-15 pointer-events-none" />
+        
+        {/* Soft glowing aura centered matching channel brand */}
+        <div 
+          className="absolute w-48 h-48 rounded-full blur-[70px] opacity-25 scale-125 pointer-events-none animate-pulse"
+          style={{ backgroundColor: slide.glowColor || "rgba(74, 196, 254, 0.45)" }}
+        />
 
-function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggleFavorite, liquidGlass, user, onLogin, slideIndex, direction, paginate, bypassed }: {
+        {/* Crisp large channel logo with brand hover scaling */}
+        <img 
+          src={slide.logo} 
+          alt={slide.title}
+          className="w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 object-contain z-10 transition-transform duration-500 group-hover:scale-105 drop-shadow-[0_16px_36px_rgba(0,0,0,0.65)]"
+          referrerPolicy="no-referrer"
+        />
+
+        {/* High contrast gradient footer fade */}
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/35 to-transparent z-15" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-full h-full select-none overflow-hidden bg-[#0d0f17]">
+      <img
+        src={slide.url}
+        alt={slide.title}
+        className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+        referrerPolicy="no-referrer"
+      />
+    </div>
+  );
+};
+
+function HomeContent({ 
+  setActiveTab, 
+  setActiveChannel, 
+  isDark, 
+  favorites, 
+  toggleFavorite, 
+  liquidGlass, 
+  user, 
+  onLogin, 
+  slideIndex, 
+  direction, 
+  paginate, 
+  slides, 
+  bypassed 
+}: {
   setActiveTab: (tab: string) => void,
   setActiveChannel: (ch: typeof channels[0]) => void,
   isDark: boolean,
@@ -730,6 +763,7 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
   slideIndex: number,
   direction: number,
   paginate: (newDirection: number) => void,
+  slides: any[],
   bypassed?: boolean
 }) {
   const [randomChannels, setRandomChannels] = useState<typeof channels>([]);
@@ -840,12 +874,7 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
             onClick={() => paginate(-1)}
             className="hidden md:block absolute left-[-24%] top-0 w-[74%] h-full rounded-[32px] overflow-hidden opacity-45 hover:opacity-70 transition-all duration-500 cursor-pointer pointer-events-auto transform scale-[0.88] z-10 border border-white/5 shadow-2xl"
           >
-            <img 
-              src={slides[(slideIndex - 1 + slides.length) % slides.length].url} 
-              alt="prev" 
-              className="w-full h-full object-cover" 
-              referrerPolicy="no-referrer"
-            />
+            <RenderSlideContent slide={slides[(slideIndex - 1 + slides.length) % slides.length]} />
             {/* Dark overlay for side cards */}
             <div className="absolute inset-0 bg-black/55" />
             
@@ -857,50 +886,106 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
             </div>
           </div>
 
-          {/* Active middle card */}
-          <div className="absolute left-1/2 -translate-x-1/2 top-0 w-full md:w-[74%] h-full rounded-[32px] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.65)] border border-white/10 transform scale-100 transition-all duration-500 z-20 group/middle">
-            <AnimatePresence initial={false} custom={direction}>
-              <motion.img
-                key={slideIndex}
-                src={slides[slideIndex].url}
-                custom={direction}
-                variants={variants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{
-                  x: { type: "spring", stiffness: 450, damping: 36 },
-                  opacity: { duration: 0.25 },
-                  scale: { duration: 0.45 }
-                }}
-                className="absolute inset-0 w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-              />
-            </AnimatePresence>
+          {/* Active middle card with Glow wrapping it */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 w-full md:w-[74%] h-full z-20 group/middle">
+            {/* Glow Wrap for middle card */}
+            <div className="absolute inset-[-12px] md:inset-[-24px] pointer-events-none opacity-50 blur-[35px] saturate-[220%] transition-transform duration-500 overflow-hidden select-none">
+              <AnimatePresence initial={false} custom={direction}>
+                {slides[slideIndex]?.logo ? (
+                  <motion.div
+                    key={`glow-${slideIndex}`}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 0.6, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.45 }}
+                    style={{
+                      background: `radial-gradient(circle, ${slides[slideIndex].glowColor || "rgba(74, 196, 254, 0.45)"} 0%, rgba(0,0,0,0) 70%)`
+                    }}
+                    className="absolute inset-0 w-full h-full scale-110"
+                  />
+                ) : (
+                  <motion.img
+                    key={`glow-${slideIndex}`}
+                    src={slides[slideIndex]?.url}
+                    custom={direction}
+                    variants={variants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{
+                      x: { type: "spring", stiffness: 450, damping: 36 },
+                      opacity: { duration: 0.25 },
+                      scale: { duration: 0.45 }
+                    }}
+                    className="absolute inset-0 w-full h-full object-cover scale-[1.05]"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
+              </AnimatePresence>
+            </div>
 
-            {/* Gradient Overlay for description text */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent flex flex-col justify-end p-5 md:p-10 z-25">
-              <motion.div
-                initial={{ opacity: 0, y: 25 }}
-                animate={{ opacity: 1, y: 0 }}
-                key={`text-${slideIndex}`}
-                className="space-y-1.5 md:space-y-3"
-              >
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest mb-1.5 align-middle">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#4AC4FE] animate-pulse" />
-                  {slides[slideIndex].tag}
-                </div>
-                <motion.h1 
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="text-base xs:text-lg sm:text-2xl md:text-4xl font-black tracking-tight text-white uppercase leading-tight max-w-xl"
+            {/* Main card */}
+            <div 
+              onClick={() => {
+                if (slides[slideIndex]?.channel) {
+                  setActiveChannel(slides[slideIndex].channel);
+                  setActiveTab("Live");
+                }
+              }}
+              className={`w-full h-full rounded-[32px] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.65)] border border-white/10 relative transform scale-100 transition-all duration-500 ${
+                slides[slideIndex]?.channel ? "cursor-pointer group/card border-white/20 hover:border-[#4AC4FE]/40" : ""
+              }`}
+            >
+              <AnimatePresence initial={false} custom={direction}>
+                <motion.div
+                  key={slideIndex}
+                  custom={direction}
+                  variants={variants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{
+                    x: { type: "spring", stiffness: 450, damping: 36 },
+                    opacity: { duration: 0.25 },
+                    scale: { duration: 0.45 }
+                  }}
+                  className="absolute inset-0 w-full h-full"
                 >
-                  {slides[slideIndex].title}
-                </motion.h1>
-                <p className="text-white/70 text-[10px] sm:text-xs md:text-sm font-medium max-w-lg leading-relaxed line-clamp-2 md:line-clamp-none">
-                  {slides[slideIndex].desc}
-                </p>
-              </motion.div>
+                  <RenderSlideContent slide={slides[slideIndex]} />
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Gradient Overlay for description text */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent flex flex-col justify-end p-5 md:p-10 z-25 font-sans pointer-events-none">
+                <motion.div
+                  initial={{ opacity: 0, y: 25 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  key={`text-${slideIndex}`}
+                  className="space-y-1.5 md:space-y-3 pointer-events-auto"
+                >
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest align-middle">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#4AC4FE] animate-pulse" />
+                      {slides[slideIndex]?.tag}
+                    </div>
+                    {slides[slideIndex]?.channel && (
+                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#4AC4FE]/20 text-[#4AC4FE] border border-[#4AC4FE]/30 text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest animate-pulse">
+                        <Play size={8} fill="currentColor" className="mr-0.5" /> Xem Ngay
+                      </div>
+                    )}
+                  </div>
+                  <motion.h1 
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="text-base xs:text-lg sm:text-2xl md:text-4xl font-black tracking-tight text-white uppercase leading-tight max-w-xl group-hover/card:text-[#4AC4FE] transition-colors"
+                  >
+                    {slides[slideIndex]?.title}
+                  </motion.h1>
+                  <p className="text-white/70 text-[10px] sm:text-xs md:text-sm font-medium max-w-lg leading-relaxed line-clamp-2 md:line-clamp-none">
+                    {slides[slideIndex]?.desc}
+                  </p>
+                </motion.div>
+              </div>
             </div>
           </div>
 
@@ -909,12 +994,7 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
             onClick={() => paginate(1)}
             className="hidden md:block absolute right-[-24%] top-0 w-[74%] h-full rounded-[32px] overflow-hidden opacity-45 hover:opacity-70 transition-all duration-500 cursor-pointer pointer-events-auto transform scale-[0.88] z-10 border border-white/5 shadow-2xl"
           >
-            <img 
-              src={slides[(slideIndex + 1) % slides.length].url} 
-              alt="next" 
-              className="w-full h-full object-cover" 
-              referrerPolicy="no-referrer"
-            />
+            <RenderSlideContent slide={slides[(slideIndex + 1) % slides.length]} />
             {/* Dark overlay for side cards */}
             <div className="absolute inset-0 bg-black/55" />
             
@@ -931,13 +1011,13 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
         <div className="md:hidden absolute inset-y-0 left-4 right-4 flex items-center justify-between pointer-events-none z-30">
           <button 
             onClick={() => paginate(-1)} 
-            className="p-2.5 rounded-full bg-black/40 backdrop-blur-xl text-white border border-white/10 pointer-events-auto active:scale-90 transition-transform"
+            className="p-2.5 rounded-full bg-black/40 backdrop-blur-xl text-white border border-white/10 pointer-events-auto active:scale-90 transition-transform select-none"
           >
             <ChevronLeft size={18} />
           </button>
           <button 
             onClick={() => paginate(1)} 
-            className="p-2.5 rounded-full bg-black/40 backdrop-blur-xl text-white border border-white/10 pointer-events-auto active:scale-90 transition-transform"
+            className="p-2.5 rounded-full bg-black/40 backdrop-blur-xl text-white border border-white/10 pointer-events-auto active:scale-90 transition-transform select-none"
           >
             <ChevronRight size={18} />
           </button>
@@ -950,31 +1030,31 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="relative py-8 flex flex-col items-center justify-center text-center gap-8 border-b border-white/5 pb-10 select-none max-w-4xl mx-auto"
+        className={`relative p-5 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 border-b ${isDark ? "border-white/5" : "border-slate-100"} pb-10 select-none max-w-6xl mx-auto w-full`}
       >
-        <div className="flex flex-col items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 md:gap-6 flex-1 text-center sm:text-left">
           {/* Magnified VTV6 Logo */}
           <div className="relative shrink-0 flex items-center justify-center p-3 rounded-2xl bg-white/5 border border-white/10 shadow-lg shadow-black/30">
             <img 
               src="https://static.wikia.nocookie.net/logos/images/2/21/VTV6_logo_%282026%29.png/revision/latest/scale-to-width-down/1000?cb=20260508074729&path-prefix=vi"
               alt="VTV6 Logo"
-              className="w-32 md:w-44 h-auto object-contain"
+              className="w-24 md:w-32 h-auto object-contain"
               referrerPolicy="no-referrer"
             />
           </div>
           
-          <div className="space-y-3 max-w-2xl text-center">
-            <h2 className="text-xl md:text-2xl font-black tracking-tight leading-tight bg-gradient-to-r from-rose-400 via-pink-400 to-red-500 bg-clip-text text-transparent">
+          <div className="space-y-2 md:space-y-3 flex-1">
+            <h2 className="text-lg md:text-2xl font-black tracking-tight leading-tight bg-gradient-to-r from-rose-400 via-pink-400 to-red-500 bg-clip-text text-transparent">
               VTV6 - Kênh Truyền hình Thể thao chính thức trở lại!
             </h2>
-            <p className={`text-xs md:text-sm font-medium leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+            <p className={`text-xs md:text-[13px] font-medium leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
               Kênh VTV6 dự kiến trở lại vào ngày 08/06/2026 sau gần 4 năm dừng phát sóng, với mục tiêu là kênh chuyên biệt thể thao của Đài Truyền hình Việt Nam, do Trung tâm Truyền hình Thể thao (trước kia là Ban thể thao) quản lý. Vplay cũng đã sẵn sàng cho sự trở lại này - Mời quý khán giả đón xem!
             </p>
           </div>
         </div>
 
         {/* Beautiful Animated Countdown Timer */}
-        <div className="flex items-center gap-1.5 xs:gap-3 shrink-0 bg-white/5 border border-white/15 p-2.5 xs:p-4 rounded-2xl xs:rounded-3xl shadow-2xl shadow-black/40 backdrop-blur-md justify-center">
+        <div className="flex items-center gap-1.5 xs:gap-3 shrink-0 bg-white/5 border border-white/10 p-3.5 md:p-5 rounded-2xl md:rounded-3xl shadow-2xl shadow-black/40 backdrop-blur-md justify-center">
           <AnimatedTimeBox value={timeLeft.days} label="Ngày" isDark={isDark} />
           <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
           <AnimatedTimeBox value={timeLeft.hours} label="Giờ" isDark={isDark} />
@@ -2967,6 +3047,25 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment, han
 
   const logs = [
     {
+      id: 'dev-26609',
+      version: 'Vplay Dev - Build 26609',
+      tag: '✨',
+      type: 'PATCH',
+      sections: [
+        {
+          title: '🔄 UPDATES',
+          items: [
+            'Nâng cấp bản dựng lên Build 26609 chính thức',
+            'Loại bỏ tính năng dynamic background blur của các slides',
+            'Cập nhật giao diện đếm ngược ngày VTV6 trở lại dạng hàng ngang (horizontal text & logo)',
+            'Bổ sung 3 thumbnail đề xuất hoàn toàn mới: Kênh VTV3 HD, ON FOOTBALL và THVL1',
+            'Thêm hiệu ứng Glow ánh sáng màu sắc ôm sát và bao quanh khung video/hình ảnh slide chính'
+          ],
+          color: 'text-[#4AC4FE]'
+        }
+      ]
+    },
+    {
       id: 'dev-26604',
       version: 'Vplay Dev - Build 26604',
       tag: '✨',
@@ -3460,7 +3559,7 @@ function RejuvenatedSettings(props: any) {
                 </div>
                 <div className="flex justify-between items-center py-2.5 border-b border-white/5">
                   <span className={`text-xs md:text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Build</span>
-                  <span className="text-sm md:text-base font-bold text-[#4AC4FE]">26606</span>
+                  <span className="text-sm md:text-base font-bold text-[#4AC4FE]">26609</span>
                 </div>
                 <div className="flex justify-between items-center py-2.5">
                   <span className={`text-xs md:text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Compiled</span>
@@ -4136,7 +4235,7 @@ function RejuvenatedSettings(props: any) {
                       </div>
                       <div className="flex justify-between items-center text-sm">
                         <span className={`${isDark ? "text-white/60" : "text-slate-400"} font-medium`}>Build:</span>
-                        <span className={`${isDark ? "text-white" : "text-slate-800"} font-bold`}>26606</span>
+                        <span className={`${isDark ? "text-white" : "text-slate-800"} font-bold`}>26609</span>
                       </div>
                       <div className="flex justify-between items-center text-sm col-span-1">
                         <span className={`${isDark ? "text-white/60" : "text-slate-400"} font-medium whitespace-nowrap mr-2`}>Compiled:</span>
@@ -4540,7 +4639,7 @@ function SettingsContent({
                   <span className={`text-[9px] md:text-[10px] font-bold tracking-[0.4em] ${isDark ? "text-white/40" : "text-slate-400"}`}>June 2026 Update</span>
                   <div className="flex items-center gap-1.5 md:gap-2">
                     <span className="px-1.5 py-0.5 bg-amber-500/20 text-amber-500 text-[8px] md:text-[9px] font-bold rounded-md uppercase">26M6</span>
-                    <span className="px-1.5 py-0.5 bg-cyan-500/20 text-cyan-500 text-[8px] md:text-[9px] font-bold rounded-md uppercase">Build 26604</span>
+                    <span className="px-1.5 py-0.5 bg-cyan-500/20 text-cyan-500 text-[8px] md:text-[9px] font-bold rounded-md uppercase">Build 26609</span>
                   </div>
                 </div>
               </div>
@@ -4558,7 +4657,7 @@ function SettingsContent({
                    <p className={`text-base md:text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>June 2026 Update</p>
                  </div>
                </div>
-               <span className="px-3 py-1.5 bg-amber-500 text-slate-900 text-[9px] md:text-[10px] font-bold rounded-lg md:rounded-xl shadow-lg shadow-amber-500/30">Build 26604</span>
+               <span className="px-3 py-1.5 bg-amber-500 text-slate-900 text-[9px] md:text-[10px] font-bold rounded-lg md:rounded-xl shadow-lg shadow-amber-500/30">Build 26609</span>
              </div>
 
              <div className="grid grid-cols-2 gap-3 md:gap-4">
@@ -5607,7 +5706,7 @@ function WhatsNewPopup({ isDark, onClose, liquidGlass }: { isDark: boolean, onCl
                 What's new <span className="text-[#4AC4FE] block sm:inline">in Vplay Dev</span>
               </h2>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-[#4AC4FE]/10 text-[#4AC4FE] text-[9px] md:text-[10px] font-bold tracking-widest uppercase border border-[#4AC4FE]/20">Build 26604</span>
+                <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-[#4AC4FE]/10 text-[#4AC4FE] text-[9px] md:text-[10px] font-bold tracking-widest uppercase border border-[#4AC4FE]/20">Build 26609</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                 <span className="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Stable Beta</span>
               </div>
@@ -7987,7 +8086,7 @@ function WidgetsDashboard({
                                                                   <div className="text-4xl font-black text-slate-900 tracking-tighter bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent my-1">
                                                                     {formatTime(currentTime)}
                                                                   </div>
-                                                                  <span className="text-[9px] text-slate-400 font-semibold">Công nghệ đồng bộ tần số VNRT - 26606</span>
+                                                                  <span className="text-[9px] text-slate-400 font-semibold">Công nghệ đồng bộ tần số VNRT - 26609</span>
                                                                 </div>
 
                                                                 {/* Custom formatted calendar row showing we have full grid style calendar view */}
@@ -8048,7 +8147,7 @@ function WidgetsDashboard({
                                                           </div>
                                                           <div className="flex justify-between items-center text-[10px]">
                                                             <span className="opacity-50">Build</span>
-                                                            <span className="font-bold text-[#4AC4FE]">26606</span>
+                                                             <span className="font-bold text-[#4AC4FE]">26609</span>
                                                           </div>
                                                           <div className="flex justify-between items-center text-[10px]">
                                                             <span className="opacity-50">Compiled</span>
@@ -9143,6 +9242,73 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
   const [sortOrder, setSortOrder] = useState<"default" | "az" | "za">("default");
   const [slideIndex, setSlideIndex] = useState(0);
   const [direction, setDirection] = useState(0);
+
+  const [vtvProposal, setVtvProposal] = useState<typeof channels[0] | null>(null);
+  const [vtvcabProposal, setVtvcabProposal] = useState<typeof channels[0] | null>(null);
+  const [localProposal, setLocalProposal] = useState<typeof channels[0] | null>(null);
+
+  const rollChannelProposals = useCallback(() => {
+    const vtvList = channels.filter(ch => ch.category === "VTV" && ch.name !== "VTV6 (coming soon)");
+    const vtvcabList = channels.filter(ch => ch.category === "VTVcab" && ch.name !== "ON FOOTBALL");
+    const localList = channels.filter(ch => ch.category === "Địa phương" && ch.status !== "maintenance");
+
+    if (vtvList.length > 0) {
+      setVtvProposal(vtvList[Math.floor(Math.random() * vtvList.length)]);
+    }
+    if (vtvcabList.length > 0) {
+      setVtvcabProposal(vtvcabList[Math.floor(Math.random() * vtvcabList.length)]);
+    }
+    if (localList.length > 0) {
+      setLocalProposal(localList[Math.floor(Math.random() * localList.length)]);
+    }
+  }, []);
+
+  useEffect(() => {
+    rollChannelProposals();
+  }, [rollChannelProposals]);
+
+  useEffect(() => {
+    rollChannelProposals();
+  }, [slideIndex, rollChannelProposals]);
+
+  const slides = useMemo(() => [
+    { 
+      url: "https://img.cand.com.vn/resize/800x800/NewFiles/Images/2023/03/30/Giai_tri_vtv-1680172145227.jpg", 
+      title: "Giải trí không giới hạn", 
+      desc: "Khám phá thế giới truyền hình đặc sắc cùng hơn 200+ kênh giải trí đỉnh cao hoàn toàn miễn phí.",
+      tag: "Vplay Web"
+    },
+    { 
+      url: "https://substackcdn.com/image/fetch/$s_!6L_D!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F1b529a92-54ae-477e-87f6-27674b483077_960x540.gif", 
+      title: "Giao diện Liquid Glass", 
+      desc: "Trải nghiệm xem truyền hình tương lai với hiệu ứng kính mờ và chuyển động mượt mà đầy mê hoặc.",
+      tag: "Thiết kế"
+    },
+    { 
+      logo: vtvProposal?.logo || "https://static.wikia.nocookie.net/logos/images/4/4b/VTV1_logo_01.11.2022_%28SD_%26_HD%29_v1.png/revision/latest?cb=20260222102645&path-prefix=uk", 
+      title: vtvProposal ? `Kênh VTV đề xuất: ${vtvProposal.name}` : "Kênh VTV đề xuất: VTV3 HD", 
+      desc: "Thưởng thức các chương trình giải trí, phim truyền hình Việt giờ vàng và thể thao sống động trên sóng quốc gia.",
+      tag: "VTV",
+      channel: vtvProposal || undefined,
+      glowColor: "rgba(220, 38, 38, 0.55)"
+    },
+    { 
+      logo: vtvcabProposal?.logo || "https://img.vtvprime.vn/czM6Ly9wcmQtc24taW1hZ2VzL2NoYW5uZWwvT04rU1BPUlQrLnBuZw==.png", 
+      title: vtvcabProposal ? `Kênh VTVCab đề xuất: ${vtvcabProposal.name}` : "Kênh VTVcab đề xuất", 
+      desc: "Bữa tiệc giải trí truyền hình, tin tức phim điện ảnh, thiếu nhi đặc sắc được tuyển chọn liên tục.",
+      tag: "VTVcab",
+      channel: vtvcabProposal || undefined,
+      glowColor: "rgba(6, 182, 212, 0.55)"
+    },
+    { 
+      logo: localProposal?.logo || "https://static.wikia.nocookie.net/logos/images/3/32/THVL1_logo_ident_2025.png/revision/latest/scale-to-width-down/1000?cb=20251206083051&path-prefix=vi", 
+      title: localProposal ? `Kênh địa phương đề xuất: ${localProposal.name}` : "Kênh địa phương: THVL1", 
+      desc: "Xem các đài truyền hình địa phương được yêu thích nhất cả nước với các bộ phim bom tấn độc quyền.",
+      tag: "Địa phương",
+      channel: localProposal || undefined,
+      glowColor: "rgba(245, 158, 11, 0.55)"
+    }
+  ], [vtvProposal, vtvcabProposal, localProposal]);
   const [loadingTreatment, setLoadingTreatment] = useState<string>(() => {
     return localStorage.getItem("vplay_loading_treatment") || "treatment3";
   });
@@ -9723,10 +9889,10 @@ const [headingBar, setHeadingBar] = useState(() => {
   useEffect(() => {
     const handleWhatsNew = async () => {
       const lastVersion = localStorage.getItem("vplay_version");
-      const currentVersion = "26604";
+      const currentVersion = "26609";
       
       if (lastVersion !== currentVersion) {
-        if (currentVersion !== "26604" && currentVersion !== "26603") {
+        if (currentVersion !== "26609" && currentVersion !== "26603") {
           setShowWhatsNew(true);
         }
         localStorage.setItem("vplay_version", currentVersion);
@@ -9890,8 +10056,8 @@ const [headingBar, setHeadingBar] = useState(() => {
       </AnimatePresence>
       <div className={`${
         isDark 
-          ? "dark bg-transparent text-white" 
-          : "bg-transparent text-black"
+          ? "dark bg-[#11131c] text-white" 
+          : "bg-[#f8fafc] text-black"
       } h-screen flex font-sans transition-all duration-500 overflow-hidden ${useSidebar ? "flex-row" : "flex-col"} ${featureFlags.disable_animation ? "reduce-animations" : ""}`}
       onContextMenu={handleGlobalContextMenu}
       style={{
@@ -9943,40 +10109,6 @@ const [headingBar, setHeadingBar] = useState(() => {
           />
         </div>
       )}
-      {/* Global Immersive Background Blur - Reacts dynamically to Active Tab & Thumbnail */}
-      <div 
-        style={{ opacity: activeTab === "Trang chủ" ? Math.max(0, 1 - (homeScrollY / 360)) : 0 }}
-        className="fixed inset-0 pointer-events-none z-[-2] overflow-hidden transition-opacity duration-300"
-      >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={slideIndex}
-            initial={{ opacity: 0, scale: 1.15 }}
-            animate={{ opacity: 0.95, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.2, ease: "easeInOut" }}
-            className="absolute inset-0"
-          >
-            <img 
-               src={slides[slideIndex].url} 
-              alt="" 
-              className="w-full h-full object-cover blur-[200px] md:blur-[300px] saturate-[360%]"
-              referrerPolicy="no-referrer"
-            />
-          </motion.div>
-        </AnimatePresence>
-        <div 
-          style={{ 
-            backdropFilter: 'blur(160px)', 
-            WebkitBackdropFilter: 'blur(160px)' 
-          }}
-          className={`absolute inset-0 transition-all duration-1000 ${
-            isDark 
-              ? "bg-[#11131c]/05" 
-              : "bg-white/05"
-          }`} 
-        />
-      </div>
 
       <AnimatePresence>
         {showSplash && (
@@ -10355,6 +10487,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   slideIndex={slideIndex}
                   direction={direction}
                   paginate={paginate}
+                  slides={slides}
                   bypassed={bypassed}
                 />
               )}
@@ -10911,7 +11044,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                                 </div>
                                 <div className="flex justify-between items-center text-[11px]">
                                   <span className="opacity-50">Build</span>
-                                  <span className="font-bold text-[#4AC4FE]">26606</span>
+                                                             <span className="font-bold text-[#4AC4FE]">26609</span>
                                 </div>
                                 <div className="flex justify-between items-center text-[11px]">
                                   <span className="opacity-50">Compiled</span>
