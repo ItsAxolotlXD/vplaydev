@@ -701,7 +701,7 @@ const slides = [
   { 
     url: "https://img.cand.com.vn/resize/800x800/NewFiles/Images/2023/03/30/Giai_tri_vtv-1680172145227.jpg", 
     title: "Giải trí không giới hạn", 
-    desc: "Hơn 200+ kênh truyền hình HD chất lượng cao hoàn toàn miễn phí mỗi ngày.",
+    desc: "Khám phá thế giới truyền hình đặc sắc cùng hơn 200+ kênh giải trí đỉnh cao hoàn toàn miễn phí.",
     tag: "Vplay Web"
   },
   { 
@@ -709,6 +709,12 @@ const slides = [
     title: "Giao diện Liquid Glass", 
     desc: "Trải nghiệm xem truyền hình tương lai với hiệu ứng kính mờ và chuyển động mượt mà đầy mê hoặc.",
     tag: "Thiết kế"
+  },
+  { 
+    url: "/src/assets/images/vtv1_thoisu_banner_1780035677079.png", 
+    title: "Bản tin Thời sự đặc sắc", 
+    desc: "Cập nhật nhanh chóng, chuẩn xác dòng chảy tin tức chính thống trong nước và toàn cầu suốt 24h.",
+    tag: "VTV1"
   }
 ];
 
@@ -826,63 +832,114 @@ function HomeContent({ setActiveTab, setActiveChannel, isDark, favorites, toggle
   return (
     <div className="relative space-y-16 pb-32 max-w-7xl mx-auto px-4 md:px-8">
       {/* Dynamic Hero Section */}
-      <div className="relative overflow-hidden rounded-[40px] aspect-[16/9] md:aspect-[2.5/1] group shadow-2xl border border-white/5">
-        <AnimatePresence initial={false} custom={direction}>
-          <motion.img
-            key={slideIndex}
-            src={slides[slideIndex].url}
-            custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              x: { type: "spring", stiffness: 500, damping: 40 },
-              opacity: { duration: 0.2 },
-              scale: { duration: 0.4 }
-            }}
-            className="absolute inset-0 w-full h-full object-cover"
-            referrerPolicy="no-referrer"
-          />
-        </AnimatePresence>
-        
-        {/* Glass Overlay for Text */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-4 md:p-14 z-20">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            key={`text-${slideIndex}`}
-            className="space-y-2 md:space-y-4"
+      <div className="relative w-full overflow-visible py-4 select-none">
+        {/* Carousel 3D Track */}
+        <div className="relative w-full max-w-5xl mx-auto aspect-[16/9] md:aspect-[2.2/1] overflow-visible">
+          {/* Left card (Previous slide) */}
+          <div 
+            onClick={() => paginate(-1)}
+            className="hidden md:block absolute left-[-24%] top-0 w-[74%] h-full rounded-[32px] overflow-hidden opacity-45 hover:opacity-70 transition-all duration-500 cursor-pointer pointer-events-auto transform scale-[0.88] z-10 border border-white/5 shadow-2xl"
           >
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 md:px-4 md:py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[8px] md:text-[10px] font-semibold uppercase tracking-widest mb-1 md:mb-2">
-              <img 
-                src="https://static.wikia.nocookie.net/ftv/images/d/d9/SMR26.png/revision/latest?cb=20260427024320&path-prefix=vi"
-                alt="26M6"
-                className="w-3.5 h-3.5 md:w-4 md:h-4 object-contain"
+            <img 
+              src={slides[(slideIndex - 1 + slides.length) % slides.length].url} 
+              alt="prev" 
+              className="w-full h-full object-cover" 
+              referrerPolicy="no-referrer"
+            />
+            {/* Dark overlay for side cards */}
+            <div className="absolute inset-0 bg-black/55" />
+            
+            {/* Chevron Left Overlay on side card */}
+            <div className="absolute inset-y-0 right-4 flex items-center justify-center">
+              <div className="p-2.5 rounded-full bg-white/10 backdrop-blur-md text-white border border-white/15">
+                <ChevronLeft size={16} />
+              </div>
+            </div>
+          </div>
+
+          {/* Active middle card */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 w-full md:w-[74%] h-full rounded-[32px] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.65)] border border-white/10 transform scale-100 transition-all duration-500 z-20 group/middle">
+            <AnimatePresence initial={false} custom={direction}>
+              <motion.img
+                key={slideIndex}
+                src={slides[slideIndex].url}
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: "spring", stiffness: 450, damping: 36 },
+                  opacity: { duration: 0.25 },
+                  scale: { duration: 0.45 }
+                }}
+                className="absolute inset-0 w-full h-full object-cover"
                 referrerPolicy="no-referrer"
               />
-              {slides[slideIndex].tag}
+            </AnimatePresence>
+
+            {/* Gradient Overlay for description text */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent flex flex-col justify-end p-5 md:p-10 z-25">
+              <motion.div
+                initial={{ opacity: 0, y: 25 }}
+                animate={{ opacity: 1, y: 0 }}
+                key={`text-${slideIndex}`}
+                className="space-y-1.5 md:space-y-3"
+              >
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest mb-1.5 align-middle">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#4AC4FE] animate-pulse" />
+                  {slides[slideIndex].tag}
+                </div>
+                <motion.h1 
+                  initial={{ opacity: 0, x: -30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="text-base xs:text-lg sm:text-2xl md:text-4xl font-black tracking-tight text-white uppercase leading-tight max-w-xl"
+                >
+                  {slides[slideIndex].title}
+                </motion.h1>
+                <p className="text-white/70 text-[10px] sm:text-xs md:text-sm font-medium max-w-lg leading-relaxed line-clamp-2 md:line-clamp-none">
+                  {slides[slideIndex].desc}
+                </p>
+              </motion.div>
             </div>
-            <motion.h1 
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="text-lg xs:text-2xl sm:text-3xl md:text-5xl font-black tracking-tighter text-white uppercase leading-tight max-w-2xl"
-            >
-              {slides[slideIndex].title}
-            </motion.h1>
-            <p className="text-white/70 text-[10px] xs:text-xs md:text-base font-medium max-w-xl leading-relaxed line-clamp-2 md:line-clamp-none">
-              {slides[slideIndex].desc}
-            </p>
-          </motion.div>
+          </div>
+
+          {/* Right card (Next slide) */}
+          <div 
+            onClick={() => paginate(1)}
+            className="hidden md:block absolute right-[-24%] top-0 w-[74%] h-full rounded-[32px] overflow-hidden opacity-45 hover:opacity-70 transition-all duration-500 cursor-pointer pointer-events-auto transform scale-[0.88] z-10 border border-white/5 shadow-2xl"
+          >
+            <img 
+              src={slides[(slideIndex + 1) % slides.length].url} 
+              alt="next" 
+              className="w-full h-full object-cover" 
+              referrerPolicy="no-referrer"
+            />
+            {/* Dark overlay for side cards */}
+            <div className="absolute inset-0 bg-black/55" />
+            
+            {/* Chevron Right Overlay on side card */}
+            <div className="absolute inset-y-0 left-4 flex items-center justify-center">
+              <div className="p-2.5 rounded-full bg-white/10 backdrop-blur-md text-white border border-white/15">
+                <ChevronRight size={16} />
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Navigation Buttons */}
-        <div className="absolute top-1/2 -translate-y-1/2 left-6 right-6 flex justify-between z-30 opacity-0 group-hover:opacity-100 transition-all">
-          <button onClick={() => paginate(-1)} className="p-3 rounded-full bg-white/10 backdrop-blur-2xl text-white hover:bg-white/20 hover:scale-110 transition-all border border-white/10">
-            <ChevronLeft size={24} />
+        {/* Floating Chevrons for responsive overlay */}
+        <div className="md:hidden absolute inset-y-0 left-4 right-4 flex items-center justify-between pointer-events-none z-30">
+          <button 
+            onClick={() => paginate(-1)} 
+            className="p-2.5 rounded-full bg-black/40 backdrop-blur-xl text-white border border-white/10 pointer-events-auto active:scale-90 transition-transform"
+          >
+            <ChevronLeft size={18} />
           </button>
-          <button onClick={() => paginate(1)} className="p-3 rounded-full bg-white/10 backdrop-blur-2xl text-white hover:bg-white/20 hover:scale-110 transition-all border border-white/10">
-            <ChevronRight size={24} />
+          <button 
+            onClick={() => paginate(1)} 
+            className="p-2.5 rounded-full bg-black/40 backdrop-blur-xl text-white border border-white/10 pointer-events-auto active:scale-90 transition-transform"
+          >
+            <ChevronRight size={18} />
           </button>
         </div>
       </div>
@@ -6221,8 +6278,8 @@ function SearchContextMenu({
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
         style={{ top: y, left: x }}
-        className={`fixed z-[1001] w-56 rounded-2xl shadow-2xl border p-1.5 overflow-hidden ${
-          isDark ? "bg-[#11131c] border-white/10 text-white" : "bg-white border-slate-200 text-slate-900 shadow-xl"
+        className={`fixed z-[1001] w-56 rounded-2xl shadow-2xl border p-1.5 overflow-hidden backdrop-blur-xl ${
+          isDark ? "bg-[#11131c]/85 border-white/10 text-white" : "bg-white/85 border-slate-200 text-slate-900 shadow-xl"
         }`}
       >
         {menuItems.map((item) => {
@@ -6289,11 +6346,11 @@ function UnifiedContextMenu({
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
         style={{ top: y, left: x }}
-        className={`fixed z-[1001] w-60 rounded-2xl shadow-2xl border p-1.5 overflow-hidden ${
+        className={`fixed z-[1001] w-60 rounded-2xl shadow-2xl border p-1.5 overflow-hidden backdrop-blur-xl ${
           isDark 
-            ? "bg-[#11131c]/95 border-white/10 text-white shadow-[0_12px_40px_rgba(0,0,0,0.5)]" 
-            : "bg-white/95 border-slate-200 text-[#11131c] shadow-[0_12px_30px_rgba(15,23,42,0.15)]"
-        } backdrop-blur-3xl`}
+            ? "bg-[#11131c]/85 border-white/10 text-white shadow-[0_12px_40px_rgba(0,0,0,0.5)]" 
+            : "bg-white/85 border-slate-200 text-[#11131c] shadow-[0_12px_30px_rgba(15,23,42,0.15)]"
+        }`}
       >
         {/* Section 1: UI Layout */}
         <button 
@@ -8490,8 +8547,8 @@ function WidgetsDashboard({
              <AnimatePresence>
                 {contextMenu?.id && (
                   <div
-                    className={`fixed z-[1002] w-48 border shadow-2xl rounded-2xl p-1.5 flex flex-col gap-0.5 backdrop-blur-3xl ${
-                      isDark ? "bg-vplay-background/95 border-white/10 text-white" : "bg-white/95 border-slate-200 text-slate-900 shadow-xl"
+                    className={`fixed z-[1002] w-48 border shadow-2xl rounded-2xl p-1.5 flex flex-col gap-0.5 backdrop-blur-xl ${
+                      isDark ? "bg-[#11131c]/85 border-white/10 text-white" : "bg-white/85 border-slate-200 text-slate-900 shadow-xl"
                     }`}
                     style={{ left: contextMenu.x, top: contextMenu.y }}
                     onClick={(e) => e.stopPropagation()}
@@ -8825,6 +8882,11 @@ function App() {
   const [activeDashboardTab, setActiveDashboardTab] = useState<"widgets" | "changelogs" | "labs" | "settings">("widgets");
   const [activeTab, setActiveTab] = useState("Trang chủ");
   const [isSettingsLoading, setIsSettingsLoading] = useState(false);
+  const [homeScrollY, setHomeScrollY] = useState(0);
+
+  useEffect(() => {
+    setHomeScrollY(0);
+  }, [activeTab]);
 
   useEffect(() => {
     if (activeTab === "Cài đặt") {
@@ -9828,8 +9890,8 @@ const [headingBar, setHeadingBar] = useState(() => {
       </AnimatePresence>
       <div className={`${
         isDark 
-          ? "dark bg-[#121214] text-white" 
-          : "bg-[#f8fafc] text-black"
+          ? "dark bg-transparent text-white" 
+          : "bg-transparent text-black"
       } h-screen flex font-sans transition-all duration-500 overflow-hidden ${useSidebar ? "flex-row" : "flex-col"} ${featureFlags.disable_animation ? "reduce-animations" : ""}`}
       onContextMenu={handleGlobalContextMenu}
       style={{
@@ -9881,26 +9943,39 @@ const [headingBar, setHeadingBar] = useState(() => {
           />
         </div>
       )}
-      {/* Global Immersive Background Blur */}
-      <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
+      {/* Global Immersive Background Blur - Reacts dynamically to Active Tab & Thumbnail */}
+      <div 
+        style={{ opacity: activeTab === "Trang chủ" ? Math.max(0, 1 - (homeScrollY / 360)) : 0 }}
+        className="fixed inset-0 pointer-events-none z-[-2] overflow-hidden transition-opacity duration-300"
+      >
         <AnimatePresence mode="wait">
           <motion.div
             key={slideIndex}
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 0.25, scale: 1 }}
+            initial={{ opacity: 0, scale: 1.15 }}
+            animate={{ opacity: 0.95, scale: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.2, ease: "easeInOut" }}
             className="absolute inset-0"
           >
             <img 
-              src={slides[slideIndex].url} 
+               src={slides[slideIndex].url} 
               alt="" 
-              className="w-full h-full object-cover blur-[180px] md:blur-[240px] saturate-[250%]"
+              className="w-full h-full object-cover blur-[200px] md:blur-[300px] saturate-[360%]"
               referrerPolicy="no-referrer"
             />
           </motion.div>
         </AnimatePresence>
-        <div className={`absolute inset-0 transition-colors duration-1000 ${isDark ? "bg-vplay-background/90" : "bg-white/60"}`} />
+        <div 
+          style={{ 
+            backdropFilter: 'blur(160px)', 
+            WebkitBackdropFilter: 'blur(160px)' 
+          }}
+          className={`absolute inset-0 transition-all duration-1000 ${
+            isDark 
+              ? "bg-[#11131c]/05" 
+              : "bg-white/05"
+          }`} 
+        />
       </div>
 
       <AnimatePresence>
@@ -10244,7 +10319,17 @@ const [headingBar, setHeadingBar] = useState(() => {
         </LiquidModal>
 
 
-        <div className="flex-1 overflow-y-auto pb-32 flex flex-col w-full max-w-full overflow-x-hidden bg-transparent">
+        <div 
+          onScroll={(e) => {
+            const scrollTop = e.currentTarget.scrollTop;
+            if (activeTab === "Trang chủ") {
+              setHomeScrollY(scrollTop);
+            } else if (homeScrollY !== 0) {
+              setHomeScrollY(0);
+            }
+          }}
+          className="flex-1 overflow-y-auto pb-32 flex flex-col w-full max-w-full overflow-x-hidden bg-transparent"
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={displayTab}
