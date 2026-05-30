@@ -1034,7 +1034,7 @@ function HomeContent({
       >
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 md:gap-6 flex-1 text-center sm:text-left">
           {/* Magnified VTV6 Logo */}
-          <div className="relative shrink-0 flex items-center justify-center p-3 rounded-2xl bg-white/5 border border-white/10 shadow-lg shadow-black/30">
+          <div className="relative shrink-0 flex items-center justify-center p-4 rounded-2xl bg-gradient-to-br from-[#E11D48] via-[#F43F5E] to-[#BE123C] shadow-lg shadow-black/40 border border-white/20 select-none">
             <img 
               src="https://static.wikia.nocookie.net/logos/images/2/21/VTV6_logo_%282026%29.png/revision/latest/scale-to-width-down/1000?cb=20260508074729&path-prefix=vi"
               alt="VTV6 Logo"
@@ -1657,6 +1657,34 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   const beepOscillatorRef = useRef<OscillatorNode | null>(null);
   const beepGainRef = useRef<GainNode | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
+
+  // Pre-initialize and resume AudioContext on actual user interactions (clicks or touchstarts) to satisfy iOS Safari & Chrome Mobile requirements
+  useEffect(() => {
+    const initAndUnlockAudio = () => {
+      try {
+        if (!audioContextRef.current) {
+          const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+          if (AudioContextClass) {
+            audioContextRef.current = new AudioContextClass();
+          }
+        }
+        const ctx = audioContextRef.current;
+        if (ctx && ctx.state === "suspended") {
+          ctx.resume().catch((err) => console.log("resume failed", err));
+        }
+      } catch (err) {
+        console.warn("Failed to unlock and resume web audio content", err);
+      }
+    };
+
+    window.addEventListener("click", initAndUnlockAudio, { capture: true, passive: true });
+    window.addEventListener("touchstart", initAndUnlockAudio, { capture: true, passive: true });
+
+    return () => {
+      window.removeEventListener("click", initAndUnlockAudio, { capture: true });
+      window.removeEventListener("touchstart", initAndUnlockAudio, { capture: true });
+    };
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
