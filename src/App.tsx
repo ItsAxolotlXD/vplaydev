@@ -707,7 +707,7 @@ const RenderSlideContent = ({ slide }: { slide: any }) => {
         
         {/* Soft glowing aura centered matching channel brand */}
         <div 
-          className="absolute w-48 h-48 rounded-full blur-[70px] opacity-25 scale-125 pointer-events-none animate-pulse"
+          className="absolute w-80 h-80 rounded-full blur-[90px] opacity-40 scale-125 pointer-events-none animate-pulse"
           style={{ backgroundColor: slide.glowColor || "rgba(74, 196, 254, 0.45)" }}
         />
 
@@ -715,7 +715,7 @@ const RenderSlideContent = ({ slide }: { slide: any }) => {
         <img 
           src={slide.logo} 
           alt={slide.title}
-          className="w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 object-contain z-10 transition-transform duration-500 group-hover:scale-105 drop-shadow-[0_16px_36px_rgba(0,0,0,0.65)]"
+          className="w-40 h-40 sm:w-56 sm:h-56 md:w-72 md:h-72 object-contain z-10 transition-transform duration-500 group-hover:scale-110 drop-shadow-[0_20px_48px_rgba(0,0,0,0.75)]"
           referrerPolicy="no-referrer"
         />
 
@@ -864,11 +864,11 @@ function HomeContent({
   }, []);
 
   return (
-    <div className="relative space-y-16 pb-32 max-w-7xl mx-auto px-4 md:px-8">
+    <div className="relative space-y-16 pb-32 w-full max-w-[1600px] 2xl:max-w-[1800px] mx-auto px-4 md:px-12">
       {/* Dynamic Hero Section */}
       <div className="relative w-full overflow-visible py-4 select-none">
         {/* Carousel 3D Track */}
-        <div className="relative w-full max-w-5xl mx-auto aspect-[16/9] md:aspect-[2.2/1] overflow-visible">
+        <div className="relative w-full max-w-6xl mx-auto aspect-[16/9] md:aspect-[2.2/1] overflow-visible">
           {/* Left card (Previous slide) */}
           <div 
             onClick={() => paginate(-1)}
@@ -1420,9 +1420,9 @@ function ExploreContent({
         </div>
       )}
 
-      <div className={`${useSidebar ? "mt-4" : "max-w-7xl"} mx-auto w-full px-4 md:px-8 space-y-20`}>
+      <div className={`${useSidebar ? "mt-4" : "w-full max-w-[1600px] 2xl:max-w-[1800px] px-4 md:px-12"} mx-auto w-full space-y-20`}>
         {searchQuery.trim() !== "" ? (
-          <div className="max-w-6xl mx-auto w-full">
+          <div className="max-w-[1600px] 2xl:max-w-[1800px] mx-auto w-full">
             <SearchPopup 
               isDark={isDark} 
               searchQuery={searchQuery} 
@@ -1546,7 +1546,9 @@ function ExploreContent({
 function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Channel, isMuted: boolean, volume: number, isDark: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
-  const isImageStream = channel.stream.match(/\.(png|jpg|jpeg|svg|gif|webp)/) || channel.stream.includes("Colorbars") || channel.name.includes("VTV6");
+  const isImageStream = channel.stream.match(/\.(png|jpg|jpeg|svg|gif|webp)/) || channel.stream.includes("Colorbars") || channel.name.includes("VTV6") || channel.status === "maintenance";
+  const colorbarsUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/EBU_Colorbars_HD.svg/960px-EBU_Colorbars_HD.svg.png?_=20220810032923";
+  const imageUrl = channel.status === "maintenance" ? colorbarsUrl : channel.stream;
 
   useEffect(() => {
     if (isImageStream) {
@@ -1591,7 +1593,7 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
   if (isImageStream) {
     return (
       <img 
-        src={channel.stream} 
+        src={imageUrl} 
         alt={channel.name} 
         className="w-full h-full object-contain bg-black select-none" 
         referrerPolicy="no-referrer"
@@ -1733,18 +1735,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
     // Always try to reset mute when splash is gone
     setIsMuted(false);
 
-    if (active.status === "maintenance") {
-      if (hlsRef.current) {
-        hlsRef.current.destroy();
-        hlsRef.current = null;
-      }
-      setIsPlaying(true);
-      setStreamError(null);
-      // Native autoPlay attribute mixed with muted=true in JSX handles playback perfectly
-      return;
-    }
-
-    const isImageStream = active.stream.match(/\.(png|jpg|jpeg|svg|gif|webp)/) || active.stream.includes("Colorbars") || active.name.includes("VTV6");
+    const isImageStream = active.stream.match(/\.(png|jpg|jpeg|svg|gif|webp)/) || active.stream.includes("Colorbars") || active.name.includes("VTV6") || active.status === "maintenance";
     if (isImageStream) {
       if (hlsRef.current) {
         hlsRef.current.destroy();
@@ -2008,7 +1999,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   );
 
   return (
-    <div className="flex-1 p-2 md:p-6 w-full max-w-full overflow-x-hidden">
+    <div className="flex-1 p-2 md:p-6 w-full max-w-[1600px] 2xl:max-w-[1800px] mx-auto px-4 md:px-12 overflow-x-hidden">
       {/* Liquid Modal for Channel Selection */}
       <LiquidModal
         isOpen={!!showChannelSelector}
@@ -2076,7 +2067,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
       {/* VIDEO PLAYER */}
       <div 
         ref={containerRef}
-        className={`bg-black mb-4 md:mb-6 flex items-center justify-center border shadow-2xl relative overflow-hidden group w-full max-w-full ${
+        className={`bg-black mb-4 md:mb-6 flex items-center justify-center border shadow-2xl relative overflow-hidden group w-full md:max-w-4xl lg:max-w-5xl mx-auto ${
         isMultiview ? "aspect-auto min-h-[300px] md:min-h-[400px]" : "aspect-video"
       } ${
         liquidGlass ? "rounded-xl md:rounded-2xl" : "rounded-lg"
@@ -2177,7 +2168,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
           </div>
         ) : (
           <>
-            {active.status === "maintenance" || active.status === "coming-soon" ? (
+            {active.status === "coming-soon" ? (
               <div className="absolute inset-0 w-full h-full bg-[#0a0a0a] flex flex-col items-center justify-center p-8 overflow-hidden">
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -2190,13 +2181,21 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                   </div>
                 </motion.div>
               </div>
-            ) : (active.stream.match(/\.(png|jpg|jpeg|svg|gif|webp)/) || active.stream.includes("Colorbars") || active.name.includes("VTV6")) ? (
-              <img
-                src={active.stream}
-                alt={active.name}
-                className="w-full h-full object-contain select-none"
-                referrerPolicy="no-referrer"
-              />
+            ) : (active.stream.match(/\.(png|jpg|jpeg|svg|gif|webp)/) || active.stream.includes("Colorbars") || active.name.includes("VTV6") || active.status === "maintenance") ? (
+              <div className="relative w-full h-full flex items-center justify-center bg-black select-none">
+                <img
+                  src={active.status === "maintenance" ? "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/EBU_Colorbars_HD.svg/960px-EBU_Colorbars_HD.svg.png?_=20220810032923" : active.stream}
+                  alt={active.name}
+                  className="w-full h-full object-contain select-none"
+                  referrerPolicy="no-referrer"
+                />
+                {active.status === "maintenance" && (
+                  <div className="absolute top-6 left-6 bg-red-600/90 text-white font-mono font-bold text-xs px-3 py-1 rounded tracking-widest uppercase shadow-md flex items-center gap-2 border border-red-505/20">
+                    <div className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                    MAINTENANCE
+                  </div>
+                )}
+              </div>
             ) : (
               <video
                 ref={videoRef}
@@ -2377,7 +2376,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
       </div>
 
       {/* CHANNEL INFO */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2 mt-4 md:mt-0">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2 mt-4 md:mt-0 md:max-w-4xl lg:max-w-5xl mx-auto w-full">
         <div className="flex flex-col gap-1 md:gap-2">
           <div className="flex flex-wrap items-center gap-3 md:gap-4">
             <motion.h2 
@@ -3010,7 +3009,7 @@ function AdminContent({ isDark, liquidGlass }: { isDark: boolean, liquidGlass: "
   const filteredUsers = users.filter(u => u.email !== "sonhuyc2kl@gmail.com");
 
   return (
-    <div className="p-4 md:p-8 max-w-6xl mx-auto">
+    <div className="w-full max-w-[1600px] 2xl:max-w-[1800px] mx-auto p-4 md:p-8 px-4 md:px-12 pb-32">
       <h2 className={`text-2xl font-bold mb-6 ${isDark ? "text-white" : "text-slate-900"}`}>Quản trị</h2>
       <div className={`rounded-xl border overflow-x-auto ${isDark ? "border-slate-800 bg-slate-900/50" : "border-slate-200 bg-white"}`}>
         <table className="w-full text-left min-w-[600px]">
@@ -3279,7 +3278,7 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment, han
   );
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-12 max-w-4xl mx-auto w-full pb-32">
+    <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-12 w-full max-w-[1600px] 2xl:max-w-[1800px] mx-auto px-4 md:px-12 pb-32">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <button 
@@ -3404,7 +3403,7 @@ function ExperimentalContent({ isDark, featureFlags, setFeatureFlags, liquidGlas
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-2 md:p-4 space-y-8 pb-32 scale-[0.85] origin-top">
+    <div className="w-full max-w-[1600px] 2xl:max-w-[1800px] mx-auto px-4 md:px-12 space-y-8 pb-32 origin-top">
       <div className={`p-5 rounded-[20px] border-2 transition-all shadow-md ${
         isDark ? "bg-amber-500/10 border-amber-500/20 text-amber-500" : "bg-amber-50 border-amber-200 text-amber-700"
       }`}>
@@ -4645,7 +4644,7 @@ function SettingsContent({
     setSaving(false);
   };
   return (
-    <div className="max-w-6xl mx-auto px-2 md:px-0 pb-32 space-y-6 md:space-y-8">
+    <div className="w-full max-w-[1600px] 2xl:max-w-[1800px] mx-auto px-4 md:px-12 pb-32 space-y-6 md:space-y-8">
       {/* 1. Information Section (Top - Full Width) */}
       <div className={`p-6 md:p-12 rounded-[32px] md:rounded-[48px] border relative overflow-hidden transition-all ${isDark ? "bg-black/40 border-white/10 shadow-inner" : "bg-slate-50 border-slate-100 shadow-sm"}`}>
         <div className="absolute top-0 right-0 w-64 md:w-96 h-64 md:h-96 bg-gradient-to-br from-[#4AC4FE]/20 to-cyan-500/10 blur-[80px] md:blur-[120px] -mr-20 -mt-20 md:-mr-32 md:-mt-32" />
@@ -10598,7 +10597,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                      <LoadingSpinner isDark={isDark} className="w-16 h-16" />
                   </div>
                ) : (
-                    <div id="settings-tab-container-main" className="p-2.5 xs:p-4 md:p-8 space-y-6 md:space-y-12 max-w-6xl mx-auto w-full h-full flex flex-col pt-0">
+                    <div id="settings-tab-container-main" className="p-2.5 xs:p-4 md:p-8 space-y-6 md:space-y-12 w-full max-w-full px-4 md:px-12 h-full flex flex-col pt-0">
                         <RejuvenatedSettings
                           setSplashDuration={setSplashDuration}
                           isDark={isDark} 
