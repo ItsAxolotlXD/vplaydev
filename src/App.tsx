@@ -1546,8 +1546,17 @@ function ExploreContent({
 function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Channel, isMuted: boolean, volume: number, isDark: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
+  const isImageStream = channel.stream.match(/\.(png|jpg|jpeg|svg|gif|webp)/) || channel.stream.includes("Colorbars") || channel.name.includes("VTV6");
 
   useEffect(() => {
+    if (isImageStream) {
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
+      }
+      return;
+    }
+
     const video = videoRef.current;
     if (!video) return;
 
@@ -1570,14 +1579,25 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
     return () => {
       if (hlsRef.current) hlsRef.current.destroy();
     };
-  }, [channel]);
+  }, [channel, isImageStream]);
 
   useEffect(() => {
-    if (videoRef.current) {
+    if (videoRef.current && !isImageStream) {
       videoRef.current.volume = volume;
       videoRef.current.muted = isMuted;
     }
-  }, [volume, isMuted]);
+  }, [volume, isMuted, isImageStream]);
+
+  if (isImageStream) {
+    return (
+      <img 
+        src={channel.stream} 
+        alt={channel.name} 
+        className="w-full h-full object-contain bg-black select-none" 
+        referrerPolicy="no-referrer"
+      />
+    );
+  }
 
   return (
     <video 
@@ -1721,6 +1741,17 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
       setIsPlaying(true);
       setStreamError(null);
       // Native autoPlay attribute mixed with muted=true in JSX handles playback perfectly
+      return;
+    }
+
+    const isImageStream = active.stream.match(/\.(png|jpg|jpeg|svg|gif|webp)/) || active.stream.includes("Colorbars") || active.name.includes("VTV6");
+    if (isImageStream) {
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
+      }
+      setIsPlaying(true);
+      setStreamError(null);
       return;
     }
 
@@ -2159,6 +2190,13 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                   </div>
                 </motion.div>
               </div>
+            ) : (active.stream.match(/\.(png|jpg|jpeg|svg|gif|webp)/) || active.stream.includes("Colorbars") || active.name.includes("VTV6")) ? (
+              <img
+                src={active.stream}
+                alt={active.name}
+                className="w-full h-full object-contain select-none"
+                referrerPolicy="no-referrer"
+              />
             ) : (
               <video
                 ref={videoRef}
@@ -9770,10 +9808,6 @@ const [headingBar, setHeadingBar] = useState(() => {
   const handleChannelSelect = (ch: typeof channels[0]) => {
     if (!user && !isDev && !bypassed) {
       setShowAuthModal(true);
-      return;
-    }
-    if (ch.name.includes("VTV6")) {
-      setIsVTV6DialogOpen(true);
       return;
     }
     setActiveChannel(ch);
