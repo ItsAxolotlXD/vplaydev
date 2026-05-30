@@ -700,7 +700,7 @@ const Countdown = ({ targetDate, isDark }: { targetDate: string, isDark: boolean
 const RenderSlideContent = ({ slide }: { slide: any }) => {
   if (slide.logo) {
     return (
-      <div className="relative w-full h-full bg-gradient-to-br from-[#131520] via-[#1a1c29] to-[#0f111a] flex flex-col items-center justify-center p-6 select-none overflow-hidden group">
+      <div className={`relative w-full h-full ${slide.bgGradient || "bg-gradient-to-br from-[#131520] via-[#1a1c29] to-[#0f111a]"} flex flex-col items-center justify-center p-6 select-none overflow-hidden group`}>
         {/* Modern clean stripes backdrop detail */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,0.035)_0%,transparent_70%)] pointer-events-none" />
         <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.01)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.01)_50%,rgba(255,255,255,0.01)_75%,transparent_75%,transparent)] bg-[size:24px_24px] opacity-15 pointer-events-none" />
@@ -1053,15 +1053,33 @@ function HomeContent({
           </div>
         </div>
 
-        {/* Beautiful Animated Countdown Timer */}
-        <div className="flex items-center gap-1.5 xs:gap-3 shrink-0 bg-white/5 border border-white/10 p-3.5 md:p-5 rounded-2xl md:rounded-3xl shadow-2xl shadow-black/40 backdrop-blur-md justify-center">
-          <AnimatedTimeBox value={timeLeft.days} label="Ngày" isDark={isDark} />
-          <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
-          <AnimatedTimeBox value={timeLeft.hours} label="Giờ" isDark={isDark} />
-          <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
-          <AnimatedTimeBox value={timeLeft.minutes} label="Phút" isDark={isDark} />
-          <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
-          <AnimatedTimeBox value={timeLeft.seconds} label="Giây" isDark={isDark} />
+        {/* Beautiful Animated Countdown Timer & Watch Now Button */}
+        <div className="flex flex-col items-center gap-4 shrink-0 w-full sm:w-auto">
+          <div className="flex items-center gap-1.5 xs:gap-3 w-full sm:w-auto bg-white/5 border border-white/10 p-3.5 md:p-5 rounded-2xl md:rounded-3xl shadow-2xl shadow-black/40 backdrop-blur-md justify-center">
+            <AnimatedTimeBox value={timeLeft.days} label="Ngày" isDark={isDark} />
+            <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
+            <AnimatedTimeBox value={timeLeft.hours} label="Giờ" isDark={isDark} />
+            <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
+            <AnimatedTimeBox value={timeLeft.minutes} label="Phút" isDark={isDark} />
+            <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
+            <AnimatedTimeBox value={timeLeft.seconds} label="Giây" isDark={isDark} />
+          </div>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => {
+              const v6 = channels.find(c => c.name === "VTV6");
+              if (v6) {
+                setActiveChannel(v6);
+                setActiveTab("Live");
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2 py-3 px-6 bg-red-600 hover:bg-red-500 text-white font-bold text-sm rounded-xl md:rounded-2xl transition-all shadow-lg shadow-red-600/30 cursor-pointer border border-red-500/20 active:scale-95 select-none"
+          >
+            <Play size={14} fill="currentColor" />
+            Xem ngay
+          </motion.button>
         </div>
       </motion.div>
 
@@ -1548,7 +1566,8 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
   const hlsRef = useRef<Hls | null>(null);
   const isImageStream = channel.stream.match(/\.(png|jpg|jpeg|svg|gif|webp)/) || channel.stream.includes("Colorbars") || channel.name.includes("VTV6") || channel.status === "maintenance";
   const colorbarsUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/EBU_Colorbars_HD.svg/960px-EBU_Colorbars_HD.svg.png?_=20220810032923";
-  const imageUrl = channel.status === "maintenance" ? colorbarsUrl : channel.stream;
+  const v6TestcardUrl = "https://static.wikia.nocookie.net/ftv/images/2/28/Imageacknksdnjkvsdvjkbs.png/revision/latest?cb=20260530031557&path-prefix=vi";
+  const imageUrl = channel.name.includes("VTV6") ? v6TestcardUrl : (channel.status === "maintenance" ? colorbarsUrl : channel.stream);
 
   useEffect(() => {
     if (isImageStream) {
@@ -1635,6 +1654,9 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hlsRef = useRef<Hls | null>(null);
+  const beepOscillatorRef = useRef<OscillatorNode | null>(null);
+  const beepGainRef = useRef<GainNode | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -1727,6 +1749,76 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   const filteredCategories = CATEGORY_ORDER.filter(cat => 
     filteredChannels.some(ch => ch.category === cat)
   );
+
+  // Play 1000Hz testcard tone beep for testcard/maintenance channels
+  useEffect(() => {
+    const isTestcard = active.name.includes("VTV6") || active.status === "maintenance" || active.stream.includes("Colorbars");
+    
+    if (!isTestcard || isMuted || volume === 0 || showSplash) {
+      if (beepOscillatorRef.current) {
+        try {
+          beepOscillatorRef.current.stop();
+        } catch (e) {}
+        try {
+          beepOscillatorRef.current.disconnect();
+        } catch (e) {}
+        beepOscillatorRef.current = null;
+      }
+      return;
+    }
+
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      const ctx = audioContextRef.current;
+      
+      // Auto-resume if suspended
+      if (ctx.state === "suspended") {
+        const resumeAudio = () => {
+          ctx.resume().catch(() => {});
+        };
+        window.addEventListener("click", resumeAudio, { once: true });
+        window.addEventListener("touchstart", resumeAudio, { once: true });
+        ctx.resume().catch(() => {});
+      }
+
+      if (beepOscillatorRef.current) {
+        if (beepGainRef.current) {
+          beepGainRef.current.gain.setValueAtTime(volume * 0.12, ctx.currentTime);
+        }
+        return;
+      }
+
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(1000, ctx.currentTime); // 1000Hz pure tone
+      gainNode.gain.setValueAtTime(volume * 0.12, ctx.currentTime); // 12% gain to be a clear but comfortable beep
+
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      osc.start();
+
+      beepOscillatorRef.current = osc;
+      beepGainRef.current = gainNode;
+    } catch (err) {
+      console.error("Failed to start testcard beep generator", err);
+    }
+
+    return () => {
+      if (beepOscillatorRef.current) {
+        try {
+          beepOscillatorRef.current.stop();
+        } catch (e) {}
+        try {
+          beepOscillatorRef.current.disconnect();
+        } catch (e) {}
+        beepOscillatorRef.current = null;
+      }
+    };
+  }, [active, isMuted, volume, showSplash]);
 
   useEffect(() => {
     if (!user && !isDev && !bypassed) return;
@@ -1898,24 +1990,24 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   };
 
   const toggleFullscreen = () => {
+    const container = containerRef.current;
+    if (!container) return;
     const video = videoRef.current;
-    if (!video) return;
-    const container = video.parentElement;
 
     if (!document.fullscreenElement) {
-      if (container && container.requestFullscreen) {
+      if (container.requestFullscreen) {
         container.requestFullscreen().catch(() => {
-          if (typeof (video as any).webkitEnterFullscreen === 'function') {
+          if (video && typeof (video as any).webkitEnterFullscreen === 'function') {
             (video as any).webkitEnterFullscreen();
           }
         });
-      } else if (typeof (video as any).webkitEnterFullscreen === 'function') {
+      } else if (video && typeof (video as any).webkitEnterFullscreen === 'function') {
         try {
           (video as any).webkitEnterFullscreen();
         } catch (err) {
           console.error("webkitEnterFullscreen list failed", err);
         }
-      } else if (container && (container as any).webkitRequestFullscreen) {
+      } else if ((container as any).webkitRequestFullscreen) {
         (container as any).webkitRequestFullscreen();
       }
     } else {
@@ -2182,9 +2274,12 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                 </motion.div>
               </div>
             ) : (active.stream.match(/\.(png|jpg|jpeg|svg|gif|webp)/) || active.stream.includes("Colorbars") || active.name.includes("VTV6") || active.status === "maintenance") ? (
-              <div className="relative w-full h-full flex items-center justify-center bg-black select-none">
+              <div 
+                className="relative w-full h-full flex items-center justify-center bg-black select-none cursor-pointer"
+                onDoubleClick={toggleFullscreen}
+              >
                 <img
-                  src={active.status === "maintenance" ? "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/EBU_Colorbars_HD.svg/960px-EBU_Colorbars_HD.svg.png?_=20220810032923" : active.stream}
+                  src={active.name.includes("VTV6") ? "https://static.wikia.nocookie.net/ftv/images/2/28/Imageacknksdnjkvsdvjkbs.png/revision/latest?cb=20260530031557&path-prefix=vi" : (active.status === "maintenance" ? "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/EBU_Colorbars_HD.svg/960px-EBU_Colorbars_HD.svg.png?_=20220810032923" : active.stream)}
                   alt={active.name}
                   className="w-full h-full object-contain select-none"
                   referrerPolicy="no-referrer"
@@ -2199,10 +2294,11 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
             ) : (
               <video
                 ref={videoRef}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain cursor-pointer"
                 autoPlay
                 muted={isMuted}
                 onClick={togglePlay}
+                onDoubleClick={toggleFullscreen}
               />
             )}
             
@@ -9281,19 +9377,14 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
   const [direction, setDirection] = useState(0);
 
   const [vtvProposal, setVtvProposal] = useState<typeof channels[0] | null>(null);
-  const [vtvcabProposal, setVtvcabProposal] = useState<typeof channels[0] | null>(null);
   const [localProposal, setLocalProposal] = useState<typeof channels[0] | null>(null);
 
   const rollChannelProposals = useCallback(() => {
-    const vtvList = channels.filter(ch => ch.category === "VTV" && ch.name !== "VTV6 (coming soon)");
-    const vtvcabList = channels.filter(ch => ch.category === "VTVcab" && ch.name !== "ON FOOTBALL");
+    const vtvCabList = channels.filter(ch => (ch.category === "VTV" || ch.category === "VTVcab") && ch.name !== "VTV6" && ch.name !== "VTV6 (coming soon)" && ch.name !== "ON FOOTBALL" && ch.status !== "maintenance");
     const localList = channels.filter(ch => ch.category === "Địa phương" && ch.status !== "maintenance");
 
-    if (vtvList.length > 0) {
-      setVtvProposal(vtvList[Math.floor(Math.random() * vtvList.length)]);
-    }
-    if (vtvcabList.length > 0) {
-      setVtvcabProposal(vtvcabList[Math.floor(Math.random() * vtvcabList.length)]);
+    if (vtvCabList.length > 0) {
+      setVtvProposal(vtvCabList[Math.floor(Math.random() * vtvCabList.length)]);
     }
     if (localList.length > 0) {
       setLocalProposal(localList[Math.floor(Math.random() * localList.length)]);
@@ -9307,6 +9398,8 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
   useEffect(() => {
     rollChannelProposals();
   }, [slideIndex, rollChannelProposals]);
+
+  const vtv6Channel = useMemo(() => channels.find(c => c.name === "VTV6"), []);
 
   const slides = useMemo(() => [
     { 
@@ -9322,30 +9415,31 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
       tag: "Thiết kế"
     },
     { 
+      logo: "https://static.wikia.nocookie.net/logos/images/2/21/VTV6_logo_%282026%29.png/revision/latest/scale-to-width-down/1000?cb=20260508074729&path-prefix=vi",
+      title: "Chào đón VTV6 trở lại cùng Vplay!",
+      desc: "Kênh truyền hình Thể thao chuyên biệt sắp sửa quay trở lại. Hãy sẵn sàng trải nghiệm các trận đấu kịch tính và đầy cảm xúc trực tiếp cùng Vplay!",
+      tag: "VTV6",
+      channel: vtv6Channel || undefined,
+      glowColor: "rgba(244, 63, 94, 0.75)",
+      bgGradient: "bg-gradient-to-br from-rose-500 via-pink-500 to-red-600"
+    },
+    { 
       logo: vtvProposal?.logo || "https://static.wikia.nocookie.net/logos/images/4/4b/VTV1_logo_01.11.2022_%28SD_%26_HD%29_v1.png/revision/latest?cb=20260222102645&path-prefix=uk", 
-      title: vtvProposal ? `Kênh VTV đề xuất: ${vtvProposal.name}` : "Kênh VTV đề xuất: VTV3 HD", 
-      desc: "Thưởng thức các chương trình giải trí, phim truyền hình Việt giờ vàng và thể thao sống động trên sóng quốc gia.",
-      tag: "VTV",
+      title: vtvProposal ? `Kênh VTV & VTVCab gợi ý cho bạn: ${vtvProposal.name}` : "Kênh VTV & VTVCab gợi ý cho bạn: VTV3 HD", 
+      desc: "Thưởng thức các chương trình giải trí, phim truyền hình Việt giờ vàng, thể thao sống động và phim điện ảnh đặc sắc.",
+      tag: "VTV & VTVCab",
       channel: vtvProposal || undefined,
       glowColor: "rgba(220, 38, 38, 0.55)"
     },
     { 
-      logo: vtvcabProposal?.logo || "https://img.vtvprime.vn/czM6Ly9wcmQtc24taW1hZ2VzL2NoYW5uZWwvT04rU1BPUlQrLnBuZw==.png", 
-      title: vtvcabProposal ? `Kênh VTVCab đề xuất: ${vtvcabProposal.name}` : "Kênh VTVcab đề xuất", 
-      desc: "Bữa tiệc giải trí truyền hình, tin tức phim điện ảnh, thiếu nhi đặc sắc được tuyển chọn liên tục.",
-      tag: "VTVcab",
-      channel: vtvcabProposal || undefined,
-      glowColor: "rgba(6, 182, 212, 0.55)"
-    },
-    { 
       logo: localProposal?.logo || "https://static.wikia.nocookie.net/logos/images/3/32/THVL1_logo_ident_2025.png/revision/latest/scale-to-width-down/1000?cb=20251206083051&path-prefix=vi", 
-      title: localProposal ? `Kênh địa phương đề xuất: ${localProposal.name}` : "Kênh địa phương: THVL1", 
+      title: localProposal ? `Kênh địa phương gợi ý cho bạn: ${localProposal.name}` : "Kênh địa phương gợi ý cho bạn: THVL1", 
       desc: "Xem các đài truyền hình địa phương được yêu thích nhất cả nước với các bộ phim bom tấn độc quyền.",
       tag: "Địa phương",
       channel: localProposal || undefined,
       glowColor: "rgba(245, 158, 11, 0.55)"
     }
-  ], [vtvProposal, vtvcabProposal, localProposal]);
+  ], [vtvProposal, localProposal, vtv6Channel]);
   const [loadingTreatment, setLoadingTreatment] = useState<string>(() => {
     return localStorage.getItem("vplay_loading_treatment") || "treatment3";
   });
