@@ -1725,6 +1725,105 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   const [multiviewVolumes, setMultiviewVolumes] = useState<{ [key: number]: number }>({});
   const [showLayoutMenu, setShowLayoutMenu] = useState(false);
 
+  // EPG STATE & EFFECTS
+  const [epgData, setEpgData] = useState<{ time: string; title: string }[]>([]);
+  const [epgLoading, setEpgLoading] = useState(false);
+  const [epgError, setEpgError] = useState<string | null>(null);
+  const [selectedDateOffset, setSelectedDateOffset] = useState<number>(0);
+  const [currentShowIndex, setCurrentShowIndex] = useState<number>(-1);
+
+  const targetDateString = useMemo(() => {
+    // Current VN date with offset
+    const date = new Date(Date.now() + 7 * 60 * 60 * 1000 + selectedDateOffset * 24 * 60 * 60 * 1000);
+    const dd = String(date.getUTCDate()).padStart(2, "0");
+    const mm = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const yyyy = date.getUTCFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  }, [selectedDateOffset]);
+
+  useEffect(() => {
+    let activeFetch = true;
+    
+    const fetchEpg = async () => {
+      setEpgLoading(true);
+      setEpgError(null);
+      
+      // Determine what channel name we fetch EPG for
+      let queryChan = active.name;
+      if (!queryChan.toUpperCase().startsWith("VTV")) {
+        queryChan = "VTV1";
+      }
+
+      try {
+        const res = await fetch(`/api/epg?channel=${encodeURIComponent(queryChan)}&date=${encodeURIComponent(targetDateString)}`);
+        if (!res.ok) {
+          throw new Error("Không thể tải lịch phát sóng");
+        }
+        const data = await res.json();
+        if (activeFetch) {
+          setEpgData(data.schedules || []);
+        }
+      } catch (err: any) {
+        if (activeFetch) {
+          setEpgError(err.message || "Lỗi tải dữ liệu");
+        }
+      } finally {
+        if (activeFetch) {
+          setEpgLoading(false);
+        }
+      }
+    };
+
+    fetchEpg();
+
+    return () => {
+      activeFetch = false;
+    };
+  }, [active.name, targetDateString]);
+
+  useEffect(() => {
+    if (epgData.length === 0) {
+      setCurrentShowIndex(-1);
+      return;
+    }
+    
+    const updateCurrentShow = () => {
+      const now = new Date(Date.now() + 7 * 60 * 60 * 1000);
+      const curHour = String(now.getUTCHours()).padStart(2, "0");
+      const curMin = String(now.getUTCMinutes()).padStart(2, "0");
+      const currentTimeStr = `${curHour}:${curMin}`;
+
+      if (selectedDateOffset > 0) {
+        setCurrentShowIndex(-1);
+        return;
+      }
+      if (selectedDateOffset < 0) {
+        setCurrentShowIndex(-1);
+        return;
+      }
+      
+      let foundIdx = -1;
+      for (let i = 0; i < epgData.length; i++) {
+        if (epgData[i].time <= currentTimeStr) {
+          if (i === epgData.length - 1 || epgData[i + 1].time > currentTimeStr) {
+            foundIdx = i;
+            break;
+          }
+        }
+      }
+      
+      if (foundIdx === -1 && epgData.length > 0 && currentTimeStr < epgData[0].time) {
+        foundIdx = 0; 
+      }
+      
+      setCurrentShowIndex(foundIdx);
+    };
+
+    updateCurrentShow();
+    const timer = setInterval(updateCurrentShow, 30000); // Check every 30s
+    return () => clearInterval(timer);
+  }, [epgData, selectedDateOffset]);
+
   useEffect(() => {
     if (multiviewChannels.length === 0) {
       setMultiviewChannels([active, ...Array(multiviewCount - 1).fill(null)]);
@@ -2184,14 +2283,19 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
         </div>
       </LiquidModal>
 
-      {/* VIDEO PLAYER */}
-      <div 
-        ref={containerRef}
-        className={`bg-black mb-4 md:mb-6 flex items-center justify-center border shadow-2xl relative overflow-hidden group w-full md:max-w-4xl lg:max-w-5xl mx-auto ${
-        isMultiview ? "aspect-auto min-h-[300px] md:min-h-[400px]" : "aspect-video"
-      } ${
-        liquidGlass ? "rounded-xl md:rounded-2xl" : "rounded-lg"
-      } ${isDark ? "border-slate-800" : "border-slate-300"}`}>
+      {/* WRAPPER FOR SIDE-BY-SIDE PLAYER AND EPG */}
+      <div className="flex flex-col xl:flex-row gap-6 items-start justify-center w-full max-w-[1600px] 2xl:max-w-[1800px] mx-auto mt-4 mb-8">
+        
+        {/* LEFT COLUMN: PLAYER AND CHANNEL INFO */}
+        <div className="w-full xl:flex-1 min-w-0">
+          {/* VIDEO PLAYER */}
+          <div 
+            ref={containerRef}
+            className={`bg-black mb-4 md:mb-6 flex items-center justify-center border shadow-2xl relative overflow-hidden group w-full ${
+            isMultiview ? "aspect-auto min-h-[300px] md:min-h-[400px]" : "aspect-video"
+          } ${
+            liquidGlass ? "rounded-xl md:rounded-2xl" : "rounded-lg"
+          } ${isDark ? "border-slate-800" : "border-slate-300"}`}>
         {!user && !isDev && !bypassed ? (
           <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-900/40 p-6 text-center ${
             liquidGlass ? "backdrop-blur-xl" : "backdrop-blur-none"
@@ -2500,7 +2604,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
       </div>
 
       {/* CHANNEL INFO */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2 mt-4 md:mt-0 md:max-w-4xl lg:max-w-5xl mx-auto w-full">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2 mt-4 md:mt-0 w-full mb-4">
         <div className="flex flex-col gap-1 md:gap-2">
           <div className="flex flex-wrap items-center gap-3 md:gap-4">
             <motion.h2 
@@ -2591,6 +2695,168 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
            </button>
         </div>
       </div>
+      
+      </div> {/* END OF LEFT COLUMN */}
+
+      {/* RIGHT COLUMN: EPG BOARD */}
+      <div className={`w-full xl:w-[350px] 2xl:w-[400px] shrink-0 flex flex-col h-[525px] md:h-[580px] border shadow-2xl relative transition-all duration-300 ${
+        liquidGlass === "glassy" ? "backdrop-blur-xl" : "backdrop-blur-none"
+      } ${
+        isDark 
+          ? "bg-slate-900/75 border-slate-800 text-white shadow-black/40" 
+          : "bg-white border-slate-200 text-slate-800 shadow-slate-200/50"
+      } rounded-2xl`}>
+        {/* Header */}
+        <div className={`p-4 border-b flex items-center justify-between gap-2 shrink-0 ${
+          isDark ? "border-slate-800 bg-slate-900/40" : "border-slate-100 bg-slate-50/50"
+        }`}>
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-[#E11D48] via-[#F43F5E] to-[#BE123C] text-white animate-pulse">
+              <Calendar size={18} />
+            </div>
+            <div className="text-left">
+              <h3 className="font-bold text-sm tracking-tight leading-none mb-1">Lịch phát sóng</h3>
+              <p className="text-[10px] text-slate-500 font-medium">Nguồn: vtv.vn (Cập nhật hằng ngày)</p>
+            </div>
+          </div>
+          
+          <span className="text-[10px] font-bold uppercase tracking-wider bg-[#E11D48]/10 text-[#E11D48] px-2.5 py-1 rounded-full border border-[#E11D48]/20">
+            {active.name.toUpperCase().startsWith("VTV") ? active.name : "VTV1 Companion"}
+          </span>
+        </div>
+
+        {/* Date Selector bar (Hôm qua, Hôm nay, Ngày mai, Ngày kia) */}
+        <div className={`px-2 py-2 border-b flex items-center justify-between gap-1 overflow-x-auto no-scrollbar shrink-0 ${
+          isDark ? "border-slate-800 bg-slate-900/20" : "border-slate-100 bg-slate-50/20"
+        }`}>
+          {[-1, 0, 1, 2].map((offset) => {
+            let label = "";
+            if (offset === -1) label = "Hôm qua";
+            else if (offset === 0) label = "Hôm nay";
+            else if (offset === 1) label = "Ngày mai";
+            else if (offset === 2) label = "Ngày kia";
+            
+            const isActive = selectedDateOffset === offset;
+            
+            const d = new Date(Date.now() + 7 * 60 * 60 * 1000 + offset * 24 * 60 * 60 * 1000);
+            const dayStr = `${d.getUTCDate()}/${d.getUTCMonth() + 1}`;
+
+            return (
+              <button
+                key={offset}
+                onClick={() => setSelectedDateOffset(offset)}
+                type="button"
+                className={`flex-1 min-w-[70px] py-1 px-1.5 rounded-lg text-center flex flex-col items-center justify-center transition-all cursor-pointer ${
+                  isActive
+                    ? "bg-gradient-to-r from-[#E11D48] to-[#BE123C] text-white font-bold shadow-md scale-[1.03]"
+                    : isDark
+                      ? "hover:bg-white/5 text-slate-400 font-semibold"
+                      : "hover:bg-slate-100 text-slate-500 font-semibold"
+                }`}
+              >
+                <span className="text-[9px] tracking-wide uppercase leading-tight">{label}</span>
+                <span className="text-[8px] opacity-75">{dayStr}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Schedules Content */}
+        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2 custom-scrollbar relative text-left">
+          {epgLoading ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <div className="w-8 h-8 rounded-full border-2 border-[#E11D48] border-t-transparent animate-spin" />
+              <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Đang tải lịch phát sóng...</span>
+            </div>
+          ) : epgError ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
+              <div className="p-3 bg-red-500/10 text-red-500 rounded-full animate-bounce">
+                <AlertCircle size={28} />
+              </div>
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">{epgError}</p>
+              <button 
+                onClick={() => {
+                  setSelectedDateOffset(selectedDateOffset);
+                }}
+                type="button"
+                className="px-4 py-2 bg-[#E11D48]/10 hover:bg-[#E11D48]/20 text-[#E11D48] rounded-full text-[10px] font-bold uppercase tracking-wider border border-[#E11D48]/20 transition-all cursor-pointer"
+              >
+                Thử lại
+              </button>
+            </div>
+          ) : epgData.length === 0 ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-6 text-center">
+              <Clock size={28} className="text-slate-500 opacity-60 animate-pulse" />
+              <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Không có lịch phát sóng</span>
+              <p className="text-[10px] text-slate-600">Hiện tại kênh này hoặc ngày này chưa cập nhật lịch.</p>
+            </div>
+          ) : (
+            <>
+              {!active.name.toUpperCase().startsWith("VTV") && (
+                <div className="p-3 mb-2 rounded-xl bg-[#BE123C]/10 border border-[#BE123C]/20 text-center flex flex-col items-center gap-0.5 shrink-0">
+                  <span className="text-[9px] font-bold text-[#E11D48] uppercase tracking-widest">EPG PHỤ TRỢ</span>
+                  <span className="text-[10px] opacity-75 leading-tight">Đang xem lịch kênh {active.name.toUpperCase().startsWith("VTV") ? active.name : "VTV1"} tham khảo do kênh này không thuộc VTV.</span>
+                </div>
+              )}
+              
+              <div className="space-y-2">
+                {epgData.map((item, idx) => {
+                  const isCurrent = currentShowIndex === idx;
+                  const isPast = currentShowIndex > idx;
+                  
+                  return (
+                    <div
+                      key={`${item.time}-${idx}`}
+                      className={`p-3 rounded-xl flex gap-3 items-start border transition-all text-left ${
+                        isCurrent
+                          ? isDark
+                            ? "bg-[#E11D48]/15 border-[#E11D48]/40 text-white ring-2 ring-[#E11D48]/20 shadow-lg shadow-[#E11D48]/10"
+                            : "bg-[#E11D48]/10 border-[#E11D48]/30 text-slate-900 ring-2 ring-[#E11D48]/10 shadow-md"
+                          : isPast
+                            ? isDark
+                              ? "bg-black/15 border-transparent text-white/40"
+                              : "bg-slate-50 border-transparent text-slate-400"
+                            : isDark
+                              ? "bg-white/5 border-white/5 hover:border-white/10 text-white/80"
+                              : "bg-slate-50 border-slate-100 hover:border-slate-200 text-slate-700"
+                      }`}
+                    >
+                      <div className="flex flex-col items-center justify-center shrink-0 min-w-[40px]">
+                        <span className={`text-xs font-bold font-mono tracking-tight ${
+                          isCurrent ? "text-[#E11D48]" : isPast ? "opacity-60" : ""
+                        }`}>
+                          {item.time}
+                        </span>
+                        {isCurrent && (
+                          <span className="flex h-1.5 w-1.5 relative mt-1">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500 font-mono"></span>
+                          </span>
+                        )}
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <h4 className={`text-xs font-semibold leading-snug break-words ${
+                          isCurrent ? "text-[#E11D48] font-bold" : ""
+                        }`}>
+                          {item.title}
+                        </h4>
+                        {isCurrent && (
+                          <span className="inline-block mt-1 text-[8px] font-bold text-red-500 uppercase tracking-widest bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/10">
+                            Đang phát
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      </div> {/* END OF WRAPPER */}
 
       {/* FILTERS */}
       <div className="mt-8 md:mt-12">
