@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode, useMemo } from "react";
 import { 
   Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer, Check, Plus, AppWindow, Compass, Trash2, Newspaper, Shuffle, Link, StickyNote, Bold, Italic, Underline, Droplets, Wind, CloudSun, MapPin, CloudRain, Copy,
-  Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, FolderOpen, Pizza, Cloud, CreditCard, Gift, HelpCircle, FlaskConical as Flask, GlassWater, Grid, ArrowUp, ArrowDown, ArrowRightLeft, Bot, Hash
+  Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, FolderOpen, Pizza, Cloud, CreditCard, Gift, HelpCircle, FlaskConical as Flask, GlassWater, Grid, ArrowUp, ArrowDown, ArrowRightLeft, Bot, Hash, Upload, Pencil
 } from "lucide-react";
 import Hls from "hls.js";
 import { motion, AnimatePresence, MotionConfig } from "motion/react";
@@ -717,7 +717,7 @@ function ChannelContextMenu({
   );
 }
 
-function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, logoScale }: {
+function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, logoScale, customIndex }: {
   ch: Channel,
   onClick: () => void,
   isDark: boolean,
@@ -729,11 +729,126 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
   key?: string | number,
   isLiveTab?: boolean,
   onContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
-  logoScale?: number
+  logoScale?: number,
+  customIndex?: number
 }) {
   const isMaintenance = ch.status === "maintenance";
   const isComingSoon = ch.status === "coming-soon";
   const isVTV6 = ch.name.includes("VTV6");
+
+  const [showEditPopup, setShowEditPopup] = useState(false);
+  const [customNumInput, setCustomNumInput] = useState("");
+  const [badgePosition, setBadgePosition] = useState<"top-left" | "top-right" | "bottom-left" | "bottom-right">("top-left");
+
+  // Load configuration from localStorage
+  const loadCustomConfig = useCallback(() => {
+    try {
+      const savedNum = localStorage.getItem(`vplay_custom_channel_index_${ch.name}`);
+      const savedPos = localStorage.getItem(`vplay_custom_channel_position_${ch.name}`);
+      
+      if (savedNum !== null) {
+        setCustomNumInput(savedNum);
+      } else {
+        // Compute default TV index
+        if (customIndex !== undefined) {
+          setCustomNumInput(customIndex.toString());
+        } else if (ch.category === "Phát thanh") {
+          setCustomNumInput("");
+        } else {
+          const tvList = channels.filter(c => c.category !== "Phát thanh");
+          const foundIdx = tvList.findIndex(c => c.name === ch.name);
+          if (foundIdx !== -1) {
+            setCustomNumInput((foundIdx + 1).toString());
+          } else {
+            setCustomNumInput("");
+          }
+        }
+      }
+      
+      if (savedPos) {
+        setBadgePosition(savedPos as any);
+      } else {
+        setBadgePosition("top-left");
+      }
+    } catch (e) {
+      console.warn("Lỗi khi tải cấu hình số kênh", e);
+    }
+  }, [ch, customIndex]);
+
+  useEffect(() => {
+    loadCustomConfig();
+  }, [loadCustomConfig]);
+
+  // Sync state changes across multiple card instances via window events
+  useEffect(() => {
+    const handleSync = () => {
+      loadCustomConfig();
+    };
+
+    window.addEventListener("vplay_channel_custom_updated", handleSync);
+    return () => {
+      window.removeEventListener("vplay_channel_custom_updated", handleSync);
+    };
+  }, [loadCustomConfig]);
+
+  const handleSaveCustom = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    try {
+      localStorage.setItem(`vplay_custom_channel_index_${ch.name}`, customNumInput);
+      localStorage.setItem(`vplay_custom_channel_position_${ch.name}`, badgePosition);
+      window.dispatchEvent(new CustomEvent("vplay_channel_custom_updated"));
+      setShowEditPopup(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleResetCustom = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    try {
+      localStorage.removeItem(`vplay_custom_channel_index_${ch.name}`);
+      localStorage.removeItem(`vplay_custom_channel_position_${ch.name}`);
+      
+      // Reset values to defaults
+      let defaultNum = "";
+      if (customIndex !== undefined) {
+        defaultNum = customIndex.toString();
+      } else if (ch.category !== "Phát thanh") {
+        const tvList = channels.filter(c => c.category !== "Phát thanh");
+        const foundIdx = tvList.findIndex(c => c.name === ch.name);
+        if (foundIdx !== -1) {
+          defaultNum = (foundIdx + 1).toString();
+        }
+      }
+      setCustomNumInput(defaultNum);
+      setBadgePosition("top-left");
+      
+      window.dispatchEvent(new CustomEvent("vplay_channel_custom_updated"));
+      setShowEditPopup(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const channelIndexValue = useMemo(() => {
+    if (customNumInput.trim() === "") return undefined;
+    return customNumInput;
+  }, [customNumInput]);
+
+  const badgePositionClass = useMemo(() => {
+    switch (badgePosition) {
+      case "top-right": return "top-2 right-2";
+      case "bottom-left": return "bottom-2 left-2";
+      case "bottom-right": return "bottom-2 right-2";
+      case "top-left":
+      default:
+        return "top-2 left-2";
+    }
+  }, [badgePosition]);
 
   const getVTV6Days = () => {
     const target = new Date('2026-06-08T00:00:00').getTime();
@@ -790,19 +905,31 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
               : "bg-[#f1f5f9] border-[#e2e8f0] hover:bg-[#e2e8f0] hover:border-slate-300"
         }`}
       >
+        {/* Position of channel index (small channel number) */}
+        {channelIndexValue !== undefined && (
+          <span className={`absolute ${badgePositionClass} z-30 text-[9px] sm:text-[10px] font-black tracking-tight leading-none px-1.5 py-0.5 rounded ${
+            isActive 
+              ? "bg-[#4AC4FE] text-white shadow-sm" 
+              : isDark 
+                ? "bg-white/10 text-white/50 group-hover:text-white/90 group-hover:bg-white/20" 
+                : "bg-slate-200 text-slate-400 group-hover:text-slate-800 group-hover:bg-slate-300"
+          } select-none pointer-events-none transition-all`}>
+            {channelIndexValue}
+          </span>
+        )}
 
         {isMaintenance && (
-          <div className="absolute top-2 left-2 bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
+          <div className={`absolute top-2 ${badgePosition === "top-left" && channelIndexValue !== undefined ? "left-11 shadow-sm" : "left-2"} bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md`}>
             BẢO TRÌ
           </div>
         )}
         {isComingSoon && isVTV6 && (
-          <div className="absolute top-2 left-2 bg-[#FF453A] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
+          <div className={`absolute top-2 ${badgePosition === "top-left" && channelIndexValue !== undefined ? "left-11 shadow-sm" : "left-2"} bg-[#FF453A] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md`}>
             {getVTV6Days()}d
           </div>
         )}
         {isComingSoon && !isVTV6 && (
-          <div className="absolute top-2 left-2 bg-blue-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md uppercase">
+          <div className={`absolute top-2 ${badgePosition === "top-left" && channelIndexValue !== undefined ? "left-11 shadow-sm" : "left-2"} bg-blue-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md uppercase`}>
             SẮP RA MẮT
           </div>
         )}
@@ -843,7 +970,149 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
           </div>
         </div>
       </motion.button>
-      
+
+      {/* Edit button with pen icon shown when hovered */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          setShowEditPopup(true);
+        }}
+        className={`absolute ${badgePosition === "top-right" ? "top-2 left-2" : "top-2 right-2"} z-30 p-1.5 rounded-full backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer ${
+          isDark 
+            ? "bg-black/50 border border-white/10 text-white hover:text-white hover:bg-black/80 hover:scale-110 shadow-lg" 
+            : "bg-white/80 border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-white/100 hover:scale-110 shadow-md"
+        }`}
+        title="Tùy chỉnh số kênh và vị trí"
+      >
+        <Pencil className="w-3.5 h-3.5" />
+      </button>
+
+      {/* Floating Dialog Popup for customization */}
+      <AnimatePresence>
+        {showEditPopup && (
+          <div 
+            className="fixed inset-0 z-[10005] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md font-sans"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setShowEditPopup(false);
+            }}
+          >
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className={`p-6 rounded-[32px] w-full max-w-xs border shadow-2xl flex flex-col gap-5 text-left border-solid ${
+                isDark 
+                  ? "bg-[#18181b]/95 border-white/10 text-white shadow-[0_24px_50px_rgba(0,0,0,0.6)]" 
+                  : "bg-white border-slate-200 text-slate-900 shadow-[0_24px_40px_rgba(15,23,42,0.15)]"
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+            >
+              {/* Header */}
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-[#4AC4FE]/10 text-[#4AC4FE]">
+                  <Pencil className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs font-black tracking-tight leading-none uppercase select-none">Vị trí & Số kênh</h4>
+                  <p className="text-[10px] font-extrabold opacity-50 uppercase tracking-widest truncate mt-1 select-none">{ch.name}</p>
+                </div>
+              </div>
+
+              {/* Form Content */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[9px] uppercase font-black tracking-wider opacity-60 mb-1.5 select-none">Số hiệu của kênh</label>
+                  <input 
+                    type="text"
+                    placeholder="Nhập số (VD: 1, 99) hoặc chữ..."
+                    value={customNumInput}
+                    onChange={(e) => setCustomNumInput(e.target.value)}
+                    className={`w-full px-4 py-2.5 rounded-xl border text-xs font-black outline-none transition-all ${
+                      isDark 
+                        ? "bg-white/5 border-white/10 text-white focus:border-[#4AC4FE] focus:bg-white/10" 
+                        : "bg-slate-50 border-slate-200 text-slate-900 focus:border-[#4AC4FE] focus:bg-white"
+                    }`}
+                  />
+                  <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest mt-1.5 select-none">Để trống nếu muốn ẩn số kênh hoàn toàn</p>
+                </div>
+
+                <div>
+                  <label className="block text-[9px] uppercase font-black tracking-wider opacity-60 mb-1.5 select-none">Vị trí hiển thị badge số</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: "top-left", name: "Trái Trên" },
+                      { id: "top-right", name: "Phải Trên" },
+                      { id: "bottom-left", name: "Trái Dưới" },
+                      { id: "bottom-right", name: "Phải Dưới" }
+                    ].map((pos) => (
+                      <button
+                        key={pos.id}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          setBadgePosition(pos.id as any);
+                        }}
+                        className={`py-2 px-3 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all border border-solid text-center cursor-pointer ${
+                          badgePosition === pos.id
+                            ? "bg-[#4AC4FE] text-white border-transparent shadow-sm"
+                            : isDark
+                              ? "bg-white/5 border-white/5 text-slate-400 hover:text-white hover:bg-white/10"
+                              : "bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                        }`}
+                      >
+                        {pos.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions Footer */}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleResetCustom}
+                  className={`flex-1 py-3 rounded-xl text-[9.5px] font-black uppercase tracking-wider transition-all border border-solid text-center cursor-pointer ${
+                    isDark
+                      ? "bg-red-500/10 border-red-500/10 text-red-400 hover:bg-red-500/20"
+                      : "bg-red-50 border-red-100 text-red-650 hover:bg-red-100"
+                  }`}
+                >
+                  Mặc định
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setShowEditPopup(false); }}
+                  className={`py-3 px-4 rounded-xl text-[9.5px] font-black uppercase tracking-wider transition-all text-center cursor-pointer ${
+                    isDark
+                      ? "bg-white/5 text-slate-450 hover:text-white hover:bg-white/10"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  Hủy
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => handleSaveCustom(e)}
+                  className="py-3 px-5 rounded-xl text-[9.5px] font-black uppercase tracking-wider transition-all text-center bg-[#4AC4FE] hover:bg-[#3dbcf4] text-white cursor-pointer"
+                >
+                  Lưu
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <button 
         onClick={(e) => { e.stopPropagation(); toggleFavorite(ch); }}
         className={`absolute top-1.5 right-1.5 xs:top-2.5 xs:right-2.5 p-1 xs:p-1.5 rounded-full backdrop-blur-md opacity-80 sm:opacity-0 group-hover:opacity-100 hover:scale-110 z-20 ${
@@ -1880,7 +2149,69 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
   );
 }
 
+function parseM3U(text: string): Channel[] {
+  const lines = text.split(/\r?\n/);
+  const parsedChannels: Channel[] = [];
+  let currentInfo: { name: string; logo: string; category: string } | null = null;
+
+  for (let line of lines) {
+    line = line.trim();
+    if (!line) continue;
+
+    if (line.startsWith("#EXTINF:")) {
+      let name = "Unnamed Channel";
+      let logo = "";
+      let category = "Tải lên";
+
+      const logoMatch = line.match(/(?:tvg-logo|logo)="([^"]+)"/i);
+      if (logoMatch) logo = logoMatch[1];
+
+      const groupMatch = line.match(/group-title="([^"]+)"/i);
+      if (groupMatch) category = groupMatch[1];
+
+      const commaIndex = line.lastIndexOf(",");
+      if (commaIndex !== -1) {
+        name = line.substring(commaIndex + 1).trim();
+      }
+
+      currentInfo = { name, logo, category };
+    } else if (line.startsWith("#")) {
+      // Ignored comments or tags
+    } else {
+      if (line.startsWith("http://") || line.startsWith("https://") || line.includes("://")) {
+        const name = currentInfo ? currentInfo.name : `Kênh M3U8 ${parsedChannels.length + 1}`;
+        const logo = currentInfo ? currentInfo.logo : "";
+        const category = currentInfo ? currentInfo.category : "M3U8 Custom";
+        parsedChannels.push({
+          category,
+          name,
+          logo: logo || "https://upload.wikimedia.org/wikipedia/commons/e/ec/Visual_Presentation_Indicator_Television.svg",
+          stream: line,
+        });
+        currentInfo = null;
+      }
+    }
+  }
+
+  if (parsedChannels.length === 0) {
+    for (let line of lines) {
+      line = line.trim();
+      if (!line.startsWith("#") && (line.startsWith("http://") || line.startsWith("https://"))) {
+        parsedChannels.push({
+          category: "M3U8 Custom",
+          name: `Kênh M3U8 ${parsedChannels.length + 1}`,
+          logo: "https://upload.wikimedia.org/wikipedia/commons/e/ec/Visual_Presentation_Indicator_Television.svg",
+          stream: line,
+        });
+      }
+    }
+  }
+
+  return parsedChannels;
+}
+
 function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, logoScale }: { 
+
   active: Channel, 
   setActive: (ch: Channel) => void, 
   isDark: boolean,
@@ -1962,12 +2293,70 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   const [filterType, setFilterType] = useState<string>("All");
   const [streamError, setStreamError] = useState<string | null>(null);
 
+  const [liveTab, setLiveTab] = useState<"vplay" | "custom">("vplay");
+  const [customChannels, setCustomChannels] = useState<Channel[]>(() => {
+    try {
+      const saved = localStorage.getItem("vplay_custom_m3u8_channels");
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+  const [m3uFileName, setM3UFileName] = useState<string>(() => {
+    return localStorage.getItem("vplay_custom_m3u8_fullname") || "";
+  });
+  const [customSearchQuery, setCustomSearchQuery] = useState("");
+  const [fileInputKey, setFileInputKey] = useState(0); 
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
   // categories definition removed to avoid duplication
 
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+
+  // Quick Channel Switcer states
+  const [showQuickChannel, setShowQuickChannel] = useState(false);
+  const [quickChannelInput, setQuickChannelInput] = useState("");
+  const [showQuickChannelMobile, setShowQuickChannelMobile] = useState(false);
+  const [quickChannelInputMobile, setQuickChannelInputMobile] = useState("");
+
+  const tvChannelsList = useMemo(() => channels.filter(c => c.category !== "Phát thanh"), []);
+
+  const matchedQuickChannel = useMemo(() => {
+    const num = parseInt(quickChannelInput);
+    if (!isNaN(num) && num >= 1 && num <= tvChannelsList.length) {
+      return tvChannelsList[num - 1];
+    }
+    return null;
+  }, [quickChannelInput, tvChannelsList]);
+
+  const matchedQuickChannelMobile = useMemo(() => {
+    const num = parseInt(quickChannelInputMobile);
+    if (!isNaN(num) && num >= 1 && num <= tvChannelsList.length) {
+      return tvChannelsList[num - 1];
+    }
+    return null;
+  }, [quickChannelInputMobile, tvChannelsList]);
+
+  const handleQuickChannelSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (matchedQuickChannel) {
+      setActive(matchedQuickChannel);
+      setShowQuickChannel(false);
+      setQuickChannelInput("");
+    }
+  };
+
+  const handleQuickChannelSubmitMobile = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (matchedQuickChannelMobile) {
+      setActive(matchedQuickChannelMobile);
+      setShowQuickChannelMobile(false);
+      setQuickChannelInputMobile("");
+    }
+  };
 
   // Multiview state
   const [isMultiview, setIsMultiview] = useState(false);
@@ -2104,6 +2493,65 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
     }
     setIsMultiview(!isMultiview);
   };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setM3UFileName(file.name);
+    setUploadError(null);
+    localStorage.setItem("vplay_custom_m3u8_fullname", file.name);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result;
+        if (typeof text === "string") {
+          const parsed = parseM3U(text);
+          if (parsed.length > 0) {
+            setCustomChannels(parsed);
+            localStorage.setItem("vplay_custom_m3u8_channels", JSON.stringify(parsed));
+            setActive(parsed[0]);
+          } else {
+            setUploadError("Không tìm thấy dòng kênh nào hợp lệ trong tệp M3U/M3U8.");
+            setM3UFileName("");
+            localStorage.removeItem("vplay_custom_m3u8_fullname");
+          }
+        } else {
+          setUploadError("Định dạng tệp không được hỗ trợ.");
+          setM3UFileName("");
+          localStorage.removeItem("vplay_custom_m3u8_fullname");
+        }
+      } catch (err) {
+        setUploadError("Lỗi khi đọc tệp. Vui lòng thử lại.");
+        setM3UFileName("");
+        localStorage.removeItem("vplay_custom_m3u8_fullname");
+      }
+    };
+    reader.onerror = () => {
+      setUploadError("Lỗi hệ thống khi tải tệp.");
+      setM3UFileName("");
+      localStorage.removeItem("vplay_custom_m3u8_fullname");
+    };
+    reader.readAsText(file);
+  };
+
+  const handleClearCustomChannels = () => {
+    setCustomChannels([]);
+    setM3UFileName("");
+    setCustomSearchQuery("");
+    setUploadError(null);
+    localStorage.removeItem("vplay_custom_m3u8_channels");
+    localStorage.removeItem("vplay_custom_m3u8_fullname");
+    setFileInputKey(prev => prev + 1);
+  };
+
+  const filteredCustomChannels = useMemo(() => {
+    return customChannels.filter(ch => 
+      ch.name.toLowerCase().includes(customSearchQuery.toLowerCase()) ||
+      ch.category.toLowerCase().includes(customSearchQuery.toLowerCase())
+    );
+  }, [customChannels, customSearchQuery]);
 
   const timeString = (currentTime || new Date()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false });
   const isMaintenance = active.status === "maintenance";
@@ -2762,21 +3210,21 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                          </button>
                          <div className="hidden sm:flex items-center gap-4 pl-4 border-l border-white/10">
                             <Volume2 size={20} className={liquidGlass === "tinted" ? "text-black" : "text-white"} />
-                            <input 
-                              type="range" min="0" max="1" step="0.1" 
-                              value={volume} onChange={handleVolumeChange}
-                              className="w-24 h-1.5 bg-white/20 rounded-full appearance-none cursor-pointer accent-[#4AC4FE]"
-                            />
-                         </div>
-                      </div>
+                             <input 
+                               type="range" min="0" max="1" step="0.1" 
+                               value={volume} onChange={handleVolumeChange}
+                               className="w-24 h-1.5 bg-white/20 rounded-full appearance-none cursor-pointer accent-[#4AC4FE]"
+                             />
+                          </div>
+                       </div>
 
-                      <div className="flex items-center gap-2 md:gap-4">
+                       <div className="flex items-center gap-2 md:gap-4">
                           {featureFlags.screen_recording && (
                              <button 
                                onClick={toggleRecording}
                                className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
                                  isRecording
-                                   ? "bg-red-600 border-red-500 text-white shadow-lg animate-pulse"
+                                   ? "bg-red-650 border-red-500 text-white shadow-lg animate-pulse"
                                    : liquidGlass === "tinted" ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"
                                }`}
                                title={searchQuery.trim().length > 0 ? "Search results" : (isRecording ? "Dừng ghi" : "Ghi màn hình")}
@@ -2784,6 +3232,113 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                                {isRecording ? <Square size={18} className="md:w-5 md:h-5" fill="currentColor" /> : <Circle size={18} className="md:w-5 md:h-5" fill="currentColor" />}
                              </button>
                           )}
+
+                          {/* Quick Channel button (Desktop layout) */}
+                          <div className="relative">
+                            <button 
+                              onClick={() => {
+                                setShowQuickChannel(!showQuickChannel);
+                                setQuickChannelInput("");
+                              }}
+                              className={`p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all ${
+                                showQuickChannel
+                                  ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg"
+                                  : liquidGlass === "tinted" 
+                                    ? "bg-black/5 border-black/10 text-black hover:bg-black/10" 
+                                    : "bg-white/5 border-white/10 text-white hover:bg-white/10"
+                              }`}
+                              title="Chuyển kênh nhanh"
+                            >
+                              <Hash size={18} className="md:w-5 md:h-5" />
+                            </button>
+                            <AnimatePresence>
+                              {showQuickChannel && (
+                                <motion.div 
+                                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                  className={`absolute bottom-full mb-6 right-0 min-w-[240px] md:min-w-[280px] z-50 p-5 space-y-4 rounded-3xl ${
+                                    isDark ? "popup-3d-dark text-white" : "popup-3d-light text-slate-900 bg-white"
+                                  } ${liquidGlass ? "backdrop-blur-3xl" : "backdrop-blur-none"}`}
+                                >
+                                  <div>
+                                    <h4 className="text-xs md:text-sm font-black tracking-tighter uppercase">
+                                      CHUYỂN KÊNH NHANH
+                                    </h4>
+                                    <p className={`text-[10px] mt-1 ${isDark ? "text-white/60" : "text-slate-500"}`}>
+                                      Nhập số kênh từ 1 đến {tvChannelsList.length} (QPVN)
+                                    </p>
+                                  </div>
+                                  <form onSubmit={handleQuickChannelSubmit} className="space-y-3">
+                                    <div className="relative">
+                                      <input 
+                                        type="text" 
+                                        pattern="[0-9]*"
+                                        maxLength={3}
+                                        autoFocus
+                                        value={quickChannelInput}
+                                        onChange={(e) => setQuickChannelInput(e.target.value.replace(/\D/g, ""))}
+                                        placeholder="Ví dụ: 1, 3, 95..."
+                                        className={`w-full px-3 py-2.5 rounded-xl text-sm font-extrabold outline-none border transition-all ${
+                                          isDark 
+                                            ? "bg-black/40 border-white/10 text-white focus:border-[#4AC4FE]/75 focus:bg-black/60 focus:ring-1 focus:ring-[#4AC4FE]/20" 
+                                            : "bg-slate-50 border-slate-200 text-slate-900 focus:border-[#4AC4FE] focus:bg-white focus:ring-1 focus:ring-[#4AC4FE]/20"
+                                        }`}
+                                      />
+                                      {quickChannelInput && (
+                                        <button 
+                                          type="button" 
+                                          onClick={() => setQuickChannelInput("")}
+                                          className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold hover:scale-115 ${isDark ? "text-white/40 hover:text-white" : "text-slate-400 hover:text-slate-600"}`}
+                                        >
+                                          <X size={14} />
+                                        </button>
+                                      )}
+                                    </div>
+
+                                    {matchedQuickChannel ? (
+                                      <div className={`p-2.5 rounded-xl border flex items-center gap-3 transition-all ${
+                                        isDark ? "bg-[#4AC4FE]/5 border-[#4AC4FE]/20" : "bg-[#4AC4FE]/5 border-[#4AC4FE]/30"
+                                      }`}>
+                                        <div className="w-10 h-10 rounded-lg bg-black/10 dark:bg-white/5 flex items-center justify-center p-1 shrink-0 overflow-hidden">
+                                          <img 
+                                            src={matchedQuickChannel.logo} 
+                                            alt={matchedQuickChannel.name} 
+                                            className="w-full h-full object-contain"
+                                            referrerPolicy="no-referrer"
+                                          />
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                          <p className="text-[10px] font-black uppercase text-[#4AC4FE] tracking-widest leading-none">
+                                            Kênh {parseInt(quickChannelInput)}
+                                          </p>
+                                          <p className="text-xs font-extrabold truncate mt-0.5">
+                                            {matchedQuickChannel.name}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    ) : quickChannelInput ? (
+                                      <div className="text-[10px] text-red-500 font-bold px-1 py-0.5">
+                                        Không tìm thấy kênh này!
+                                      </div>
+                                    ) : null}
+
+                                    <button 
+                                      type="submit" 
+                                      disabled={!matchedQuickChannel}
+                                      className={`w-full py-2.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all flex items-center justify-center gap-1.5 ${
+                                        matchedQuickChannel 
+                                          ? "bg-[#4AC4FE] hover:bg-[#4AC4FE]/90 text-white shadow-lg shadow-[#4AC4FE]/25" 
+                                          : "bg-slate-300 dark:bg-white/5 cursor-not-allowed text-slate-400 dark:text-white/20"
+                                      }`}
+                                    >
+                                      <Play size={12} fill="currentColor" /> Chuyển kênh
+                                    </button>
+                                  </form>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
                           {featureFlags.multiview_channels && (
                             <div className="relative">
                               <button 
@@ -2931,6 +3486,111 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                {isRecording ? <Square size={16} fill="currentColor" /> : <Circle size={16} fill="currentColor" />}
              </button>
            )}
+
+            {/* Quick Channel button (Mobile layout) */}
+            <div className="relative">
+              <button 
+                onClick={() => {
+                  setShowQuickChannelMobile(!showQuickChannelMobile);
+                  setQuickChannelInputMobile("");
+                }}
+                className={`p-3 rounded-xl border transition-all ${
+                  showQuickChannelMobile
+                    ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg"
+                    : isDark ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm"
+                }`}
+                title="Chuyển kênh nhanh"
+              >
+                <Hash size={16} />
+              </button>
+              <AnimatePresence>
+                {showQuickChannelMobile && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className={`absolute bottom-full mb-3 right-0 min-w-[220px] z-50 p-4 space-y-3 rounded-2xl ${
+                      isDark ? "popup-3d-dark text-white" : "popup-3d-light text-slate-900 bg-white"
+                    } backdrop-blur-3xl`}
+                  >
+                    <div>
+                      <h4 className="text-xs font-black tracking-tighter uppercase">
+                        CHUYỂN KÊNH NHANH
+                      </h4>
+                      <p className={`text-[9px] mt-0.5 ${isDark ? "text-white/60" : "text-slate-500"}`}>
+                        Số kênh từ 1 đến {tvChannelsList.length}
+                      </p>
+                    </div>
+                    <form onSubmit={handleQuickChannelSubmitMobile} className="space-y-2">
+                      <div className="relative">
+                        <input 
+                          type="text" 
+                          pattern="[0-9]*"
+                          maxLength={3}
+                          autoFocus
+                          value={quickChannelInputMobile}
+                          onChange={(e) => setQuickChannelInputMobile(e.target.value.replace(/\D/g, ""))}
+                          placeholder="Ví dụ: 1, 3, 95..."
+                          className={`w-full px-2.5 py-2 rounded-lg text-xs font-extrabold outline-none border transition-all ${
+                            isDark 
+                              ? "bg-black/40 border-white/10 text-white focus:border-[#4AC4FE]/75 focus:bg-black/60" 
+                              : "bg-slate-50 border-slate-200 text-slate-900 focus:border-[#4AC4FE] focus:bg-white"
+                          }`}
+                        />
+                        {quickChannelInputMobile && (
+                          <button 
+                            type="button" 
+                            onClick={() => setQuickChannelInputMobile("")}
+                            className={`absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold ${isDark ? "text-white/40 hover:text-white" : "text-slate-400 hover:text-slate-600"}`}
+                          >
+                            <X size={12} />
+                          </button>
+                        )}
+                      </div>
+
+                      {matchedQuickChannelMobile ? (
+                        <div className={`p-2 rounded-lg border flex items-center gap-2 transition-all ${
+                          isDark ? "bg-[#4AC4FE]/5 border-[#4AC4FE]/20" : "bg-[#4AC4FE]/5 border-[#4AC4FE]/30"
+                        }`}>
+                          <div className="w-8 h-8 rounded bg-black/10 dark:bg-white/5 flex items-center justify-center p-0.5 shrink-0 overflow-hidden">
+                            <img 
+                              src={matchedQuickChannelMobile.logo} 
+                              alt={matchedQuickChannelMobile.name} 
+                              className="w-full h-full object-contain"
+                              referrerPolicy="no-referrer"
+                            />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[9px] font-black uppercase text-[#4AC4FE] tracking-widest leading-none">
+                              Kênh {parseInt(quickChannelInputMobile)}
+                            </p>
+                            <p className="text-[11px] font-extrabold truncate mt-0.5">
+                              {matchedQuickChannelMobile.name}
+                            </p>
+                          </div>
+                        </div>
+                      ) : quickChannelInputMobile ? (
+                        <div className="text-[9px] text-red-500 font-bold px-1 py-0.5">
+                          Không tìm thấy!
+                        </div>
+                      ) : null}
+
+                      <button 
+                        type="submit" 
+                        disabled={!matchedQuickChannelMobile}
+                        className={`w-full py-2 rounded-lg text-[10px] font-black tracking-wider uppercase transition-all flex items-center justify-center gap-1.5 ${
+                          matchedQuickChannelMobile 
+                            ? "bg-[#4AC4FE] hover:bg-[#4AC4FE]/90 text-white shadow" 
+                            : "bg-slate-300 dark:bg-white/5 cursor-not-allowed text-slate-400 dark:text-white/20"
+                        }`}
+                      >
+                        Chuyển kênh
+                      </button>
+                    </form>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
            {featureFlags.multiview_channels && (
              <button 
                onClick={toggleMultiview}
@@ -3118,8 +3778,169 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
 
       </div> {/* END OF WRAPPER */}
 
-      {/* FILTERS */}
-      <div className="mt-8 md:mt-12">
+      {/* SUB-TAB NAVIGATOR */}
+      <div className="mt-8 md:mt-12 border-b ${isDark ? 'border-white/5' : 'border-slate-250'} pb-6 flex justify-center md:justify-start">
+        <div className={`p-1.5 rounded-2xl flex w-fit gap-1 items-center ${isDark ? "bg-white/5 border border-white/5" : "bg-slate-100 border border-slate-200"}`}>
+          <button
+            onClick={() => setLiveTab("vplay")}
+            className={`px-6 py-2.5 rounded-xl text-xs md:text-sm font-bold tracking-tight uppercase transition-all duration-200 flex items-center gap-2 cursor-pointer ${
+              liveTab === "vplay"
+                ? "bg-[#4AC4FE] text-white shadow-md font-black"
+                : isDark
+                ? "text-slate-400 hover:bg-white/5 hover:text-white"
+                : "text-slate-600 hover:bg-black/5 hover:text-slate-900"
+            }`}
+          >
+            <TvIcon className="w-4 h-4" />
+            Vplay channels
+          </button>
+          <button
+            onClick={() => setLiveTab("custom")}
+            className={`px-6 py-2.5 rounded-xl text-xs md:text-sm font-bold tracking-tight uppercase transition-all duration-200 flex items-center gap-2 cursor-pointer ${
+              liveTab === "custom"
+                ? "bg-[#4AC4FE] text-white shadow-md font-black"
+                : isDark
+                ? "text-slate-400 hover:bg-white/5 hover:text-white"
+                : "text-slate-600 hover:bg-black/5 hover:text-slate-900"
+            }`}
+          >
+            <Upload className="w-4 h-4" />
+            Your m3u8 file
+          </button>
+        </div>
+      </div>
+
+      {liveTab === "custom" ? (
+        <div className="mt-8 md:mt-12 space-y-8">
+          {/* UPLOADER PANEL */}
+          <div className={`p-6 md:p-8 rounded-[32px] border-2 border-dashed transition-all ${
+            isDark 
+              ? "border-white/10 bg-white/5 hover:border-white/20" 
+              : "border-slate-200 bg-slate-50/50 hover:border-slate-300"
+          }`}>
+            <div className="flex flex-col items-center justify-center text-center gap-4">
+              <div className="p-4 rounded-full bg-[#4AC4FE]/10 text-[#4AC4FE]">
+                <Upload className="w-8 h-8 animate-bounce" />
+              </div>
+              
+              <div>
+                <h3 className={`text-lg md:text-xl font-bold uppercase tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                  {m3uFileName ? `Đang sử dụng: ${m3uFileName}` : "Tải lên tệp playlist m3u/m3u8 của bạn"}
+                </h3>
+                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">
+                  {customChannels.length > 0 
+                    ? `Đã tải thành công ${customChannels.length} kênh` 
+                    : "Hỗ trợ định dạng .m3u, .m3u8 hoặc tệp văn bản thô chứa luồng phát"
+                  }
+                </p>
+              </div>
+
+              {uploadError && (
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-semibold">
+                  {uploadError}
+                </div>
+              )}
+
+              <div className="flex flex-wrap items-center justify-center gap-3 mt-2">
+                <label className="px-6 py-3 bg-[#4AC4FE] hover:bg-[#4AC4FE]/90 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-lg flex items-center gap-2 cursor-pointer transition-all active:scale-95">
+                  <Plus className="w-4 h-4" />
+                  {m3uFileName ? "Chọn tệp khác" : "Chọn tệp m3u8"}
+                  <input
+                    key={fileInputKey}
+                    type="file"
+                    accept=".m3u,.m3u8,text/plain"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                </label>
+
+                {customChannels.length > 0 && (
+                  <button
+                    onClick={handleClearCustomChannels}
+                    className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 flex items-center gap-2 cursor-pointer ${
+                      isDark 
+                        ? "bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20" 
+                        : "bg-red-500/5 border border-red-500/10 text-red-650 hover:bg-red-500/15"
+                    }`}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Xóa playlist
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* CUSTOM CHANNELS LIST */}
+          {customChannels.length > 0 ? (
+            <div className="space-y-6 md:space-y-8">
+              {/* SEARCH & TITLE BANNER */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
+                <div className="flex items-center gap-3">
+                  <div className="h-6 md:h-8 w-[4px] bg-[#4AC4FE] rounded-full" />
+                  <h3 className={`text-xl md:text-2xl font-bold uppercase tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                    Kênh của bạn ({filteredCustomChannels.length}/{customChannels.length})
+                  </h3>
+                </div>
+
+                {/* Search Bar for Custom Playlist */}
+                <div className={`relative flex items-center gap-2.5 px-4 py-2.5 rounded-full overflow-hidden transition-all w-full md:max-w-xs ${
+                  isDark ? "bg-white/5 border border-white/5" : "bg-slate-100 border border-slate-200"
+                }`}>
+                  <Search className="text-slate-500 w-3.5 h-3.5" />
+                  <input
+                    type="text"
+                    placeholder="Tìm trong playlist của bạn..."
+                    value={customSearchQuery}
+                    onChange={(e) => setCustomSearchQuery(e.target.value)}
+                    className={`bg-transparent border-none outline-none text-xs font-bold w-full placeholder-slate-500 ${
+                      isDark ? "text-white" : "text-slate-900"
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Grid of channels */}
+              {filteredCustomChannels.length > 0 ? (
+                <div className="grid grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-6">
+                  {filteredCustomChannels.map((ch, index) => {
+                    const originalIdx = customChannels.findIndex(x => x.stream === ch.stream && x.name === ch.name);
+                    return (
+                      <ChannelCard
+                        key={`custom-channel-${index}-${ch.name}`}
+                        ch={ch}
+                        onClick={() => setActive(ch)}
+                        isDark={isDark}
+                        isActive={active.stream === ch.stream && active.name === ch.name}
+                        favorites={favorites}
+                        toggleFavorite={toggleFavorite}
+                        liquidGlass={liquidGlass}
+                        isLiveTab={true}
+                        logoScale={logoScale}
+                        customIndex={originalIdx !== -1 ? originalIdx + 1 : index + 1}
+                      />
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-20">
+                  <p className="text-sm font-bold text-slate-500 uppercase tracking-widest leading-none">Không có kênh nào khớp với tìm kiếm</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-24 flex flex-col items-center justify-center gap-4">
+              <div className="p-4 rounded-full bg-slate-500/10 text-slate-500">
+                <Trash2 size={32} className="opacity-40" />
+              </div>
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-widest text-slate-400">Danh sách trống</p>
+              <p className="text-xs text-slate-500 max-w-xs md:max-w-md leading-relaxed">Hãy tải lên một tệp playlist m3u/m3u8 ở phía trên để thưởng thức các luồng truyền phát của bạn một cách nhanh chóng và dễ dàng!</p>
+            </div>
+          )}
+        </div>
+      ) : (
+        /* ORIGINAL FILTERS & GRID FOR VPLAY */
+        <div className="mt-8 md:mt-12">
         <div className="flex flex-col lg:flex-row gap-6 mb-8">
           <div className="flex gap-2 overflow-x-auto pb-4 md:pb-0 no-scrollbar flex-1 -mx-4 px-4 md:mx-0 md:px-0">
             {["All", "VTV", "HTV", "VTVcab", "Essential", "Local", "Radio", "Active", "Maintenance"].map((type) => (
@@ -3270,6 +4091,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }
