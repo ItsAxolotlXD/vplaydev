@@ -115,7 +115,7 @@ const TREATMENTS = [
   { id: "treatment3", name: "Chasing Snake", desc: "Clean and simple loading chasing effect." }
 ];
 
-const LoadingSpinner = ({ isDark, className = "w-6 h-6" }: { isDark: boolean, className?: string }) => (
+const LoadingSpinner = ({ isDark, className = "w-6 h-6", color }: { isDark: boolean, className?: string, color?: string }) => (
   <div className={`relative ${className}`}>
     <svg 
       className="animate-spin w-full h-full" 
@@ -131,7 +131,7 @@ const LoadingSpinner = ({ isDark, className = "w-6 h-6" }: { isDark: boolean, cl
         strokeWidth="3" 
         strokeLinecap="round" 
         d="M12 2C6.47715 2 2 6.47715 2 12C2 13.5997 2.37562 15.1116 3.0434 16.4527"
-        style={{ color: '#4AC4FE' }}
+        style={{ color: color || '#4AC4FE' }}
       />
     </svg>
   </div>
@@ -317,10 +317,8 @@ const SplashScreen = ({
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.8 }}
-      className="fixed inset-0 z-[110] flex flex-col items-center justify-center overflow-hidden bg-[#1c1c1e]"
+      className="fixed inset-0 z-[110] flex flex-col items-center justify-center overflow-hidden bg-black"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(74,196,254,0.03),transparent_70%)] pointer-events-none" />
-      
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -330,7 +328,7 @@ const SplashScreen = ({
         {isReinstalling ? (
           <div className="flex flex-col items-center gap-6 text-center">
             <div className="flex flex-col items-center gap-3">
-              <LoadingSpinner isDark={true} className="w-12 h-12 text-[#4AC4FE] opacity-90" />
+              <LoadingSpinner isDark={true} className="w-12 h-12 text-white opacity-90" color="#ffffff" />
               <div className="flex flex-col items-center gap-2 mt-2">
                 <span className="text-white/50 text-xs md:text-sm tracking-wide select-none font-normal" style={{ fontFamily: "Montserrat, sans-serif" }}>
                   Vplay is erasing - This might take several minutes
@@ -344,7 +342,7 @@ const SplashScreen = ({
         ) : (
           <div className="flex flex-col items-center gap-6 text-center">
             <div className="flex flex-col items-center gap-3">
-              <LoadingSpinner isDark={true} className="w-12 h-12 text-[#4AC4FE] opacity-90" />
+              <LoadingSpinner isDark={true} className="w-12 h-12 text-white opacity-90" color="#ffffff" />
               <span className="text-white/80 text-sm font-semibold tracking-wide mt-2 select-none animate-pulse">
                 {getGreeting()}
               </span>
@@ -453,7 +451,7 @@ function FloatingTooltip({ text, show, targetRect }: { text: string, show: boole
   );
 }
 
-function ChannelLogo({ src, alt, className, isDark, liquidGlass, status }: { src: string, alt: string, className?: string, isDark: boolean, liquidGlass?: "glassy" | "tinted", status?: string }) {
+function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, logoScale }: { src: string, alt: string, className?: string, isDark: boolean, liquidGlass?: "glassy" | "tinted", status?: string, logoScale?: number }) {
   const [error, setError] = useState(false);
 
   if (error || !src) {
@@ -466,19 +464,24 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status }: { src
   }
 
   let finalSrc = src;
-  if (alt === "Vietnam Today") {
-    finalSrc = !isDark 
-      ? "https://static.wikia.nocookie.net/logos/images/0/0d/Vietnam_Today_black%2C_vertical%2C_gradient.png/revision/latest/scale-to-width-down/1000?cb=20260527071119&path-prefix=uk"
-      : "https://img.vtvprime.vn/poWO4cMIOvlO4LFEoljeRHTNK-92PkmcxEiRMCjB4pM/rs:fit:836:468/czM6Ly9wcmQtc24taW1hZ2VzL2NoYW5uZWwvMTE5YTVjNDYtMTZiMC00ZTUwLTlkNjItZmM1ZTJjZjQ3OTU4LnBuZw==.png";
+
+  // Compute Base Scale Factors
+  // "từ logo vtv1 đến vtv9 phóng to ra"
+  // VTV1 to VTV9 matches: starts with VTV1, VTV2 ... VTV9 (possibly with HD suffix)
+  const isVTV1to9 = /^VTV[1-9](\s|HD|$)/i.test(alt);
+  
+  let baseScale = 1.1;
+  if (isVTV1to9) {
+    baseScale = 2.4; // Magnified! Was 1.6
+  } else if (alt.includes("VTV6") || alt.includes("VTV7")) {
+    baseScale = 1.6; // Was 1.25
   }
 
-  let scaleClass = "scale-[1.1]";
-  if (alt.includes("VTV6") || alt.includes("VTV7")) {
-    scaleClass = "scale-[1.25]";
-  }
+  const scaleFactor = (logoScale ?? 50) / 50;
+  const finalScale = baseScale * scaleFactor;
 
-  const isVTV5_TN = alt === "VTV5 Tây Nguyên";
-  const isVTV5_TNB = alt === "VTV5 Tây Nam Bộ";
+  const isVTV5_TN = alt.includes("VTV5 Tây Nguyên");
+  const isVTV5_TNB = alt.includes("VTV5 Tây Nam Bộ");
 
   if (isVTV5_TN || isVTV5_TNB) {
     return (
@@ -492,7 +495,8 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status }: { src
             liquidGlass === "tinted" 
               ? "opacity-100" 
               : !isDark ? "drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]" : ""
-          } ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
+          } ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
+          style={{ transform: `scale(${finalScale})` }}
         />
         <span 
           className="absolute -bottom-3 sm:-bottom-3.5 left-1/2 transform -translate-x-1/2 text-[9px] sm:text-[10px] font-black text-white tracking-wider uppercase text-center whitespace-nowrap leading-none filter drop-shadow-[0_1.5px_2px_rgba(0,0,0,1)] drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]"
@@ -504,9 +508,36 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status }: { src
     );
   }
 
-  const isCanTho1 = alt.toLowerCase().includes("cần thơ 1");
-  const isCanTho2 = alt.toLowerCase().includes("cần thơ 2");
-  const isCanTho3 = alt.toLowerCase().includes("cần thơ 3");
+  // "thêm mác thử nghiệm vào logo kênh VTV6 HD"
+  const isVTV6 = alt.includes("VTV6");
+  if (isVTV6) {
+    return (
+      <div className="relative flex items-center justify-center w-full h-full select-none">
+        <img 
+          src={finalSrc} 
+          alt={alt} 
+          referrerPolicy="no-referrer"
+          onError={() => setError(true)}
+          className={`${className} object-contain p-0 transition-all duration-300 ${
+            liquidGlass === "tinted" 
+              ? "opacity-100" 
+              : !isDark ? "drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]" : ""
+          } ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
+          style={{ transform: `scale(${finalScale})` }}
+        />
+        <span 
+          className="absolute bottom-[-5px] sm:bottom-[-7px] right-[5%] bg-amber-500 text-white text-[8px] sm:text-[9px] font-black px-1 py-0.5 rounded-md flex items-center justify-center border border-white/50 backdrop-blur-md shadow-lg leading-none select-none z-20"
+          style={{ fontFamily: "Montserrat, sans-serif" }}
+        >
+          THỬ NGHIỆM
+        </span>
+      </div>
+    );
+  }
+
+  const isCanTho1 = alt.toLowerCase().includes("cần thơ 1") || alt.toLowerCase().includes("thtpct 1") || alt.toLowerCase().includes("thtpct1");
+  const isCanTho2 = alt.toLowerCase().includes("cần thơ 2") || alt.toLowerCase().includes("thtpct 2") || alt.toLowerCase().includes("thtpct2");
+  const isCanTho3 = alt.toLowerCase().includes("cần thơ 3") || alt.toLowerCase().includes("thtpct 3") || alt.toLowerCase().includes("thtpct3");
   const isQNgTV2 = alt.toLowerCase().includes("qngtv2") || alt.includes("Quảng Ngãi 2");
 
   if (isCanTho1 || isCanTho2 || isCanTho3 || isQNgTV2) {
@@ -525,7 +556,8 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status }: { src
             liquidGlass === "tinted" 
               ? "opacity-100" 
               : !isDark ? "drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]" : ""
-          } ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
+          } ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
+          style={{ transform: `scale(${finalScale})` }}
         />
         <span 
           className="absolute bottom-[-2px] right-[5%] bg-red-600 dark:bg-[#FF453A] text-white text-[10px] sm:text-[11px] font-black w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-md flex items-center justify-center border-2 border-white dark:border-zinc-800 shadow-lg leading-none select-none z-20"
@@ -547,7 +579,8 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status }: { src
         liquidGlass === "tinted" 
           ? "opacity-100" 
           : !isDark ? "drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]" : ""
-      } ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
+      } ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
+      style={{ transform: `scale(${finalScale})` }}
     />
   );
 }
@@ -558,7 +591,11 @@ function ChannelContextMenu({
   onClose, 
   isDark, 
   channel, 
-  onShowToast 
+  onShowToast,
+  onDownloadM3U8,
+  onViewLogo,
+  logoScale,
+  onLogoScaleChange
 }: { 
   x: number, 
   y: number, 
@@ -566,6 +603,10 @@ function ChannelContextMenu({
   isDark: boolean, 
   channel: Channel, 
   onShowToast?: (msg: string) => void,
+  onDownloadM3U8: () => void,
+  onViewLogo: () => void,
+  logoScale: number,
+  onLogoScaleChange: (val: number) => void,
   key?: string | number
 }) {
   const handleCopyLink = async () => {
@@ -602,7 +643,7 @@ function ChannelContextMenu({
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
         style={{ top: y, left: x }}
-        className={`fixed z-[1001] w-64 rounded-2xl shadow-2xl border p-1.5 overflow-hidden backdrop-blur-xl ${
+        className={`fixed z-[1001] w-64 rounded-2xl shadow-2xl border p-2.5 overflow-hidden backdrop-blur-xl ${
           isDark 
             ? "bg-[#11131c]/90 border-white/10 text-white shadow-[0_12px_40px_rgba(0,0,0,0.5)]" 
             : "bg-white/90 border-slate-200 text-[#11131c] shadow-[0_12px_30px_rgba(15,23,42,0.15)]"
@@ -616,29 +657,67 @@ function ChannelContextMenu({
 
         <button 
           onClick={handleCopyLink} 
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-left ${
+          className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-xl transition-all text-left ${
             isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
           }`}
         >
-          <Copy size={16} />
-          <span className="text-sm font-semibold">Get channel feed link</span>
+          <Copy size={15} />
+          <span className="text-xs font-semibold">Get channel feed link</span>
         </button>
 
         <button 
           onClick={handleOpenExternal} 
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-left ${
+          className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-xl transition-all text-left ${
             isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
           }`}
         >
-          <ExternalLink size={16} />
-          <span className="text-sm font-semibold">Mở luồng trong tab mới</span>
+          <ExternalLink size={15} />
+          <span className="text-xs font-semibold">Mở luồng trong tab mới</span>
         </button>
+
+        <button 
+          onClick={() => { onDownloadM3U8(); onClose(); }} 
+          className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-xl transition-all text-left ${
+            isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
+          }`}
+        >
+          <ArrowDown size={15} />
+          <span className="text-xs font-semibold">Download m3u8 file</span>
+        </button>
+
+        <button 
+          onClick={() => { onViewLogo(); onClose(); }} 
+          className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-xl transition-all text-left ${
+            isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
+          }`}
+        >
+          <Eye size={15} />
+          <span className="text-xs font-semibold">View channel logo</span>
+        </button>
+
+        <div className={`px-3 py-2 flex flex-col gap-1.5 rounded-xl ${isDark ? "bg-white/5" : "bg-slate-50"} mt-1.5`}>
+          <div className="flex items-center justify-between text-[10px] font-bold opacity-75">
+            <div className="flex items-center gap-1.5">
+              <Sliders size={11} className="opacity-70" />
+              <span>Scaling option</span>
+            </div>
+            <span>{logoScale}%</span>
+          </div>
+          <input 
+            type="range" 
+            min="1" 
+            max="100" 
+            value={logoScale} 
+            onChange={(e) => onLogoScaleChange(Number(e.target.value))} 
+            className="w-full accent-blue-500 h-1 rounded-lg cursor-pointer bg-slate-300 dark:bg-slate-700" 
+          />
+        </div>
       </div>
     </>
   );
 }
 
-function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu }: {
+function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, logoScale }: {
   ch: Channel,
   onClick: () => void,
   isDark: boolean,
@@ -649,7 +728,8 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
   className?: string,
   key?: string | number,
   isLiveTab?: boolean,
-  onContextMenu?: (e: React.MouseEvent, ch: Channel) => void
+  onContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
+  logoScale?: number
 }) {
   const isMaintenance = ch.status === "maintenance";
   const isComingSoon = ch.status === "coming-soon";
@@ -673,14 +753,34 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
         }
       }}
     >
+      {/* Tooltip for local channels */}
+      {ch.originalProvince && (
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2.5 pointer-events-none opacity-0 group-hover:opacity-100 z-[100] transition-none select-none">
+          <div className={`text-[10px] sm:text-[11px] font-black px-3 py-1.5 rounded-xl shadow-xl whitespace-nowrap tracking-wide border ${
+            isDark 
+              ? "bg-[#18181b]/95 text-white/90 border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]" 
+              : "bg-slate-900 text-white border-slate-850 shadow-[0_4px_20px_rgba(0,0,0,0.25)]"
+          }`}>
+            Báo và PT-TH {ch.originalProvince}
+          </div>
+          {/* Subtle triangle arrow */}
+          <div className={`w-2 h-2 rotate-45 absolute -bottom-1 left-1/2 -translate-x-1/2 z-[-1] border-r border-b ${
+            isDark 
+              ? "bg-[#18181b]/95 border-white/10" 
+              : "bg-slate-900 border-slate-850"
+          }`} />
+        </div>
+      )}
+
       {/* Background glow when active or hover */}
-      <div className={`absolute -inset-1 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0 ${isActive ? "bg-[#4AC4FE]/10 opacity-100" : isDark ? "bg-white/2" : "bg-slate-500/5"}`} />
+      <div className={`absolute -inset-1 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 z-0 ${isActive ? "bg-[#4AC4FE]/10 opacity-100" : isDark ? "bg-white/2" : "bg-slate-500/5"}`} />
       
       <motion.button
         whileHover={{ scale: 1.03 }}
         whileTap={{ scale: 0.98 }}
         onClick={onClick}
-        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden transition-all duration-300 z-10 rounded-2xl border ${
+        transition={{ duration: 0 }}
+        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden z-10 rounded-2xl border ${
           isActive
             ? isDark
               ? "bg-[#252529] border-[#4AC4FE] shadow-lg shadow-[#4AC4FE]/25"
@@ -709,15 +809,16 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
         
         {/* Logo parent perfectly centered vertically and horizontally inside the tile */}
         <div className="absolute inset-0 flex items-center justify-center z-10 p-3 sm:p-4">
-          <div className="relative w-full h-[62%] flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+          <div className="relative w-full h-[62%] flex items-center justify-center">
             {/* Main Centered Logo */}
             <ChannelLogo 
               src={ch.logo} 
               alt={ch.name} 
-              className="max-w-[85%] max-h-[85%] object-contain"
+              className="max-w-[85%] max-h-[85%] object-contain logo-thick-outline"
               isDark={isDark} 
               liquidGlass={liquidGlass} 
               status={ch.status} 
+              logoScale={logoScale}
             />
 
             {/* Reflection Effect inside tiles */}
@@ -736,6 +837,7 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
                 isDark={isDark} 
                 liquidGlass={liquidGlass} 
                 status={ch.status} 
+                logoScale={logoScale}
               />
             </div>
           </div>
@@ -744,7 +846,7 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
       
       <button 
         onClick={(e) => { e.stopPropagation(); toggleFavorite(ch); }}
-        className={`absolute top-1.5 right-1.5 xs:top-2.5 xs:right-2.5 p-1 xs:p-1.5 rounded-full backdrop-blur-md opacity-80 sm:opacity-0 group-hover:opacity-100 transition-all hover:scale-110 z-20 ${
+        className={`absolute top-1.5 right-1.5 xs:top-2.5 xs:right-2.5 p-1 xs:p-1.5 rounded-full backdrop-blur-md opacity-80 sm:opacity-0 group-hover:opacity-100 hover:scale-110 z-20 ${
           favorites.includes(ch.name) 
             ? "text-white bg-[#4AC4FE] border border-[#4AC4FE] shadow-sm shadow-[#4AC4FE]/20" 
             : isDark 
@@ -886,7 +988,8 @@ function HomeContent({
   paginate, 
   slides, 
   bypassed,
-  onChannelContextMenu
+  onChannelContextMenu,
+  logoScale
 }: {
   setActiveTab: (tab: string) => void,
   setActiveChannel: (ch: typeof channels[0]) => void,
@@ -901,7 +1004,8 @@ function HomeContent({
   paginate: (newDirection: number) => void,
   slides: any[],
   bypassed?: boolean,
-  onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void
+  onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
+  logoScale?: number
 }) {
   const [randomChannels, setRandomChannels] = useState<typeof channels>([]);
   
@@ -1280,7 +1384,6 @@ function HomeContent({
                   >
                     <ChannelCard 
                       ch={ch} 
-                      className="hover:scale-105"
                       onClick={() => {
                         setActiveChannel(ch);
                         setActiveTab("Live");
@@ -1290,6 +1393,7 @@ function HomeContent({
                       toggleFavorite={toggleFavorite} 
                       liquidGlass={liquidGlass}
                       onContextMenu={onChannelContextMenu}
+                      logoScale={logoScale}
                     />
                     <div className={`mt-3 text-center text-xs font-bold truncate tracking-wide ${isDark ? "text-slate-350" : "text-slate-600"}`}>
                       {ch.name}
@@ -1310,7 +1414,6 @@ function HomeContent({
                 >
                   <ChannelCard 
                     ch={ch} 
-                    className="hover:scale-105"
                     onClick={() => {
                       setActiveChannel(ch);
                       setActiveTab("Live");
@@ -1320,6 +1423,7 @@ function HomeContent({
                     toggleFavorite={toggleFavorite} 
                     liquidGlass={liquidGlass}
                     onContextMenu={onChannelContextMenu}
+                    logoScale={logoScale}
                   />
                   <div className={`mt-2 text-center text-[11px] font-black truncate tracking-wide ${isDark ? "text-slate-400" : "text-slate-700"}`}>
                     {ch.name}
@@ -1435,7 +1539,6 @@ function HomeContent({
               <ChannelCard 
                 key={`${ch.name}-${ch.stream}`} 
                 ch={ch} 
-                className="hover:scale-105"
                 onClick={() => {
                   setActiveChannel(ch);
                   setActiveTab("Live");
@@ -1445,6 +1548,7 @@ function HomeContent({
                 toggleFavorite={toggleFavorite} 
                 liquidGlass={liquidGlass}
                 onContextMenu={onChannelContextMenu}
+                logoScale={logoScale}
               />
             ))}
           </div>
@@ -1486,7 +1590,8 @@ function ExploreContent({
   setIsSidebarLocked,
   handleSearchContextMenu,
   searchFilter,
-  onChannelContextMenu
+  onChannelContextMenu,
+  logoScale
 }: {
   isDark: boolean,
   searchQuery: string,
@@ -1518,7 +1623,8 @@ function ExploreContent({
   setIsSidebarLocked: (val: boolean) => void,
   handleSearchContextMenu: (e: React.MouseEvent) => void,
   searchFilter: "all" | "channels" | "settings" | "experiments",
-  onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void
+  onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
+  logoScale?: number
 }) {
   const [randomRows, setRandomRows] = useState<Channel[][]>([]);
   const [randomSettings, setRandomSettings] = useState<any[]>([]);
@@ -1663,8 +1769,8 @@ function ExploreContent({
                       toggleFavorite={toggleFavorite}
                       liquidGlass={liquidGlass}
                       onClick={() => setActiveChannel(ch)}
-                      className="hover:scale-105"
                       onContextMenu={onChannelContextMenu}
+                      logoScale={logoScale}
                     />
                   ))}
                 </div>
@@ -1774,7 +1880,7 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
   );
 }
 
-function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu }: { 
+function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, logoScale }: { 
   active: Channel, 
   setActive: (ch: Channel) => void, 
   isDark: boolean,
@@ -1793,7 +1899,8 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   setIsPlayerInView: (val: boolean) => void,
   loadingTreatment: string,
   currentTime: Date,
-  onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void
+  onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
+  logoScale?: number
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -3143,6 +3250,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                       liquidGlass={liquidGlass}
                       isLiveTab={true}
                       onContextMenu={onChannelContextMenu}
+                      logoScale={logoScale}
                     />
                   ))
                 )}
@@ -9523,6 +9631,39 @@ function App() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Logo scaling state persisting to LocalStorage
+  const [logoScale, setLogoScale] = useState<number>(() => {
+    const saved = localStorage.getItem("vplay_logo_scale");
+    return saved ? Number(saved) : 50;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("vplay_logo_scale", String(logoScale));
+  }, [logoScale]);
+
+  // Modal selector for viewing logo
+  const [viewLogoChannel, setViewLogoChannel] = useState<Channel | null>(null);
+
+  // Download playlist logic (filtering category 'Phát thanh' standard rules)
+  const handleDownloadM3U8 = () => {
+    let m3uContent = "#EXTM3U\n";
+    // We export all available channels except radio
+    channels.forEach(ch => {
+      m3uContent += `#EXTINF:-1 tvg-logo="${ch.logo}" group-title="${ch.category}",${ch.name}\n${ch.stream}\n`;
+    });
+
+    const blob = new Blob([m3uContent], { type: "application/x-mpegurl;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "vplay_channels.m3u8";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast("Đã tải xuống danh sách kênh M3U8!");
+  };
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => {
@@ -10901,7 +11042,69 @@ const [headingBar, setHeadingBar] = useState(() => {
             channel={contextMenu.channel}
             onClose={() => setContextMenu(null)} 
             onShowToast={(msg) => showToast(msg)}
+            onDownloadM3U8={handleDownloadM3U8}
+            onViewLogo={() => setViewLogoChannel(contextMenu.channel!)}
+            logoScale={logoScale}
+            onLogoScaleChange={setLogoScale}
           />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {viewLogoChannel && (
+          <div className="fixed inset-0 z-[10003] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md" onClick={() => setViewLogoChannel(null)}>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
+              className={`w-full max-w-sm rounded-[32px] border p-6 overflow-hidden shadow-2xl relative ${
+                isDark 
+                  ? "bg-[#11131c]/95 border-white/10 text-white shadow-[0_24px_50px_rgba(0,0,0,0.6)]" 
+                  : "bg-[#fdfdfd] border-slate-200 text-[#11131c] shadow-[0_24px_40px_rgba(15,23,42,0.15)]"
+              }`}
+            >
+              <button 
+                onClick={() => setViewLogoChannel(null)}
+                className={`absolute top-4 right-4 p-2 rounded-full transition-all ${
+                  isDark ? "hover:bg-white/5 text-white/60 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
+                }`}
+              >
+                <X size={16} />
+              </button>
+
+              <div className="flex flex-col items-center gap-6 mt-1 text-center">
+                <span className="text-[10px] uppercase tracking-widest font-black opacity-50">Logo Chi Tiết</span>
+                
+                <div className={`p-8 rounded-[24px] aspect-square w-48 flex items-center justify-center border-2 ${
+                  isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-100"
+                }`}>
+                  <img 
+                    src={viewLogoChannel.logo} 
+                    alt={viewLogoChannel.name} 
+                    referrerPolicy="no-referrer"
+                    className="max-w-[120%] max-h-[120%] object-contain"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <h3 className="text-lg font-black tracking-tight leading-none">{viewLogoChannel.name}</h3>
+                  <p className="text-[10px] font-bold opacity-50 uppercase tracking-widest">{viewLogoChannel.category}</p>
+                </div>
+
+                <a 
+                  href={viewLogoChannel.logo}
+                  download={`${viewLogoChannel.name}_logo.png`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full flex items-center justify-center gap-2 py-3 px-5 rounded-[18px] bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all shadow-lg hover:shadow-blue-500/20 text-xs active:scale-95"
+                >
+                  <ArrowDown size={14} />
+                  <span>Tải ảnh logo về máy</span>
+                </a>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
@@ -11171,6 +11374,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   slides={slides}
                   bypassed={bypassed}
                   onChannelContextMenu={handleChannelContextMenu}
+                  logoScale={logoScale}
                 />
               )}
               {displayTab === "Khám phá" && (
@@ -11206,6 +11410,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   handleSearchContextMenu={handleSearchContextMenu}
                   searchFilter={searchFilter}
                   onChannelContextMenu={handleChannelContextMenu}
+                  logoScale={logoScale}
                 />
               )}
               {displayTab === "Live" && (
@@ -11229,6 +11434,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   loadingTreatment={loadingTreatment}
                   currentTime={currentTime}
                   onChannelContextMenu={handleChannelContextMenu}
+                  logoScale={logoScale}
                 />
               )}
               {displayTab === "Experiments" && (

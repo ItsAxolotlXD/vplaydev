@@ -4,9 +4,10 @@ export type Channel = {
   logo: string;
   stream: string;
   status?: "working" | "maintenance" | "coming-soon";
+  originalProvince?: string;
 };
 
-export const channels: Channel[] = [
+const rawChannels: Channel[] = [
   // VTV
   { category: "VTV", name: "VTV1", logo: "https://mytv.com.vn/upload/channel/1.png", stream: "https://live.fptplay53.net/fnxch2/vtv1hd_abr.smil/chunklist.m3u8" },
   { category: "VTV", name: "VTV2", logo: "https://mytv.com.vn/upload/channel/2.png", stream: "https://live.fptplay53.net/fnxch2/vtv2hd_abr.smil/chunklist.m3u8" },
@@ -120,3 +121,80 @@ export const channels: Channel[] = [
   { category: "Phát thanh", name: "VOV Giao thông Hà Nội", logo: "https://static.wikia.nocookie.net/logos/images/5/5e/VOV_Giao_th%C3%B4ng_logo_2017.png/revision/latest?cb=20220311024323&path-prefix=vi", stream: "https://vov.vn/live/vovgt-hn.m3u8" },
   { category: "Phát thanh", name: "VOV Giao thông TP.HCM", logo: "https://static.wikia.nocookie.net/logos/images/5/5e/VOV_Giao_th%C3%B4ng_logo_2017.png/revision/latest?cb=20220311024323&path-prefix=vi", stream: "https://vov.vn/live/vovgt-hcm.m3u8" },
 ];
+
+export const channels: Channel[] = rawChannels.map(ch => {
+  let name = ch.name;
+  let logo = ch.logo;
+  const lowerName = ch.name.toLowerCase();
+
+  // 1. Logo URL Substitutions
+  if (lowerName === "vietnam today") {
+    logo = "https://static.wikia.nocookie.net/logos/images/a/a8/Vietnam_Today_07-2025_v2.png/revision/latest/scale-to-width-down/1000?cb=20250808040831&path-prefix=vi";
+  } else if (lowerName.includes("htv2")) {
+    logo = "https://static.wikia.nocookie.net/logos/images/7/75/HTV2_logo_2010-nay.png/revision/latest/scale-to-width-down/1000?cb=20231116055125&path-prefix=vi";
+  } else if (lowerName.includes("htv3")) {
+    logo = "https://static.wikia.nocookie.net/logos/images/e/e4/HTV3_2009-2019.png/revision/latest?cb=20240907084329&path-prefix=vi";
+  } else if (lowerName.includes("htv4")) {
+    logo = "https://static.wikia.nocookie.net/logos/images/1/10/HTV4_logo_2014-2018.png/revision/latest?cb=20180814115707&path-prefix=vi";
+  } else if (lowerName.includes("htv5")) {
+    logo = "https://static.wikia.nocookie.net/logos/images/b/bc/HTV5_Bchannel_logo_ch%C3%ADnh.png/revision/latest?cb=20260528063037&path-prefix=vi";
+  } else if (lowerName.includes("htv7")) {
+    logo = "https://static.wikia.nocookie.net/logos/images/c/cf/HTV7_HD_logo_2017-2019.png/revision/latest?cb=20231211054022&path-prefix=vi";
+  } else if (lowerName.includes("htv9")) {
+    logo = "https://static.wikia.nocookie.net/logos/images/e/ea/HTV9_HD_logo_2021-2022.png/revision/latest/scale-to-width-down/1000?cb=20240315133319&path-prefix=vi";
+  } else if (lowerName.includes("htv thể thao")) {
+    logo = "https://static.wikia.nocookie.net/logos/images/4/4c/HTV_Th%E1%BB%83_thao_logo.png/revision/latest/scale-to-width-down/1000?cb=20231108113057&path-prefix=vi";
+  }
+
+  // 2. Name Simplification for local channels
+  if (ch.category === "Địa phương") {
+    const parenMatch = name.match(/\(([^)]+)\)/);
+    if (parenMatch) {
+      const abbr = parenMatch[1].trim();
+      if (abbr === "TTV") {
+        // Keep both name and abbreviation as is for duplicate case (e.g. Thanh Hóa, Tuyên Quang, Tây Ninh)
+      } else if (abbr.includes(" - ")) {
+        const parts = abbr.split(" - ");
+        name = parts[parts.length - 1].trim();
+      } else {
+        name = abbr;
+      }
+    } else {
+      if (name.startsWith("Cần Thơ")) {
+        name = name.replace("Cần Thơ", "THTPCT");
+      } else if (name === "Khánh Hoà 1") {
+        name = "KTV1";
+      } else if (name === "PTV HD") {
+        name = "PTV";
+      }
+    }
+  }
+
+  // 3. Append HD for all except audio radio channels
+  if (ch.category !== "Phát thanh") {
+    if (!name.toUpperCase().endsWith("HD") && !name.toUpperCase().includes(" HD")) {
+      name = name + " HD";
+    }
+  }
+
+  // 4. Fill originalProvince for Local Channels
+  let originalProvince: string | undefined = undefined;
+  if (ch.category === "Địa phương") {
+    let clean = ch.name.replace(/\([^)]+\)/g, "").trim();
+    clean = clean.replace(/\s*\d+\s*$/, "").trim();
+    if (clean === "Huế") {
+      originalProvince = "Thừa Thiên Huế";
+    } else if (clean === "PTV" || clean === "PTV HD") {
+      originalProvince = "Phú Thọ";
+    } else {
+      originalProvince = clean;
+    }
+  }
+
+  return {
+    ...ch,
+    name,
+    logo,
+    originalProvince
+  };
+});
