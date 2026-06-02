@@ -254,7 +254,7 @@ const SplashScreen = ({
 
   useEffect(() => {
     if (isReinstalling) {
-      const intervalTime = 600; // 600ms * 100 = 60,000ms (1 minute)
+      const intervalTime = 1200; // 1200ms * 100 = 120,000ms (2 minutes)
       const timer = setInterval(() => {
         setProgress((prev) => {
           if (prev >= 100) {
@@ -319,6 +319,16 @@ const SplashScreen = ({
       transition={{ duration: 0.8 }}
       className="fixed inset-0 z-[110] flex flex-col items-center justify-center overflow-hidden bg-black"
     >
+      {/* Hidden YouTube player for background music during reinstall */}
+      {isReinstalling && (
+        <iframe
+          src="https://www.youtube.com/embed/wCz93n1cB28?autoplay=1&mute=0&loop=1&playlist=wCz93n1cB28"
+          allow="autoplay"
+          className="absolute opacity-0 pointer-events-none w-0 h-0 border-0"
+          style={{ width: 0, height: 0, border: 0 }}
+        />
+      )}
+
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -330,8 +340,8 @@ const SplashScreen = ({
             <div className="flex flex-col items-center gap-3">
               <LoadingSpinner isDark={true} className="w-12 h-12 text-white opacity-90" color="#ffffff" />
               <div className="flex flex-col items-center gap-2 mt-2">
-                <span className="text-white/50 text-xs md:text-sm tracking-wide select-none font-normal" style={{ fontFamily: "Montserrat, sans-serif" }}>
-                  Vplay is erasing - This might take several minutes
+                <span className="text-white/50 text-xs md:text-sm tracking-wide select-none font-normal animate-pulse" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                  System Resetting - Playing background soundtrack • wCz93n1cB28
                 </span>
                 <p className="text-white/80 text-sm md:text-base tracking-wide whitespace-nowrap font-normal" style={{ fontFamily: "Montserrat, sans-serif" }}>
                   Re-installing <span className="text-[#4AC4FE] font-bold">{currentFile}</span> - <span className="text-emerald-400 font-extrabold">{progress}%</span> complete
@@ -2294,20 +2304,161 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   const [streamError, setStreamError] = useState<string | null>(null);
 
   const [liveTab, setLiveTab] = useState<"vplay" | "custom">("vplay");
-  const [customChannels, setCustomChannels] = useState<Channel[]>(() => {
+
+  const [vlcMode, setVlcMode] = useState<boolean>(() => {
     try {
-      const saved = localStorage.getItem("vplay_custom_m3u8_channels");
-      return saved ? JSON.parse(saved) : [];
+      const saved = localStorage.getItem("vplay_vlc_mode_enabled");
+      return saved === "true";
     } catch (e) {
-      return [];
+      return false;
     }
   });
-  const [m3uFileName, setM3UFileName] = useState<string>(() => {
-    return localStorage.getItem("vplay_custom_m3u8_fullname") || "";
+
+  const handleToggleVlcMode = (val: boolean) => {
+    setVlcMode(val);
+    try {
+      localStorage.setItem("vplay_vlc_mode_enabled", val ? "true" : "false");
+    } catch (e) {
+      console.warn("Lỗi lưu VLC Mode", e);
+    }
+  };
+
+  const [activeSlot, setActiveSlot] = useState<number>(0);
+  const [slotsConfig, setSlotsConfig] = useState<{ name: string; fileName: string; channels: Channel[] }[]>(() => {
+    const arr = [];
+    for (let i = 0; i < 5; i++) {
+      let name = `Kênh của bạn ${i + 1}`;
+      let fileName = "";
+      let channels: Channel[] = [];
+      arr.push({ name, fileName, channels });
+    }
+    return arr;
   });
+
+  // Lazy load or sync slotsConfig
+  useEffect(() => {
+    if (vlcMode) {
+      setSlotsConfig(prev => {
+        return prev.map((s, i) => {
+          const savedName = localStorage.getItem(`vplay_custom_slot_name_${i}`) || `Kênh của bạn ${i + 1}`;
+          const savedFileName = localStorage.getItem(`vplay_custom_slot_filename_${i}`) || "";
+          let savedChannels: Channel[] = [];
+          try {
+            const saved = localStorage.getItem(`vplay_custom_slot_channels_${i}`);
+            if (saved) savedChannels = JSON.parse(saved);
+          } catch (e) {
+            console.error("Lỗi khi đọc danh sách kênh slot " + i, e);
+          }
+          return { name: savedName, fileName: savedFileName, channels: savedChannels };
+        });
+      });
+    }
+  }, [vlcMode]);
+
+  // Aliases for compatibility
+  const customChannels = useMemo(() => {
+    return slotsConfig[activeSlot].channels;
+  }, [slotsConfig, activeSlot]);
+
+  const m3uFileName = useMemo(() => {
+    return slotsConfig[activeSlot].fileName;
+  }, [slotsConfig, activeSlot]);
+
   const [customSearchQuery, setCustomSearchQuery] = useState("");
   const [fileInputKey, setFileInputKey] = useState(0); 
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [customUrlInput, setCustomUrlInput] = useState("");
+  const [showRenameDialog, setShowRenameDialog] = useState(false);
+  const [renameInput, setRenameInput] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 36;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeSlot, customSearchQuery]);
+
+  const filteredCustomChannels = useMemo(() => {
+    return customChannels.filter(ch => 
+      ch.name.toLowerCase().includes(customSearchQuery.toLowerCase()) ||
+      ch.category.toLowerCase().includes(customSearchQuery.toLowerCase())
+    );
+  }, [customChannels, customSearchQuery]);
+
+  const totalPages = Math.ceil(filteredCustomChannels.length / itemsPerPage);
+  const paginatedCustomChannels = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredCustomChannels.slice(start, start + itemsPerPage);
+  }, [filteredCustomChannels, currentPage]);
+
+  const handleStartRename = () => {
+    setRenameInput(slotsConfig[activeSlot].name);
+    setShowRenameDialog(true);
+  };
+
+  const handleSaveRename = () => {
+    if (!renameInput.trim()) return;
+    setSlotsConfig(prev => {
+      const next = [...prev];
+      next[activeSlot] = {
+        ...next[activeSlot],
+        name: renameInput.trim()
+      };
+      try {
+        localStorage.setItem(`vplay_custom_slot_name_${activeSlot}`, renameInput.trim());
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
+    setShowRenameDialog(false);
+  };
+
+  const handlePlayUrl = () => {
+    if (!customUrlInput.trim()) return;
+    const url = customUrlInput.trim();
+    const cleanUrlParts = url.split("/");
+    const lastPart = cleanUrlParts[cleanUrlParts.length - 1].split("?")[0];
+    const streamName = lastPart ? `Luồng phát: ${lastPart}` : "Đường dẫn tùy chỉnh";
+    
+    const newChan: Channel = {
+      name: streamName,
+      logo: "https://upload.wikimedia.org/wikipedia/commons/e/ec/Visual_Presentation_Indicator_Television.svg",
+      category: "URL Custom",
+      stream: url
+    };
+    setActive(newChan);
+  };
+
+  const handleAddUrlToPlaylist = () => {
+    if (!customUrlInput.trim()) return;
+    const url = customUrlInput.trim();
+    const cleanUrlParts = url.split("/");
+    const lastPart = cleanUrlParts[cleanUrlParts.length - 1].split("?")[0];
+    const streamName = lastPart ? `Kênh URL: ${lastPart}` : `Đường dẫn URL #${slotsConfig[activeSlot].channels.length + 1}`;
+
+    const newChan: Channel = {
+      name: streamName,
+      logo: "https://upload.wikimedia.org/wikipedia/commons/e/ec/Visual_Presentation_Indicator_Television.svg",
+      category: "URL Custom",
+      stream: url
+    };
+
+    setSlotsConfig(prev => {
+      const next = [...prev];
+      const updatedChannels = [...next[activeSlot].channels, newChan];
+      next[activeSlot] = {
+        ...next[activeSlot],
+        channels: updatedChannels
+      };
+      try {
+        localStorage.setItem(`vplay_custom_slot_channels_${activeSlot}`, JSON.stringify(updatedChannels));
+      } catch (err) {
+        setUploadError("Trình duyệt không đủ bộ nhớ để thêm kênh.");
+      }
+      return next;
+    });
+    setCustomUrlInput("");
+  };
 
   // categories definition removed to avoid duplication
 
@@ -2498,9 +2649,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setM3UFileName(file.name);
     setUploadError(null);
-    localStorage.setItem("vplay_custom_m3u8_fullname", file.name);
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -2509,49 +2658,54 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
         if (typeof text === "string") {
           const parsed = parseM3U(text);
           if (parsed.length > 0) {
-            setCustomChannels(parsed);
-            localStorage.setItem("vplay_custom_m3u8_channels", JSON.stringify(parsed));
+            setSlotsConfig(prev => {
+              const next = [...prev];
+              next[activeSlot] = {
+                ...next[activeSlot],
+                fileName: file.name,
+                channels: parsed
+              };
+              try {
+                localStorage.setItem(`vplay_custom_slot_filename_${activeSlot}`, file.name);
+                localStorage.setItem(`vplay_custom_slot_channels_${activeSlot}`, JSON.stringify(parsed));
+              } catch (err) {
+                setUploadError("Trình duyệt không đủ bộ nhớ để lưu danh sách này.");
+              }
+              return next;
+            });
             setActive(parsed[0]);
           } else {
             setUploadError("Không tìm thấy dòng kênh nào hợp lệ trong tệp M3U/M3U8.");
-            setM3UFileName("");
-            localStorage.removeItem("vplay_custom_m3u8_fullname");
           }
         } else {
           setUploadError("Định dạng tệp không được hỗ trợ.");
-          setM3UFileName("");
-          localStorage.removeItem("vplay_custom_m3u8_fullname");
         }
       } catch (err) {
         setUploadError("Lỗi khi đọc tệp. Vui lòng thử lại.");
-        setM3UFileName("");
-        localStorage.removeItem("vplay_custom_m3u8_fullname");
       }
     };
     reader.onerror = () => {
       setUploadError("Lỗi hệ thống khi tải tệp.");
-      setM3UFileName("");
-      localStorage.removeItem("vplay_custom_m3u8_fullname");
     };
     reader.readAsText(file);
   };
 
   const handleClearCustomChannels = () => {
-    setCustomChannels([]);
-    setM3UFileName("");
+    setSlotsConfig(prev => {
+      const next = [...prev];
+      next[activeSlot] = {
+        ...next[activeSlot],
+        fileName: "",
+        channels: []
+      };
+      localStorage.removeItem(`vplay_custom_slot_filename_${activeSlot}`);
+      localStorage.removeItem(`vplay_custom_slot_channels_${activeSlot}`);
+      return next;
+    });
     setCustomSearchQuery("");
     setUploadError(null);
-    localStorage.removeItem("vplay_custom_m3u8_channels");
-    localStorage.removeItem("vplay_custom_m3u8_fullname");
     setFileInputKey(prev => prev + 1);
   };
-
-  const filteredCustomChannels = useMemo(() => {
-    return customChannels.filter(ch => 
-      ch.name.toLowerCase().includes(customSearchQuery.toLowerCase()) ||
-      ch.category.toLowerCase().includes(customSearchQuery.toLowerCase())
-    );
-  }, [customChannels, customSearchQuery]);
 
   const timeString = (currentTime || new Date()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false });
   const isMaintenance = active.status === "maintenance";
@@ -3779,7 +3933,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
       </div> {/* END OF WRAPPER */}
 
       {/* SUB-TAB NAVIGATOR */}
-      <div className="mt-8 md:mt-12 border-b ${isDark ? 'border-white/5' : 'border-slate-250'} pb-6 flex justify-center md:justify-start">
+      <div className={`mt-8 md:mt-12 border-b ${isDark ? "border-white/5" : "border-slate-250"} pb-6 flex flex-col md:flex-row md:items-center justify-between gap-6`}>
         <div className={`p-1.5 rounded-2xl flex w-fit gap-1 items-center ${isDark ? "bg-white/5 border border-white/5" : "bg-slate-100 border border-slate-200"}`}>
           <button
             onClick={() => setLiveTab("vplay")}
@@ -3808,134 +3962,518 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
             Your m3u8 file
           </button>
         </div>
+
+        {/* VLC Mode Toggle with pulsating lights */}
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col items-end">
+            <div className="flex items-center gap-1.5">
+              <span className={`text-xs font-black tracking-tight uppercase ${vlcMode ? "text-[#4AC4FE]" : "text-slate-500"}`}>
+                VLC Mode
+              </span>
+              <span className="relative flex h-2 w-2">
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${vlcMode ? "bg-[#4AC4FE]" : "bg-slate-400"} opacity-75`}></span>
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${vlcMode ? "bg-[#4AC4FE]" : "bg-slate-400"}`}></span>
+              </span>
+            </div>
+            <span className="text-[9px] text-slate-500 font-black tracking-wider uppercase">Giảm tải & Tối ưu</span>
+          </div>
+          <button 
+            type="button"
+            onClick={() => handleToggleVlcMode(!vlcMode)}
+            className={`w-12 h-6.5 rounded-full p-1 transition-all duration-300 relative cursor-pointer border ${
+              vlcMode 
+                ? "bg-[#4AC4FE] border-[#4AC4FE]" 
+                : isDark ? "bg-white/5 border-white/10" : "bg-slate-200 border-slate-350"
+            }`}
+          >
+            <div 
+              className={`w-4 h-4 rounded-full bg-white transition-all duration-300 shadow-sm ${
+                vlcMode ? "translate-x-5.5" : "translate-x-0"
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {liveTab === "custom" ? (
         <div className="mt-8 md:mt-12 space-y-8">
-          {/* UPLOADER PANEL */}
-          <div className={`p-6 md:p-8 rounded-[32px] border-2 border-dashed transition-all ${
-            isDark 
-              ? "border-white/10 bg-white/5 hover:border-white/20" 
-              : "border-slate-200 bg-slate-50/50 hover:border-slate-300"
-          }`}>
-            <div className="flex flex-col items-center justify-center text-center gap-4">
-              <div className="p-4 rounded-full bg-[#4AC4FE]/10 text-[#4AC4FE]">
-                <Upload className="w-8 h-8 animate-bounce" />
+          {!vlcMode ? (
+            /* LOCKED / PROMPT STATE WHEN VLC MODE IS DISABLED */
+            <div className={`p-8 md:p-12 rounded-[48px] border text-center flex flex-col items-center justify-center gap-6 ${
+              isDark ? "bg-white/5 border-white/5" : "bg-slate-50 border-slate-100"
+            }`}>
+              <div className="p-5 rounded-full bg-amber-500/10 text-amber-500 animate-pulse">
+                <Lock size={36} className="stroke-[2.5px]" />
               </div>
-              
-              <div>
-                <h3 className={`text-lg md:text-xl font-bold uppercase tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
-                  {m3uFileName ? `Đang sử dụng: ${m3uFileName}` : "Tải lên tệp playlist m3u/m3u8 của bạn"}
+              <div className="max-w-md">
+                <h3 className={`text-lg md:text-xl font-black uppercase tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                  Tính năng M3U8 bị vô hiệu hóa
                 </h3>
-                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">
-                  {customChannels.length > 0 
-                    ? `Đã tải thành công ${customChannels.length} kênh` 
-                    : "Hỗ trợ định dạng .m3u, .m3u8 hoặc tệp văn bản thô chứa luồng phát"
-                  }
+                <p className="text-xs text-slate-500 font-medium leading-relaxed mt-2.5 uppercase tracking-wide">
+                  để tránh tình trạng web lag giật ngay từ ban đầu do tải quá nhiều luồng kênh, bạn hãy bật chế độ <span className="text-[#4AC4FE] font-black">VLC MODE</span> bằng nút gạt ở góc bên phải để kích hoạt hoàn toàn tính năng này.
                 </p>
               </div>
-
-              {uploadError && (
-                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-semibold">
-                  {uploadError}
-                </div>
-              )}
-
-              <div className="flex flex-wrap items-center justify-center gap-3 mt-2">
-                <label className="px-6 py-3 bg-[#4AC4FE] hover:bg-[#4AC4FE]/90 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-lg flex items-center gap-2 cursor-pointer transition-all active:scale-95">
-                  <Plus className="w-4 h-4" />
-                  {m3uFileName ? "Chọn tệp khác" : "Chọn tệp m3u8"}
-                  <input
-                    key={fileInputKey}
-                    type="file"
-                    accept=".m3u,.m3u8,text/plain"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                </label>
-
-                {customChannels.length > 0 && (
-                  <button
-                    onClick={handleClearCustomChannels}
-                    className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 flex items-center gap-2 cursor-pointer ${
-                      isDark 
-                        ? "bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20" 
-                        : "bg-red-500/5 border border-red-500/10 text-red-650 hover:bg-red-500/15"
-                    }`}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Xóa playlist
-                  </button>
-                )}
-              </div>
+              <button
+                type="button"
+                onClick={() => handleToggleVlcMode(true)}
+                className="px-8 py-3.5 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+              >
+                Kích hoạt VLC Mode ngay
+              </button>
             </div>
-          </div>
-
-          {/* CUSTOM CHANNELS LIST */}
-          {customChannels.length > 0 ? (
-            <div className="space-y-6 md:space-y-8">
-              {/* SEARCH & TITLE BANNER */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
-                <div className="flex items-center gap-3">
-                  <div className="h-6 md:h-8 w-[4px] bg-[#4AC4FE] rounded-full" />
-                  <h3 className={`text-xl md:text-2xl font-bold uppercase tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
-                    Kênh của bạn ({filteredCustomChannels.length}/{customChannels.length})
-                  </h3>
-                </div>
-
-                {/* Search Bar for Custom Playlist */}
-                <div className={`relative flex items-center gap-2.5 px-4 py-2.5 rounded-full overflow-hidden transition-all w-full md:max-w-xs ${
-                  isDark ? "bg-white/5 border border-white/5" : "bg-slate-100 border border-slate-200"
-                }`}>
-                  <Search className="text-slate-500 w-3.5 h-3.5" />
-                  <input
-                    type="text"
-                    placeholder="Tìm trong playlist của bạn..."
-                    value={customSearchQuery}
-                    onChange={(e) => setCustomSearchQuery(e.target.value)}
-                    className={`bg-transparent border-none outline-none text-xs font-bold w-full placeholder-slate-500 ${
-                      isDark ? "text-white" : "text-slate-900"
-                    }`}
-                  />
-                </div>
-              </div>
-
-              {/* Grid of channels */}
-              {filteredCustomChannels.length > 0 ? (
-                <div className="grid grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-6">
-                  {filteredCustomChannels.map((ch, index) => {
-                    const originalIdx = customChannels.findIndex(x => x.stream === ch.stream && x.name === ch.name);
+          ) : (
+            /* VLC MODE ENABLED STATE */
+            <>
+              {/* SLOTS CONTROL / PAGES SELECTOR */}
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center gap-2 border-b border-solid border-slate-200 dark:border-white/5 pb-4">
+                  {slotsConfig.map((slot, index) => {
+                    const isSlotActive = activeSlot === index;
                     return (
-                      <ChannelCard
-                        key={`custom-channel-${index}-${ch.name}`}
-                        ch={ch}
-                        onClick={() => setActive(ch)}
-                        isDark={isDark}
-                        isActive={active.stream === ch.stream && active.name === ch.name}
-                        favorites={favorites}
-                        toggleFavorite={toggleFavorite}
-                        liquidGlass={liquidGlass}
-                        isLiveTab={true}
-                        logoScale={logoScale}
-                        customIndex={originalIdx !== -1 ? originalIdx + 1 : index + 1}
-                      />
+                      <div key={`slot-${index}`} className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setActiveSlot(index)}
+                          className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider border transition-all duration-200 cursor-pointer flex items-center gap-2 ${
+                            isSlotActive
+                              ? "bg-[#4AC4FE] border-transparent text-white shadow-lg"
+                              : isDark
+                                ? "bg-white/5 border-white/5 text-slate-400 hover:text-white hover:bg-white/10"
+                                : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                          }`}
+                        >
+                          <Layers className="w-3.5 h-3.5" />
+                          <span>{slot.name}</span>
+                          {slot.channels.length > 0 && (
+                            <span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${
+                              isSlotActive ? "bg-white text-[#4AC4FE]" : "bg-slate-500/10 text-slate-400"
+                            }`}>
+                              {slot.channels.length}
+                            </span>
+                          )}
+                        </button>
+                        {isSlotActive && (
+                          <button
+                            type="button"
+                            onClick={handleStartRename}
+                            className={`p-2.5 rounded-xl border border-solid transition-all cursor-pointer ${
+                              isDark
+                                ? "bg-white/5 border-white/5 text-slate-400 hover:text-white hover:bg-white/10"
+                                : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                            }`}
+                            title="Đổi tên trang kênh này"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
+              </div>
+
+              {/* DUAL ACTION: FILE UPLOADER & STREAM URL DIRECT PLAY */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Left: Standard File Player */}
+                <div className={`p-6 md:p-8 rounded-[32px] border-2 border-dashed transition-all ${
+                  isDark 
+                    ? "border-white/10 bg-white/5 hover:border-white/20" 
+                    : "border-slate-200 bg-slate-50/50 hover:border-slate-300"
+                }`}>
+                  <div className="flex flex-col items-center justify-center text-center gap-4 h-full">
+                    <div className="p-4 rounded-full bg-[#4AC4FE]/10 text-[#4AC4FE]">
+                      <Upload className="w-8 h-8 animate-bounce" />
+                    </div>
+                    
+                    <div>
+                      <h3 className={`text-md md:text-lg font-bold uppercase tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                        {m3uFileName ? `Đang sử dụng: ${m3uFileName}` : "Tải lên tệp m3u/m3u8"}
+                      </h3>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">
+                        {customChannels.length > 0 
+                          ? `Đã tải thành công ${customChannels.length} kênh` 
+                          : "Hỗ trợ tệp .m3u, .m3u8 hoặc txt"
+                        }
+                      </p>
+                    </div>
+
+                    {uploadError && (
+                      <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-semibold">
+                        {uploadError}
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap items-center justify-center gap-3 mt-2">
+                      <label className="px-5 py-2.5 bg-[#4AC4FE] hover:bg-[#4AC4FE]/90 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-lg flex items-center gap-2 cursor-pointer transition-all active:scale-95">
+                        <Plus className="w-4 h-4" />
+                        {m3uFileName ? "Chọn tệp khác" : "Chọn tệp m3u8"}
+                        <input
+                          key={fileInputKey}
+                          type="file"
+                          accept=".m3u,.m3u8,text/plain"
+                          onChange={handleFileUpload}
+                          className="hidden"
+                        />
+                      </label>
+
+                      {customChannels.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={handleClearCustomChannels}
+                          className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 flex items-center gap-2 cursor-pointer ${
+                            isDark 
+                              ? "bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/25" 
+                              : "bg-red-500/5 border border-red-500/10 text-red-655 hover:bg-red-500/15"
+                          }`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Xóa playlist
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Paste & Play URL stream box */}
+                <div className={`p-6 md:p-8 rounded-[32px] border border-solid transition-all ${
+                  isDark 
+                    ? "bg-white/5 border-white/5 hover:border-white/10" 
+                    : "bg-slate-50 border-slate-100 hover:bg-white hover:shadow-md"
+                }`}>
+                  <div className="flex flex-col justify-between h-full gap-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="p-3 rounded-2xl bg-[#4AC4FE]/10 text-[#4AC4FE]">
+                          <Link className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className={`text-md md:text-lg font-bold uppercase tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                            Xem nhanh bằng URL luồng phát
+                          </h3>
+                          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">
+                            Dán link luồng m3u8/mp4/... để xem trực tiếp
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <input 
+                        type="text"
+                        placeholder="Dán link luồng m3u8 hoặc mp4 tại đây..."
+                        value={customUrlInput}
+                        onChange={(e) => setCustomUrlInput(e.target.value)}
+                        className={`w-full px-4 py-3 rounded-xl border text-xs font-black outline-none transition-all ${
+                          isDark 
+                            ? "bg-white/5 border-white/10 text-white focus:border-[#4AC4FE]" 
+                            : "bg-slate-100 border-slate-200 text-slate-900 focus:border-[#4AC4FE] focus:bg-white"
+                        }`}
+                      />
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={handlePlayUrl}
+                        disabled={!customUrlInput.trim()}
+                        className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                          !customUrlInput.trim()
+                            ? "opacity-40 cursor-not-allowed bg-slate-500/10 text-slate-400"
+                            : "bg-[#4AC4FE] hover:bg-[#3dbcf4] text-white shadow-lg active:scale-95"
+                        }`}
+                      >
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                        Phát ngay
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleAddUrlToPlaylist}
+                        disabled={!customUrlInput.trim()}
+                        className={`px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                          !customUrlInput.trim()
+                            ? "opacity-40 cursor-not-allowed bg-slate-500/10 text-slate-400 border border-transparent"
+                            : isDark
+                              ? "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+                              : "bg-slate-200 border border-slate-300 text-slate-700 hover:bg-slate-300"
+                        }`}
+                        title="Thêm luồng này cấu hình vào Slot playlist hiện tại"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Thêm vào danh sách
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* CUSTOM CHANNELS LIST */}
+              {customChannels.length > 0 ? (
+                <div className="space-y-6 md:space-y-8">
+                  {/* SEARCH & TITLE BANNER */}
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
+                    <div className="flex items-center gap-3">
+                      <div className="h-6 md:h-8 w-[4px] bg-[#4AC4FE] rounded-full" />
+                      <h3 className={`text-xl md:text-2xl font-bold uppercase tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                        Kênh của bạn ({filteredCustomChannels.length}/{customChannels.length})
+                      </h3>
+                    </div>
+
+                    {/* Search Bar for Custom Playlist */}
+                    <div className={`relative flex items-center gap-2.5 px-4 py-2.5 rounded-full overflow-hidden transition-all w-full md:max-w-xs ${
+                      isDark ? "bg-white/5 border border-white/5" : "bg-slate-100 border border-slate-200"
+                    }`}>
+                      <Search className="text-slate-500 w-3.5 h-3.5" />
+                      <input
+                        type="text"
+                        placeholder="Tìm trong danh sách..."
+                        value={customSearchQuery}
+                        onChange={(e) => setCustomSearchQuery(e.target.value)}
+                        className={`bg-transparent border-none outline-none text-xs font-bold w-full placeholder-slate-500 ${
+                          isDark ? "text-white" : "text-slate-900"
+                        }`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Grid of channels */}
+                  {paginatedCustomChannels.length > 0 ? (
+                    <>
+                      <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 md:gap-6">
+                        {paginatedCustomChannels.map((ch, index) => {
+                          const originalIdx = customChannels.findIndex(x => x.stream === ch.stream && x.name === ch.name);
+                          return (
+                            <ChannelCard
+                              key={`custom-channel-${index}-${ch.name}`}
+                              ch={ch}
+                              onClick={() => setActive(ch)}
+                              isDark={isDark}
+                              isActive={active.stream === ch.stream && active.name === ch.name}
+                              favorites={favorites}
+                              toggleFavorite={toggleFavorite}
+                              liquidGlass={liquidGlass}
+                              isLiveTab={true}
+                              logoScale={logoScale}
+                              customIndex={originalIdx !== -1 ? originalIdx + 1 : index + 1}
+                            />
+                          );
+                        })}
+                      </div>
+
+                      {/* PAGINATION CONTROLLER */}
+                      {totalPages > 1 && (
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 px-2">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 select-none">
+                            Đang hiển thị {paginatedCustomChannels.length} / {filteredCustomChannels.length} kênh (Trang {currentPage} / {totalPages})
+                          </span>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                              disabled={currentPage === 1}
+                              className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-center ${
+                                currentPage === 1
+                                  ? "opacity-30 cursor-not-allowed bg-transparent border-slate-200 dark:border-white/5 text-slate-400"
+                                  : isDark
+                                    ? "bg-white/5 border-white/5 text-white hover:bg-white/10 hover:scale-105"
+                                    : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:scale-105"
+                              }`}
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </button>
+
+                            {/* Render Page Pill buttons */}
+                            {(() => {
+                              const pages = [];
+                              const maxVisible = 5;
+                              let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+                              let endPage = startPage + maxVisible - 1;
+                              if (endPage > totalPages) {
+                                endPage = totalPages;
+                                startPage = Math.max(1, endPage - maxVisible + 1);
+                              }
+
+                              if (startPage > 1) {
+                                pages.push(
+                                  <button
+                                    key={1}
+                                    type="button"
+                                    onClick={() => setCurrentPage(1)}
+                                    className={`w-9 h-9 rounded-xl text-xs font-black transition-all border border-solid cursor-pointer ${
+                                      currentPage === 1
+                                        ? "bg-[#4AC4FE] border-transparent text-white shadow-md font-black"
+                                        : isDark
+                                          ? "bg-white/5 border-white/5 text-slate-400 hover:text-white"
+                                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                                    }`}
+                                  >
+                                    1
+                                  </button>
+                                );
+                                if (startPage > 2) {
+                                  pages.push(<span key="dots-start" className="text-xs font-bold text-slate-500 px-1 select-none">...</span>);
+                                }
+                              }
+
+                              for (let i = startPage; i <= endPage; i++) {
+                                const isActive = currentPage === i;
+                                pages.push(
+                                  <button
+                                    key={i}
+                                    type="button"
+                                    onClick={() => setCurrentPage(i)}
+                                    className={`w-9 h-9 rounded-xl text-xs font-black transition-all border border-solid cursor-pointer ${
+                                      isActive
+                                        ? "bg-[#4AC4FE] border-transparent text-white shadow-md font-black"
+                                        : isDark
+                                          ? "bg-white/5 border-white/5 text-slate-400 hover:text-white"
+                                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                                    }`}
+                                  >
+                                    {i}
+                                  </button>
+                                );
+                              }
+
+                              if (endPage < totalPages) {
+                                if (endPage < totalPages - 1) {
+                                  pages.push(<span key="dots-end" className="text-xs font-bold text-slate-500 px-1 select-none">...</span>);
+                                }
+                                pages.push(
+                                  <button
+                                    key={totalPages}
+                                    type="button"
+                                    onClick={() => setCurrentPage(totalPages)}
+                                    className={`w-9 h-9 rounded-xl text-xs font-black transition-all border border-solid cursor-pointer ${
+                                      currentPage === totalPages
+                                        ? "bg-[#4AC4FE] border-transparent text-white shadow-md font-black"
+                                        : isDark
+                                          ? "bg-white/5 border-white/5 text-slate-400 hover:text-white"
+                                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                                    }`}
+                                  >
+                                    {totalPages}
+                                  </button>
+                                );
+                              }
+
+                              return pages;
+                            })()}
+
+                            <button
+                              type="button"
+                              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                              disabled={currentPage === totalPages}
+                              className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-center ${
+                                currentPage === totalPages
+                                  ? "opacity-30 cursor-not-allowed bg-transparent border-slate-200 dark:border-white/5 text-slate-400"
+                                  : isDark
+                                    ? "bg-white/5 border-white/5 text-white hover:bg-white/10 hover:scale-105"
+                                    : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:scale-105"
+                              }`}
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="text-center py-20">
+                      <p className="text-sm font-bold text-slate-500 uppercase tracking-widest leading-none">Không có kênh nào khớp với tìm kiếm</p>
+                    </div>
+                  )}
+                </div>
               ) : (
-                <div className="text-center py-20">
-                  <p className="text-sm font-bold text-slate-500 uppercase tracking-widest leading-none">Không có kênh nào khớp với tìm kiếm</p>
+                <div className="text-center py-24 flex flex-col items-center justify-center gap-4">
+                  <div className="p-4 rounded-full bg-slate-500/10 text-slate-500">
+                    <Trash2 size={32} className="opacity-40" />
+                  </div>
+                  <p className="text-sm font-bold text-slate-500 uppercase tracking-widest text-slate-400">Danh sách trống</p>
+                  <p className="text-xs text-slate-500 max-w-xs md:max-w-md leading-relaxed">Hãy tải lên một tệp playlist m3u/m3u8 ở phía trên để thưởng thức các luồng truyền phát của bạn một cách nhanh chóng và dễ dàng!</p>
                 </div>
               )}
-            </div>
-          ) : (
-            <div className="text-center py-24 flex flex-col items-center justify-center gap-4">
-              <div className="p-4 rounded-full bg-slate-500/10 text-slate-500">
-                <Trash2 size={32} className="opacity-40" />
-              </div>
-              <p className="text-sm font-bold text-slate-500 uppercase tracking-widest text-slate-400">Danh sách trống</p>
-              <p className="text-xs text-slate-500 max-w-xs md:max-w-md leading-relaxed">Hãy tải lên một tệp playlist m3u/m3u8 ở phía trên để thưởng thức các luồng truyền phát của bạn một cách nhanh chóng và dễ dàng!</p>
-            </div>
+
+              {/* Rename Dialog Popup Overlay if active */}
+              <AnimatePresence>
+                {showRenameDialog && (
+                  <div 
+                    className="fixed inset-0 z-[10005] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md font-sans animate-fade-in"
+                    onClick={(e) => { e.stopPropagation(); e.preventDefault(); setShowRenameDialog(false); }}
+                  >
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className={`p-6 rounded-[32px] w-full max-w-xs border shadow-2xl flex flex-col gap-5 text-left border-solid ${
+                        isDark 
+                          ? "bg-[#18181b]/95 border-white/10 text-white shadow-[0_24px_50px_rgba(0,0,0,0.6)]" 
+                          : "bg-white border-slate-250 text-slate-900 shadow-[0_24px_40px_rgba(15,23,42,0.15)]"
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                      }}
+                    >
+                      {/* Header */}
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-2xl bg-[#4AC4FE]/10 text-[#4AC4FE]">
+                          <Pencil className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-xs font-black tracking-tight leading-none uppercase select-none">ĐỔI TÊN TRANG KÊNH</h4>
+                          <p className="text-[10px] font-extrabold opacity-50 uppercase tracking-widest mt-1 truncate select-none">Trang số {activeSlot + 1}</p>
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div>
+                        <label className="block text-[9px] uppercase font-black tracking-wider opacity-60 mb-1.5 select-none">Tên hiển thị mới</label>
+                        <input 
+                          type="text"
+                          placeholder="Nhập tên trang..."
+                          value={renameInput}
+                          onChange={(e) => setRenameInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              handleSaveRename();
+                            }
+                          }}
+                          className={`w-full px-4 py-2.5 rounded-xl border text-xs font-black outline-none transition-all ${
+                            isDark 
+                              ? "bg-white/5 border-white/10 text-white focus:border-[#4AC4FE]" 
+                              : "bg-slate-50 border-slate-200 text-slate-900 focus:border-[#4AC4FE]"
+                          }`}
+                          autoFocus
+                        />
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); e.preventDefault(); setShowRenameDialog(false); }}
+                          className={`flex-1 py-3 rounded-xl text-[9.5px] font-black uppercase tracking-wider transition-all border border-solid text-center cursor-pointer ${
+                            isDark
+                              ? "bg-white/5 border-white/5 text-slate-400 hover:text-white"
+                              : "bg-slate-100 border-slate-200 text-slate-650 hover:bg-slate-200"
+                          }`}
+                        >
+                          Hủy
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSaveRename()}
+                          className="px-6 py-3 rounded-xl text-[9.5px] font-black uppercase tracking-wider transition-all text-center bg-[#4AC4FE] hover:bg-[#3dbcf4] text-white cursor-pointer"
+                        >
+                          Lưu
+                        </button>
+                      </div>
+                    </motion.div>
+                  </div>
+                )}
+              </AnimatePresence>
+            </>
           )}
         </div>
       ) : (
@@ -5889,7 +6427,7 @@ function RejuvenatedSettings(props: any) {
                       onClick={() => { 
                         setShowResetPopup(false); 
                         setIsReinstalling(true); 
-                        setSplashDuration(60000);
+                        setSplashDuration(120000);
                         setShowSplash(true); 
                       }} 
                       className="py-3.5 rounded-2xl font-bold text-sm transition-all bg-[#FF453A] hover:bg-red-700 text-white shadow-lg shadow-red-600/20 active:scale-[0.98]"
@@ -11799,7 +12337,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   onClick={() => { 
                     setShowForceResetPopup(false); 
                     setIsReinstalling(true); 
-                    setSplashDuration(60000); 
+                    setSplashDuration(120000); 
                     setShowSplash(true); 
                   }} 
                   className="py-2.5 rounded-xl font-bold text-xs transition-all bg-[#FF453A] hover:bg-red-700 text-white shadow-lg shadow-red-600/20 active:scale-[0.98]"
