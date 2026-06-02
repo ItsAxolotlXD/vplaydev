@@ -221,3 +221,114 @@
 .frosted-glass-widgets-board .hover\:bg-white\/50:hover {
   background-color: rgba(255, 255, 255, 0.12) !important;
 }
+
+/* --- MATERIAL DESIGN 3 / MATERIAL YOU THEME OVERRIDES --- */
+.m3-theme {
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif !important;
+  --md-sys-color-primary: #386a20;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #b8f397;
+  --md-sys-color-on-primary-container: #042100;
+  --md-sys-color-surface: #fdfdf5;
+  --md-sys-color-on-surface: #1a1c18;
+  --md-sys-color-surface-container: #f0f3eb;
+  --md-sys-color-outline: #72796f;
+  --md-sys-color-outline-variant: #c3c8bc;
+}
+
+.dark .m3-theme {
+  --md-sys-color-primary: #9cd67e;
+  --md-sys-color-on-primary: #0c3900;
+  --md-sys-color-primary-container: #1e5106;
+  --md-sys-color-on-primary-container: #b8f397;
+  --md-sys-color-surface: #11140e;
+  --md-sys-color-on-surface: #e3e3dc;
+  --md-sys-color-surface-container: #1b2118;
+  --md-sys-color-outline: #8c9388;
+  --md-sys-color-outline-variant: #43493e;
+}
+
+/* Soft, squircle and capsule rounded-corners across layouts */
+.m3-theme .rounded-xl,
+.m3-theme .rounded-lg,
+.m3-theme .rounded-2xl {
+  border-radius: 20px !important;
+}
+
+.m3-theme .rounded-3xl,
+.m3-theme .rounded-\[20px\],
+.m3-theme .rounded-\[24px\],
+.m3-theme .rounded-\[32px\] {
+  border-radius: 28px !important;
+}
+
+/* Force flat backgrounds and colors for Containers/Surfaces in M3 mode */
+.m3-theme .bg-slate-900,
+.m3-theme .bg-slate-950,
+.m3-theme .bg-[#11131c],
+.m3-theme .bg-slate-900\/75,
+.m3-theme .bg-[#11131c]\/95 {
+  background-color: var(--md-sys-color-surface-container) !important;
+  box-shadow: none !important;
+}
+
+.m3-theme .text-slate-100,
+.m3-theme .text-slate-200 {
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+.m3-theme .border-slate-800,
+.m3-theme .border-slate-700,
+.m3-theme .border-white\/10,
+.m3-theme .border-slate-200 {
+  border-color: var(--md-sys-color-outline-variant) !important;
+}
+
+/* Active buttons, cards and dialogs styling maps safely */
+.m3-theme.bg-slate-950,
+.m3-theme.bg-[#11131c],
+.m3-theme .bg-slate-950,
+.m3-theme .bg-[#11131c] {
+  background-color: var(--md-sys-color-surface) !important;
+}
+
+/* Transform 3D hard-shadow buttons into M3 capsules */
+.m3-theme .btn-3d,
+.m3-theme .card-3d,
+.m3-theme .btn-purple-3d,
+.m3-theme .btn-white-3d,
+.m3-theme .btn-3d-slate,
+.m3-theme .btn-vibrant-3d,
+.m3-theme .btn-3d-dark {
+  transform: none !important;
+  box-shadow: none !important;
+  border-radius: 9999px !important;
+  border-width: 1px !important;
+  border-color: var(--md-sys-color-outline-variant) !important;
+}
+
+.m3-theme .btn-purple-3d,
+.m3-theme .btn-vibrant-3d {
+  background-color: var(--md-sys-color-primary-container) !important;
+  color: var(--md-sys-color-on-primary-container) !important;
+}
+
+.m3-theme .btn-white-3d,
+.m3-theme .btn-3d-slate {
+  background-color: var(--md-sys-color-surface-container) !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+/* Soft material hovering highlight style */
+.m3-theme button:hover {
+  background-color: rgba(156, 214, 126, 0.12) !important;
+}
+
+.m3-theme .bg-[#4AC4FE],
+.m3-theme .text-[#4AC4FE] {
+  color: #386a20 !important;
+}
+.dark .m3-theme .bg-[#4AC4FE],
+.dark .m3-theme .text-[#4AC4FE] {
+  color: #9cd67e !important;
+}

@@ -81,13 +81,13 @@ const EXPERIMENTS = [
   {
     id: "multiview_channels",
     name: "Multi-view",
-    desc: "Lựa chọn xem nhiều kênh truyền hình cùng một thời điểm",
+    desc: "Watch multiple TV channels at the same time",
     stability: "stable"
   },
   {
     id: "PiP_experimental",
     name: "Picture in Picture",
-    desc: "Hiển thị hình phát thu nhỏ của kênh đang xem khi chuyển sang trang khác hoặc cuộn xuống.",
+    desc: "Display a mini floating player of the current channel when navigating to other tabs or scrolling down.",
     stability: "stable"
   },
   {
@@ -98,8 +98,14 @@ const EXPERIMENTS = [
   },
   {
     id: "screen_recording",
-    name: "Ghi màn hình",
-    desc: "Cho phép ghi lại màn hình kênh truyền hình đang phát và lưu về thiết bị của bạn",
+    name: "Screen Recording",
+    desc: "Allows recording the playing TV broadcast stream and saving it to your device.",
+    stability: "unstable"
+  },
+  {
+    id: "material_design",
+    name: "Material Design 3",
+    desc: "Experience experimental Material You 3 styles with rounded cards and beautiful organic colors.",
     stability: "unstable"
   }
 ];
@@ -368,12 +374,12 @@ const Sparkles2 = ({ className }: { className?: string }) => (
 const AdminIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <ShieldCheck className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 
 const baseTabs = [
-  { name: "Trang chủ", icon: HomeIcon, id: "Trang chủ" },
-  { name: "Khám phá", icon: SearchIcon, id: "Khám phá" },
+  { name: "Home", icon: HomeIcon, id: "Trang chủ" },
+  { name: "Discover", icon: SearchIcon, id: "Khám phá" },
   { name: "Live", icon: TvIcon, id: "Live" },
-  { name: "Lưu trữ", icon: FolderIcon, id: "Lưu trữ" },
-  { name: "Cài đặt", icon: SettingsIcon, id: "Cài đặt" },
-  { name: "Quản trị", icon: AdminIcon, id: "Quản trị" },
+  { name: "Library", icon: FolderIcon, id: "Lưu trữ" },
+  { name: "Settings", icon: SettingsIcon, id: "Cài đặt" },
+  { name: "Admin", icon: AdminIcon, id: "Quản trị" },
 ];
 
 // Channel type is imported from channels.ts
@@ -970,7 +976,7 @@ function HomeContent({
                     </div>
                     {slides[slideIndex]?.channel && (
                       <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#4AC4FE]/20 text-[#4AC4FE] border border-[#4AC4FE]/30 text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest animate-pulse">
-                        <Play size={8} fill="currentColor" className="mr-0.5" /> Xem Ngay
+                        <Play size={8} fill="currentColor" className="mr-0.5" /> Watch Now
                       </div>
                     )}
                   </div>
@@ -1045,10 +1051,10 @@ function HomeContent({
           
           <div className="space-y-2 md:space-y-3 flex-1">
             <h2 className="text-lg md:text-2xl font-black tracking-tight leading-tight bg-gradient-to-r from-rose-400 via-pink-400 to-red-500 bg-clip-text text-transparent">
-              VTV6 - Kênh Truyền hình Thể thao chính thức trở lại!
+              VTV6 - The Sports TV Channel is Officially Returning!
             </h2>
             <p className={`text-xs md:text-[13px] font-medium leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-              Kênh VTV6 dự kiến trở lại vào ngày 08/06/2026 sau gần 4 năm dừng phát sóng, với mục tiêu là kênh chuyên biệt thể thao của Đài Truyền hình Việt Nam, do Trung tâm Truyền hình Thể thao (trước kia là Ban thể thao) quản lý. Vplay cũng đã sẵn sàng cho sự trở lại này - Mời quý khán giả đón xem!
+              VTV6 is scheduled to return on June 8, 2026, after nearly 4 years off air, operating as a dedicated sports channel for Vietnam Television, managed by the Sports TV Center. Vplay is fully prepared for this historic countdown - enjoy watching!
             </p>
           </div>
         </div>
@@ -1056,13 +1062,13 @@ function HomeContent({
         {/* Beautiful Animated Countdown Timer & Watch Now Button */}
         <div className="flex flex-col items-center gap-4 shrink-0 w-full sm:w-auto">
           <div className="flex items-center gap-1.5 xs:gap-3 w-full sm:w-auto bg-white/5 border border-white/10 p-3.5 md:p-5 rounded-2xl md:rounded-3xl shadow-2xl shadow-black/40 backdrop-blur-md justify-center">
-            <AnimatedTimeBox value={timeLeft.days} label="Ngày" isDark={isDark} />
+            <AnimatedTimeBox value={timeLeft.days} label="Days" isDark={isDark} />
             <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
-            <AnimatedTimeBox value={timeLeft.hours} label="Giờ" isDark={isDark} />
+            <AnimatedTimeBox value={timeLeft.hours} label="Hours" isDark={isDark} />
             <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
-            <AnimatedTimeBox value={timeLeft.minutes} label="Phút" isDark={isDark} />
+            <AnimatedTimeBox value={timeLeft.minutes} label="Mins" isDark={isDark} />
             <span className="text-xl font-bold -mt-5 opacity-40 select-none">:</span>
-            <AnimatedTimeBox value={timeLeft.seconds} label="Giây" isDark={isDark} />
+            <AnimatedTimeBox value={timeLeft.seconds} label="Secs" isDark={isDark} />
           </div>
 
           <motion.button
@@ -1078,7 +1084,7 @@ function HomeContent({
             className="w-full flex items-center justify-center gap-2 py-3 px-6 bg-red-600 hover:bg-red-500 text-white font-bold text-sm rounded-xl md:rounded-2xl transition-all shadow-lg shadow-red-600/30 cursor-pointer border border-red-500/20 active:scale-95 select-none"
           >
             <Play size={14} fill="currentColor" />
-            Xem ngay
+            Watch Now
           </motion.button>
         </div>
       </motion.div>
@@ -1208,11 +1214,11 @@ function HomeContent({
               <Crown size={12} /> VIP Membership
             </div>
             <h2 className={`text-2xl xs:text-3xl md:text-6xl font-bold tracking-tight leading-[1.05] md:leading-[0.95] ${isDark ? "text-white" : "text-slate-900"}`}>
-              Khám phá nhiều hơn <br /> 
-              <span className="text-[#4AC4FE]">với Vplay Beta</span>
+              Discover more <br /> 
+              <span className="text-[#4AC4FE]">with Vplay Canary</span>
             </h2>
             <p className={`max-w-xl font-medium text-xs md:text-lg leading-relaxed ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-              Đăng nhập ngay để đồng bộ các kênh yêu thích của bạn, nhận được đề xuất chính xác nhất từ hệ thống AI và trải nghiệm tốc độ truyền tải vượt trội.
+              Log in now to synchronize your favorite channels, receive personalized recommendations, and experience lightning fast streams with zero buff times.
             </p>
           </div>
           
@@ -1221,7 +1227,7 @@ function HomeContent({
               onClick={onLogin} 
               className="w-full md:w-auto btn-vibrant-3d px-8 py-4 md:px-16 md:py-7 text-sm md:text-xl font-bold tracking-widest rounded-2xl md:!rounded-[40px] !border-none !bg-[#4AC4FE] hover:!bg-[#4AC4FE] shadow-[0_20px_50px_rgba(147,51,234,0.3)]"
             >
-              ĐĂNG NHẬP
+              LOG IN
             </button>
           </div>
         </motion.div>
@@ -1240,14 +1246,14 @@ function HomeContent({
             animate={{ opacity: 1, x: 0 }}
             className={`text-xl md:text-3xl font-black tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
           >
-            XEM VPLAY MỌI NƠI
+            WATCH ON ANY DEVICE
           </motion.h3>
             <p className="text-slate-500 text-xs md:text-sm font-medium leading-relaxed max-w-xs">
-              Ứng dụng nền tảng Web mang lại trải nghiệm xem truyền hình mượt mà trên cả máy tính, máy tính bảng và điện thoại mà không cần cài đặt.
+              Vplay is built from the ground up as a responsive web app, providing a smooth TV streaming experience on PC, tablet, and mobile with zero installation.
             </p>
           </div>
           <div className="mt-6 md:mt-8 flex items-center gap-2 text-blue-500 font-semibold text-[10px] uppercase tracking-widest group-hover:translate-x-2 transition-transform">
-            Khám phá công nghệ <ArrowRight size={14} />
+            Explore Technology <ArrowRight size={14} />
           </div>
         </div>
 
@@ -1262,14 +1268,14 @@ function HomeContent({
             animate={{ opacity: 1, x: 0 }}
             className={`text-xl md:text-3xl font-black tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
           >
-            TỐC ĐỘ 4K SIÊU NHANH
+            LIGHTNING FAST QUALITY
           </motion.h3>
             <p className="text-slate-500 text-xs md:text-sm font-medium leading-relaxed max-w-xs">
-              Sử dụng CDN đa khu vực giúp luồng phát video đạt chất lượng 4K AI sắc nét với độ trễ tối thiểu, không giật lag ngay cả giờ cao điểm.
+              Powered by multi-region CDN nodes for extreme streaming quality, minimum latency, and stutter-free streams even during peak rush hours.
             </p>
           </div>
           <div className="mt-6 md:mt-8 flex items-center gap-2 text-amber-500 font-semibold text-[10px] uppercase tracking-widest group-hover:translate-x-2 transition-transform">
-            Kiểm tra đường truyền <ArrowRight size={14} />
+            Check Connection <ArrowRight size={14} />
           </div>
         </div>
       </div>
@@ -1287,7 +1293,7 @@ function HomeContent({
               animate={{ opacity: 1, x: 0 }}
               className={`text-3xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
             >
-              Truy cập nhanh
+              Quick Access
             </motion.h3>
             </div>
           </div>
@@ -1392,12 +1398,12 @@ function ExploreContent({
 
     // Recommended settings options
     const settingsOptions = [
-       { name: "Chế độ tối", icon: Moon, action: () => setIsDark(!isDark), desc: "Tùy chỉnh giao diện bảo vệ mắt" },
-       { name: "Hiệu ứng kính", icon: Layers, action: () => setLiquidGlass(liquidGlass === "glassy" ? "tinted" : "glassy"), desc: "Bật/Tắt hiệu cực mờ Liquid Glass" },
-       { name: "Sắp xếp A-Z", icon: Filter, action: () => setSortOrder("az"), desc: "Sắp xếp kênh theo thứ tự bảng chữ cái" },
-       { name: "Sidebar Float", icon: Columns, action: () => {}, desc: "Thay đổi giao diện thanh điều hướng" },
-       { name: "Phòng thí nghiệm", icon: ExperimentalIcon, action: () => setActiveTab("Experimental"), desc: "Trải nghiệm các tính năng thử nghiệm mới" },
-       { name: "Cập nhật", icon: Zap, action: () => setActiveTab("Update Logs"), desc: "Xem nhật ký thay đổi của hệ thống" }
+       { name: "Dark Mode", icon: Moon, action: () => setIsDark(!isDark), desc: "Protect your eyes with styled themes" },
+       { name: "Frosted Glass", icon: Layers, action: () => setLiquidGlass(liquidGlass === "glassy" ? "tinted" : "glassy"), desc: "Toggle sleek blur backdrop aesthetics" },
+       { name: "Sort A-Z", icon: Filter, action: () => setSortOrder("az"), desc: "Reorder live channel list alphabetically" },
+       { name: "Sidebar Floating", icon: Columns, action: () => {}, desc: "Revamp the layout of the sidebar" },
+       { name: "Experiments Lab", icon: ExperimentalIcon, action: () => setActiveTab("Experimental"), desc: "Unleash next generation features" },
+       { name: "Changelogs", icon: Zap, action: () => setActiveTab("Update Logs"), desc: "Inspect recent updates and patches" }
     ];
     setRandomSettings([...settingsOptions].sort(() => 0.5 - Math.random()).slice(0, 3));
   }, [isDark, liquidGlass, setIsDark, setLiquidGlass, setSortOrder, setActiveTab]);
@@ -1418,10 +1424,10 @@ function ExploreContent({
           <div className="flex flex-wrap items-center gap-2 mt-5 px-3 overflow-hidden">
               <div className="flex items-center gap-2 mr-2">
                   <Sparkles size={12} className="text-[#4AC4FE]" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-40">Đề xuất:</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-40">Trending:</span>
               </div>
               <div className="flex flex-wrap gap-2">
-                {["VTV1", "VTV3", "HBO", "K+ Action", "Discovery", "Bóng đá", "Phim Mới", "Hoạt Hình", "Chế độ tối", "Kính lỏng", "Sắp xếp A-Z", "Cập nhật", "Phòng thí nghiệm"].sort(() => 0.5 - Math.random()).slice(0, 6).map((kw, i) => (
+                {["VTV1", "VTV3", "Sports", "Movies", "Discovery", "Cartoon", "Action", "Drama", "Dark Mode", "Glass Blur", "Sort A-Z", "Changelogs", "Labs"].sort(() => 0.5 - Math.random()).slice(0, 6).map((kw, i) => (
                     <motion.button 
                         key={`explore-kw-${kw}-${i}`} 
                         initial={{ opacity: 0, x: 50 }}
@@ -1485,14 +1491,14 @@ function ExploreContent({
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#4AC4FE]/20 text-[#4AC4FE] text-[10px] font-bold uppercase tracking-widest">
                     <Crown size={12} /> Membership
                   </div>
-                  <h2 className={`text-3xl md:text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Khám phá nhiều hơn với Vplay</h2>
-                  <p className={`max-w-md font-medium text-sm md:text-base ${isDark ? "text-slate-400" : "text-slate-500"}`}>Đăng nhập ngay để đồng bộ các kênh yêu thích của bạn và nhận được đề xuất chính xác nhất từ hệ thống AI.</p>
+                  <h2 className={`text-3xl md:text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Discover more with Vplay Canary</h2>
+                  <p className={`max-w-md font-medium text-sm md:text-base ${isDark ? "text-slate-400" : "text-slate-500"}`}>Sign in now to synchronize your favorite channels, compile personalized listings, and experience our responsive media player hubs.</p>
                 </div>
                 <button 
                   onClick={onLogin} 
                   className="relative z-10 btn-vibrant-3d px-12 py-5 text-lg font-bold tracking-widest shrink-0 !rounded-[32px] !border-none !bg-[#4AC4FE] hover:!bg-[#4AC4FE]"
                 >
-                  ĐĂNG NHẬP
+                  LOG IN
                 </button>
               </motion.div>
             )}
@@ -1506,7 +1512,7 @@ function ExploreContent({
                     </div>
                     <div>
                       <h3 className={`text-xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>
-                          {idx === 0 ? "Kênh nổi bật" : idx === 1 ? "Gợi ý hàng đầu" : "Có thể bạn thích"}
+                          {idx === 0 ? "Featured Channels" : idx === 1 ? "Top Recommendations" : "You Might Like"}
                       </h3>
                     </div>
                   </div>
@@ -1534,7 +1540,7 @@ function ExploreContent({
                      <Sliders size={20} />
                   </div>
                   <div>
-                    <h3 className={`text-2xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>Tối ưu trải nghiệm</h3>
+                    <h3 className={`text-2xl font-bold tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}>Optimize Experience</h3>
                   </div>
                </div>
                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -1708,7 +1714,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   const [levels, setLevels] = useState<Hls.Level[]>([]);
   const [currentLevel, setCurrentLevel] = useState(-1);
   const [showQualityMenu, setShowQualityMenu] = useState(false);
-  const [filterType, setFilterType] = useState<string>("Tất cả");
+  const [filterType, setFilterType] = useState<string>("All");
   const [streamError, setStreamError] = useState<string | null>(null);
 
   // categories definition removed to avoid duplication
@@ -1765,7 +1771,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
         }
       } catch (err: any) {
         if (activeFetch) {
-          setEpgError(err.message || "Lỗi tải dữ liệu");
+          setEpgError(err.message || "Failed to load schedule");
         }
       } finally {
         if (activeFetch) {
@@ -1860,10 +1866,19 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   const filteredChannels = channels
     .filter(ch => {
       const matchesSearch = ch.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesType = filterType === "Tất cả" 
-        || (filterType === "Hoạt động" && ch.status !== "maintenance")
-        || (filterType === "Bảo trì" && ch.status === "maintenance")
-        || ch.category === filterType;
+      const categoryMap: { [key: string]: string } = {
+        "All": "All",
+        "Active": "Active",
+        "Maintenance": "Maintenance",
+        "Essential": "Thiết yếu",
+        "Local": "Địa phương",
+        "Radio": "Phát thanh"
+      };
+      const normalizedFilterType = categoryMap[filterType] || filterType;
+      const matchesType = filterType === "All" 
+        || (filterType === "Active" && ch.status !== "maintenance")
+        || (filterType === "Maintenance" && ch.status === "maintenance")
+        || ch.category === normalizedFilterType;
       return matchesSearch && matchesType;
     })
     .sort((a, b) => {
@@ -2025,15 +2040,15 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
         if (data.fatal) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              setStreamError("Lỗi mạng: Không thể tải luồng phát. Vui lòng kiểm tra kết nối hoặc CORS.");
+              setStreamError("Network Error: Failed to load streaming resources. Please check your network connection or CORS restrictions.");
               hls!.startLoad();
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
-              setStreamError("Lỗi media: Dữ liệu video không hợp lệ.");
+              setStreamError("Media Error: Invalid or corrupt video payloads detected.");
               hls!.recoverMediaError();
               break;
             default:
-              setStreamError("Lỗi không xác định khi tải kênh.");
+              setStreamError("An unknown streaming error occurred while loading this channel.");
               hls!.destroy();
               break;
           }
@@ -2618,17 +2633,17 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
               {isMaintenance ? (
                 <div className="bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[8px] md:text-[10px] px-2 md:px-3 py-1 rounded-full font-bold tracking-widest flex items-center gap-1.5 md:gap-2">
                   <div className="h-1 w-1 md:h-1.5 md:w-1.5 rounded-full bg-amber-500"></div>
-                  ĐANG BẢO TRÌ
+                  MAINTENANCE
                 </div>
               ) : (
                 <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-[8px] md:text-[10px] px-2 md:px-3 py-1 rounded-full font-bold tracking-widest flex items-center gap-1.5 md:gap-2">
                   <div className="h-1 w-1 md:h-1.5 md:w-1.5 rounded-full bg-red-500 animate-pulse"></div>
-                  ĐANG TRỰC TIẾP
+                  LIVE
                 </div>
               )}
             </div>
           </div>
-          <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest ml-1">Đang phát sóng: {active.category}</p>
+          <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest ml-1">Now Broadcasting: {active.category === "Địa phương" ? "Local" : active.category === "Thiết yếu" ? "Essential" : active.category === "Phát thanh" ? "Radio" : active.category}</p>
         </div>
         
         <div className="flex items-center gap-2 md:gap-3">
@@ -2715,8 +2730,8 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
               <Calendar size={18} />
             </div>
             <div className="text-left">
-              <h3 className="font-bold text-sm tracking-tight leading-none mb-1">Lịch phát sóng</h3>
-              <p className="text-[10px] text-slate-500 font-medium">Nguồn: vtv.vn (Cập nhật hằng ngày)</p>
+              <h3 className="font-bold text-sm tracking-tight leading-none mb-1">Broadcast Schedule</h3>
+              <p className="text-[10px] text-slate-500 font-medium">Source: vtv.vn (Updated Daily)</p>
             </div>
           </div>
           
@@ -2725,16 +2740,16 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
           </span>
         </div>
 
-        {/* Date Selector bar (Hôm qua, Hôm nay, Ngày mai, Ngày kia) */}
+        {/* Date Selector bar (Yesterday, Today, Tomorrow, Day After) */}
         <div className={`px-2 py-2 border-b flex items-center justify-between gap-1 overflow-x-auto no-scrollbar shrink-0 ${
           isDark ? "border-slate-800 bg-slate-900/20" : "border-slate-100 bg-slate-50/20"
         }`}>
           {[-1, 0, 1, 2].map((offset) => {
             let label = "";
-            if (offset === -1) label = "Hôm qua";
-            else if (offset === 0) label = "Hôm nay";
-            else if (offset === 1) label = "Ngày mai";
-            else if (offset === 2) label = "Ngày kia";
+            if (offset === -1) label = "Yesterday";
+            else if (offset === 0) label = "Today";
+            else if (offset === 1) label = "Tomorrow";
+            else if (offset === 2) label = "Day After";
             
             const isActive = selectedDateOffset === offset;
             
@@ -2766,7 +2781,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
           {epgLoading ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
               <div className="w-8 h-8 rounded-full border-2 border-[#E11D48] border-t-transparent animate-spin" />
-              <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Đang tải lịch phát sóng...</span>
+              <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Loading Broadcast Schedule...</span>
             </div>
           ) : epgError ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
@@ -2781,21 +2796,21 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                 type="button"
                 className="px-4 py-2 bg-[#E11D48]/10 hover:bg-[#E11D48]/20 text-[#E11D48] rounded-full text-[10px] font-bold uppercase tracking-wider border border-[#E11D48]/20 transition-all cursor-pointer"
               >
-                Thử lại
+                Retry
               </button>
             </div>
           ) : epgData.length === 0 ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-6 text-center">
               <Clock size={28} className="text-slate-500 opacity-60 animate-pulse" />
-              <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Không có lịch phát sóng</span>
-              <p className="text-[10px] text-slate-600">Hiện tại kênh này hoặc ngày này chưa cập nhật lịch.</p>
+              <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">No Broadcast Schedule</span>
+              <p className="text-[10px] text-slate-600">This channel or selected date has no updated broadcast schedule.</p>
             </div>
           ) : (
             <>
               {!active.name.toUpperCase().startsWith("VTV") && (
                 <div className="p-3 mb-2 rounded-xl bg-[#BE123C]/10 border border-[#BE123C]/20 text-center flex flex-col items-center gap-0.5 shrink-0">
-                  <span className="text-[9px] font-bold text-[#E11D48] uppercase tracking-widest">EPG PHỤ TRỢ</span>
-                  <span className="text-[10px] opacity-75 leading-tight">Đang xem lịch kênh {active.name.toUpperCase().startsWith("VTV") ? active.name : "VTV1"} tham khảo do kênh này không thuộc VTV.</span>
+                  <span className="text-[9px] font-bold text-[#E11D48] uppercase tracking-widest">Companion EPG</span>
+                  <span className="text-[10px] opacity-75 leading-tight">Showing reference schedule of {active.name.toUpperCase().startsWith("VTV") ? active.name : "VTV1"} as this channel is not a main VTV broadcast.</span>
                 </div>
               )}
               
@@ -2843,7 +2858,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                         </h4>
                         {isCurrent && (
                           <span className="inline-block mt-1 text-[8px] font-bold text-red-500 uppercase tracking-widest bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/10">
-                            Đang phát
+                            LIVE
                           </span>
                         )}
                       </div>
@@ -2862,7 +2877,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
       <div className="mt-8 md:mt-12">
         <div className="flex flex-col lg:flex-row gap-6 mb-8">
           <div className="flex gap-2 overflow-x-auto pb-4 md:pb-0 no-scrollbar flex-1 -mx-4 px-4 md:mx-0 md:px-0">
-            {["Tất cả", "VTV", "HTV", "VTVcab", "Thiết yếu", "Địa phương", "Phát thanh", "Hoạt động", "Bảo trì"].map((type) => (
+            {["All", "VTV", "HTV", "VTVcab", "Essential", "Local", "Radio", "Active", "Maintenance"].map((type) => (
               <button
                 key={type}
                 onClick={() => setFilterType(type)}
@@ -3093,31 +3108,31 @@ function SearchPopup({
     { name: "Cộng đồng", type: "tab", icon: CommunityIcon, action: () => handleOpenSettings() },
     { name: "Nhật ký cập nhật", type: "tab", icon: Zap, action: () => setActiveTab("Update Logs") },
     
-    { name: "Chế độ tối", type: "setting", icon: Moon, action: () => setIsDark(true) },
-    { name: "Chế độ sáng", type: "setting", icon: Sun, action: () => setIsDark(false) },
-    { name: "Sidebar Trái", type: "setting", icon: Columns, action: () => setIsSidebarRight?.(false) },
-    { name: "Sidebar Phải", type: "setting", icon: Columns, action: () => setIsSidebarRight?.(true) },
-    { name: "Khóa Sidebar", type: "setting", icon: Lock, action: () => (setIsSidebarLocked as any)?.(true) },
-    { name: "Mở khóa Sidebar", type: "setting", icon: Unlock, action: () => (setIsSidebarLocked as any)?.(false) },
-    { name: "Sidebar Lơ lửng", type: "setting", icon: Layers, action: () => setSidebarDisplay?.("float") },
-    { name: "Sidebar Chạm góc", type: "setting", icon: Layout, action: () => setSidebarDisplay?.("attach") },
-    { name: "Hiệu ứng Liquid Glass", type: "setting", icon: Layers, action: () => setLiquidGlass(liquidGlass === "glassy" ? "tinted" : "glassy") },
+    { name: "Dark Mode", type: "setting", icon: Moon, action: () => setIsDark(true) },
+    { name: "Light Mode", type: "setting", icon: Sun, action: () => setIsDark(false) },
+    { name: "Left Sidebar", type: "setting", icon: Columns, action: () => setIsSidebarRight?.(false) },
+    { name: "Right Sidebar", type: "setting", icon: Columns, action: () => setIsSidebarRight?.(true) },
+    { name: "Lock Sidebar", type: "setting", icon: Lock, action: () => (setIsSidebarLocked as any)?.(true) },
+    { name: "Unlock Sidebar", type: "setting", icon: Unlock, action: () => (setIsSidebarLocked as any)?.(false) },
+    { name: "Floating Sidebar", type: "setting", icon: Layers, action: () => setSidebarDisplay?.("float") },
+    { name: "Attached Sidebar", type: "setting", icon: Layout, action: () => setSidebarDisplay?.("attach") },
+    { name: "Liquid Glass Effect", type: "setting", icon: Layers, action: () => setLiquidGlass(liquidGlass === "glassy" ? "tinted" : "glassy") },
     
-    { name: "Bật Truy cập nhanh", type: "toggle", icon: Pin, action: () => setIsPinningEnabled?.(true) },
-    { name: "Tắt Truy cập nhanh", type: "toggle", icon: Pin, action: () => setIsPinningEnabled?.(false) },
-    { name: "Bật Giảm chuyển động", type: "toggle", icon: Zap, action: () => setFeatureFlags?.((prev: any) => ({ ...prev, disable_animation: true })) },
-    { name: "Tắt Giảm chuyển động", type: "toggle", icon: Zap, action: () => setFeatureFlags?.((prev: any) => ({ ...prev, disable_animation: false })) },
+    { name: "Enable Quick Access", type: "toggle", icon: Pin, action: () => setIsPinningEnabled?.(true) },
+    { name: "Disable Quick Access", type: "toggle", icon: Pin, action: () => setIsPinningEnabled?.(false) },
+    { name: "Enable Reduced Motion", type: "toggle", icon: Zap, action: () => setFeatureFlags?.((prev: any) => ({ ...prev, disable_animation: true })) },
+    { name: "Disable Reduced Motion", type: "toggle", icon: Zap, action: () => setFeatureFlags?.((prev: any) => ({ ...prev, disable_animation: false })) },
     
-    { name: "Lọc kênh VTV", type: "button", icon: Filter, action: () => { onClose(); (document.querySelector('input') as HTMLInputElement).value = "VTV"; setSearchQuery?.("VTV"); } },
-    { name: "Lọc kênh Phim", type: "button", icon: Film, action: () => { onClose(); (document.querySelector('input') as HTMLInputElement).value = "Phim"; setSearchQuery?.("Phim"); } },
-    { name: "Lọc kênh Bóng đá", type: "button", icon: Zap, action: () => { onClose(); (document.querySelector('input') as HTMLInputElement).value = "Bóng đá"; setSearchQuery?.("Bóng đá"); } },
+    { name: "Filter VTV Channels", type: "button", icon: Filter, action: () => { onClose(); (document.querySelector('input') as HTMLInputElement).value = "VTV"; setSearchQuery?.("VTV"); } },
+    { name: "Filter Movie Channels", type: "button", icon: Film, action: () => { onClose(); (document.querySelector('input') as HTMLInputElement).value = "Phim"; setSearchQuery?.("Phim"); } },
+    { name: "Filter Football Channels", type: "button", icon: Zap, action: () => { onClose(); (document.querySelector('input') as HTMLInputElement).value = "Bóng đá"; setSearchQuery?.("Bóng đá"); } },
     
-    { name: "Cài đặt nâng cao", type: "button", icon: SettingsIcon, action: () => handleOpenSettings() },
-    { name: "Quản lý kênh", type: "button", icon: ShieldCheck, action: () => setActiveTab("Quản trị") },
-    { name: "Tìm kiếm mở rộng", type: "button", icon: SearchIcon, action: () => setActiveTab("Khám phá") },
+    { name: "Advanced Settings", type: "button", icon: SettingsIcon, action: () => handleOpenSettings() },
+    { name: "Channel Management", type: "button", icon: ShieldCheck, action: () => setActiveTab("Quản trị") },
+    { name: "Extended Search", type: "button", icon: SearchIcon, action: () => setActiveTab("Khám phá") },
     
-    { name: "Đăng nhập", type: "button", icon: SignInIcon, action: onLogin },
-    { name: "Đăng xuất", type: "button", icon: SignOutIcon, action: onLogout },
+    { name: "Log In", type: "button", icon: SignInIcon, action: onLogin },
+    { name: "Log Out", type: "button", icon: SignOutIcon, action: onLogout },
     { name: "Sắp xếp A-Z", type: "toggle", icon: Filter, action: () => setSortOrder("az") },
     { name: "Sắp xếp Z-A", type: "toggle", icon: Filter, action: () => setSortOrder("za") },
     
@@ -3290,9 +3305,9 @@ function EventsContent({ isDark, liquidGlass }: { isDark: boolean, liquidGlass: 
     <div className="flex flex-col items-center justify-center h-full min-h-[60vh] gap-6 p-8 text-center">
       <LoadingSpinner isDark={isDark} className="w-12 h-12" />
       <div className="space-y-2">
-        <h2 className={`text-2xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Lưu trữ</h2>
+        <h2 className={`text-2xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Library</h2>
         <p className={`text-sm font-medium opacity-60 ${isDark ? "text-slate-300" : "text-slate-600"}`}>
-          Tab "Lưu trữ" sắp bị xóa bỏ khỏi Vplay Dev
+          The "Library" tab is scheduled to be removed in future Vplay Canary builds.
         </p>
       </div>
     </div>
@@ -3475,7 +3490,7 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment, han
   const logs = [
     {
       id: 'dev-26609',
-      version: 'Vplay Dev - Build 26609',
+      version: 'Vplay Canary - Build 26609',
       tag: '✨',
       type: 'PATCH',
       sections: [
@@ -3494,7 +3509,7 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment, han
     },
     {
       id: 'dev-26604',
-      version: 'Vplay Dev - Build 26604',
+      version: 'Vplay Canary - Build 26604',
       tag: '✨',
       type: 'PATCH',
       sections: [
@@ -3511,7 +3526,7 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment, han
     },
     {
       id: 'dev-26601',
-      version: 'Vplay Dev - Build 26604',
+      version: 'Vplay Canary - Build 26604',
       tag: '✨',
       type: '',
       sections: [
@@ -3552,7 +3567,7 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment, han
     },
     {
       id: 'dev-26504',
-      version: 'Vplay Dev - Build 26504',
+      version: 'Vplay Canary - Build 26504',
       tag: '🐱',
       type: '',
       sections: [
@@ -3586,7 +3601,7 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment, han
     },
     {
       id: 'dev-26470',
-      version: 'Vplay Dev - Build 26470',
+      version: 'Vplay Canary - Build 26470',
       tag: '🐱',
       type: '',
       sections: [
@@ -3621,7 +3636,7 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment, han
     },
     {
       id: 'dev-26467',
-      version: 'Vplay Dev - Build 26467',
+      version: 'Vplay Canary - Build 26467',
       tag: '🐱',
       type: '',
       sections: [
@@ -3700,25 +3715,25 @@ function UpdateLogsContent({ isDark, onBack, featureFlags, loadingTreatment, han
         {logSearchQuery === "" && (
           <section className="space-y-6">
             <div className="flex items-center gap-3 px-1">
-               <h3 className={`text-sm font-bold uppercase tracking-[0.2em] ${isDark ? "text-white/40" : "text-slate-400"}`}>KHÁC BIỆT GIỮA CÁC PHIÊN BẢN vplay beta</h3>
+               <h3 className={`text-sm font-bold uppercase tracking-[0.2em] ${isDark ? "text-white/40" : "text-slate-400"}`}>Differences Between Vplay Builds</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className={`p-6 rounded-3xl border ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-100 shadow-sm"} space-y-3`}>
                 <div className="flex items-center gap-2 text-green-500">
                   <div className="w-2 h-2 rounded-full bg-current" />
-                  <span className="text-xs font-bold uppercase tracking-widest">Vplay Dev</span>
+                  <span className="text-xs font-bold uppercase tracking-widest">Vplay Canary Stable</span>
                 </div>
                 <p className={`text-sm ${isDark ? "text-slate-400" : "text-slate-500"} leading-relaxed font-medium`}>
-                  Thử nghiệm, vẫn khá lỗi nhưng tính năng hoàn thiện hơn so với Canary. Được cập nhật thường xuyên, tính năng ổn định sẽ được đưa vào dưới Features Lab.
+                  Tested features, more stable but still experimental compared to release channel. Updated frequently to deliver quick patches.
                 </p>
               </div>
               <div className={`p-6 rounded-3xl border ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-100 shadow-sm"} space-y-3`}>
                 <div className="flex items-center gap-2 text-yellow-500">
                   <div className="w-2 h-2 rounded-full bg-current" />
-                  <span className="text-sm font-bold uppercase tracking-widest">Vplay Canary</span>
+                  <span className="text-sm font-bold uppercase tracking-widest">Vplay Canary Experimental</span>
                 </div>
                 <p className={`text-sm ${isDark ? "text-slate-400" : "text-slate-500"} leading-relaxed font-medium`}>
-                  Thử nghiệm, nhiều lỗi, tính năng test sơ sài, có thể hỏng hoặc crash. Cập nhật không định kỳ, sử dụng cho mục đích test kỹ thuật.
+                  Highly unstable features, rapid testing, and system tweaks that might crash. Intended solely for developer and technical testing.
                 </p>
               </div>
             </div>
@@ -3802,8 +3817,8 @@ function ExperimentalContent({ isDark, featureFlags, setFeatureFlags, liquidGlas
             <AlertCircle size={24} className="shrink-0" />
           </div>
           <div className="space-y-0.5">
-            <h4 className="text-base font-bold tracking-tight">Cảnh báo rủi ro</h4>
-            <p className="text-[10px] font-bold leading-relaxed opacity-90 text-balance">Các tính năng thử nghiệm có thể chưa ổn định và có thể gây lỗi treo ứng dụng. Chúng tôi khuyến nghị bạn nên sử dụng cẩn thận trên các thiết bị có cấu hình yếu.</p>
+            <h4 className="text-base font-bold tracking-tight">Risk Warning</h4>
+            <p className="text-[10px] font-bold leading-relaxed opacity-90 text-balance">Experimental features are unstable under heavy workloads and can occasionally cause app crashes or performance drops. Proceed with caution, especially on lower-end devices.</p>
           </div>
         </div>
       </div>
@@ -3928,14 +3943,14 @@ function RejuvenatedSettings(props: any) {
   const [showResetPopup, setShowResetPopup] = useState(false);
 
   const categories = [
-    { id: "SystemInfo", name: "Thông tin phiên bản", icon: Info, keywords: ["phiên bản", "build", "nhà phát triển", "cập nhật", "trạng thái", "ổn định", "vplay", "canary", "metadata", "vnrt"] },
-    { id: "Profile", name: "Quản lý hồ sơ", icon: User, keywords: ["tên", "email", "avatar", "đăng xuất", "hồ sơ", "vip", "account", "user", "hồ sơ", "tài khoản", "đổi tên", "ảnh đại diện"] },
-    { id: "Appearance", name: "Chủ đề giao diện", icon: Palette, keywords: ["tối", "sáng", "màu", "sidebar", "navbar", "kính", "touch", "desktop", "chủ đạo", "nền", "màn hình", "interface", "light", "dark", "chế độ", "màu sắc", "màu chính"] },
-    { id: "TopBar", name: "Topbar", icon: Monitor, keywords: ["đồng hồ", "lịch", "thời tiết", "nhiệt độ", "giờ", "định vị", "clock", "weather", "search", "tìm kiếm", "thanh tiêu đề", "topbar", "định dạng", "múi giờ", "nhiệt độ"] },
-    { id: "Sidebar", name: "Sidebar", icon: Columns, keywords: ["sidebar", "phải", "trái", "co gọn", "compact", "quick access", "truy cập nhanh", "vị trí", "thanh bên"] },
-    { id: "Floatbar", name: "Floatbar", icon: GlassWater, keywords: ["floatbar", "liquid glass", "kính", "glassy", "tinted", "mờ", "trong suốt", "hiệu ứng"] },
-    { id: "Experiments", name: "Tính năng thử nghiệm", icon: Pizza, keywords: ["multiview", "quay màn hình", "pip", "thử nghiệm", "widgets", "dashboard", "widget", "phòng thí nghiệm", "labs", "experimental"] },
-    { id: "WidgetsBoard", name: "Cài đặt Widgets board", icon: LayoutGrid, keywords: ["widgets", "board", "bảng tiện ích", "ẩn sidebar", "toàn màn hình", "vị trí board", "thử nghiệm", "experimental", "labs"] },
+    { id: "SystemInfo", name: "System & Version", icon: Info, keywords: ["system", "version", "build", "developer", "update", "status", "stable", "vplay", "canary", "metadata", "vnrt"] },
+    { id: "Profile", name: "User Profile", icon: User, keywords: ["name", "email", "avatar", "logout", "profile", "vip", "account", "user", "username", "signout"] },
+    { id: "Appearance", name: "Appearance & Color", icon: Palette, keywords: ["dark", "light", "color", "sidebar", "navbar", "glass", "touch", "desktop", "accent", "background", "screen", "interface", "theme"] },
+    { id: "TopBar", name: "Topbar Settings", icon: Monitor, keywords: ["clock", "calendar", "weather", "temp", "time", "location", "search", "header", "format", "timezone"] },
+    { id: "Sidebar", name: "Sidebar Config", icon: Columns, keywords: ["sidebar", "right", "left", "compact", "quick access", "pin", "position"] },
+    { id: "Floatbar", name: "Floatbar Settings", icon: GlassWater, keywords: ["floatbar", "liquid glass", "glassy", "tinted", "opacity", "transparent", "effect"] },
+    { id: "Experiments", name: "Experimental Features", icon: Pizza, keywords: ["multiview", "recording", "pip", "experiments", "widgets", "dashboard", "labs"] },
+    { id: "WidgetsBoard", name: "Widgets Board", icon: LayoutGrid, keywords: ["widgets", "board", "sidebar", "fullscreen", "position", "frosted", "color"] },
   ];
 
   // Use internal state if props are not provided
@@ -3958,7 +3973,7 @@ function RejuvenatedSettings(props: any) {
     const id = catId || activeCategory;
     switch (id) {
       case "SystemInfo": {
-        const showSystem = shouldShowSetting("Hệ thống Vplay", "Thông tin phiên bản Vplay VNRT, trạng thái hoạt động", ["phiên bản", "build", "nhà phát triển", "cập nhật", "trạng thái", "ổn định", "vplay", "canary", "metadata", "vnrt"]);
+        const showSystem = shouldShowSetting("Vplay Canary System", "Vplay Canary version information, system health status", ["version", "build", "developer", "update", "status", "stability", "vplay", "canary", "metadata", "vnrt"]);
         if (!showSystem) return null;
         return (
           <div className="space-y-6 text-left">
@@ -3968,7 +3983,7 @@ function RejuvenatedSettings(props: any) {
                   <Zap size={32} className="md:w-10 md:h-10" />
                 </div>
                 <div>
-                  <h3 className={`font-bold text-2xl md:text-3xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Hệ thống Vplay</h3>
+                  <h3 className={`font-bold text-2xl md:text-3xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>Vplay Canary</h3>
                   <p className={`text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] px-2.5 py-1 rounded-xl mt-2 inline-block ${isDark ? "bg-[#4AC4FE]/10 text-[#4AC4FE]" : "bg-[#4AC4FE]/10 text-slate-700"}`}>
                     Vplay Metadata Information
                   </p>
@@ -3977,12 +3992,12 @@ function RejuvenatedSettings(props: any) {
               
               <div className={`w-full space-y-3 p-4 md:p-8 rounded-[20px] md:rounded-[32px] ${isDark ? "bg-white/[0.03] border border-white/5 shadow-inner" : "bg-slate-50 border border-slate-100"}`}>
                 <div className="flex justify-between items-center py-2.5 border-b border-white/5">
-                  <span className={`text-xs md:text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Phát triển by</span>
+                  <span className={`text-xs md:text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Developed by</span>
                   <span className={`text-sm md:text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>VNRT</span>
                 </div>
                 <div className="flex justify-between items-center py-2.5 border-b border-white/5">
                   <span className={`text-xs md:text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Branch</span>
-                  <span className="text-sm md:text-base font-bold text-emerald-500">Dev</span>
+                  <span className="text-sm md:text-base font-bold text-[#E11D48]">Canary</span>
                 </div>
                 <div className="flex justify-between items-center py-2.5 border-b border-white/5">
                   <span className={`text-xs md:text-sm font-bold uppercase tracking-wider opacity-40 ${isDark ? "text-white" : "text-slate-900"}`}>Build</span>
@@ -3997,18 +4012,18 @@ function RejuvenatedSettings(props: any) {
               <div className="mt-6 md:mt-10 flex flex-col sm:flex-row items-center justify-between p-4 md:p-6 rounded-[16px] md:rounded-[24px] bg-emerald-500/5 border border-emerald-500/10 gap-2 text-center sm:text-left">
                 <div className="flex items-center gap-3 text-emerald-555">
                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs md:text-sm font-bold uppercase tracking-[0.2em]">Trạng thái hệ thống</span>
+                  <span className="text-xs md:text-sm font-bold uppercase tracking-[0.2em]">System Status</span>
                 </div>
-                <span className="text-xs md:text-sm font-bold text-emerald-500">ỔN ĐỊNH</span>
+                <span className="text-xs md:text-sm font-bold text-emerald-500">STABLE</span>
               </div>
             </div>
           </div>
         );
       }
       case "Profile": {
-        const showInfo = shouldShowSetting("Hồ sơ cá nhân", "Người dùng Vplay, tài khoản vip membership, email bte tester", ["tên", "email", "avatar", "hồ sơ", "vip", "account", "user", "đổi tên", "ảnh đại diện"]);
-        const showEdit = shouldShowSetting("Chỉnh sửa hồ sơ", "Thay đổi tên hiển thị và ảnh đại diện để cá nhân hóa tài khoản của bạn", ["profile", "hồ sơ", "tài khoản", "tên", "avatar"]);
-        const showLogout = shouldShowSetting("Đăng xuất", "Kết thúc phiên làm việc hiện tại và xóa các dữ liệu đăng nhập tạm thời", ["logout", "đăng xuất", "thoát", "session"]);
+        const showInfo = shouldShowSetting("User Profile", "Vplay user information, VIP membership tier, beta tester credentials", ["name", "email", "avatar", "profile", "vip", "account", "user", "username"]);
+        const showEdit = shouldShowSetting("Edit Profile", "Change your screen display name and representative photo to customize your account", ["profile", "account", "name", "avatar", "edit"]);
+        const showLogout = shouldShowSetting("Log Out", "End your current active session and flush temporary local authorization cache", ["logout", "signout", "session"]);
         
         if (!showInfo && !showEdit && !showLogout) return null;
         return (
@@ -4017,10 +4032,10 @@ function RejuvenatedSettings(props: any) {
               <div className={`p-5 md:p-10 rounded-[20px] md:rounded-[32px] border flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-8 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
                  <img src={user?.photoURL || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop"} className="w-20 h-20 md:w-28 md:h-28 rounded-full border-4 border-white/10 shadow-xl shrink-0" />
                  <div className="space-y-2 text-left">
-                    <h3 className="text-2xl md:text-3xl font-bold tracking-tight">{user?.displayName || "Người dùng Vplay"}</h3>
-                    <p className="opacity-50 text-sm md:text-base">{user?.email || "Chưa xác minh email"}</p>
+                    <h3 className="text-2xl md:text-3xl font-bold tracking-tight">{user?.displayName || "Vplay User"}</h3>
+                    <p className="opacity-50 text-sm md:text-base">{user?.email || "Unverified email"}</p>
                     <div className="pt-2 flex flex-wrap gap-2 justify-center sm:justify-start">
-                       <span className="px-2.5 py-0.5 bg-[#4AC4FE]/20 text-[#4AC4FE] text-[10px] md:text-xs font-bold rounded-lg uppercase tracking-wider">Vip Membership</span>
+                       <span className="px-2.5 py-0.5 bg-[#4AC4FE]/20 text-[#4AC4FE] text-[10px] md:text-xs font-bold rounded-lg uppercase tracking-wider">VIP Membership</span>
                        <span className="px-2.5 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] md:text-xs font-bold rounded-lg uppercase tracking-wider">Beta Tester</span>
                     </div>
                  </div>
@@ -4029,17 +4044,17 @@ function RejuvenatedSettings(props: any) {
             {showEdit && (
               <RejuvenatedSettingsItem 
                 icon={Monitor} 
-                title="Chỉnh sửa hồ sơ" 
-                description="Thay đổi tên hiển thị và ảnh đại diện để cá nhân hóa tài khoản của bạn"
-                onClick={() => onAlert("Tính năng", "Coming soon in detailed view")}
+                title="Edit Profile" 
+                description="Change your screen display name and representative photo to customize your account"
+                onClick={() => onAlert("Feature Setup", "Coming soon in detailed view")}
                 isDark={isDark}
               />
             )}
             {showLogout && (
               <RejuvenatedSettingsItem 
                 icon={LogOut} 
-                title="Đăng xuất" 
-                description="Kết thúc phiên làm việc hiện tại và xóa các dữ liệu đăng nhập tạm thời"
+                title="Log Out" 
+                description="End your current active session and flush temporary local authorization cache"
                 onClick={() => props.onLogout ? props.onLogout() : {}}
                 isDark={isDark}
               />
@@ -4055,8 +4070,8 @@ function RejuvenatedSettings(props: any) {
                     <Trash2 size={24} />
                   </div>
                   <div>
-                    <h4 className="text-base font-bold text-[#FF453A]">Tẩy xóa và Đặt lại</h4>
-                    <p className={`text-xs opacity-75 mt-0.5 ${isDark ? "text-red-200" : "text-red-700"}`}>Xóa sạch bộ nhớ, tùy chỉnh và thiết lập lại ứng dụng từ đầu</p>
+                    <h4 className="text-base font-bold text-[#FF453A]">Flush & Hard Reset</h4>
+                    <p className={`text-xs opacity-75 mt-0.5 ${isDark ? "text-red-200" : "text-red-700"}`}>Erase local storage buffers, personalized settings, and restart the application from scratch</p>
                   </div>
                 </div>
                 <ChevronRight size={18} />
@@ -4066,9 +4081,9 @@ function RejuvenatedSettings(props: any) {
         );
       }
       case "Appearance": {
-        const showMode = shouldShowSetting("Chế độ giao diện", "Tùy chỉnh giao diện sáng hoặc tối để bảo vệ mắt", ["tối", "sáng", "màu", "dark", "light", "chế độ", "màu sắc", "màu chính"]);
-        const showNav = shouldShowSetting("Giao diện điều hướng", "Tối ưu hóa hành vi điều hướng cho bàn phím chuột hoặc màn hình cảm ứng", ["touch", "desktop", "interface", "điều hướng"]);
-        const showColors = shouldShowSetting("Tùy chỉnh màu giao diện", "Tùy chỉnh màu chủ đạo (Nút), Sidebar & Topbar, Màu Nền Chính", ["màu sắc", "màu", "chủ đạo", "nút", "giao diện", "custom color"]);
+        const showMode = shouldShowSetting("App Theme Mode", "Toggle between light and dark visual interfaces for optimal visual comfort", ["dark", "light", "theme", "colors", "mode"]);
+        const showNav = shouldShowSetting("Navigation Mode", "Choose layout paradigm matching keyboard or tactile touch interfaces", ["touch", "desktop", "interface", "navigation", "layout"]);
+        const showColors = shouldShowSetting("Custom Theme Colors", "Customize primary accent buttons, navigation rails, and core canvases", ["color", "palette", "accent", "custom", "sidebar", "background"]);
         
         if (!showMode && !showNav && !showColors) return null;
         return (
@@ -4080,8 +4095,8 @@ function RejuvenatedSettings(props: any) {
                      <Sun size={24} />
                    </div>
                    <div className="text-left">
-                     <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Chế độ giao diện</h4>
-                     <p className="text-sm opacity-50 font-medium tracking-tight">Tùy chỉnh giao diện sáng hoặc tối để bảo vệ mắt</p>
+                     <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>App Theme Mode</h4>
+                     <p className="text-sm opacity-50 font-medium tracking-tight">Toggle between light and dark visual interfaces for optimal visual comfort</p>
                    </div>
                  </div>
                  <div className="grid grid-cols-2 gap-4">
@@ -4089,13 +4104,13 @@ function RejuvenatedSettings(props: any) {
                      onClick={() => setIsDark(false)}
                      className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${!isDark ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-none" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
                    >
-                     <Sun size={16} /> Sáng
+                     <Sun size={16} /> Light
                    </button>
                    <button 
                      onClick={() => setIsDark(true)}
                      className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${isDark ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-none" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
                    >
-                     <Moon size={16} /> Tối
+                     <Moon size={16} /> Dark
                    </button>
                  </div>
                </div>
@@ -4107,8 +4122,8 @@ function RejuvenatedSettings(props: any) {
                      {isTouchInterface ? <Smartphone size={24} /> : <Monitor size={24} />}
                    </div>
                    <div className="text-left">
-                     <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Chế độ điều hướng</h4>
-                     <p className="text-sm opacity-50 font-medium tracking-tight">Chọn kiểu bố cục điều hướng phù hợp cho thiết bị của bạn</p>
+                     <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Navigation Mode</h4>
+                     <p className="text-sm opacity-50 font-medium tracking-tight">Choose layout paradigm matching keyboard or tactile touch interfaces</p>
                    </div>
                  </div>
                  <div className="grid grid-cols-2 gap-4">
@@ -4116,13 +4131,13 @@ function RejuvenatedSettings(props: any) {
                      onClick={() => setIsTouchInterface(false)}
                      className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${!isTouchInterface ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-none" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
                    >
-                     <Monitor size={16} /> Desktop (sidebar, topbar)
+                     <Monitor size={16} /> Desktop (Sidebar)
                    </button>
                    <button 
                      onClick={() => setIsTouchInterface(true)}
                      className={`py-3.5 rounded-[20px] font-bold text-sm transition-all border flex items-center justify-center gap-2 ${isTouchInterface ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-lg shadow-none" : isDark ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"}`}
                    >
-                     <Smartphone size={16} /> Touch (navigation bar)
+                     <Smartphone size={16} /> Touch Tracker (Bottom bar)
                    </button>
                  </div>
                </div>
@@ -4133,11 +4148,11 @@ function RejuvenatedSettings(props: any) {
                    <div className={`p-3 rounded-2xl ${isDark ? "bg-white/5 text-[#4AC4FE]" : "bg-[#4AC4FE]/10 text-[#4AC4FE]"}`}>
                      <Palette size={24} />
                    </div>
-                   <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Tùy chỉnh màu giao diện</h4>
+                   <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Custom Theme Colors</h4>
                  </div>
                  <div className="grid grid-cols-2 gap-6">
                    <div className="space-y-2 text-left">
-                     <label className="text-xs font-bold uppercase tracking-wider opacity-50 ml-1">Màu chủ đạo (Nút)</label>
+                     <label className="text-xs font-bold uppercase tracking-wider opacity-50 ml-1">Primary Accent (Buttons)</label>
                      <div className="flex items-center gap-3">
                        <input 
                          type="color" 
@@ -4161,7 +4176,7 @@ function RejuvenatedSettings(props: any) {
                      </div>
                    </div>
                    <div className="space-y-2 col-span-2">
-                     <label className="text-xs font-bold uppercase tracking-wider opacity-50 ml-1">Màu Nền Chính</label>
+                     <label className="text-xs font-bold uppercase tracking-wider opacity-50 ml-1">Canvas Background Color</label>
                      <div className="flex items-center gap-3">
                        <input 
                          type="color" 
@@ -4190,8 +4205,8 @@ function RejuvenatedSettings(props: any) {
               <>
                 <RejuvenatedSettingsItem 
                   icon={Clock} 
-                  title="Hiển thị Đồng hồ" 
-                  description={showClock ? "Thời gian hiện tại đang được hiển thị trên thanh tiêu đề" : "Đồng hồ hiện đang được ẩn khỏi thanh tiêu đề"}
+                  title="Display Clock" 
+                  description={showClock ? "Show current time on header bar" : "Hide clock from header bar"}
                   onClick={() => setShowClock(!showClock)}
                   isDark={isDark}
                   isToggleable={true}
@@ -4200,7 +4215,7 @@ function RejuvenatedSettings(props: any) {
                 {showClock && (
                   <div className={`ml-10 p-6 rounded-[24px] border space-y-6 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
                       <div className="flex items-center justify-between">
-                           <span className="text-sm font-bold opacity-60">Múi giờ</span>
+                           <span className="text-sm font-bold opacity-60">Timezone</span>
                            <select 
                               value={timeZone} 
                               onChange={(e) => setTimeZone(e.target.value)}
@@ -4212,14 +4227,14 @@ function RejuvenatedSettings(props: any) {
                            </select>
                       </div>
                       <div className="flex items-center justify-between">
-                           <span className="text-sm font-bold opacity-60">Định dạng giờ</span>
+                           <span className="text-sm font-bold opacity-60">Hour format</span>
                            <select 
                               value={timeFormat} 
                               onChange={(e) => setTimeFormat(e.target.value as any)}
                               className={`text-sm font-bold px-4 py-2 rounded-xl border-none outline-none ${isDark ? "bg-white/10" : "bg-slate-100"}`}
                            >
-                              <option value="24h">24 Giờ</option>
-                              <option value="12h">12 Giờ (AM/PM)</option>
+                              <option value="24h">24 Hours</option>
+                              <option value="12h">12 Hours (AM/PM)</option>
                            </select>
                       </div>
                   </div>
@@ -4230,8 +4245,8 @@ function RejuvenatedSettings(props: any) {
               <>
                 <RejuvenatedSettingsItem 
                   icon={Calendar} 
-                  title="Hiển thị Lịch" 
-                  description={showDate ? "Ngày tháng năm hiện tại đang hiển thị cạnh đồng hồ" : "Lịch hiện đang được ẩn khỏi thanh tiêu đề"}
+                  title="Display Date" 
+                  description={showDate ? "Display current date next to clock" : "Hide date from header bar"}
                   onClick={() => setShowDate(!showDate)}
                   isDark={isDark}
                   isToggleable={true}
@@ -4240,14 +4255,14 @@ function RejuvenatedSettings(props: any) {
                 {showDate && (
                   <div className={`ml-10 p-6 rounded-[24px] border space-y-6 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
                       <div className="flex items-center justify-between">
-                           <span className="text-sm font-bold opacity-60">Định dạng lịch</span>
+                           <span className="text-sm font-bold opacity-60">Date format</span>
                            <select 
                               value={dateFormat} 
                               onChange={(e) => setDateFormat(e.target.value as any)}
                               className={`text-sm font-bold px-4 py-2 rounded-xl border-none outline-none ${isDark ? "bg-white/10" : "bg-slate-100"}`}
                            >
-                              <option value="dd/mm/yyyy">Ngày/Tháng/Năm</option>
-                              <option value="dd/mm/yy">Ngày/Tháng/Năm (Rút gọn)</option>
+                              <option value="dd/mm/yyyy">Day/Month/Year</option>
+                              <option value="dd/mm/yy">Day/Month/Year (Short)</option>
                            </select>
                       </div>
                   </div>
@@ -4258,8 +4273,8 @@ function RejuvenatedSettings(props: any) {
               <>
                 <RejuvenatedSettingsItem 
                   icon={Cloud} 
-                  title="Hiển thị Thời tiết" 
-                  description={showTempInClock ? "Nhiệt độ và trạng thái thời tiết đang hiển thị trên thanh tiêu đề" : "Thông tin thời tiết hiện đang được ẩn"}
+                  title="Display Weather" 
+                  description={showTempInClock ? "Show live temperature next to clock" : "Hide weather info from header bar"}
                   onClick={() => setShowTempInClock(!showTempInClock)}
                   isDark={isDark}
                   isToggleable={true}
@@ -4268,7 +4283,7 @@ function RejuvenatedSettings(props: any) {
                 {showTempInClock && (
                   <div className={`ml-10 p-6 rounded-[24px] border space-y-6 ${isDark ? "bg-white/5 border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
                       <div className="flex items-center justify-between">
-                           <span className="text-sm font-bold opacity-60">Vị trí</span>
+                           <span className="text-sm font-bold opacity-60">Location</span>
                            <div className="flex gap-3">
                                <button 
                                   onClick={() => setLocationDetection("auto")}
@@ -4286,7 +4301,7 @@ function RejuvenatedSettings(props: any) {
                       </div>
                       {locationDetection === "manual" && (
                           <div className="flex items-center justify-between">
-                               <span className="text-sm font-bold opacity-60">Nhập vị trí</span>
+                               <span className="text-sm font-bold opacity-60">Enter location</span>
                                <input 
                                   value={location} 
                                   onChange={(e) => setLocation(e.target.value)}
@@ -4295,7 +4310,7 @@ function RejuvenatedSettings(props: any) {
                           </div>
                       )}
                       <div className="flex items-center justify-between">
-                           <span className="text-sm font-bold opacity-60">Đơn vị nhiệt độ</span>
+                           <span className="text-sm font-bold opacity-60">Temperature Unit</span>
                            <select 
                               value={tempUnit} 
                               onChange={(e) => setTempUnit(e.target.value as any)}
@@ -4316,8 +4331,8 @@ function RejuvenatedSettings(props: any) {
                     <Search size={24} />
                   </div>
                   <div className="text-left">
-                    <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Thanh tìm kiếm Topbar</h4>
-                    <p className="text-sm opacity-50 font-medium tracking-tight">Chọn cách thức hiển thị thanh tìm kiếm trên Header</p>
+                    <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Topbar Search Bar</h4>
+                    <p className="text-sm opacity-50 font-medium tracking-tight">Choose search interaction display on the header bar</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -4340,9 +4355,9 @@ function RejuvenatedSettings(props: any) {
         );
       }
       case "Sidebar": {
-        const showCompact = shouldShowSetting("Compact mode", "Sidebar đang được co gọn, hiển thị các biểu tượng lớn và nhãn nhỏ", ["compact", "co gọn", "sidebar"]);
-        const showPosition = shouldShowSetting("Vị trí Sidebar", "Thay đổi vị trí của thanh Sidebar sang bên trái hoặc bên phải màn hình", ["sidebar", "phải", "trái", "vị trí"]);
-        const showQuickAccess = shouldShowSetting("Truy cập nhanh", "Hiển thị danh sách các kênh ghim ngay trên thanh Sidebar để truy cập nhanh", ["quick access", "truy cập nhanh", "ghim", "sidebar"]);
+        const showCompact = shouldShowSetting("Compact mode", "Sidebar has been shrunk to only show icons and concise descriptive captions", ["compact", "shrunk", "sidebar"]);
+        const showPosition = shouldShowSetting("Sidebar Placement", "Change the position of the sidebar navigation bar to the left or right of the interface", ["sidebar", "right", "left", "position"]);
+        const showQuickAccess = shouldShowSetting("Quick Pin Access", "Display pinned quick-access channels directly on the sidebar", ["quick access", "pin", "sidebar"]);
 
         if (!showCompact && !showPosition && !showQuickAccess) return null;
         return (
@@ -4354,8 +4369,8 @@ function RejuvenatedSettings(props: any) {
                          <ArrowRightLeft size={24} />
                        </div>
                        <div className="text-left">
-                         <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Vị trí Sidebar</h4>
-                         <p className="text-sm opacity-50 font-medium tracking-tight">Thay đổi vị trí của thanh Sidebar sang bên trái hoặc bên phải màn hình</p>
+                         <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Sidebar Placement</h4>
+                         <p className="text-sm opacity-50 font-medium tracking-tight">Change the position of the sidebar navigation bar to the left or right of the interface</p>
                        </div>
                      </div>
                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -4499,8 +4514,8 @@ function RejuvenatedSettings(props: any) {
                      <LayoutGrid size={24} />
                    </div>
                    <div className="text-left">
-                     <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Vị trí Widgets board</h4>
-                     <p className="text-sm opacity-50 font-medium tracking-tight">Cấu hình vị trí xuất hiện của bảng tiện ích (bên trái hoặc bên phải màn hình)</p>
+                     <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Widgets Board Placement</h4>
+                     <p className="text-sm opacity-50 font-medium tracking-tight">Configure where the widgets board slides out from (left or right of the interface)</p>
                    </div>
                  </div>
                  <div className="grid grid-cols-2 gap-4">
@@ -6416,7 +6431,7 @@ function OnboardingWizard({
               >
                 <div className="space-y-2">
                   <p className="text-[10px] font-bold text-[#4AC4FE] uppercase tracking-[0.2em]">
-                    Cài đặt hệ thống
+                    System Setup
                   </p>
                   <h2 className={`text-xl md:text-3xl font-bold tracking-tight leading-tight ${config.isDark ? "text-white" : "text-slate-900"}`}>
                     {steps[step].title}
@@ -6430,8 +6445,8 @@ function OnboardingWizard({
                   {step === 0 && (
                     <div className="grid grid-cols-1 gap-4">
                       {[
-                        { id: true, label: "Desktop Interface", icon: Monitor, sub: "Tối ưu hóa cho chuột và phím" },
-                        { id: false, label: "Touch Interface", icon: MousePointer2, sub: "Các nút lớn, mượt mà cho thiết bị cảm ứng" }
+                        { id: true, label: "Desktop Interface", icon: Monitor, sub: "Optimized for mouse and keyboard controllers" },
+                        { id: false, label: "Touch Interface", icon: MousePointer2, sub: "Large buttons and flexible gestures optimized for touch screens" }
                       ].map(mode => (
                         <button
                           key={mode.id.toString()}
@@ -6726,7 +6741,7 @@ function TopBar({
                 ))}
                 {channels.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
                   <div className="py-8 text-center text-xs opacity-40 uppercase tracking-widest font-bold">
-                    Không tìm thấy kênh nào
+                    No channels found
                   </div>
                 )}
               </div>
@@ -6734,7 +6749,7 @@ function TopBar({
                 onClick={() => setActiveTab("Khám phá")}
                 className="w-full py-3 mt-1 text-center text-[10px] font-bold uppercase tracking-[0.2em] opacity-40 hover:opacity-100 hover:text-[#4AC4FE] transition-all border-t border-white/5"
               >
-                Xem tất cả kết quả
+                View all results
               </button>
             </motion.div>
           )}
@@ -6792,10 +6807,10 @@ function SearchContextMenu({
   key?: any
 }) {
   const menuItems = [
-    { id: "all", label: "Tìm kiếm tất cả", icon: Search },
-    { id: "channels", label: "Tìm kiếm kênh", icon: TvIcon },
-    { id: "settings", label: "Tìm kiếm cài đặt", icon: SettingsIcon },
-    { id: "experiments", label: "Tìm kiếm thử nghiệm", icon: Flask },
+    { id: "all", label: "Search All Fields", icon: Search },
+    { id: "channels", label: "Search Streaming Channels", icon: TvIcon },
+    { id: "settings", label: "Search Configurations", icon: SettingsIcon },
+    { id: "experiments", label: "Search Feature Flags", icon: Flask },
   ];
 
   return (
@@ -7851,19 +7866,19 @@ function WidgetsDashboard({
   };
 
   const allAvailableWidgets = [
-    { id: "clock", name: "Đồng hồ", icon: Clock, category: "M365", description: "Hiển thị thời gian hệ thống và ngày tháng chính xác nhất." },
-    { id: "weather", name: "Thời tiết", icon: Cloud, category: "M365", description: "Dự báo thời tiết tại vị trí của bạn theo thời gian thực." },
-    { id: "calendar", name: "Lịch", icon: Calendar, category: "Outlook", description: "Theo dõi các sự kiện và lịch trình sắp tới của bạn." },
-    { id: "discover", name: "Discover", icon: Search, category: "Entertainment", description: "Tìm kiếm các kênh truyền hình, tab, cài đặt và khám phá nội dung trên Vplay." },
-    { id: "quick_settings", name: "Cài đặt nhanh", icon: Sliders, category: "Entertainment", description: "Bảng điều khiển nhanh các thiết lập âm thanh và màn hình." },
-    { id: "tictactoe", name: "Cờ Caro", icon: Hash, category: "Games", description: "Chơi Cờ Caro giải trí với bạn bè hoặc với Bot thông minh." },
-    { id: "version", name: "Phiên bản", icon: Info, category: "Tips", description: "Thông tin chi tiết về phiên bản Vplay Canary hiện tại." },
-    { id: "sticky_notes", name: "Ghi chú nhanh", icon: StickyNote, category: "M365", description: "Ghi chép nhanh các ý tưởng với định dạng văn bản đa dạng." },
-    { id: "word_link", name: "Nối từ", icon: Link, category: "Games", description: "Trò chơi nối từ vựng tiếng Anh và tiếng Việt đầy thử thách." },
-    { id: "word_scramble", name: "Sắp xếp từ", icon: Shuffle, category: "Games", description: "Thử thách sắp xếp các chữ cái thành từ có nghĩa." },
-    { id: "calculator", name: "Máy tính", icon: Activity, category: "M365", description: "Máy tính cầm tay cơ bản cho các phép tính nhanh." },
-    { id: "scientific_calculator", name: "Máy tính khoa học", icon: Flask, category: "M365", description: "Máy tính nâng cao với các hàm lượng giác và logarith." },
-    { id: "channels", name: "Kênh yêu thích", icon: Tv, category: "Entertainment", description: "Danh sách các kênh truyền hình bạn xem thường xuyên nhất." }
+    { id: "clock", name: "Clock", icon: Clock, category: "M365", description: "Displays most accurate real-time system clock and date calendar details." },
+     { id: "weather", name: "Weather", icon: Cloud, category: "M365", description: "Real-time weather forecast at your current location." },
+     { id: "calendar", name: "Calendar", icon: Calendar, category: "Outlook", description: "Track your upcoming events and schedules seamlessly." },
+     { id: "discover", name: "Discover", icon: Search, category: "Entertainment", description: "Search television channels, tabs, configurations, and discover digital content." },
+     { id: "quick_settings", name: "Quick Settings", icon: Sliders, category: "Entertainment", description: "Quick toggle control panel for sound, displays, and modes." },
+     { id: "tictactoe", name: "Tic-Tac-Toe", icon: Hash, category: "Games", description: "Play cozy Tic-Tac-Toe matches with friends or smart bots." },
+     { id: "version", name: "Version Hub", icon: Info, category: "Tips", description: "Detailed information about the current Vplay Canary release." },
+     { id: "sticky_notes", name: "Sticky Notes", icon: StickyNote, category: "M365", description: "Draft thoughts and coordinate tasks with formatted mini notes." },
+     { id: "word_link", name: "Word Link", icon: Link, category: "Games", description: "A challenging word-linking trivia game." },
+     { id: "word_scramble", name: "Word Scramble", icon: Shuffle, category: "Games", description: "Challenge yourself by unscrambling character letters back into words." },
+     { id: "calculator", name: "Calculator", icon: Activity, category: "M365", description: "Standard calculations interface for quick math." },
+     { id: "scientific_calculator", name: "Advanced Calculator", icon: Flask, category: "M365", description: "Scientific calculation terminal supporting trigonometry and log functions." },
+     { id: "channels", name: "Pinned Channels", icon: Tv, category: "Entertainment", description: "Quick access hub for your most watched and favorited TV channels." }
   ];
 
   const toggleResize = (id: string) => {
@@ -7902,9 +7917,9 @@ function WidgetsDashboard({
       channels: channels.filter(c => c.name.toLowerCase().includes(q)),
       tabs: baseTabs.filter(t => t.name.toLowerCase().includes(q)),
       settings: [
-        { name: "Hồ sơ cá nhân", icon: User, tab: "Cài đặt", desc: "Quản lý thông tin tài khoản Vplay" },
-        { name: "Phòng thí nghiệm", icon: Pizza, tab: "Labs", desc: "Các tính năng thử nghiệm Canary" },
-        { name: "Lịch sử cập nhật", icon: Newspaper, tab: "Changelogs", desc: "Xem nhật ký thay đổi phiên bản" }
+        { name: "Personal Profile", icon: User, tab: "Cài đặt", desc: "Manage Vplay credentials and visual profile settings" },
+        { name: "Experimental Labs", icon: Pizza, tab: "Labs", desc: "Access cutting-edge Vplay Canary experimental toggle-features" },
+        { name: "What's New (Changelogs)", icon: Newspaper, tab: "Changelogs", desc: "Read the version release notes and changelogs" }
       ].filter(s => s.name.toLowerCase().includes(q))
     };
   }, [widgetSearchQuery, allAvailableWidgets, channels, pinnedWidgets]);
@@ -7914,20 +7929,20 @@ function WidgetsDashboard({
   }, [lockedWidgets]);
 
   const allWidgets = [
-    { id: "clock", name: "Đồng hồ", icon: Clock },
+    { id: "clock", name: "Clock", icon: Clock },
     { id: "discover", name: "Discover", icon: Search },
-    { id: "calendar", name: "Lịch", icon: Calendar },
-    { id: "weather", name: "Thời tiết", icon: Cloud },
+    { id: "calendar", name: "Calendar", icon: Calendar },
+    { id: "weather", name: "Weather", icon: Cloud },
     { id: "quick_settings", name: "Quick Settings", icon: Sliders },
-    { id: "tictactoe", name: "Cờ Caro", icon: Hash },
-    { id: "search", name: "Tìm kiếm", icon: Search },
-    { id: "version", name: "Phiên bản Vplay", icon: Info },
-    { id: "sticky_notes", name: "Ghi chú", icon: StickyNote },
-    { id: "word_link", name: "Nối từ", icon: Link },
-    { id: "word_scramble", name: "Sắp xếp từ", icon: Shuffle },
-    { id: "calculator", name: "Máy tính", icon: Activity },
-    { id: "scientific_calculator", name: "Máy tính khoa học", icon: Flask },
-    { id: "channels", name: "Kênh truyền hình", icon: Tv },
+    { id: "tictactoe", name: "Tic-Tac-Toe", icon: Hash },
+    { id: "search", name: "Search", icon: Search },
+    { id: "version", name: "Vplay Version", icon: Info },
+    { id: "sticky_notes", name: "Notes", icon: StickyNote },
+    { id: "word_link", name: "Word Link", icon: Link },
+    { id: "word_scramble", name: "Word Scramble", icon: Shuffle },
+    { id: "calculator", name: "Calculator", icon: Activity },
+    { id: "scientific_calculator", name: "Advanced Calculator", icon: Flask },
+    { id: "channels", name: "TV Channels", icon: Tv },
   ];
 
   const removeWidget = (id: string) => {
@@ -7970,11 +7985,11 @@ function WidgetsDashboard({
 
   const getGreeting = () => {
     const hour = currentTime.getHours();
-    if (hour >= 5 && hour < 10) return "Chào buổi sáng!";
-    if (hour >= 10 && hour < 13) return "Chào buổi trưa!";
-    if (hour >= 13 && hour < 17) return "Chào buổi chiều!";
-    if (hour >= 17 && hour < 23) return "Chào buổi tối!";
-    return "Chào buổi đêm!";
+    if (hour >= 5 && hour < 10) return "Good morning!";
+    if (hour >= 10 && hour < 13) return "Good day!";
+    if (hour >= 13 && hour < 17) return "Good afternoon!";
+    if (hour >= 17 && hour < 23) return "Good evening!";
+    return "Good night!";
   };
 
   return (
@@ -8458,9 +8473,9 @@ function WidgetsDashboard({
                                                                       <Calendar size={20} />
                                                                     </div>
                                                                     <div>
-                                                                      <p className="text-[10px] font-extrabold text-indigo-500 uppercase tracking-widest leading-none">Ngày & Giờ</p>
+                                                                      <p className="text-[10px] font-extrabold text-indigo-500 uppercase tracking-widest leading-none">Date & Time</p>
                                                                       <p className="text-xs font-bold text-slate-800 mt-1">
-                                                                        {new Intl.DateTimeFormat('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(currentTime)}
+                                                                        {new Intl.DateTimeFormat('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(currentTime)}
                                                                       </p>
                                                                     </div>
                                                                   </div>
@@ -8483,9 +8498,9 @@ function WidgetsDashboard({
                                                             // 2x2 Large Deluxe calendar grid and clock dashboard
                                                             const greetings = () => {
                                                               const hrs = currentTime.getHours();
-                                                              if (hrs < 12) return "Chào buổi sáng!";
-                                                              if (hrs < 18) return "Chào buổi chiều!";
-                                                              return "Chào buổi tối!";
+                                                              if (hrs < 12) return "Good morning!";
+                                                              if (hrs < 18) return "Good afternoon!";
+                                                              return "Good evening!";
                                                             };
                                                             
                                                             return (
@@ -8498,7 +8513,7 @@ function WidgetsDashboard({
                                                                     </div>
                                                                     <div>
                                                                       <h4 className="text-sm font-black text-slate-800 leading-none">{greetings()}</h4>
-                                                                      <p className="text-[10px] text-slate-400 font-semibold mt-1">{new Intl.DateTimeFormat('vi-VN', { dateStyle: 'full' }).format(currentTime)}</p>
+                                                                      <p className="text-[10px] text-slate-400 font-semibold mt-1">{new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }).format(currentTime)}</p>
                                                                     </div>
                                                                   </div>
                                                                   <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 text-[10px] font-mono font-bold text-slate-500 border border-slate-100">
@@ -8509,18 +8524,18 @@ function WidgetsDashboard({
 
                                                                 {/* Large Analog feeling Time visual */}
                                                                 <div className="my-4 flex flex-col justify-center items-center text-center p-3 rounded-2xl bg-gradient-to-br from-indigo-50/40 via-sky-50/20 to-white border border-slate-100/50">
-                                                                  <p className="text-[9px] font-extrabold text-indigo-600 uppercase tracking-[0.25em]">Hệ thống thời gian nguyên tử</p>
+                                                                  <p className="text-[9px] font-extrabold text-indigo-600 uppercase tracking-[0.25em]">Atomic Time Synchronization</p>
                                                                   <div className="text-4xl font-black text-slate-900 tracking-tighter bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent my-1">
                                                                     {formatTime(currentTime)}
                                                                   </div>
-                                                                  <span className="text-[9px] text-slate-400 font-semibold">Công nghệ đồng bộ tần số VNRT - 26609</span>
+                                                                  <span className="text-[9px] text-slate-400 font-semibold">VNRT Frequency Sync Tech - 26609</span>
                                                                 </div>
 
                                                                 {/* Custom formatted calendar row showing we have full grid style calendar view */}
                                                                 <div>
-                                                                  <p className="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 mb-2 ml-1">Lịch trình 7 ngày</p>
+                                                                  <p className="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 mb-2 ml-1">7-Day Outlook</p>
                                                                   <div className="grid grid-cols-7 gap-1 bg-slate-50 p-1.5 rounded-2xl border border-slate-100 text-center">
-                                                                    {["Hai", "Ba", "Tư", "Năm", "Sáu", "Bảy", "CN"].map((day, ix) => {
+                                                                    {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, ix) => {
                                                                       const offset = ix - 3; // center on Wednesday
                                                                       const relativeDate = new Date(currentTime);
                                                                       relativeDate.setDate(currentTime.getDate() + offset);
@@ -8559,13 +8574,13 @@ function WidgetsDashboard({
                                                               <Info size={18} />
                                                            </div>
                                                            <div>
-                                                              <p className={`text-[9px] font-bold uppercase tracking-wider ${colorWidgets ? "text-white/60" : "text-slate-400"}`}>Phiên bản</p>
+                                                              <p className={`text-[9px] font-bold uppercase tracking-wider ${colorWidgets ? "text-white/60" : "text-slate-400"}`}>Version info</p>
                                                               <p className={`text-[10px] font-bold leading-tight ${colorWidgets ? "text-white" : "text-slate-800"}`}>Vplay Canary</p>
                                                            </div>
                                                         </div>
                                                         <div className={`w-full space-y-1.5 p-3 rounded-2xl ${colorWidgets ? "bg-white/10 text-white" : "bg-black/5"}`}>
                                                           <div className="flex justify-between items-center text-[10px]">
-                                                            <span className="opacity-50">Phát triển by</span>
+                                                            <span className="opacity-50">Maintained by</span>
                                                             <span className="font-bold">VNRT</span>
                                                           </div>
                                                           <div className="flex justify-between items-center text-[10px]">
@@ -8590,13 +8605,13 @@ function WidgetsDashboard({
                                                     // Dynamic weather translations for premium feel
                                                     const translateWeather = (st: string) => {
                                                       const s = st.toLowerCase();
-                                                      if (s.includes("sky") || s.includes("clear") || s.includes("sun")) return "Trời quang, Nắng rực rỡ";
-                                                      if (s.includes("cloud") || s.includes("overcast")) return "Nhiều mây, Âm u";
-                                                      if (s.includes("fog") || s.includes("mist")) return "Có sương mù nhẹ";
-                                                      if (s.includes("drizzle") || s.includes("rain")) return "Có mưa phùn diện rộng";
-                                                      if (s.includes("shower") || s.includes("heavy")) return "Có mưa rào dữ dội";
-                                                      if (s.includes("storm") || s.includes("thunder")) return "Có dông & Sấm sét";
-                                                      return "Thời tiết dịu mát";
+                                                      if (s.includes("sky") || s.includes("clear") || s.includes("sun")) return "Clear Sky, Sunny";
+                                                      if (s.includes("cloud") || s.includes("overcast")) return "Overcast, Cloudy";
+                                                      if (s.includes("fog") || s.includes("mist")) return "Mist & Foggy";
+                                                      if (s.includes("drizzle") || s.includes("rain")) return "Showers & Rain";
+                                                      if (s.includes("shower") || s.includes("heavy")) return "Heavy Rainstorms";
+                                                      if (s.includes("storm") || s.includes("thunder")) return "Thunderstorms";
+                                                      return "Mild & Pleasant";
                                                     };
                                                     
                                                     return (
@@ -8651,8 +8666,8 @@ function WidgetsDashboard({
                                                                       <Sun size={22} className="animate-spin" style={{ animationDuration: "12s" }} />
                                                                     </div>
                                                                     <div>
-                                                                      <p className={`text-[10px] font-extrabold uppercase tracking-widest leading-none ${isColoredDark ? "text-white" : "text-slate-800"}`}>Thời tiết trực tiếp</p>
-                                                                      <p className={`text-xs font-bold mt-1 ${isColoredDark ? "text-white/70" : "text-slate-500"}`}>{location || "Vị trí hiện tại"}</p>
+                                                                      <p className={`text-[10px] font-extrabold uppercase tracking-widest leading-none ${isColoredDark ? "text-white" : "text-slate-800"}`}>Live Weather</p>
+                                                                      <p className={`text-xs font-bold mt-1 ${isColoredDark ? "text-white/70" : "text-slate-500"}`}>{location || "Current Location"}</p>
                                                                     </div>
                                                                   </div>
                                                                   <div className="mt-3">
@@ -8671,14 +8686,14 @@ function WidgetsDashboard({
                                                                 <div className="hidden md:flex flex-col gap-2 shrink-0 w-36 text-right">
                                                                   <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2 justify-end">
                                                                     <div className="text-right">
-                                                                      <p className="text-[8px] font-bold text-slate-400">Độ ẩm</p>
+                                                                      <p className="text-[8px] font-bold text-slate-400">Humidity</p>
                                                                       <p className="text-[10px] font-bold text-slate-700">74% RH</p>
                                                                     </div>
                                                                     <Droplets size={12} className="text-sky-500" />
                                                                   </div>
                                                                   <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2 justify-end">
                                                                     <div className="text-right">
-                                                                      <p className="text-[8px] font-bold text-slate-400">Sức gió</p>
+                                                                      <p className="text-[8px] font-bold text-slate-400">Wind Speed</p>
                                                                       <p className="text-[10px] font-bold text-slate-700">12 km/h</p>
                                                                     </div>
                                                                     <Wind size={12} className="text-teal-500" />
@@ -8697,21 +8712,21 @@ function WidgetsDashboard({
                                                                       <CloudSun size={26} />
                                                                     </div>
                                                                     <div>
-                                                                      <h4 className={`text-xs font-black leading-none ${isColoredDark ? "text-white" : "text-slate-800"}`}>Dự báo toàn cảnh</h4>
+                                                                      <h4 className={`text-xs font-black leading-none ${isColoredDark ? "text-white" : "text-slate-800"}`}>Weather Outlook</h4>
                                                                       <p className={`text-xs font-semibold mt-1 flex items-center gap-1 ${isColoredDark ? "text-white/70" : "text-slate-400"}`}>
                                                                         <MapPin size={10} /> {location || "Hanoi, Viet Nam"}
                                                                       </p>
                                                                     </div>
                                                                   </div>
                                                                   <span className={`text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-full tracking-wider ${isColoredDark ? "bg-white/20 text-white" : "bg-emerald-100 text-emerald-800"}`}>
-                                                                    Mới nhất
+                                                                    LATEST
                                                                   </span>
                                                                 </div>
 
                                                                 {/* Middle Big Temperature display */}
                                                                 <div className={`grid grid-cols-2 gap-4 items-center p-4 rounded-3xl border my-4 w-full ${isColoredDark ? "bg-white/10 border-white/5 text-white" : "bg-gradient-to-br from-slate-50 to-amber-50/20 border-slate-100"}`}>
                                                                   <div className="text-left">
-                                                                    <p className={`text-[9px] font-extrabold uppercase tracking-widest leading-none ${isColoredDark ? "text-white/60" : "text-slate-400"}`}>Chỉ số hiện tại</p>
+                                                                    <p className={`text-[9px] font-extrabold uppercase tracking-widest leading-none ${isColoredDark ? "text-white/60" : "text-slate-400"}`}>Current Indices</p>
                                                                     <span className={`text-4xl font-black tracking-tighter leading-none mt-1 inline-block ${isColoredDark ? "text-white" : "text-slate-900"}`}>
                                                                        {getTempDisplay()}
                                                                     </span>
@@ -8719,21 +8734,21 @@ function WidgetsDashboard({
                                                                   </div>
                                                                   {/* Secondary Stats list */}
                                                                   <div className={`space-y-1.5 text-xs font-semibold border-l pl-4 ${isColoredDark ? "text-white/70 border-white/10" : "text-slate-500 border-slate-100"}`}>
-                                                                    <p className="flex justify-between"><span>Độ ẩm:</span> <span className={`font-extrabold ${isColoredDark ? "text-white" : "text-slate-800"}`}>77%</span></p>
-                                                                    <p className="flex justify-between"><span>Sức gió:</span> <span className={`font-extrabold ${isColoredDark ? "text-white" : "text-slate-800"}`}>8.5m/s</span></p>
-                                                                    <p className="flex justify-between"><span>Chỉ số UV:</span> <span className={`font-extrabold ${isColoredDark ? "text-white" : "text-slate-800"}`}>Cực đại 5</span></p>
-                                                                    <p className="flex justify-between"><span>Tầm nhìn:</span> <span className={`font-extrabold ${isColoredDark ? "text-white" : "text-slate-800"}`}>10 km</span></p>
+                                                                    <p className="flex justify-between"><span>Humidity:</span> <span className={`font-extrabold ${isColoredDark ? "text-white" : "text-slate-800"}`}>77%</span></p>
+                                                                    <p className="flex justify-between"><span>Wind:</span> <span className={`font-extrabold ${isColoredDark ? "text-white" : "text-slate-800"}`}>8.5m/s</span></p>
+                                                                    <p className="flex justify-between"><span>UV Index:</span> <span className={`font-extrabold ${isColoredDark ? "text-white" : "text-slate-800"}`}>Max 5</span></p>
+                                                                    <p className="flex justify-between"><span>Visibility:</span> <span className={`font-extrabold ${isColoredDark ? "text-white" : "text-slate-800"}`}>10 km</span></p>
                                                                   </div>
                                                                 </div>
 
                                                                 {/* Bottom 3-Day Forecast */}
                                                                 <div className="w-full">
-                                                                  <p className={`text-[10px] font-bold uppercase tracking-wider mb-2 ml-1 ${isColoredDark ? "text-white/70" : "text-slate-400"}`}>Dự báo 3 ngày tới</p>
+                                                                  <p className={`text-[10px] font-bold uppercase tracking-wider mb-2 ml-1 ${isColoredDark ? "text-white/70" : "text-slate-400"}`}>3-Day Forecast</p>
                                                                   <div className="grid grid-cols-3 gap-2.5">
                                                                     {[
-                                                                      { day: "Thứ Sáu", temp: "26°C", status: "Mưa rào", bg: "bg-sky-50 text-sky-600 border-sky-100/50", icon: CloudRain },
-                                                                      { day: "Thứ Bảy", temp: "29°C", status: "Nhiều mây", bg: "bg-slate-50 text-slate-600 border-slate-100", icon: Cloud },
-                                                                      { day: "Chúa Nhật", temp: "33°C", status: "Nắng to", bg: "bg-amber-50 text-amber-600 border-amber-100/50", icon: Sun }
+                                                                      { day: "Friday", temp: "26°C", status: "Showers", bg: "bg-sky-50 text-sky-600 border-sky-100/50", icon: CloudRain },
+                                                                      { day: "Saturday", temp: "29°C", status: "Cloudy", bg: "bg-slate-50 text-slate-600 border-slate-100", icon: Cloud },
+                                                                      { day: "Sunday", temp: "33°C", status: "Sunny", bg: "bg-amber-50 text-amber-600 border-amber-100/50", icon: Sun }
                                                                     ].map((fc, index) => {
                                                                       const FcIcon = fc.icon;
                                                                       const cardClass = isColoredDark ? "bg-white/10 text-white border-white/5" : fc.bg;
@@ -9404,6 +9419,9 @@ function App() {
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return localStorage.getItem("vplay_onboarding_completed") !== "true";
   });
+  const [showWelcomeCanary, setShowWelcomeCanary] = useState(() => {
+    return localStorage.getItem("vplay_canary_welcome_seen") !== "true";
+  });
   const [isWidgetsOpen, setIsWidgetsOpen] = useState(false);
   const [activeDashboardTab, setActiveDashboardTab] = useState<"widgets" | "changelogs" | "labs" | "settings">("widgets");
   const [activeTab, setActiveTab] = useState("Trang chủ");
@@ -9698,20 +9716,20 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
   const slides = useMemo(() => [
     { 
       url: "https://img.cand.com.vn/resize/800x800/NewFiles/Images/2023/03/30/Giai_tri_vtv-1680172145227.jpg", 
-      title: "Giải trí không giới hạn", 
-      desc: "Khám phá thế giới truyền hình đặc sắc cùng hơn 200+ kênh giải trí đỉnh cao hoàn toàn miễn phí.",
+      title: "Unlimited Entertainment", 
+      desc: "Explore more than 200+ top-tier entertainment and news television channels completely for free.",
       tag: "Vplay Web"
     },
     { 
       url: "https://substackcdn.com/image/fetch/$s_!6L_D!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F1b529a92-54ae-477e-87f6-27674b483077_960x540.gif", 
-      title: "Giao diện Liquid Glass", 
-      desc: "Trải nghiệm xem truyền hình tương lai với hiệu ứng kính mờ và chuyển động mượt mà đầy mê hoặc.",
-      tag: "Thiết kế"
+      title: "Liquid Glass UI", 
+      desc: "Experience next-generation TV browsing with translucent acrylic textures and seamless fluid animations.",
+      tag: "Design"
     },
     { 
       logo: "https://static.wikia.nocookie.net/logos/images/2/21/VTV6_logo_%282026%29.png/revision/latest/scale-to-width-down/1000?cb=20260508074729&path-prefix=vi",
-      title: "Chào đón VTV6 trở lại cùng Vplay!",
-      desc: "Kênh truyền hình Thể thao chuyên biệt sắp sửa quay trở lại. Hãy sẵn sàng trải nghiệm các trận đấu kịch tính và đầy cảm xúc trực tiếp cùng Vplay!",
+      title: "VTV6 is coming back to Vplay!",
+      desc: "The specialized Sports TV channel is returning shortly. Gear up to experience intense and dramatic athletic actions live!",
       tag: "VTV6",
       channel: vtv6Channel || undefined,
       glowColor: "rgba(244, 63, 94, 0.75)",
@@ -9719,17 +9737,17 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
     },
     { 
       logo: vtvProposal?.logo || "https://static.wikia.nocookie.net/logos/images/4/4b/VTV1_logo_01.11.2022_%28SD_%26_HD%29_v1.png/revision/latest?cb=20260222102645&path-prefix=uk", 
-      title: vtvProposal ? `Kênh VTV & VTVCab gợi ý cho bạn: ${vtvProposal.name}` : "Kênh VTV & VTVCab gợi ý cho bạn: VTV3 HD", 
-      desc: "Thưởng thức các chương trình giải trí, phim truyền hình Việt giờ vàng, thể thao sống động và phim điện ảnh đặc sắc.",
+      title: vtvProposal ? `VTV & VTVCab suggestion: ${vtvProposal.name}` : "VTV & VTVCab suggestion: VTV3 HD", 
+      desc: "Enjoy prime-time Vietnamese dramas, vibrant reality sports, and captivating blockbusters.",
       tag: "VTV & VTVCab",
       channel: vtvProposal || undefined,
       glowColor: "rgba(220, 38, 38, 0.55)"
     },
     { 
       logo: localProposal?.logo || "https://static.wikia.nocookie.net/logos/images/3/32/THVL1_logo_ident_2025.png/revision/latest/scale-to-width-down/1000?cb=20251206083051&path-prefix=vi", 
-      title: localProposal ? `Kênh địa phương gợi ý cho bạn: ${localProposal.name}` : "Kênh địa phương gợi ý cho bạn: THVL1", 
-      desc: "Xem các đài truyền hình địa phương được yêu thích nhất cả nước với các bộ phim bom tấn độc quyền.",
-      tag: "Địa phương",
+      title: localProposal ? `Local channel suggestion: ${localProposal.name}` : "Local channel suggestion: THVL1", 
+      desc: "Watch the nation's most popular local stations highlighting regional narratives and blockbusters.",
+      tag: "Local",
       channel: localProposal || undefined,
       glowColor: "rgba(245, 158, 11, 0.55)"
     }
@@ -9757,7 +9775,8 @@ const [sidebarWidth, setSidebarWidth] = useState(() => {
       multiview_channels: false, 
       disable_animation: false, 
       screen_recording: false,
-      PiP_experimental: false 
+      PiP_experimental: false,
+      material_design: false
     };
     if (saved) {
       try {
@@ -10038,17 +10057,17 @@ const [headingBar, setHeadingBar] = useState(() => {
   }, [navPage, resetNavTimer]);
 
   const settingsOptions = useMemo(() => [
-    { id: "SystemInfo", name: "Phiên bản hệ thống", category: "Thông tin" },
-    { id: "Profile", name: "Chỉnh sửa hồ sơ", category: "Cá nhân" },
-    { id: "Appearance", name: "Chủ đề giao diện", category: "Giao diện" },
-    { id: "Appearance", name: "Tùy chỉnh màu chủ đạo", category: "Giao diện" },
-    { id: "Appearance", name: "Cài đặt Sidebar", category: "Giao diện" },
-    { id: "TopBar", name: "Đồng hồ và Lịch", category: "Thanh tiêu đề" },
-    { id: "TopBar", name: "Thời tiết", category: "Thanh tiêu đề" },
-    { id: "Experiments", name: "Widgets Dashboard", category: "Tính năng thử nghiệm" },
-    { id: "Experiments", name: "Multiview", category: "Tính năng thử nghiệm" },
-    { id: "Experiments", name: "Screen Recording", category: "Tính năng thử nghiệm" },
-    { id: "Experiments", name: "Picture in Picture", category: "Tính năng thử nghiệm" },
+    { id: "SystemInfo", name: "System Version", category: "Information" },
+    { id: "Profile", name: "Edit Profile", category: "Personal" },
+    { id: "Appearance", name: "Themes & Appearance", category: "Interface" },
+    { id: "Appearance", name: "Customize Contrast & Color Accent", category: "Interface" },
+    { id: "Appearance", name: "Sidebar Configurations", category: "Interface" },
+    { id: "TopBar", name: "Clock & Calendar", category: "Top Bar" },
+    { id: "TopBar", name: "Weather forecasting", category: "Top Bar" },
+    { id: "Experiments", name: "Widgets Dashboard", category: "Experiments" },
+    { id: "Experiments", name: "Multiview", category: "Experiments" },
+    { id: "Experiments", name: "Screen Recording", category: "Experiments" },
+    { id: "Experiments", name: "Picture in Picture", category: "Experiments" },
   ], []);
 
   useEffect(() => {
@@ -10436,8 +10455,8 @@ const [headingBar, setHeadingBar] = useState(() => {
             onClose={() => setIsVTV6DialogOpen(false)} 
             isDark={isDark} 
             liquidGlass={liquidGlass}
-            title="Coming soon - VTV6 sắp trở lại!"
-            description="Kênh VTV6 dự kiến trở lại vào 08/6/2026 sau gần 4 năm dừng phát sóng, với mục tiêu là kênh chuyên biệt thể thao của Đài Truyền hình Việt Nam, do Trung tâm Truyền hình Thể thao quản lý. Vplay cũng đã sẵn sàng cho sự trở lại này - Mời quý khán giả đón xem!"
+            title="Coming soon - VTV6 is Returning!"
+            description="VTV6 is scheduled to return on June 8, 2026, after nearly 4 years off air, serving as the dedicated sports channel of Vietnam Television. Vplay is ready for this comeback!"
           >
             <div className="mt-8 flex flex-col items-center gap-6">
               <Countdown targetDate="2026-06-08T00:00:00" isDark={isDark} />
@@ -10445,7 +10464,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                 onClick={() => setIsVTV6DialogOpen(false)}
                 className="w-full btn-vibrant-3d py-4 text-sm font-bold uppercase tracking-widest !rounded-2xl"
               >
-                Đóng thông báo
+                Dismiss
               </button>
             </div>
           </LiquidModal>
@@ -10462,15 +10481,15 @@ const [headingBar, setHeadingBar] = useState(() => {
           onClose={() => setIsLockModalOpen(false)}
           isDark={isDark}
           liquidGlass={liquidGlass}
-          title="Chúng tôi sẽ sớm trở lại..."
-          description="Vplay tạm thời ngừng cung cấp dịch vụ xem truyền hình vì hiện tại các đơn vị đang siết chặt bản quyền về truyền thông. Chúng tôi sẽ sớm trở lại và có thông báo sau. Tuy nhiên các bản cập nhật giao diện, vá lỗi của Vplay Dev và Canary sẽ vẫn được phát hành. Trân trọng!"
+          title="We will return shortly..."
+          description="Vplay has temporarily suspended live broadcast services due to current media copyright enforcement. We will be back soon. UI updates and bug fixes for the Canary build will continue to release. Thank you!"
         >
           <div className="mt-8 flex flex-col gap-3">
             <button 
               onClick={() => setIsLockModalOpen(false)} 
               className="w-full py-4 bg-[#4AC4FE] hover:bg-[#32bcfc] text-black rounded-2xl font-bold uppercase tracking-widest transition-all shadow-none active:scale-95 border-none outline-none"
             >
-              Đã hiểu
+              Understood
             </button>
           </div>
         </LiquidModal>
@@ -10479,7 +10498,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         isDark 
           ? "dark bg-[#11131c] text-white" 
           : "bg-[#f8fafc] text-black"
-      } h-screen flex font-sans transition-all duration-500 overflow-hidden ${useSidebar ? "flex-row" : "flex-col"} ${featureFlags.disable_animation ? "reduce-animations" : ""}`}
+      } ${featureFlags.material_design ? "m3-theme" : ""} h-screen flex font-sans transition-all duration-500 overflow-hidden ${useSidebar ? "flex-row" : "flex-col"} ${featureFlags.disable_animation ? "reduce-animations" : ""}`}
       onContextMenu={handleGlobalContextMenu}
       style={{
         paddingLeft: useSidebar && !isMobile && !isSidebarRight 
@@ -10555,6 +10574,63 @@ const [headingBar, setHeadingBar] = useState(() => {
             <OnboardingWizard isDark={isDark} onComplete={handleOnboardingComplete} onLogin={handleLogin} />
           </div>
         )}
+        {showWelcomeCanary && (
+          <div key="canary-welcome-container" className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              onClick={() => {
+                localStorage.setItem("vplay_canary_welcome_seen", "true");
+                setShowWelcomeCanary(false);
+              }} 
+              className="absolute inset-0 bg-black/70 backdrop-blur-md" 
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 30 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.9, y: 30 }} 
+              transition={{ type: "spring", damping: 25, stiffness: 180 }}
+              className={`relative w-full max-w-lg rounded-[28px] overflow-hidden p-8 shadow-2xl border ${
+                isDark 
+                  ? "bg-[#11140e] text-slate-100 border-white/10" 
+                  : "bg-[#edf1e9] text-slate-900 border-slate-200"
+              }`}
+            >
+              <div className="flex flex-col items-center text-center space-y-6">
+                <div className={`p-4 rounded-full ${
+                  isDark ? "bg-[#3f4f37] text-[#b8f397]" : "bg-[#d7e8cd] text-[#121f0e]"
+                }`}>
+                  <TvIcon size={36} />
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-2xl font-extrabold tracking-tight">What Happened to Vplay Canary?</h3>
+                  <div className={`h-1.5 w-16 mx-auto rounded-full ${
+                    isDark ? "bg-[#304a22]" : "bg-[#c4ddb4]"
+                  }`} />
+                </div>
+                <p className={`text-sm leading-relaxed font-semibold opacity-90 ${
+                  isDark ? "text-slate-300" : "text-slate-700"
+                }`}>
+                  We realized that we've gone too far, adding too many unnecessary features and the performance becoming worse and worse. So we decided to reset the project from scratch (based on Vplay Dev Build 26609). Remember Canary project is still an unstable version of Vplay, lots of issues might happen and only for testing future features only. Vplay Canary will ONLY support English.
+                </p>
+                <button 
+                  onClick={() => {
+                    localStorage.setItem("vplay_canary_welcome_seen", "true");
+                    setShowWelcomeCanary(false);
+                  }} 
+                  className={`w-full py-4 px-6 rounded-full font-bold text-sm tracking-wide transition-all shadow-md active:scale-[0.98] ${
+                    isDark
+                      ? "bg-[#3f4f37] text-[#d7e8cd] hover:bg-[#4d5e44]" 
+                      : "bg-[#d7e8cd] text-[#121f0e] hover:bg-[#c9dfbd]"
+                  }`}
+                >
+                  I Understand
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </AnimatePresence>
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} isDark={isDark} liquidGlass={liquidGlass} setIsDev={setIsDev} setUserData={setUserData} />
       
@@ -10577,7 +10653,7 @@ const [headingBar, setHeadingBar] = useState(() => {
               }`}
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold tracking-tight">Kích hoạt khẩn cấp</h3>
+                <h3 className="text-xl font-bold tracking-tight">Emergency Reset Trigger</h3>
                 <button 
                   onClick={() => setShowForceResetPopup(false)} 
                   className={`p-1.5 rounded-xl transition-colors ${isDark ? "hover:bg-white/10 text-white/60" : "hover:bg-black/5 text-slate-400"}`}
@@ -10591,7 +10667,7 @@ const [headingBar, setHeadingBar] = useState(() => {
               </div>
 
               <p className={`text-xs leading-relaxed mb-6 text-center opacity-85 ${isDark ? "text-slate-300" : "text-slate-600"}`} style={{ fontFamily: "Montserrat, sans-serif" }}>
-                Hệ thống chuẩn bị tẩy xóa sạch mọi tùy biến và khôi phục cài đặt gốc cấp tốc (Force Reinstall). Hệ thống sẽ tự động tải lại sau khi hoàn thành. Bạn có đồng ý tiếp tục không?
+                The system is about to purge all local customizations and force a clean reinstall. The package will reload automatically. Do you agree to proceed?
               </p>
 
               <div className="grid grid-cols-2 gap-3">
@@ -10601,7 +10677,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                     isDark ? "bg-white/5 border-white/5 text-slate-300 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
                   }`}
                 >
-                  Bỏ qua
+                  Cancel
                 </button>
                 <button 
                   onClick={() => { 
@@ -10612,7 +10688,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   }} 
                   className="py-2.5 rounded-xl font-bold text-xs transition-all bg-[#FF453A] hover:bg-red-700 text-white shadow-lg shadow-red-600/20 active:scale-[0.98]"
                 >
-                  Đồng ý
+                  Agree
                 </button>
               </div>
             </motion.div>
@@ -10669,8 +10745,8 @@ const [headingBar, setHeadingBar] = useState(() => {
         isOpen={showDevSettings}
         onClose={() => setShowDevSettings(false)}
         isDark={isDark}
-        title="Cài đặt nhà phát triển"
-        description={isDev ? "Bạn đang ở chế độ nhà phát triển. Bạn có muốn tắt nó không?" : "Bạn muốn kích hoạt chế độ nhà phát triển?"}
+        title="Developer Mode Settings"
+        description={isDev ? "Developer Mode is active. Would you like to deactivate it?" : "Would you like to authorize Developer Mode?"}
         liquidGlass={liquidGlass}
       >
         <div className="flex flex-col gap-3">
@@ -10679,14 +10755,14 @@ const [headingBar, setHeadingBar] = useState(() => {
               onClick={() => { setShowDevSettings(false); setShowDevPrompt(true); }}
               className="w-full py-4 bg-[#4AC4FE]/90 hover:bg-[#4AC4FE] text-white rounded-[32px] font-bold transition-all shadow-[0_8px_24px_rgba(147,51,234,0.3)] backdrop-blur-md active:scale-95"
             >
-              Kích hoạt (Yêu cầu mật khẩu)
+              Activate (Password Required)
             </button>
           ) : (
             <button 
               onClick={() => { setIsDev(false); setShowDevSettings(false); }}
               className="w-full py-4 bg-red-600/90 hover:bg-red-500 text-white rounded-[32px] font-bold transition-all shadow-[0_8px_24px_rgba(239,68,68,0.3)] backdrop-blur-md active:scale-95"
             >
-              Hủy kích hoạt
+              Deactivate
             </button>
           )}
           <button 
@@ -10695,7 +10771,7 @@ const [headingBar, setHeadingBar] = useState(() => {
               isDark ? "bg-white/5 text-slate-400 hover:text-white" : "bg-black/5 text-slate-500 hover:text-slate-900"
             }`}
           >
-            Đóng
+            Close
           </button>
         </div>
       </LiquidModal>
@@ -10705,13 +10781,13 @@ const [headingBar, setHeadingBar] = useState(() => {
         isOpen={showDevPrompt}
         onClose={() => { setShowDevPrompt(false); setDevPass(""); setDevError(false); }}
         isDark={isDark}
-        title="Chế độ nhà phát triển"
-        description="Kích hoạt tính năng nhà phát triển để truy cập vào các quyền đặc biệt. Bạn cần phải có mật khẩu dành cho nhà phát triển được chia sẻ bởi Chủ Thớt để kích hoạt"
+        title="Developer Portal"
+        description="Enable developer options to access administrative and testing controls. A master passcode is required for authorization."
         liquidGlass={liquidGlass}
       >
         <form onSubmit={verifyDev} className="space-y-4 text-left">
           <div className="space-y-1">
-            <label className={`text-[10px] font-bold uppercase tracking-wider opacity-50 ml-4 ${isDark ? "text-white" : "text-slate-900"}`}>Mật khẩu</label>
+            <label className={`text-[10px] font-bold uppercase tracking-wider opacity-50 ml-4 ${isDark ? "text-white" : "text-slate-900"}`}>Passcode</label>
             <div className={`relative group rounded-full overflow-hidden transition-all ${
               devError 
                 ? "border-red-500 bg-red-500/5" 
@@ -10733,7 +10809,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                 <div className={`absolute bottom-0 left-0 h-[2px] w-full transition-all duration-300 ${isDark ? "bg-white/10" : "bg-slate-200"} group-focus-within:bg-[#4AC4FE] group-focus-within:shadow-[0_0_10px_rgba(168,85,247,0.5)]`} />
               )}
             </div>
-            {devError && <p className="text-red-500 text-[10px] mt-2 font-bold text-center">Mật khẩu không chính xác!</p>}
+            {devError && <p className="text-red-500 text-[10px] mt-2 font-bold text-center">Incorrect passcode!</p>}
           </div>
           
           <div className="flex flex-col gap-3 pt-2">
@@ -10741,16 +10817,16 @@ const [headingBar, setHeadingBar] = useState(() => {
               type="submit"
               className="w-full py-4 bg-primary hover:opacity-90 text-white rounded-[32px] font-bold transition-all shadow-lg shadow-primary/20 active:scale-95"
             >
-              Xác nhận
+              Confirm
             </button>
             <button 
-              type="button"
-              onClick={() => { setShowDevPrompt(false); setDevPass(""); setDevError(false); }}
+              type="submit" // dummy to satisfy form structure but actual action is click
+              onClick={(e) => { e.preventDefault(); setShowDevPrompt(false); setDevPass(""); setDevError(false); }}
               className={`w-full py-3 rounded-3xl font-bold transition-all ${
                 isDark ? "bg-white/5 text-slate-400 hover:text-white" : "bg-black/5 text-slate-500 hover:text-slate-900"
               }`}
             >
-              Hủy
+              Cancel
             </button>
           </div>
         </form>
@@ -11310,7 +11386,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   <div className="pt-4 pb-2">
                     <div className={`h-px mx-3 mb-4 ${isDark ? "bg-white/5" : "bg-slate-100"}`} />
                     {isSidebarExpanded && !isCompactMode && (
-                      <span className="px-5 text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Ghim Kênh</span>
+                      <span className="px-5 text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Pinned Channels</span>
                     )}
                     <div className={`space-y-1 ${isCompactMode && isSidebarExpanded ? "flex flex-col items-center" : ""}`}>
                       {Array.from(new Set(favorites)).map(favId => {
@@ -11427,23 +11503,23 @@ const [headingBar, setHeadingBar] = useState(() => {
                                   <User size={24} className="opacity-40" />
                                 )}
                               </div>
-                              <h3 className="text-base font-bold mb-0.5 tracking-tight">{user ? (name || user.displayName || "Thành viên") : "Khách"}</h3>
+                              <h3 className="text-base font-bold mb-0.5 tracking-tight">{user ? (name || user.displayName || "Member") : "Guest"}</h3>
                               <p className="text-[10px] opacity-40 mb-4 font-medium tracking-tight">
-                                {user ? user.email : "Đăng nhập để có trải nghiệm tốt nhất"}
+                                {user ? user.email : "Sign in to access more features and sync preferences"}
                               </p>
                               {!user ? (
                                 <button 
                                   onClick={() => { handleLogin(); setIsUserMenuOpen(false); }}
                                   className="w-full py-2.5 bg-[#4AC4FE] hover:bg-[#32bcfc] text-black rounded-[18px] font-bold text-sm transition-colors shadow-none active:scale-[0.98] mb-1 border-none outline-none"
                                 >
-                                  Đăng nhập ngay
+                                  Sign In
                                 </button>
                                 ) : (
                                   <button 
                                     onClick={() => { handleLogout(); setIsUserMenuOpen(false); }}
                                     className="w-full py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-[18px] font-bold text-sm transition-all active:scale-[0.98] mb-1"
                                   >
-                                    Thoát định danh
+                                    Sign Out
                                   </button>
                                 )}
                             </>
@@ -11452,16 +11528,16 @@ const [headingBar, setHeadingBar] = useState(() => {
                               <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-3 ${isDark ? "bg-white/10" : "bg-black/5"}`}>
                                 <Info size={28} className="text-[#4AC4FE]" />
                               </div>
-                              <h3 className="text-base font-bold mb-0.5 tracking-tight">Thông tin Phiên bản</h3>
+                              <h3 className="text-base font-bold mb-0.5 tracking-tight">System Version Info</h3>
                               <p className="text-[10px] opacity-40 mb-4 font-medium tracking-tight">Vplay Metadata Information</p>
                               <div className={`w-full space-y-1.5 p-3 rounded-2xl ${isDark ? "bg-white/5" : "bg-black/5"}`}>
                                 <div className="flex justify-between items-center text-[11px]">
-                                  <span className="opacity-50">Phát triển by</span>
+                                  <span className="opacity-50">Maintained by</span>
                                   <span className="font-bold">VNRT</span>
                                 </div>
                                 <div className="flex justify-between items-center text-[11px]">
                                   <span className="opacity-50">Branch</span>
-                                  <span className="font-bold text-green-500">Dev</span>
+                                  <span className="font-bold text-yellow-500">Canary</span>
                                 </div>
                                 <div className="flex justify-between items-center text-[11px]">
                                   <span className="opacity-50">Build</span>
@@ -11493,9 +11569,9 @@ const [headingBar, setHeadingBar] = useState(() => {
 
                               <div className="p-2.5 space-y-2">
                                 {[
-                                  { icon: Info, label: "Phiên bản Vplay", action: () => setShowVersionInfo(true) },
-                                  { icon: Smartphone, label: "Quản lý hồ sơ", action: () => { handleOpenSettings(); setIsUserMenuOpen(false); } },
-                                  { icon: Settings, label: "Cài đặt hệ thống", action: () => { handleOpenSettings(); setIsUserMenuOpen(false); } },
+                                  { icon: Info, label: "Vplay Version Dashboard", action: () => setShowVersionInfo(true) },
+                                  { icon: Smartphone, label: "Profile Management", action: () => { handleOpenSettings(); setIsUserMenuOpen(false); } },
+                                  { icon: Settings, label: "System Settings", action: () => { handleOpenSettings(); setIsUserMenuOpen(false); } },
                                   { icon: Send, label: "Send Feedback", action: () => { window.open("https://discord.gg/CNKFTUBSty"); setIsUserMenuOpen(false); } },
                                 ].map((item) => (
                                   <button
