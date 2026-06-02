@@ -223,6 +223,7 @@ const SplashScreen = ({
 }) => {
   const [progress, setProgress] = useState(0);
   const [currentFile, setCurrentFile] = useState("");
+  const [bypassClicks, setBypassClicks] = useState(0);
 
   const systemFiles = [
     "vplay_core_system.bin",
@@ -254,7 +255,7 @@ const SplashScreen = ({
 
   useEffect(() => {
     if (isReinstalling) {
-      const intervalTime = 1200; // 1200ms * 100 = 120,000ms (2 minutes)
+      const intervalTime = 1800; // 1800ms * 100 = 180,000ms (3 minutes)
       const timer = setInterval(() => {
         setProgress((prev) => {
           if (prev >= 100) {
@@ -312,6 +313,20 @@ const SplashScreen = ({
     return "Chào buổi đêm!";
   };
 
+  const handleSpinnerClick = () => {
+    if (isReinstalling) {
+      setBypassClicks((prev) => {
+        const next = prev + 1;
+        if (next >= 15) {
+          if (onReinstallCompleteRef.current) {
+            onReinstallCompleteRef.current();
+          }
+        }
+        return next;
+      });
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 1 }}
@@ -338,8 +353,19 @@ const SplashScreen = ({
         {isReinstalling ? (
           <div className="flex flex-col items-center gap-6 text-center">
             <div className="flex flex-col items-center gap-3">
-              <LoadingSpinner isDark={true} className="w-12 h-12 text-white opacity-90" color="#ffffff" />
-              <div className="flex flex-col items-center gap-2 mt-2">
+              <div 
+                onClick={handleSpinnerClick} 
+                className="cursor-pointer active:scale-95 transition-all duration-150 p-2 relative group"
+                title={`Nhấp 15 lần để bỏ qua (${bypassClicks}/15)`}
+              >
+                <LoadingSpinner isDark={true} className="w-12 h-12 text-white opacity-90" color="#ffffff" />
+                {bypassClicks > 0 && (
+                  <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[9px] font-black text-[#4AC4FE] whitespace-nowrap bg-black/80 px-1.5 py-0.5 rounded border border-white/15 select-none animate-bounce">
+                    {bypassClicks}/15
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col items-center gap-2 mt-4">
                 <span className="text-white/50 text-xs md:text-sm tracking-wide select-none font-normal animate-pulse" style={{ fontFamily: "Montserrat, sans-serif" }}>
                   System Resetting - Playing background soundtrack • wCz93n1cB28
                 </span>
@@ -6427,7 +6453,7 @@ function RejuvenatedSettings(props: any) {
                       onClick={() => { 
                         setShowResetPopup(false); 
                         setIsReinstalling(true); 
-                        setSplashDuration(120000);
+                        setSplashDuration(180000);
                         setShowSplash(true); 
                       }} 
                       className="py-3.5 rounded-2xl font-bold text-sm transition-all bg-[#FF453A] hover:bg-red-700 text-white shadow-lg shadow-red-600/20 active:scale-[0.98]"
@@ -11076,6 +11102,8 @@ function App() {
   const [showWelcomeCanary, setShowWelcomeCanary] = useState(() => {
     return localStorage.getItem("vplay_canary_welcome_seen") !== "true";
   });
+  const [showCrashPopup, setShowCrashPopup] = useState(true);
+  const [showCrashLogs, setShowCrashLogs] = useState(false);
   const [isWidgetsOpen, setIsWidgetsOpen] = useState(false);
   const [activeDashboardTab, setActiveDashboardTab] = useState<"widgets" | "changelogs" | "labs" | "settings">("widgets");
   const [activeTab, setActiveTab] = useState("Trang chủ");
@@ -12337,13 +12365,104 @@ const [headingBar, setHeadingBar] = useState(() => {
                   onClick={() => { 
                     setShowForceResetPopup(false); 
                     setIsReinstalling(true); 
-                    setSplashDuration(120000); 
+                    setSplashDuration(180000); 
                     setShowSplash(true); 
                   }} 
                   className="py-2.5 rounded-xl font-bold text-xs transition-all bg-[#FF453A] hover:bg-red-700 text-white shadow-lg shadow-red-600/20 active:scale-[0.98]"
                 >
                   Agree
                 </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {showCrashPopup && (
+          <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              className="absolute inset-0 bg-black/80 backdrop-blur-lg" 
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 30 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.9, y: 30 }} 
+              transition={{ type: "spring", damping: 24, stiffness: 200 }}
+              className={`relative w-full max-w-lg rounded-[36px] p-8 shadow-2xl border border-solid ${
+                isDark 
+                  ? "bg-[#18181b]/95 text-white border-white/10 shadow-[0_24px_50px_rgba(0,0,0,0.6)]" 
+                  : "bg-white text-slate-900 border-slate-200 shadow-[0_24px_40px_rgba(15,23,42,0.15)]"
+              }`}
+            >
+              <div className="flex flex-col items-center text-center space-y-6">
+                <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center animate-pulse">
+                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-xl md:text-2xl font-black uppercase tracking-tight text-red-500" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                    Whoops! Vplay Canary just... crashed :(
+                  </h3>
+                  <div className="h-1 w-20 bg-red-500/30 mx-auto rounded-full" />
+                </div>
+
+                <p className={`text-xs md:text-sm leading-relaxed font-semibold opacity-90 ${
+                  isDark ? "text-slate-300" : "text-slate-600"
+                }`}>
+                  This is not your fault, Vplay Canary is super unstable and you might experience crashes like this. The only way to enter Vplay Canary is to reset the app back to their default original values. We're so sorry for this!
+                </p>
+
+                {showCrashLogs && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="w-full text-left"
+                  >
+                    <div className="bg-black/90 rounded-2xl p-4 font-mono text-[10px] text-zinc-400 overflow-y-auto max-h-40 border border-white/5 space-y-1 select-text">
+                      <div className="text-red-500 font-extrabold pb-1 border-b border-white/5 select-none uppercase tracking-wider">SYSTEM DIAGNOSTICS & CRASH LOGS:</div>
+                      <div className="text-zinc-500 font-bold select-none pt-1">[Timestamp: {new Date().toISOString()}]</div>
+                      <div>[00:01:03.491] [INFO] Loading liquid_glass_engine.dll...</div>
+                      <div>[00:01:03.582] [WARN] liquid_glass_engine.dll (built on 2026-06-02) is high resource-intensive</div>
+                      <div>[00:01:04.102] [SUCCESS] Audio Engine initialised. Mode: 5.1 Stereo Virtualiser</div>
+                      <div className="text-red-400">[00:01:04.441] [ERROR] FATAL EXCEPTION: Segment Violation in address vplay_kernel_v2.sys::0x3AF1C00D</div>
+                      <div className="text-red-400">[00:01:04.442] [ERROR] Faulting offset: 0x00A7102F. Register values: EAX=0F EBX=3A</div>
+                      <div className="text-amber-400">[00:01:04.443] [ERROR] Buffer Overflow detected inside m3u_player pipeline stream controller</div>
+                      <div className="text-red-500 font-bold">[00:01:04.444] [CRITICAL] RAM depleted. Overload ratio: 295.4%. Core unstable</div>
+                      <div className="text-red-500 font-bold">[00:01:04.445] [CRITICAL] Vplay Canary process halted in isolated sandbox</div>
+                      <div className="text-emerald-400 font-bold">[00:01:04.446] [SYSTEM] SUGGESTION: Wipe browser localStorage & cold-reinstall core system files</div>
+                    </div>
+                  </motion.div>
+                )}
+
+                <div className="flex flex-col sm:flex-row gap-3 w-full pt-2">
+                  <button 
+                    type="button"
+                    onClick={() => setShowCrashLogs(prev => !prev)}
+                    className={`flex-1 py-3.5 px-6 rounded-2xl font-black text-xs uppercase tracking-wider transition-all active:scale-[0.98] border border-solid text-center cursor-pointer ${
+                      isDark
+                        ? "bg-white/5 border-white/5 text-slate-300 hover:bg-white/10" 
+                        : "bg-slate-100 border-slate-200 text-slate-705 hover:bg-slate-200"
+                    }`}
+                  >
+                    {showCrashLogs ? "Hide crash logs" : "View crash logs"}
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      setShowCrashPopup(false);
+                      setIsReinstalling(true);
+                      setSplashDuration(180000);
+                      setShowSplash(true);
+                    }} 
+                    className="flex-1 py-3.5 px-6 rounded-2xl font-black text-xs uppercase tracking-wider transition-all bg-red-500 hover:bg-red-650 text-white shadow-lg shadow-red-500/20 active:scale-[0.98] text-center cursor-pointer border border-transparent"
+                  >
+                    Reinstall now
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
