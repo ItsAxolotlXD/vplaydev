@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode, useMemo } from "react";
 import { 
-  Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer, Check, Plus, AppWindow, Compass, Trash2, Newspaper, Shuffle, Link, StickyNote, Bold, Italic, Underline, Droplets, Wind, CloudSun, MapPin, CloudRain,
+  Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer, Check, Plus, AppWindow, Compass, Trash2, Newspaper, Shuffle, Link, StickyNote, Bold, Italic, Underline, Droplets, Wind, CloudSun, MapPin, CloudRain, Copy,
   Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, FolderOpen, Pizza, Cloud, CreditCard, Gift, HelpCircle, FlaskConical as Flask, GlassWater, Grid, ArrowUp, ArrowDown, ArrowRightLeft, Bot, Hash
 } from "lucide-react";
 import Hls from "hls.js";
@@ -504,6 +504,39 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status }: { src
     );
   }
 
+  const isCanTho1 = alt.toLowerCase().includes("cần thơ 1");
+  const isCanTho2 = alt.toLowerCase().includes("cần thơ 2");
+  const isCanTho3 = alt.toLowerCase().includes("cần thơ 3");
+  const isQNgTV2 = alt.toLowerCase().includes("qngtv2") || alt.includes("Quảng Ngãi 2");
+
+  if (isCanTho1 || isCanTho2 || isCanTho3 || isQNgTV2) {
+    let num = "1";
+    if (isCanTho2 || isQNgTV2) num = "2";
+    if (isCanTho3) num = "3";
+
+    return (
+      <div className="relative flex items-center justify-center w-full h-full select-none">
+        <img 
+          src={finalSrc} 
+          alt={alt} 
+          referrerPolicy="no-referrer"
+          onError={() => setError(true)}
+          className={`${className} object-contain p-0 transition-all duration-300 ${
+            liquidGlass === "tinted" 
+              ? "opacity-100" 
+              : !isDark ? "drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]" : ""
+          } ${scaleClass} ${status === "maintenance" ? "grayscale opacity-20" : status === "coming-soon" ? "" : ""}`} 
+        />
+        <span 
+          className="absolute bottom-[-2px] right-[5%] bg-red-600 dark:bg-[#FF453A] text-white text-[10px] sm:text-[11px] font-black w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-md flex items-center justify-center border-2 border-white dark:border-zinc-800 shadow-lg leading-none select-none z-20"
+          style={{ fontFamily: "Montserrat, sans-serif" }}
+        >
+          {num}
+        </span>
+      </div>
+    );
+  }
+
   return (
     <img 
       src={finalSrc} 
@@ -519,7 +552,93 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status }: { src
   );
 }
 
-function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab }: {
+function ChannelContextMenu({ 
+  x, 
+  y, 
+  onClose, 
+  isDark, 
+  channel, 
+  onShowToast 
+}: { 
+  x: number, 
+  y: number, 
+  onClose: () => void, 
+  isDark: boolean, 
+  channel: Channel, 
+  onShowToast?: (msg: string) => void,
+  key?: string | number
+}) {
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(channel.stream);
+      if (onShowToast) {
+        onShowToast(`Đã copy link luồng kênh ${channel.name}!`);
+      } else {
+        alert(`Đã copy link luồng cho ${channel.name}`);
+      }
+    } catch (err) {
+      const el = document.createElement('textarea');
+      el.value = channel.stream;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      if (onShowToast) {
+        onShowToast(`Đã copy link luồng kênh ${channel.name}!`);
+      } else {
+        alert(`Đã copy link luồng cho ${channel.name}`);
+      }
+    }
+    onClose();
+  };
+
+  const handleOpenExternal = () => {
+    window.open(channel.stream, "_blank");
+    onClose();
+  };
+
+  return (
+    <>
+      <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
+      <div
+        style={{ top: y, left: x }}
+        className={`fixed z-[1001] w-64 rounded-2xl shadow-2xl border p-1.5 overflow-hidden backdrop-blur-xl ${
+          isDark 
+            ? "bg-[#11131c]/90 border-white/10 text-white shadow-[0_12px_40px_rgba(0,0,0,0.5)]" 
+            : "bg-white/90 border-slate-200 text-[#11131c] shadow-[0_12px_30px_rgba(15,23,42,0.15)]"
+        }`}
+      >
+        <div className={`px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase opacity-60`}>
+          Tùy chọn: {channel.name}
+        </div>
+        
+        <div className={`h-[1px] ${isDark ? "bg-white/10" : "bg-slate-200"} my-1`} />
+
+        <button 
+          onClick={handleCopyLink} 
+          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-left ${
+            isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
+          }`}
+        >
+          <Copy size={16} />
+          <span className="text-sm font-semibold">Get channel feed link</span>
+        </button>
+
+        <button 
+          onClick={handleOpenExternal} 
+          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-left ${
+            isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
+          }`}
+        >
+          <ExternalLink size={16} />
+          <span className="text-sm font-semibold">Mở luồng trong tab mới</span>
+        </button>
+      </div>
+    </>
+  );
+}
+
+function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu }: {
   ch: Channel,
   onClick: () => void,
   isDark: boolean,
@@ -529,7 +648,8 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
   liquidGlass: "glassy" | "tinted",
   className?: string,
   key?: string | number,
-  isLiveTab?: boolean
+  isLiveTab?: boolean,
+  onContextMenu?: (e: React.MouseEvent, ch: Channel) => void
 }) {
   const isMaintenance = ch.status === "maintenance";
   const isComingSoon = ch.status === "coming-soon";
@@ -543,7 +663,16 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
   };
 
   return (
-    <div className={`relative group ${className || ""}`}>
+    <div 
+      className={`relative group ${className || ""}`}
+      onContextMenu={(e) => {
+        if (onContextMenu) {
+          e.preventDefault();
+          e.stopPropagation();
+          onContextMenu(e, ch);
+        }
+      }}
+    >
       {/* Background glow when active or hover */}
       <div className={`absolute -inset-1 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0 ${isActive ? "bg-[#4AC4FE]/10 opacity-100" : isDark ? "bg-white/2" : "bg-slate-500/5"}`} />
       
@@ -756,7 +885,8 @@ function HomeContent({
   direction, 
   paginate, 
   slides, 
-  bypassed 
+  bypassed,
+  onChannelContextMenu
 }: {
   setActiveTab: (tab: string) => void,
   setActiveChannel: (ch: typeof channels[0]) => void,
@@ -770,7 +900,8 @@ function HomeContent({
   direction: number,
   paginate: (newDirection: number) => void,
   slides: any[],
-  bypassed?: boolean
+  bypassed?: boolean,
+  onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void
 }) {
   const [randomChannels, setRandomChannels] = useState<typeof channels>([]);
   
@@ -1158,6 +1289,7 @@ function HomeContent({
                       favorites={favorites} 
                       toggleFavorite={toggleFavorite} 
                       liquidGlass={liquidGlass}
+                      onContextMenu={onChannelContextMenu}
                     />
                     <div className={`mt-3 text-center text-xs font-bold truncate tracking-wide ${isDark ? "text-slate-350" : "text-slate-600"}`}>
                       {ch.name}
@@ -1187,6 +1319,7 @@ function HomeContent({
                     favorites={favorites} 
                     toggleFavorite={toggleFavorite} 
                     liquidGlass={liquidGlass}
+                    onContextMenu={onChannelContextMenu}
                   />
                   <div className={`mt-2 text-center text-[11px] font-black truncate tracking-wide ${isDark ? "text-slate-400" : "text-slate-700"}`}>
                     {ch.name}
@@ -1311,6 +1444,7 @@ function HomeContent({
                 favorites={favorites} 
                 toggleFavorite={toggleFavorite} 
                 liquidGlass={liquidGlass}
+                onContextMenu={onChannelContextMenu}
               />
             ))}
           </div>
@@ -1351,7 +1485,8 @@ function ExploreContent({
   setFeatureFlags,
   setIsSidebarLocked,
   handleSearchContextMenu,
-  searchFilter
+  searchFilter,
+  onChannelContextMenu
 }: {
   isDark: boolean,
   searchQuery: string,
@@ -1382,7 +1517,8 @@ function ExploreContent({
   setFeatureFlags: (val: any) => void,
   setIsSidebarLocked: (val: boolean) => void,
   handleSearchContextMenu: (e: React.MouseEvent) => void,
-  searchFilter: "all" | "channels" | "settings" | "experiments"
+  searchFilter: "all" | "channels" | "settings" | "experiments",
+  onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void
 }) {
   const [randomRows, setRandomRows] = useState<Channel[][]>([]);
   const [randomSettings, setRandomSettings] = useState<any[]>([]);
@@ -1528,6 +1664,7 @@ function ExploreContent({
                       liquidGlass={liquidGlass}
                       onClick={() => setActiveChannel(ch)}
                       className="hover:scale-105"
+                      onContextMenu={onChannelContextMenu}
                     />
                   ))}
                 </div>
@@ -1637,7 +1774,7 @@ function IndividualPlayer({ channel, isMuted, volume, isDark }: { channel: Chann
   );
 }
 
-function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime }: { 
+function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu }: { 
   active: Channel, 
   setActive: (ch: Channel) => void, 
   isDark: boolean,
@@ -1655,7 +1792,8 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   bypassed?: boolean,
   setIsPlayerInView: (val: boolean) => void,
   loadingTreatment: string,
-  currentTime: Date
+  currentTime: Date,
+  onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -3004,6 +3142,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                       toggleFavorite={toggleFavorite} 
                       liquidGlass={liquidGlass}
                       isLiveTab={true}
+                      onContextMenu={onChannelContextMenu}
                     />
                   ))
                 )}
@@ -9380,8 +9519,16 @@ function GeoPopup({ isOpen, onClose, isDark, onAutoSelect, onManualSelect }: {
 
 function App() {
   const [searchFilter, setSearchFilter] = useState<"all" | "channels" | "settings" | "experiments">("all");
-  const [contextMenu, setContextMenu] = useState<{ x: number, y: number, type: "search" | "unified" } | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ x: number, y: number, type: "search" | "unified" | "channel", channel?: Channel } | null>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(curr => curr === msg ? null : curr);
+    }, 3000);
+  };
 
   const handleSearchContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -9392,6 +9539,12 @@ function App() {
   const handleGlobalContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
     setContextMenu({ x: e.clientX, y: e.clientY, type: "unified" });
+  };
+
+  const handleChannelContextMenu = (e: React.MouseEvent, ch: Channel) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setContextMenu({ x: e.clientX, y: e.clientY, type: "channel", channel: ch });
   };
 
   const isResizing = useRef(false);
@@ -10739,6 +10892,37 @@ const [headingBar, setHeadingBar] = useState(() => {
             handleOpenSettings={handleOpenSettings}
           />
         )}
+        {contextMenu && contextMenu.type === "channel" && contextMenu.channel && (
+          <ChannelContextMenu 
+            key="channel-context-menu"
+            x={contextMenu.x} 
+            y={contextMenu.y} 
+            isDark={isDark} 
+            channel={contextMenu.channel}
+            onClose={() => setContextMenu(null)} 
+            onShowToast={(msg) => showToast(msg)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className={`fixed bottom-6 right-6 z-[10002] px-5 py-3 rounded-2xl border flex items-center gap-3 shadow-2xl backdrop-blur-xl ${
+              isDark 
+                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+                : "bg-emerald-50 border-emerald-200 text-emerald-800"
+            }`}
+          >
+            <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+              <Check size={12} className="stroke-[3]" />
+            </div>
+            <span className="text-sm font-semibold">{toastMessage}</span>
+          </motion.div>
+        )}
       </AnimatePresence>
 
       <LiquidModal
@@ -10986,6 +11170,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   paginate={paginate}
                   slides={slides}
                   bypassed={bypassed}
+                  onChannelContextMenu={handleChannelContextMenu}
                 />
               )}
               {displayTab === "Khám phá" && (
@@ -11020,6 +11205,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   setIsSidebarLocked={setIsSidebarLocked}
                   handleSearchContextMenu={handleSearchContextMenu}
                   searchFilter={searchFilter}
+                  onChannelContextMenu={handleChannelContextMenu}
                 />
               )}
               {displayTab === "Live" && (
@@ -11042,6 +11228,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   setIsPlayerInView={setIsPlayerInView}
                   loadingTreatment={loadingTreatment}
                   currentTime={currentTime}
+                  onChannelContextMenu={handleChannelContextMenu}
                 />
               )}
               {displayTab === "Experiments" && (
