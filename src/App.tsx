@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, ChangeEvent, FormEvent, ReactNode, useMemo } from "react";
 import { 
-  Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer, Check, Plus, AppWindow, Compass, Trash2, Newspaper, Shuffle, Link, StickyNote, Bold, Italic, Underline, Droplets, Wind, CloudSun, MapPin, CloudRain, Copy,
+  Calendar, Play, Pause, Radio, Info, Sun, Moon, Maximize, Volume2, VolumeX, CheckCircle2, Shield, X, Lock, Terminal, Zap, Clock, History, MousePointer2, Sliders, ChevronLeft, ChevronRight, Layers, Filter, Sparkles, Camera, Palette, Layout, MessageSquare, Eye, EyeOff, ExternalLink, Monitor, Columns, Maximize2, Circle, AlertCircle, RotateCcw, Droplet, Trophy, Film, Music, Globe, Activity, ShieldCheck, LayoutGrid, ArrowRight, ArrowLeft, TrendingUp, Star, Crown, Menu, Pin, Send, Accessibility, Navigation, LayoutTemplate, LayoutPanelLeft, Square, Smartphone, Unlock, Thermometer, Check, Plus, AppWindow, Compass, Trash2, Newspaper, Shuffle, Link, List, StickyNote, Bold, Italic, Underline, Droplets, Wind, CloudSun, MapPin, CloudRain, Copy,
   Home, Tv, Settings, LogIn, LogOut, Heart, Users, User, Mic, Search, Folder, FolderOpen, Pizza, Cloud, CreditCard, Gift, HelpCircle, FlaskConical as Flask, GlassWater, Grid, ArrowUp, ArrowDown, ArrowRightLeft, Bot, Hash, Upload, Pencil
 } from "lucide-react";
 import Hls from "hls.js";
@@ -519,12 +519,15 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, logoSca
   // "từ logo vtv1 đến vtv9 phóng to ra"
   // VTV1 to VTV9 matches: starts with VTV1, VTV2 ... VTV9 (possibly with HD suffix)
   const isVTV1to9 = /^VTV[1-9](\s|HD|$)/i.test(alt);
+  const isVTVOther = alt.toLowerCase().includes("vtv") && !isVTV1to9;
   
   let baseScale = 1.1;
   if (isVTV1to9) {
-    baseScale = 2.4; // Magnified! Was 1.6
+    baseScale = 1.85; // Shrinked slightly from 2.4 to be more balanced and elegant
   } else if (alt.includes("VTV6") || alt.includes("VTV7")) {
-    baseScale = 1.6; // Was 1.25
+    baseScale = 1.35; // Shrinked slightly from 1.6
+  } else if (isVTVOther) {
+    baseScale = 1.35;
   }
 
   const scaleFactor = (logoScale ?? 50) / 50;
@@ -549,7 +552,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, logoSca
           style={{ transform: `scale(${finalScale})` }}
         />
         <span 
-          className="absolute -bottom-3 sm:-bottom-3.5 left-1/2 transform -translate-x-1/2 text-[9px] sm:text-[10px] font-black text-white tracking-wider uppercase text-center whitespace-nowrap leading-none filter drop-shadow-[0_1.5px_2px_rgba(0,0,0,1)] drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]"
+          className="absolute -bottom-3 sm:-bottom-3.5 left-1/2 transform -translate-x-1/2 text-[9px] sm:text-[10px] font-black text-black tracking-wider uppercase text-center whitespace-nowrap leading-none"
           style={{ fontFamily: "Montserrat, sans-serif" }}
         >
           {isVTV5_TN ? "TÂY NGUYÊN" : "TÂY NAM BỘ"}
@@ -805,7 +808,7 @@ function ChannelContextMenu({
   );
 }
 
-function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, logoScale, onSaveCustomization, onResetCustomization, customIndex }: {
+function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, logoScale, onSaveCustomization, onResetCustomization, customIndex, layoutMode }: {
   ch: Channel & { paddedNumber?: string, originalName?: string, number?: number },
   key?: string | number,
   onClick: () => void,
@@ -820,7 +823,8 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
   logoScale?: number,
   onSaveCustomization?: (originalName: string, name: string, logo: string, number: number) => void,
   onResetCustomization?: (originalName: string) => void,
-  customIndex?: number
+  customIndex?: number,
+  layoutMode?: "grid" | "list"
 }) {
   const isMaintenance = ch.status === "maintenance";
   const isComingSoon = ch.status === "coming-soon";
@@ -868,6 +872,8 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
     return Math.floor(diff / (1000 * 60 * 60 * 24));
   };
 
+  const isList = layoutMode === "list";
+
   return (
     <div 
       className={`relative group ${className || ""}`}
@@ -880,7 +886,7 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
       }}
     >
       {/* Tooltip for local channels */}
-      {ch.originalProvince && (
+      {ch.originalProvince && !isList && (
         <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2.5 pointer-events-none opacity-0 group-hover:opacity-100 z-[100] transition-none select-none">
           <div className={`text-[10px] sm:text-[11px] font-black px-3 py-1.5 rounded-xl shadow-xl whitespace-nowrap tracking-wide border ${
             isDark 
@@ -899,85 +905,166 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
       )}
 
       {/* Background glow when active or hover */}
-      <div className={`absolute -inset-1 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 z-0 ${isActive ? "bg-[#4AC4FE]/10 opacity-100" : isDark ? "bg-white/2" : "bg-slate-500/5"}`} />
+      <div className={`absolute -inset-1 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 z-0 ${isActive ? "bg-[#4AC4FE]/15 opacity-100" : isDark ? "bg-white/2" : "bg-slate-500/5"}`} />
       
-      <motion.button
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={onClick}
-        transition={{ duration: 0 }}
-        style={{
-          backgroundColor: "#ffffff",
-          backgroundImage: "radial-gradient(#cbd5e1 0.75px, #ffffff 0.75px)",
-          backgroundSize: "8px 8px",
-        }}
-        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden z-10 rounded-2xl border transition-all ${
-          isActive
-            ? "border-[#4AC4FE] ring-2 ring-[#4AC4FE]/40 shadow-lg"
-            : "border-slate-200 hover:border-slate-400 shadow-sm"
-        }`}
-      >
-        {/* Padded sequential channel number displayed top-left of the WHITE patterned channel card */}
-        <span className={`absolute top-2 left-2 z-30 text-[9px] sm:text-[10px] font-black tracking-tight leading-none px-1.5 py-0.5 rounded ${
-          isActive 
-            ? "bg-[#4AC4FE] text-white shadow-sm font-bold" 
-            : "bg-slate-100 text-slate-700 border border-slate-200/80 font-bold"
-        } select-none pointer-events-none transition-all`}>
-          {ch.paddedNumber || "000"}
-        </span>
+      {isList ? (
+        <motion.button
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          onClick={onClick}
+          transition={{ duration: 0 }}
+          style={{
+            backgroundColor: "#ffffff",
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='%23e2e8f0' stroke-width='5' stroke-linecap='round' opacity='0.6'/%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' opacity='0.9'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='%23cbd5e1' stroke-width='3' stroke-linecap='round' opacity='0.4'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='%23f1f5f9' stroke-width='1' stroke-linecap='round' opacity='0.8'/%3E%3C/svg%3E")`,
+            backgroundSize: "80px 40px",
+          }}
+          className={`w-full p-2.5 xs:p-3 flex items-center justify-between relative overflow-hidden z-10 rounded-2xl border transition-all ${
+            isActive
+              ? "border-[#4AC4FE] ring-2 ring-[#4AC4FE]/45 shadow-md"
+              : "border-slate-200 hover:border-slate-400 shadow-sm"
+          }`}
+        >
+          <div className="flex items-center gap-3 sm:gap-4 z-20">
+            {/* Sequential padded channel number */}
+            <span className={`text-[10px] sm:text-[11px] font-black tracking-tight leading-none px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 ${
+              isActive ? "bg-[#4AC4FE] text-white border-transparent shadow-sm" : ""
+            }`}>
+              {ch.paddedNumber || "000"}
+            </span>
 
-        {isMaintenance && (
-          <div className="absolute top-2 right-2 bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
-            BẢO TRÌ
-          </div>
-        )}
-        {isComingSoon && isVTV6 && (
-          <div className="absolute top-2 right-2 bg-[#FF453A] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
-            {getVTV6Days()}d
-          </div>
-        )}
-        {isComingSoon && !isVTV6 && (
-          <div className="absolute top-2 right-2 bg-blue-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md uppercase">
-            SẮP RA MẮT
-          </div>
-        )}
-        
-        {/* Logo parent perfectly centered vertically and horizontally inside the tile with white background */}
-        <div className="absolute inset-0 flex items-center justify-center z-10 p-3 sm:p-4">
-          <div className="relative w-full h-[62%] flex items-center justify-center">
-            {/* Main Centered Logo */}
-            <ChannelLogo 
-              src={ch.logo} 
-              alt={ch.name} 
-              className="max-w-[85%] max-h-[85%] object-contain"
-              isDark={false} /* Set isDark to false so logos styled for white cards display elegantly */
-              liquidGlass={liquidGlass} 
-              status={ch.status} 
-              logoScale={logoScale}
-            />
-
-            {/* Reflection Effect inside tiles */}
-            <div 
-              className="absolute top-[90%] left-0 w-full h-[35%] flex items-center justify-center select-none pointer-events-none origin-top overflow-hidden opacity-25 filter blur-[0.4px]"
-              style={{
-                transform: "scaleY(-0.6)",
-                maskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)",
-                WebkitMaskImage: "-webkit-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)"
-              }}
-            >
+            {/* Logo container with hover border */}
+            <div className="relative w-12 h-9 sm:w-14 sm:h-10 flex items-center justify-center p-1 bg-white border border-slate-100 rounded-lg group-hover:border-black group-hover:ring-1 group-hover:ring-black/45 transition-all">
               <ChannelLogo 
                 src={ch.logo} 
                 alt={ch.name} 
-                className="max-w-[85%] max-h-[85%] object-contain"
+                className="max-w-full max-h-full object-contain"
                 isDark={false}
                 liquidGlass={liquidGlass} 
                 status={ch.status} 
                 logoScale={logoScale}
               />
             </div>
+
+            {/* Title / Province details */}
+            <div className="flex flex-col items-start leading-none gap-1 text-left">
+              <span className="text-xs sm:text-sm font-black tracking-tight text-slate-800">
+                {ch.name}
+              </span>
+              {ch.originalProvince && (
+                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">
+                  PT-TH {ch.originalProvince}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-      </motion.button>
+
+          <div className="flex items-center gap-2 z-20 pr-12">
+            {isMaintenance && (
+              <span className="bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow-sm">
+                BẢO TRÌ
+              </span>
+            )}
+            {isComingSoon && (
+              <span className="bg-[#FF453A] text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow-sm">
+                SẮP RA MẮT
+              </span>
+            )}
+            {/* Heart Favorite Trigger */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                toggleFavorite(ch);
+              }}
+              className="p-1.5 rounded-full hover:bg-slate-100 border border-transparent hover:border-slate-200 text-rose-500 cursor-pointer transition-colors"
+            >
+              <Heart className={`w-4 h-4 ${favorites.includes(ch.name) ? "fill-rose-500" : ""}`} />
+            </button>
+          </div>
+        </motion.button>
+      ) : (
+        <motion.button
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={onClick}
+          transition={{ duration: 0 }}
+          style={{
+            backgroundColor: "#ffffff",
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='%23e2e8f0' stroke-width='5' stroke-linecap='round' opacity='0.6'/%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' opacity='0.9'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='%23cbd5e1' stroke-width='3' stroke-linecap='round' opacity='0.4'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='%23f1f5f9' stroke-width='1' stroke-linecap='round' opacity='0.8'/%3E%3C/svg%3E")`,
+            backgroundSize: "80px 40px",
+          }}
+          className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden z-10 rounded-2xl border transition-all ${
+            isActive
+              ? "border-[#4AC4FE] ring-2 ring-[#4AC4FE]/40 shadow-lg"
+              : "border-slate-200 hover:border-slate-400 shadow-sm"
+          }`}
+        >
+          {/* Padded sequential channel number displayed top-left of the WHITE patterned channel card */}
+          <span className={`absolute top-2 left-2 z-30 text-[9px] sm:text-[10px] font-black tracking-tight leading-none px-1.5 py-0.5 rounded ${
+            isActive 
+              ? "bg-[#4AC4FE] text-white shadow-sm font-bold" 
+              : "bg-slate-100 text-slate-700 border border-slate-200/80 font-bold"
+          } select-none pointer-events-none transition-all`}>
+            {ch.paddedNumber || "000"}
+          </span>
+
+          {isMaintenance && (
+            <div className="absolute top-2 right-2 bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
+              BẢO TRÌ
+            </div>
+          )}
+          {isComingSoon && isVTV6 && (
+            <div className="absolute top-2 right-2 bg-[#FF453A] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
+              {getVTV6Days()}d
+            </div>
+          )}
+          {isComingSoon && !isVTV6 && (
+            <div className="absolute top-2 right-2 bg-blue-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md uppercase">
+              SẮP RA MẮT
+            </div>
+          )}
+          
+          {/* Logo parent perfectly centered vertically and horizontally inside the tile with white background */}
+          <div className="absolute inset-0 flex items-center justify-center z-10 p-3 sm:p-4">
+            <div className="relative w-full h-[62%] flex items-center justify-center">
+              {/* Main Centered Logo with black hover border */}
+              <div className="flex items-center justify-center p-1.5 rounded-xl border border-transparent transition-all group-hover:border-black group-hover:ring-2 group-hover:ring-black/45">
+                <ChannelLogo 
+                  src={ch.logo} 
+                  alt={ch.name} 
+                  className="max-w-[85%] max-h-[85%] object-contain"
+                  isDark={false} /* Set isDark to false so logos styled for white cards display elegantly */
+                  liquidGlass={liquidGlass} 
+                  status={ch.status} 
+                  logoScale={logoScale}
+                />
+              </div>
+
+              {/* Reflection Effect inside tiles */}
+              <div 
+                className="absolute top-[90%] left-0 w-full h-[35%] flex items-center justify-center select-none pointer-events-none origin-top overflow-hidden opacity-25 filter blur-[0.4px]"
+                style={{
+                  transform: "scaleY(-0.6)",
+                  maskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)",
+                  WebkitMaskImage: "-webkit-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)"
+                }}
+              >
+                <div className="flex items-center justify-center p-1.5 rounded-xl border border-transparent">
+                  <ChannelLogo 
+                    src={ch.logo} 
+                    alt={ch.name} 
+                    className="max-w-[85%] max-h-[85%] object-contain"
+                    isDark={false}
+                    liquidGlass={liquidGlass} 
+                    status={ch.status} 
+                    logoScale={logoScale}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.button>
+      )}
 
       {/* Edit button with pen/pencil icon shown when hovered */}
       <button
@@ -986,7 +1073,9 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
           e.preventDefault();
           setShowEditPopup(true);
         }}
-        className="absolute bottom-2 right-2 z-30 p-1.5 rounded-full backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer bg-white/90 border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-white hover:scale-110 shadow-md"
+        className={`absolute z-30 p-1.5 rounded-full backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer bg-white/90 border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-white hover:scale-110 shadow-md ${
+          isList ? "right-3.5 top-1/2 -translate-y-1/2" : "bottom-2 right-2"
+        }`}
         title="Chỉnh sửa tên kênh, logo và vị trí"
       >
         <Pencil className="w-3.5 h-3.5" />
@@ -2233,7 +2322,7 @@ function parseM3U(text: string): Channel[] {
   return parsedChannels;
 }
 
-function TVContent({ channels, active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, logoScale, onSaveCustomization, onResetCustomization }: { 
+function TVContent({ channels, active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, logoScale, onSaveCustomization, onResetCustomization, onCreateChannel }: { 
   channels: any[],
   active: Channel, 
   setActive: (ch: Channel) => void, 
@@ -2256,7 +2345,8 @@ function TVContent({ channels, active, setActive, isDark, favorites, toggleFavor
   onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
   logoScale?: number,
   onSaveCustomization?: (originalName: string, name: string, logo: string, number: number) => void,
-  onResetCustomization?: (originalName: string) => void
+  onResetCustomization?: (originalName: string) => void,
+  onCreateChannel?: (newCh: any) => void
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -2319,6 +2409,59 @@ function TVContent({ channels, active, setActive, isDark, favorites, toggleFavor
   const [streamError, setStreamError] = useState<string | null>(null);
 
   const [liveTab, setLiveTab] = useState<"vplay" | "custom">("vplay");
+
+  const [layoutMode, setLayoutMode] = useState<"grid" | "list">(() => {
+    try {
+      const saved = localStorage.getItem("vplay_layout_mode_v1");
+      return (saved === "list" || saved === "grid") ? saved : "grid";
+    } catch {
+      return "grid";
+    }
+  });
+
+  const handleToggleLayoutMode = (mode: "grid" | "list") => {
+    setLayoutMode(mode);
+    try {
+      localStorage.setItem("vplay_layout_mode_v1", mode);
+    } catch (e) {
+      console.warn("Failed to save layout mode", e);
+    }
+  };
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newChName, setNewChName] = useState("");
+  const [newChStream, setNewChStream] = useState("");
+  const [newChNum, setNewChNum] = useState("");
+  const [newChLogo, setNewChLogo] = useState("");
+  const [newChCategory, setNewChCategory] = useState("Tự tạo");
+
+  const handlePerformCreateCh = () => {
+    if (!newChName.trim() || !newChStream.trim()) {
+      alert("Vui lòng nhập tên kênh và luồng truyền phát stream URL!");
+      return;
+    }
+    const finalNum = parseInt(newChNum.trim(), 10) || (channels.length + 1);
+    const newCh = {
+      category: newChCategory.trim() || "Tự tạo",
+      name: newChName.trim(),
+      logo: newChLogo.trim() || "https://img.vtvprime.vn/czM6Ly9wcmQtc24taW1hZ2VzL2NoYW5uZWwvT04rU1BPUlQrLnBuZw==.png",
+      stream: newChStream.trim(),
+      number: finalNum,
+      originalProvince: newChCategory.trim() === "Địa phương" ? "Tự tạo" : undefined
+    };
+
+    if (onCreateChannel) {
+      onCreateChannel(newCh);
+    }
+
+    // Reset fields & close
+    setNewChName("");
+    setNewChStream("");
+    setNewChNum("");
+    setNewChLogo("");
+    setNewChCategory("Tự tạo");
+    setShowCreateModal(false);
+  };
 
   const [vlcMode, setVlcMode] = useState<boolean>(() => {
     try {
@@ -4513,7 +4656,45 @@ function TVContent({ channels, active, setActive, isDark, favorites, toggleFavor
             ))}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center select-none font-sans">
+            {/* Create Custom Channel Button */}
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="p-3 bg-[#4AC4FE] hover:bg-[#3dbcf4] text-white rounded-xl flex items-center gap-2 transition-all font-bold text-sm shadow-md cursor-pointer"
+              title="Tạo luồng kênh mới của bạn"
+            >
+              <Plus className="w-4.5 h-4.5 bg-white/20 rounded-full p-0.5" />
+              <span className="hidden sm:inline">Thêm kênh</span>
+            </button>
+
+            {/* Layout Mode Selection Options */}
+            <div className={`p-1 rounded-xl flex items-center ${isDark ? "bg-white/5 border border-white/5" : "bg-slate-100 border border-slate-200"}`}>
+              <button
+                type="button"
+                onClick={() => handleToggleLayoutMode("grid")}
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                  layoutMode === "grid"
+                    ? "bg-[#4AC4FE] text-white shadow-sm"
+                    : isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900"
+                }`}
+                title="Hiển thị dạng lưới (Grid)"
+              >
+                <Grid className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleToggleLayoutMode("list")}
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                  layoutMode === "list"
+                    ? "bg-[#4AC4FE] text-white shadow-sm"
+                    : isDark ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900"
+                }`}
+                title="Hiển thị dạng danh sách (List)"
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
+
             {/* Desktop Sort Button */}
             <button
               onClick={() => {
@@ -4598,7 +4779,7 @@ function TVContent({ channels, active, setActive, isDark, favorites, toggleFavor
                   <h3 className={`text-xl md:text-3xl font-bold tracking-tighter uppercase ${isDark ? "text-white" : "text-slate-900"}`}>{cat}</h3>
                 </div>
               </div>
-              <div className="grid grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-6">
+              <div className={layoutMode === "list" ? "flex flex-col gap-3 font-sans w-full max-w-5xl" : "grid grid-cols-3 sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 md:gap-6"}>
                 {cat === "Phát thanh" ? (
                   <div className={`col-span-full p-12 rounded-[40px] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
                     isDark ? "border-white/10 bg-white/5 text-slate-400 hover:bg-white/10" : "border-black/5 bg-black/5 text-slate-500 hover:bg-black/[0.02]"
@@ -4627,6 +4808,7 @@ function TVContent({ channels, active, setActive, isDark, favorites, toggleFavor
                       logoScale={logoScale}
                       onSaveCustomization={onSaveCustomization}
                       onResetCustomization={onResetCustomization}
+                      layoutMode={layoutMode}
                     />
                   ))
                 )}
@@ -4647,6 +4829,157 @@ function TVContent({ channels, active, setActive, isDark, favorites, toggleFavor
         </div>
       </div>
       )}
+
+      {/* Create Custom Channel Modal */}
+      <AnimatePresence>
+        {showCreateModal && (
+          <div 
+            className="fixed inset-0 z-[10005] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md font-sans"
+            onClick={() => setShowCreateModal(false)}
+          >
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className={`p-6 rounded-[32px] w-full max-w-sm border shadow-2xl flex flex-col gap-5 text-left border-solid ${
+                isDark 
+                  ? "bg-[#18181b]/95 border-white/10 text-white shadow-[0_24px_50px_rgba(0,0,0,0.6)]" 
+                  : "bg-white border-slate-200 text-slate-900 shadow-[0_24px_40px_rgba(15,23,42,0.15)]"
+              }`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-[#4AC4FE]/10 text-[#4AC4FE]">
+                  <Plus className="w-5 h-5 bg-[#4AC4FE]/20 rounded-full p-0.5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black tracking-tight leading-none uppercase">TẠO KÊNH STREAM MỚI</h4>
+                  <p className="text-[10px] font-extrabold opacity-55 uppercase tracking-widest mt-1">VPLAY CHANNELS</p>
+                </div>
+                <button 
+                  onClick={() => setShowCreateModal(false)}
+                  className="ml-auto p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-white/5 opacity-60 hover:opacity-100 transition-all cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Form fields */}
+              <div className="space-y-4 text-xs">
+                {/* Channel Name */}
+                <div>
+                  <label className="block text-[10px] uppercase font-black tracking-wider opacity-60 mb-1">Tên hiển thị kênh *</label>
+                  <input 
+                    type="text"
+                    placeholder="ví dụ: Kênh V11 HD..."
+                    value={newChName}
+                    onChange={(e) => setNewChName(e.target.value)}
+                    className={`w-full px-4 py-2.5 rounded-xl border font-bold outline-none transition-all ${
+                      isDark 
+                        ? "bg-white/5 border-white/10 text-white focus:border-[#4AC4FE]" 
+                        : "bg-slate-50 border-slate-200 text-slate-900 focus:border-[#4AC4FE]"
+                    }`}
+                  />
+                </div>
+
+                {/* Stream URL */}
+                <div>
+                  <label className="block text-[10px] uppercase font-black tracking-wider opacity-60 mb-1">Luồng truyền phát Stream URL (.m3u8) *</label>
+                  <input 
+                    type="text"
+                    placeholder="Nhập liên kết m3u8..."
+                    value={newChStream}
+                    onChange={(e) => setNewChStream(e.target.value)}
+                    className={`w-full px-4 py-2.5 rounded-xl border font-bold outline-none transition-all ${
+                      isDark 
+                        ? "bg-white/5 border-white/10 text-white focus:border-[#4AC4FE]" 
+                        : "bg-slate-50 border-slate-200 text-slate-900 focus:border-[#4AC4FE]"
+                    }`}
+                  />
+                </div>
+
+                {/* Channel Number & Category */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] uppercase font-black tracking-wider opacity-60 mb-1">Số kênh sequential</label>
+                    <input 
+                      type="number"
+                      placeholder={`ví dụ: ${channels.length + 1}`}
+                      value={newChNum}
+                      onChange={(e) => setNewChNum(e.target.value)}
+                      className={`w-full px-4 py-2.5 rounded-xl border font-bold outline-none transition-all ${
+                        isDark 
+                          ? "bg-white/5 border-white/10 text-white focus:border-[#4AC4FE]" 
+                          : "bg-slate-50 border-slate-200 text-slate-900 focus:border-[#4AC4FE]"
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] uppercase font-black tracking-wider opacity-60 mb-1">Thể loại kênh</label>
+                    <select 
+                      value={newChCategory}
+                      onChange={(e) => setNewChCategory(e.target.value)}
+                      className={`w-full px-3 py-2.5 rounded-xl border font-bold outline-none transition-all ${
+                        isDark 
+                          ? "bg-zinc-800 border-white/10 text-white focus:border-[#4AC4FE]" 
+                          : "bg-slate-50 border-slate-200 text-slate-900 focus:border-[#4AC4FE]"
+                      }`}
+                    >
+                      <option value="Tự tạo">Tự tạo</option>
+                      <option value="VTV">VTV</option>
+                      <option value="HTV">HTV</option>
+                      <option value="VTVcab">VTVcab</option>
+                      <option value="Essential">Essential</option>
+                      <option value="Local">Local</option>
+                      <option value="Radio">Radio</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Logo URL */}
+                <div>
+                  <label className="block text-[10px] uppercase font-black tracking-wider opacity-60 mb-1">Đường dẫn ảnh Logo URL (không bắt buộc)</label>
+                  <input 
+                    type="text"
+                    placeholder="Để trống nếu muốn sử dụng mặc định..."
+                    value={newChLogo}
+                    onChange={(e) => setNewChLogo(e.target.value)}
+                    className={`w-full px-4 py-2.5 rounded-xl border font-bold outline-none transition-all ${
+                      isDark 
+                        ? "bg-white/5 border-white/10 text-white focus:border-[#4AC4FE]" 
+                        : "bg-slate-50 border-slate-200 text-slate-900 focus:border-[#4AC4FE]"
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2.5 mt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border border-solid text-center cursor-pointer ${
+                    isDark
+                      ? "bg-white/5 border-white/5 text-slate-400 hover:text-white"
+                      : "bg-slate-100 border-slate-200 text-slate-650 hover:bg-slate-200"
+                  }`}
+                >
+                  Hủy bỏ
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePerformCreateCh}
+                  className="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all text-center bg-[#4AC4FE] hover:bg-[#3dbcf4] text-white cursor-pointer shadow-md font-bold"
+                >
+                  Tạo kênh
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -11077,9 +11410,30 @@ function App() {
     });
   };
 
-  // Shadow the global 'channels' variable locally so all children/functions inside App automatically reference the customized state list!
+  const [createdChannels, setCreatedChannels] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem("vplay_created_channels_v1");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const handleCreateChannel = (newCh: any) => {
+    setCreatedChannels(prev => {
+      const updated = [...prev, newCh];
+      try {
+        localStorage.setItem("vplay_created_channels_v1", JSON.stringify(updated));
+      } catch (e) {
+        console.error("Failed to save created channel", e);
+      }
+      return updated;
+    });
+  };
+
+  // Shadow the global 'channels' variable locally so all children/functions inside App automatically reference the customized state list list plus any manual channels!
   const channels = useMemo(() => {
-    const sortedRaw = [...staticChannels];
+    const sortedRaw = [...staticChannels, ...createdChannels];
     const mapped = sortedRaw.map((ch, idx) => {
       const custom = customizedChannels[ch.name];
       const defaultNum = idx + 1;
@@ -11088,7 +11442,7 @@ function App() {
         originalName: ch.name,
         name: custom ? custom.name : ch.name,
         logo: custom ? custom.logo : ch.logo,
-        number: custom ? custom.number : defaultNum,
+        number: custom ? custom.number : (ch.number !== undefined ? ch.number : defaultNum),
       };
     });
 
@@ -11103,7 +11457,7 @@ function App() {
         paddedNumber: paddedNum
       };
     });
-  }, [customizedChannels]);
+  }, [customizedChannels, createdChannels]);
 
   // Pinned channels state moved to top to prevent temporal dead zone ReferenceErrors
   const [pinnedChannels, setPinnedChannels] = useState<string[]>(() => {
@@ -12973,6 +13327,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                   logoScale={logoScale}
                   onSaveCustomization={handleSaveCustomization}
                   onResetCustomization={handleResetCustomization}
+                  onCreateChannel={handleCreateChannel}
                 />
               )}
               {displayTab === "Experiments" && (
