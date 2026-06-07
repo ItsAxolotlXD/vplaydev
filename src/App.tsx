@@ -805,8 +805,9 @@ function ChannelContextMenu({
   );
 }
 
-function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, logoScale, onSaveCustomization, onResetCustomization }: {
-  ch: Channel & { paddedNumber?: string, originalName?: string },
+function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, logoScale, onSaveCustomization, onResetCustomization, customIndex }: {
+  ch: Channel & { paddedNumber?: string, originalName?: string, number?: number },
+  key?: string | number,
   onClick: () => void,
   isDark: boolean,
   isActive?: boolean,
@@ -818,7 +819,8 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
   onContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
   logoScale?: number,
   onSaveCustomization?: (originalName: string, name: string, logo: string, number: number) => void,
-  onResetCustomization?: (originalName: string) => void
+  onResetCustomization?: (originalName: string) => void,
+  customIndex?: number
 }) {
   const isMaintenance = ch.status === "maintenance";
   const isComingSoon = ch.status === "coming-soon";
@@ -1977,6 +1979,7 @@ function ExploreContent({
         {searchQuery.trim() !== "" ? (
           <div className="max-w-[1600px] 2xl:max-w-[1800px] mx-auto w-full">
             <SearchPopup 
+              channels={channels}
               isDark={isDark} 
               searchQuery={searchQuery} 
               setActiveChannel={setActiveChannel} 
@@ -4649,6 +4652,7 @@ function TVContent({ channels, active, setActive, isDark, favorites, toggleFavor
 }
 
 function SearchPopup({ 
+  channels,
   isDark, 
   searchQuery, 
   setActiveChannel, 
@@ -4678,9 +4682,10 @@ function SearchPopup({
   setSearchQuery,
   searchFilter
 }: { 
+  channels: any[],
   isDark: boolean, 
   searchQuery: string, 
-  setActiveChannel: (ch: typeof channels[0]) => void, 
+  setActiveChannel: (ch: Channel) => void, 
   onClose: () => void, 
   favorites: string[], 
   liquidGlass: "glassy" | "tinted",
@@ -6553,6 +6558,7 @@ function RejuvenatedSettings(props: any) {
 }
 
 function SettingsContent({ 
+  currentAppLogo,
   isDark, 
   setIsDark, 
   isDev, 
@@ -6601,6 +6607,7 @@ function SettingsContent({
   headingBar,
   setHeadingBar
 }: { 
+  currentAppLogo: string,
   isDark: boolean, 
   setIsDark: (val: boolean) => void,
   isDev: boolean,
@@ -7391,7 +7398,7 @@ function SettingsContent({
 }
 
 
-function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData, featureFlags }: { isOpen: boolean, onClose: () => void, isDark: boolean, liquidGlass: "glassy" | "tinted", setIsDev: (v: boolean) => void, setUserData: (d: any) => void, featureFlags?: any }) {
+function AuthModal({ currentAppLogo, isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData, featureFlags }: { currentAppLogo: string, isOpen: boolean, onClose: () => void, isDark: boolean, liquidGlass: "glassy" | "tinted", setIsDev: (v: boolean) => void, setUserData: (d: any) => void, featureFlags?: any }) {
   const [isLogin, setIsLogin] = useState(true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [username, setUsername] = useState("");
@@ -8061,7 +8068,7 @@ function OnboardingWizard({
           {/* Mobile Header Logo */}
           <div className="md:hidden flex items-center justify-center mb-10">
             <img 
-              src={currentAppLogo}
+              src={LOGO_VERSIONS["v10"]}
               className={`h-12 object-contain ${!config.isDark ? "drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]" : ""}`}
               alt="Vplay Mobile Logo"
             />
@@ -8149,6 +8156,8 @@ function OnboardingWizard({
 }
 
 function TopBar({ 
+  channels,
+  currentAppLogo,
   isDark, 
   onMenuClick, 
   searchQuery, 
@@ -8176,6 +8185,8 @@ function TopBar({
   location = "Hanoi",
   topbarSearchType = "box"
 }: { 
+  channels: any[],
+  currentAppLogo: string,
   isDark: boolean, 
   onMenuClick: () => void, 
   searchQuery: string, 
@@ -9212,6 +9223,7 @@ function WidgetContainer({
 }
 
 function WidgetsDashboard({ 
+  channels,
   isOpen, 
   onClose, 
   isDark,
@@ -9307,6 +9319,7 @@ function WidgetsDashboard({
   setShowSplash = () => {},
   setSplashDuration = () => {}
 }: {
+  channels: any[],
   isOpen: boolean,
   onClose: () => void, 
   isDark: boolean,
@@ -11091,6 +11104,29 @@ function App() {
       };
     });
   }, [customizedChannels]);
+
+  // Pinned channels state moved to top to prevent temporal dead zone ReferenceErrors
+  const [pinnedChannels, setPinnedChannels] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem("vplay_pinned_channels");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem("vplay_pinned_channels", JSON.stringify(pinnedChannels));
+  }, [pinnedChannels]);
+
+  const togglePinChannel = (ch: any) => {
+    setPinnedChannels(prev => 
+      prev.includes(ch.name) 
+        ? prev.filter(name => name !== ch.name) 
+        : [...prev, ch.name]
+    );
+  };
+
   const [selectedLogoVersion, setSelectedLogoVersion] = useState<string>(() => {
     return localStorage.getItem("vplay_logo_version") || "v10";
   });
@@ -11976,35 +12012,14 @@ const [headingBar, setHeadingBar] = useState(() => {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [pinnedChannels, setPinnedChannels] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem("vplay_pinned_channels");
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-
   const [customAlert, setCustomAlert] = useState<{ title: string, message: string } | null>(null);
 
   useEffect(() => {
     localStorage.setItem("vplay_favorites", JSON.stringify(favorites));
   }, [favorites]);
 
-  useEffect(() => {
-    localStorage.setItem("vplay_pinned_channels", JSON.stringify(pinnedChannels));
-  }, [pinnedChannels]);
-
   const toggleFavorite = (ch: typeof channels[0]) => {
     setFavorites(prev => 
-      prev.includes(ch.name) 
-        ? prev.filter(name => name !== ch.name) 
-        : [...prev, ch.name]
-    );
-  };
-
-  const togglePinChannel = (ch: typeof channels[0]) => {
-    setPinnedChannels(prev => 
       prev.includes(ch.name) 
         ? prev.filter(name => name !== ch.name) 
         : [...prev, ch.name]
@@ -12153,6 +12168,7 @@ const [headingBar, setHeadingBar] = useState(() => {
       reducedMotion={featureFlags.disable_animation ? "always" : "user"}
     >
       <WidgetsDashboard 
+        channels={channels}
         isOpen={isWidgetsOpen} 
         onClose={() => setIsWidgetsOpen(false)} 
         isDark={isDark} 
@@ -12315,6 +12331,8 @@ const [headingBar, setHeadingBar] = useState(() => {
           className="fixed top-0 left-0 right-0 z-[200] transition-all duration-300"
         >
           <TopBar 
+            channels={channels}
+            currentAppLogo={currentAppLogo}
             isDark={isDark} 
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
@@ -12432,7 +12450,7 @@ const [headingBar, setHeadingBar] = useState(() => {
           </div>
         )}
       </AnimatePresence>
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} isDark={isDark} liquidGlass={liquidGlass} setIsDev={setIsDev} setUserData={setUserData} />
+      <AuthModal currentAppLogo={currentAppLogo} isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} isDark={isDark} liquidGlass={liquidGlass} setIsDev={setIsDev} setUserData={setUserData} />
       
       <AnimatePresence>
         {showForceResetPopup && (
@@ -12772,6 +12790,7 @@ const [headingBar, setHeadingBar] = useState(() => {
               </div>
               <div className="flex-1 overflow-y-auto p-4">
                 <SearchPopup 
+                  channels={channels}
                   isDark={isDark}
                   searchQuery={searchQuery}
                   setActiveChannel={handleChannelSelect}
