@@ -14,7 +14,7 @@ import { auth, db, handleFirestoreError, OperationType } from "./firebase";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail, User as FirebaseUser, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, updateDoc, arrayUnion, getDocFromServer } from "firebase/firestore";
 
-import { channels, Channel } from "./channels";
+import { channels as staticChannels, Channel } from "./channels";
 
 const HomeIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Home className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 const TvIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Tv className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
@@ -43,6 +43,20 @@ const LikeIcon = ({ className, size, filled, forceWhite, strokeWidth }: { classN
     />
   );
 };
+
+export const LOGO_VERSIONS: Record<string, string> = {
+  v10: "https://static.wikia.nocookie.net/ftv/images/6/6a/10vzx.png/revision/latest/scale-to-width-down/1000?cb=20260603030732&path-prefix=vi",
+  v9: "https://static.wikia.nocookie.net/ftv/images/1/18/9N.png/revision/latest/scale-to-width-down/1000?cb=20260603025655&path-prefix=vi",
+  v8: "https://static.wikia.nocookie.net/ftv/images/e/e8/8n.png/revision/latest/scale-to-width-down/1000?cb=20260603025458&path-prefix=vi",
+  v7: "https://static.wikia.nocookie.net/ftv/images/9/91/7n.png/revision/latest/scale-to-width-down/1000?cb=20260603025250&path-prefix=vi",
+  v6: "https://static.wikia.nocookie.net/ftv/images/1/19/6n.png/revision/latest/scale-to-width-down/1000?cb=20260603024041&path-prefix=vi",
+  v5: "https://static.wikia.nocookie.net/ftv/images/5/55/5n.png/revision/latest/scale-to-width-down/1000?cb=20260603023523&path-prefix=vi",
+  v4: "https://static.wikia.nocookie.net/ftv/images/7/73/4n.png/revision/latest/scale-to-width-down/1000?cb=20260603023329&path-prefix=vi",
+  v3: "https://static.wikia.nocookie.net/ftv/images/f/f1/V3z.png/revision/latest/scale-to-width-down/1000?cb=20260603023158&path-prefix=vi",
+  v2: "https://static.wikia.nocookie.net/ftv/images/e/e1/2n.png/revision/latest/scale-to-width-down/1000?cb=20260603022650&path-prefix=vi",
+  v1: "https://static.wikia.nocookie.net/ftv/images/7/74/Csc.png/revision/latest/scale-to-width-down/1000?cb=20260603031315&path-prefix=vi"
+};
+
 const CommunityIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <Users className={className} size={size || 20} strokeWidth={strokeWidth || 1.5} />;
 const AccountIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => <User className={className} size={size || 22} strokeWidth={strokeWidth || 1.5} />;
 const WidgetsIcon = ({ className, size, strokeWidth }: { className?: string, size?: number | string, strokeWidth?: number }) => (
@@ -631,7 +645,11 @@ function ChannelContextMenu({
   onDownloadM3U8,
   onViewLogo,
   logoScale,
-  onLogoScaleChange
+  onLogoScaleChange,
+  favorites = [],
+  toggleFavorite,
+  pinnedChannels = [],
+  togglePinChannel
 }: { 
   x: number, 
   y: number, 
@@ -643,6 +661,10 @@ function ChannelContextMenu({
   onViewLogo: () => void,
   logoScale: number,
   onLogoScaleChange: (val: number) => void,
+  favorites?: string[],
+  toggleFavorite?: (ch: Channel) => void,
+  pinnedChannels?: string[],
+  togglePinChannel?: (ch: Channel) => void,
   key?: string | number
 }) {
   const handleCopyLink = async () => {
@@ -689,6 +711,36 @@ function ChannelContextMenu({
           Tùy chọn: {channel.name}
         </div>
         
+        <div className={`h-[1px] ${isDark ? "bg-white/10" : "bg-slate-200"} my-1`} />
+
+        {toggleFavorite && (
+          <button 
+            onClick={() => { toggleFavorite(channel); onClose(); }} 
+            className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-xl transition-all text-left ${
+              isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
+            }`}
+          >
+            <Heart size={15} className={favorites.includes(channel.name) ? "text-red-500 fill-red-500 animate-pulse" : ""} />
+            <span className="text-xs font-semibold">
+              {favorites.includes(channel.name) ? "Loại bỏ khỏi danh sách yêu thích" : "Thêm vào danh sách yêu thích"}
+            </span>
+          </button>
+        )}
+
+        {togglePinChannel && (
+          <button 
+            onClick={() => { togglePinChannel(channel); onClose(); }} 
+            className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-xl transition-all text-left ${
+              isDark ? "hover:bg-white/5 text-white/70 hover:text-white" : "hover:bg-slate-100 text-slate-700 hover:text-slate-900"
+            }`}
+          >
+            <Pin size={15} className={pinnedChannels.includes(channel.name) ? "text-[#4AC4FE] fill-[#4AC4FE] rotate-45" : ""} />
+            <span className="text-xs font-semibold">
+              {pinnedChannels.includes(channel.name) ? "Bỏ ghim khỏi sidebar/navigation bar" : "Ghim vào sidebar/navigation bar"}
+            </span>
+          </button>
+        )}
+
         <div className={`h-[1px] ${isDark ? "bg-white/10" : "bg-slate-200"} my-1`} />
 
         <button 
@@ -753,8 +805,8 @@ function ChannelContextMenu({
   );
 }
 
-function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, logoScale, customIndex }: {
-  ch: Channel,
+function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite, liquidGlass, className, isLiveTab, onContextMenu, logoScale, onSaveCustomization, onResetCustomization }: {
+  ch: Channel & { paddedNumber?: string, originalName?: string },
   onClick: () => void,
   isDark: boolean,
   isActive?: boolean,
@@ -762,129 +814,50 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
   toggleFavorite: (ch: Channel) => void,
   liquidGlass: "glassy" | "tinted",
   className?: string,
-  key?: string | number,
   isLiveTab?: boolean,
   onContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
   logoScale?: number,
-  customIndex?: number
+  onSaveCustomization?: (originalName: string, name: string, logo: string, number: number) => void,
+  onResetCustomization?: (originalName: string) => void
 }) {
   const isMaintenance = ch.status === "maintenance";
   const isComingSoon = ch.status === "coming-soon";
   const isVTV6 = ch.name.includes("VTV6");
 
   const [showEditPopup, setShowEditPopup] = useState(false);
-  const [customNumInput, setCustomNumInput] = useState("");
-  const [badgePosition, setBadgePosition] = useState<"top-left" | "top-right" | "bottom-left" | "bottom-right">("top-left");
+  
+  const [customNameInput, setCustomNameInput] = useState(ch.name);
+  const [customLogoInput, setCustomLogoInput] = useState(ch.logo);
+  const [customNumInput, setCustomNumInput] = useState(String(ch.number || ""));
 
-  // Load configuration from localStorage
-  const loadCustomConfig = useCallback(() => {
-    try {
-      const savedNum = localStorage.getItem(`vplay_custom_channel_index_${ch.name}`);
-      const savedPos = localStorage.getItem(`vplay_custom_channel_position_${ch.name}`);
-      
-      if (savedNum !== null) {
-        setCustomNumInput(savedNum);
-      } else {
-        // Compute default TV index
-        if (customIndex !== undefined) {
-          setCustomNumInput(customIndex.toString());
-        } else if (ch.category === "Phát thanh") {
-          setCustomNumInput("");
-        } else {
-          const tvList = channels.filter(c => c.category !== "Phát thanh");
-          const foundIdx = tvList.findIndex(c => c.name === ch.name);
-          if (foundIdx !== -1) {
-            setCustomNumInput((foundIdx + 1).toString());
-          } else {
-            setCustomNumInput("");
-          }
-        }
-      }
-      
-      if (savedPos) {
-        setBadgePosition(savedPos as any);
-      } else {
-        setBadgePosition("top-left");
-      }
-    } catch (e) {
-      console.warn("Lỗi khi tải cấu hình số kênh", e);
+  useEffect(() => {
+    if (showEditPopup) {
+      setCustomNameInput(ch.name);
+      setCustomLogoInput(ch.logo);
+      setCustomNumInput(String(ch.number || ""));
     }
-  }, [ch, customIndex]);
-
-  useEffect(() => {
-    loadCustomConfig();
-  }, [loadCustomConfig]);
-
-  // Sync state changes across multiple card instances via window events
-  useEffect(() => {
-    const handleSync = () => {
-      loadCustomConfig();
-    };
-
-    window.addEventListener("vplay_channel_custom_updated", handleSync);
-    return () => {
-      window.removeEventListener("vplay_channel_custom_updated", handleSync);
-    };
-  }, [loadCustomConfig]);
+  }, [showEditPopup, ch]);
 
   const handleSaveCustom = (e?: React.MouseEvent) => {
     if (e) {
       e.stopPropagation();
       e.preventDefault();
     }
-    try {
-      localStorage.setItem(`vplay_custom_channel_index_${ch.name}`, customNumInput);
-      localStorage.setItem(`vplay_custom_channel_position_${ch.name}`, badgePosition);
-      window.dispatchEvent(new CustomEvent("vplay_channel_custom_updated"));
-      setShowEditPopup(false);
-    } catch (err) {
-      console.error(err);
+    const finalNum = parseInt(customNumInput.trim(), 10) || 1;
+    if (onSaveCustomization) {
+      onSaveCustomization(ch.originalName || ch.name, customNameInput.trim(), customLogoInput.trim(), finalNum);
     }
+    setShowEditPopup(false);
   };
 
   const handleResetCustom = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    try {
-      localStorage.removeItem(`vplay_custom_channel_index_${ch.name}`);
-      localStorage.removeItem(`vplay_custom_channel_position_${ch.name}`);
-      
-      // Reset values to defaults
-      let defaultNum = "";
-      if (customIndex !== undefined) {
-        defaultNum = customIndex.toString();
-      } else if (ch.category !== "Phát thanh") {
-        const tvList = channels.filter(c => c.category !== "Phát thanh");
-        const foundIdx = tvList.findIndex(c => c.name === ch.name);
-        if (foundIdx !== -1) {
-          defaultNum = (foundIdx + 1).toString();
-        }
-      }
-      setCustomNumInput(defaultNum);
-      setBadgePosition("top-left");
-      
-      window.dispatchEvent(new CustomEvent("vplay_channel_custom_updated"));
-      setShowEditPopup(false);
-    } catch (err) {
-      console.error(err);
+    if (onResetCustomization) {
+      onResetCustomization(ch.originalName || ch.name);
     }
+    setShowEditPopup(false);
   };
-
-  const channelIndexValue = useMemo(() => {
-    if (customNumInput.trim() === "") return undefined;
-    return customNumInput;
-  }, [customNumInput]);
-
-  const badgePositionClass = useMemo(() => {
-    switch (badgePosition) {
-      case "top-right": return "top-2 right-2";
-      case "bottom-left": return "bottom-2 left-2";
-      case "bottom-right": return "bottom-2 right-2";
-      case "top-left":
-      default:
-        return "top-2 left-2";
-    }
-  }, [badgePosition]);
 
   const getVTV6Days = () => {
     const target = new Date('2026-06-08T00:00:00').getTime();
@@ -931,54 +904,51 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
         whileTap={{ scale: 0.98 }}
         onClick={onClick}
         transition={{ duration: 0 }}
-        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden z-10 rounded-2xl border ${
+        style={{
+          backgroundColor: "#ffffff",
+          backgroundImage: "radial-gradient(#cbd5e1 0.75px, #ffffff 0.75px)",
+          backgroundSize: "8px 8px",
+        }}
+        className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden z-10 rounded-2xl border transition-all ${
           isActive
-            ? isDark
-              ? "bg-[#252529] border-[#4AC4FE] shadow-lg shadow-[#4AC4FE]/25"
-              : "bg-[#e2e8f0] border-[#4AC4FE] shadow-md shadow-[#4AC4FE]/15"
-            : isDark
-              ? "bg-[#18181b] border-white/5 hover:border-white/15 hover:bg-[#202024]"
-              : "bg-[#f1f5f9] border-[#e2e8f0] hover:bg-[#e2e8f0] hover:border-slate-300"
+            ? "border-[#4AC4FE] ring-2 ring-[#4AC4FE]/40 shadow-lg"
+            : "border-slate-200 hover:border-slate-400 shadow-sm"
         }`}
       >
-        {/* Position of channel index (small channel number) */}
-        {channelIndexValue !== undefined && (
-          <span className={`absolute ${badgePositionClass} z-30 text-[9px] sm:text-[10px] font-black tracking-tight leading-none px-1.5 py-0.5 rounded ${
-            isActive 
-              ? "bg-[#4AC4FE] text-white shadow-sm" 
-              : isDark 
-                ? "bg-white/10 text-white/50 group-hover:text-white/90 group-hover:bg-white/20" 
-                : "bg-slate-200 text-slate-400 group-hover:text-slate-800 group-hover:bg-slate-300"
-          } select-none pointer-events-none transition-all`}>
-            {channelIndexValue}
-          </span>
-        )}
+        {/* Padded sequential channel number displayed top-left of the WHITE patterned channel card */}
+        <span className={`absolute top-2 left-2 z-30 text-[9px] sm:text-[10px] font-black tracking-tight leading-none px-1.5 py-0.5 rounded ${
+          isActive 
+            ? "bg-[#4AC4FE] text-white shadow-sm font-bold" 
+            : "bg-slate-100 text-slate-700 border border-slate-200/80 font-bold"
+        } select-none pointer-events-none transition-all`}>
+          {ch.paddedNumber || "000"}
+        </span>
 
         {isMaintenance && (
-          <div className={`absolute top-2 ${badgePosition === "top-left" && channelIndexValue !== undefined ? "left-11 shadow-sm" : "left-2"} bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md`}>
+          <div className="absolute top-2 right-2 bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
             BẢO TRÌ
           </div>
         )}
         {isComingSoon && isVTV6 && (
-          <div className={`absolute top-2 ${badgePosition === "top-left" && channelIndexValue !== undefined ? "left-11 shadow-sm" : "left-2"} bg-[#FF453A] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md`}>
+          <div className="absolute top-2 right-2 bg-[#FF453A] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md">
             {getVTV6Days()}d
           </div>
         )}
         {isComingSoon && !isVTV6 && (
-          <div className={`absolute top-2 ${badgePosition === "top-left" && channelIndexValue !== undefined ? "left-11 shadow-sm" : "left-2"} bg-blue-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md uppercase`}>
+          <div className="absolute top-2 right-2 bg-blue-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md z-20 shadow-md uppercase">
             SẮP RA MẮT
           </div>
         )}
         
-        {/* Logo parent perfectly centered vertically and horizontally inside the tile */}
+        {/* Logo parent perfectly centered vertically and horizontally inside the tile with white background */}
         <div className="absolute inset-0 flex items-center justify-center z-10 p-3 sm:p-4">
           <div className="relative w-full h-[62%] flex items-center justify-center">
             {/* Main Centered Logo */}
             <ChannelLogo 
               src={ch.logo} 
               alt={ch.name} 
-              className="max-w-[85%] max-h-[85%] object-contain logo-thick-outline"
-              isDark={isDark} 
+              className="max-w-[85%] max-h-[85%] object-contain"
+              isDark={false} /* Set isDark to false so logos styled for white cards display elegantly */
               liquidGlass={liquidGlass} 
               status={ch.status} 
               logoScale={logoScale}
@@ -997,7 +967,7 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
                 src={ch.logo} 
                 alt={ch.name} 
                 className="max-w-[85%] max-h-[85%] object-contain"
-                isDark={isDark} 
+                isDark={false}
                 liquidGlass={liquidGlass} 
                 status={ch.status} 
                 logoScale={logoScale}
@@ -1007,19 +977,15 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
         </div>
       </motion.button>
 
-      {/* Edit button with pen icon shown when hovered */}
+      {/* Edit button with pen/pencil icon shown when hovered */}
       <button
         onClick={(e) => {
           e.stopPropagation();
           e.preventDefault();
           setShowEditPopup(true);
         }}
-        className={`absolute ${badgePosition === "top-right" ? "top-2 left-2" : "top-2 right-2"} z-30 p-1.5 rounded-full backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer ${
-          isDark 
-            ? "bg-black/50 border border-white/10 text-white hover:text-white hover:bg-black/80 hover:scale-110 shadow-lg" 
-            : "bg-white/80 border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-white/100 hover:scale-110 shadow-md"
-        }`}
-        title="Tùy chỉnh số kênh và vị trí"
+        className="absolute bottom-2 right-2 z-30 p-1.5 rounded-full backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer bg-white/90 border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-white hover:scale-110 shadow-md"
+        title="Chỉnh sửa tên kênh, logo và vị trí"
       >
         <Pencil className="w-3.5 h-3.5" />
       </button>
@@ -1039,7 +1005,7 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className={`p-6 rounded-[32px] w-full max-w-xs border shadow-2xl flex flex-col gap-5 text-left border-solid ${
+              className={`p-6 rounded-[32px] w-full max-w-xs border shadow-2xl flex flex-col gap-4 text-left border-solid ${
                 isDark 
                   ? "bg-[#18181b]/95 border-white/10 text-white shadow-[0_24px_50px_rgba(0,0,0,0.6)]" 
                   : "bg-white border-slate-200 text-slate-900 shadow-[0_24px_40px_rgba(15,23,42,0.15)]"
@@ -1055,58 +1021,56 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
                   <Pencil className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-xs font-black tracking-tight leading-none uppercase select-none">Vị trí & Số kênh</h4>
-                  <p className="text-[10px] font-extrabold opacity-50 uppercase tracking-widest truncate mt-1 select-none">{ch.name}</p>
+                  <h4 className="text-xs font-black tracking-tight leading-none uppercase select-none">Tùy chỉnh kênh</h4>
+                  <p className="text-[10px] font-extrabold opacity-50 uppercase tracking-widest truncate mt-1 select-none">{ch.originalName || ch.name}</p>
                 </div>
               </div>
 
               {/* Form Content */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div>
-                  <label className="block text-[9px] uppercase font-black tracking-wider opacity-60 mb-1.5 select-none">Số hiệu của kênh</label>
+                  <label className="block text-[9px] uppercase font-black tracking-wider opacity-60 mb-1 select-none">Tên kênh</label>
                   <input 
                     type="text"
-                    placeholder="Nhập số (VD: 1, 99) hoặc chữ..."
-                    value={customNumInput}
-                    onChange={(e) => setCustomNumInput(e.target.value)}
-                    className={`w-full px-4 py-2.5 rounded-xl border text-xs font-black outline-none transition-all ${
+                    placeholder="Nhập tên kênh..."
+                    value={customNameInput}
+                    onChange={(e) => setCustomNameInput(e.target.value)}
+                    className={`w-full px-4 py-2 rounded-xl border text-xs font-black outline-none transition-all ${
                       isDark 
                         ? "bg-white/5 border-white/10 text-white focus:border-[#4AC4FE] focus:bg-white/10" 
                         : "bg-slate-50 border-slate-200 text-slate-900 focus:border-[#4AC4FE] focus:bg-white"
                     }`}
                   />
-                  <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest mt-1.5 select-none">Để trống nếu muốn ẩn số kênh hoàn toàn</p>
                 </div>
 
                 <div>
-                  <label className="block text-[9px] uppercase font-black tracking-wider opacity-60 mb-1.5 select-none">Vị trí hiển thị badge số</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { id: "top-left", name: "Trái Trên" },
-                      { id: "top-right", name: "Phải Trên" },
-                      { id: "bottom-left", name: "Trái Dưới" },
-                      { id: "bottom-right", name: "Phải Dưới" }
-                    ].map((pos) => (
-                      <button
-                        key={pos.id}
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          setBadgePosition(pos.id as any);
-                        }}
-                        className={`py-2 px-3 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all border border-solid text-center cursor-pointer ${
-                          badgePosition === pos.id
-                            ? "bg-[#4AC4FE] text-white border-transparent shadow-sm"
-                            : isDark
-                              ? "bg-white/5 border-white/5 text-slate-400 hover:text-white hover:bg-white/10"
-                              : "bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                        }`}
-                      >
-                        {pos.name}
-                      </button>
-                    ))}
-                  </div>
+                  <label className="block text-[9px] uppercase font-black tracking-wider opacity-60 mb-1 select-none">Logo kênh (URL)</label>
+                  <input 
+                    type="text"
+                    placeholder="Nhập link ảnh logo..."
+                    value={customLogoInput}
+                    onChange={(e) => setCustomLogoInput(e.target.value)}
+                    className={`w-full px-4 py-2 rounded-xl border text-xs font-black outline-none transition-all ${
+                      isDark 
+                        ? "bg-white/5 border-white/10 text-white focus:border-[#4AC4FE] focus:bg-white/10" 
+                        : "bg-slate-50 border-slate-200 text-slate-900 focus:border-[#4AC4FE] focus:bg-white"
+                    }`}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[9px] uppercase font-black tracking-wider opacity-60 mb-1 select-none">Vị trí số kênh</label>
+                  <input 
+                    type="text"
+                    placeholder="Nhập số..."
+                    value={customNumInput}
+                    onChange={(e) => setCustomNumInput(e.target.value.replace(/\D/g, ""))}
+                    className={`w-full px-4 py-2 rounded-xl border text-xs font-black outline-none transition-all ${
+                      isDark 
+                        ? "bg-white/5 border-white/10 text-white focus:border-[#4AC4FE] focus:bg-white/10" 
+                        : "bg-slate-50 border-slate-200 text-slate-900 focus:border-[#4AC4FE] focus:bg-white"
+                    }`}
+                  />
                 </div>
               </div>
 
@@ -1280,6 +1244,7 @@ const RenderSlideContent = ({ slide }: { slide: any }) => {
 };
 
 function HomeContent({ 
+  channels,
   setActiveTab, 
   setActiveChannel, 
   isDark, 
@@ -1294,13 +1259,16 @@ function HomeContent({
   slides, 
   bypassed,
   onChannelContextMenu,
-  logoScale
+  logoScale,
+  onSaveCustomization,
+  onResetCustomization
 }: {
+  channels: any[],
   setActiveTab: (tab: string) => void,
-  setActiveChannel: (ch: typeof channels[0]) => void,
+  setActiveChannel: (ch: Channel) => void,
   isDark: boolean,
   favorites: string[],
-  toggleFavorite: (ch: typeof channels[0]) => void,
+  toggleFavorite: (ch: Channel) => void,
   liquidGlass: "glassy" | "tinted",
   user: any,
   onLogin: () => void,
@@ -1310,14 +1278,16 @@ function HomeContent({
   slides: any[],
   bypassed?: boolean,
   onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
-  logoScale?: number
+  logoScale?: number,
+  onSaveCustomization?: (originalName: string, name: string, logo: string, number: number) => void,
+  onResetCustomization?: (originalName: string) => void
 }) {
-  const [randomChannels, setRandomChannels] = useState<typeof channels>([]);
+  const [randomChannels, setRandomChannels] = useState<any[]>([]);
   
   useEffect(() => {
     const shuffled = [...channels].sort(() => 0.5 - Math.random());
     setRandomChannels(shuffled.slice(0, 16));
-  }, []);
+  }, [channels]);
 
   const [startIndex, setStartIndex] = useState(0);
 
@@ -1699,6 +1669,8 @@ function HomeContent({
                       liquidGlass={liquidGlass}
                       onContextMenu={onChannelContextMenu}
                       logoScale={logoScale}
+                      onSaveCustomization={onSaveCustomization}
+                      onResetCustomization={onResetCustomization}
                     />
                     <div className={`mt-3 text-center text-xs font-bold truncate tracking-wide ${isDark ? "text-slate-350" : "text-slate-600"}`}>
                       {ch.name}
@@ -1729,6 +1701,8 @@ function HomeContent({
                     liquidGlass={liquidGlass}
                     onContextMenu={onChannelContextMenu}
                     logoScale={logoScale}
+                    onSaveCustomization={onSaveCustomization}
+                    onResetCustomization={onResetCustomization}
                   />
                   <div className={`mt-2 text-center text-[11px] font-black truncate tracking-wide ${isDark ? "text-slate-400" : "text-slate-700"}`}>
                     {ch.name}
@@ -1854,6 +1828,8 @@ function HomeContent({
                 liquidGlass={liquidGlass}
                 onContextMenu={onChannelContextMenu}
                 logoScale={logoScale}
+                onSaveCustomization={onSaveCustomization}
+                onResetCustomization={onResetCustomization}
               />
             ))}
           </div>
@@ -1865,6 +1841,7 @@ function HomeContent({
 }
 
 function ExploreContent({
+  channels,
   isDark,
   searchQuery,
   setSearchQuery,
@@ -1896,8 +1873,11 @@ function ExploreContent({
   handleSearchContextMenu,
   searchFilter,
   onChannelContextMenu,
-  logoScale
+  logoScale,
+  onSaveCustomization,
+  onResetCustomization
 }: {
+  channels: any[],
   isDark: boolean,
   searchQuery: string,
   setSearchQuery: (q: string) => void,
@@ -1929,7 +1909,9 @@ function ExploreContent({
   handleSearchContextMenu: (e: React.MouseEvent) => void,
   searchFilter: "all" | "channels" | "settings" | "experiments",
   onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
-  logoScale?: number
+  logoScale?: number,
+  onSaveCustomization?: (originalName: string, name: string, logo: string, number: number) => void,
+  onResetCustomization?: (originalName: string) => void
 }) {
   const [randomRows, setRandomRows] = useState<Channel[][]>([]);
   const [randomSettings, setRandomSettings] = useState<any[]>([]);
@@ -1953,7 +1935,7 @@ function ExploreContent({
        { name: "Changelogs", icon: Zap, action: () => setActiveTab("Update Logs"), desc: "Inspect recent updates and patches" }
     ];
     setRandomSettings([...settingsOptions].sort(() => 0.5 - Math.random()).slice(0, 3));
-  }, [isDark, liquidGlass, setIsDark, setLiquidGlass, setSortOrder, setActiveTab]);
+  }, [channels, isDark, liquidGlass, setIsDark, setLiquidGlass, setSortOrder, setActiveTab]);
 
   return (
     <div className="flex-1 flex flex-col pt-4 overflow-y-auto scrollbar-hide pb-32">
@@ -2076,6 +2058,8 @@ function ExploreContent({
                       onClick={() => setActiveChannel(ch)}
                       onContextMenu={onChannelContextMenu}
                       logoScale={logoScale}
+                      onSaveCustomization={onSaveCustomization}
+                      onResetCustomization={onResetCustomization}
                     />
                   ))}
                 </div>
@@ -2246,8 +2230,8 @@ function parseM3U(text: string): Channel[] {
   return parsedChannels;
 }
 
-function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, logoScale }: { 
-
+function TVContent({ channels, active, setActive, isDark, favorites, toggleFavorite, user, onLogin, isDev, liquidGlass, sortOrder, setSortOrder, showSplash, featureFlags, searchQuery, bypassed, setIsPlayerInView, loadingTreatment, currentTime, onChannelContextMenu, logoScale, onSaveCustomization, onResetCustomization }: { 
+  channels: any[],
   active: Channel, 
   setActive: (ch: Channel) => void, 
   isDark: boolean,
@@ -2267,7 +2251,9 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   loadingTreatment: string,
   currentTime: Date,
   onChannelContextMenu?: (e: React.MouseEvent, ch: Channel) => void,
-  logoScale?: number
+  logoScale?: number,
+  onSaveCustomization?: (originalName: string, name: string, logo: string, number: number) => void,
+  onResetCustomization?: (originalName: string) => void
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -2499,20 +2485,20 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
   const [showQuickChannelMobile, setShowQuickChannelMobile] = useState(false);
   const [quickChannelInputMobile, setQuickChannelInputMobile] = useState("");
 
-  const tvChannelsList = useMemo(() => channels.filter(c => c.category !== "Phát thanh"), []);
+  const tvChannelsList = useMemo(() => channels.filter(c => c.category !== "Phát thanh"), [channels]);
 
   const matchedQuickChannel = useMemo(() => {
-    const num = parseInt(quickChannelInput);
-    if (!isNaN(num) && num >= 1 && num <= tvChannelsList.length) {
-      return tvChannelsList[num - 1];
+    const num = parseInt(quickChannelInput, 10);
+    if (!isNaN(num)) {
+      return tvChannelsList.find(c => c.number === num) || null;
     }
     return null;
   }, [quickChannelInput, tvChannelsList]);
 
   const matchedQuickChannelMobile = useMemo(() => {
-    const num = parseInt(quickChannelInputMobile);
-    if (!isNaN(num) && num >= 1 && num <= tvChannelsList.length) {
-      return tvChannelsList[num - 1];
+    const num = parseInt(quickChannelInputMobile, 10);
+    if (!isNaN(num)) {
+      return tvChannelsList.find(c => c.number === num) || null;
     }
     return null;
   }, [quickChannelInputMobile, tvChannelsList]);
@@ -3446,7 +3432,7 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                                       CHUYỂN KÊNH NHANH
                                     </h4>
                                     <p className={`text-[10px] mt-1 ${isDark ? "text-white/60" : "text-slate-500"}`}>
-                                      Nhập số kênh từ 1 đến {tvChannelsList.length} (QPVN)
+                                      Nhập vị trí số kênh để chuyển trực tiếp
                                     </p>
                                   </div>
                                   <form onSubmit={handleQuickChannelSubmit} className="space-y-3">
@@ -4636,6 +4622,8 @@ function TVContent({ active, setActive, isDark, favorites, toggleFavorite, user,
                       isLiveTab={true}
                       onContextMenu={onChannelContextMenu}
                       logoScale={logoScale}
+                      onSaveCustomization={onSaveCustomization}
+                      onResetCustomization={onResetCustomization}
                     />
                   ))
                 )}
@@ -5718,9 +5706,36 @@ function RejuvenatedSettings(props: any) {
         const showNav = shouldShowSetting("Navigation Mode", "Choose layout paradigm matching keyboard or tactile touch interfaces", ["touch", "desktop", "interface", "navigation", "layout"]);
         const showColors = shouldShowSetting("Custom Theme Colors", "Customize primary accent buttons, navigation rails, and core canvases", ["color", "palette", "accent", "custom", "sidebar", "background"]);
         
-        if (!showMode && !showNav && !showColors) return null;
         return (
           <div className="space-y-6 text-left">
+             <div className={`p-8 rounded-[32px] border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
+               <div className="flex items-center gap-5 mb-6">
+                 <div className={`p-4 rounded-2xl ${isDark ? "bg-white/5 text-[#4AC4FE]" : "bg-[#4AC4FE]/10 text-[#4AC4FE]"}`}>
+                   <Palette size={24} />
+                 </div>
+                 <div className="text-left">
+                   <h4 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>App Logo Version</h4>
+                   <p className="text-sm opacity-50 font-medium tracking-tight">Select your favorite version of the Vplay application logo</p>
+                 </div>
+               </div>
+               <div className="grid grid-cols-2 xs:grid-cols-5 gap-3">
+                 {Object.keys(LOGO_VERSIONS).map((v) => (
+                   <button
+                     key={v}
+                     onClick={() => props.setSelectedLogoVersion && props.setSelectedLogoVersion(v)}
+                     className={`py-3 rounded-[16px] font-bold text-xs uppercase tracking-wider transition-all border flex items-center justify-center gap-1.5 ${
+                       (props.selectedLogoVersion || "v10") === v
+                         ? "bg-[#4AC4FE] border-[#4AC4FE] text-white shadow-md"
+                         : isDark
+                           ? "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"
+                           : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                     }`}
+                   >
+                     {v}
+                   </button>
+                 ))}
+               </div>
+             </div>
              {showMode && (
                <div className={`p-8 rounded-[32px] border ${isDark ? "bg-white/[0.03] border-white/5" : "bg-white border-slate-200 shadow-sm"}`}>
                  <div className="flex items-center gap-5 mb-6">
@@ -6700,7 +6715,7 @@ function SettingsContent({
               <div className="relative">
                 <div className="absolute inset-0 bg-[#4AC4FE]/20 blur-3xl rounded-full" />
                 <img 
-                  src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi"
+                  src={currentAppLogo}
                   className="w-28 h-28 md:w-40 md:h-40 object-contain relative z-10 drop-shadow-[0_10px_30px_rgba(168,85,247,0.4)]"
                   alt="Vplay App Logo"
                   referrerPolicy="no-referrer"
@@ -7527,7 +7542,7 @@ function AuthModal({ isOpen, onClose, isDark, liquidGlass, setIsDev, setUserData
                 <div className="relative z-10 space-y-4 md:space-y-6">
                   <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 shadow-xl">
                     <img 
-                      src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi"
+                      src={currentAppLogo}
                       className="w-8 h-8 md:w-10 md:h-10 object-contain"
                       alt="Vplay"
                       referrerPolicy="no-referrer"
@@ -8046,7 +8061,7 @@ function OnboardingWizard({
           {/* Mobile Header Logo */}
           <div className="md:hidden flex items-center justify-center mb-10">
             <img 
-              src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi"
+              src={currentAppLogo}
               className={`h-12 object-contain ${!config.isDark ? "drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]" : ""}`}
               alt="Vplay Mobile Logo"
             />
@@ -8237,7 +8252,7 @@ function TopBar({
 
         <div className="flex items-center gap-2 ml-1">
           <motion.img 
-            src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi" 
+            src={currentAppLogo} 
             alt="Logo" 
             className="w-6 h-6 object-contain"
             referrerPolicy="no-referrer"
@@ -11012,6 +11027,80 @@ function GeoPopup({ isOpen, onClose, isDark, onAutoSelect, onManualSelect }: {
 }
 
 function App() {
+  const [customizedChannels, setCustomizedChannels] = useState<{ [originalName: string]: { name: string, logo: string, number: number } }>(() => {
+    try {
+      const saved = localStorage.getItem("vplay_customized_channels_v3");
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
+  const handleSaveCustomization = (originalName: string, name: string, logo: string, number: number) => {
+    setCustomizedChannels(prev => {
+      const updated = {
+        ...prev,
+        [originalName]: { name, logo, number }
+      };
+      try {
+        localStorage.setItem("vplay_customized_channels_v3", JSON.stringify(updated));
+      } catch (e) {
+        console.error("Failed to save customization", e);
+      }
+      return updated;
+    });
+  };
+
+  const handleResetCustomization = (originalName: string) => {
+    setCustomizedChannels(prev => {
+      const updated = { ...prev };
+      delete updated[originalName];
+      try {
+        localStorage.setItem("vplay_customized_channels_v3", JSON.stringify(updated));
+      } catch (e) {
+        console.error("Failed to reset customization", e);
+      }
+      return updated;
+    });
+  };
+
+  // Shadow the global 'channels' variable locally so all children/functions inside App automatically reference the customized state list!
+  const channels = useMemo(() => {
+    const sortedRaw = [...staticChannels];
+    const mapped = sortedRaw.map((ch, idx) => {
+      const custom = customizedChannels[ch.name];
+      const defaultNum = idx + 1;
+      return {
+        ...ch,
+        originalName: ch.name,
+        name: custom ? custom.name : ch.name,
+        logo: custom ? custom.logo : ch.logo,
+        number: custom ? custom.number : defaultNum,
+      };
+    });
+
+    // Sort by custom assigned sequential number
+    mapped.sort((a, b) => a.number - b.number);
+
+    // Format numbers as padded e.g. "001", "099"
+    return mapped.map(ch => {
+      const paddedNum = String(ch.number).slice(-3).padStart(3, "0");
+      return {
+        ...ch,
+        paddedNumber: paddedNum
+      };
+    });
+  }, [customizedChannels]);
+  const [selectedLogoVersion, setSelectedLogoVersion] = useState<string>(() => {
+    return localStorage.getItem("vplay_logo_version") || "v10";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("vplay_logo_version", selectedLogoVersion);
+  }, [selectedLogoVersion]);
+
+  const currentAppLogo = LOGO_VERSIONS[selectedLogoVersion] || LOGO_VERSIONS["v10"];
+
   const [searchFilter, setSearchFilter] = useState<"all" | "channels" | "settings" | "experiments">("all");
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, type: "search" | "unified" | "channel", channel?: Channel } | null>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -11704,6 +11793,16 @@ const [headingBar, setHeadingBar] = useState(() => {
   const [navPage, setNavPage] = useState<number>(() => {
     return Number(localStorage.getItem("vplay_nav_page")) || 0;
   });
+
+  const extraPagesCount = Math.ceil(pinnedChannels.length / 4);
+  const totalPages = 3 + extraPagesCount;
+
+  useEffect(() => {
+    if (navPage >= totalPages) {
+      setNavPage(Math.max(0, totalPages - 1));
+    }
+  }, [pinnedChannels, totalPages, navPage]);
+
   const navTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const resetNavTimer = useCallback(() => {
@@ -11877,14 +11976,35 @@ const [headingBar, setHeadingBar] = useState(() => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [pinnedChannels, setPinnedChannels] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem("vplay_pinned_channels");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const [customAlert, setCustomAlert] = useState<{ title: string, message: string } | null>(null);
 
   useEffect(() => {
     localStorage.setItem("vplay_favorites", JSON.stringify(favorites));
   }, [favorites]);
 
+  useEffect(() => {
+    localStorage.setItem("vplay_pinned_channels", JSON.stringify(pinnedChannels));
+  }, [pinnedChannels]);
+
   const toggleFavorite = (ch: typeof channels[0]) => {
     setFavorites(prev => 
+      prev.includes(ch.name) 
+        ? prev.filter(name => name !== ch.name) 
+        : [...prev, ch.name]
+    );
+  };
+
+  const togglePinChannel = (ch: typeof channels[0]) => {
+    setPinnedChannels(prev => 
       prev.includes(ch.name) 
         ? prev.filter(name => name !== ch.name) 
         : [...prev, ch.name]
@@ -12432,6 +12552,10 @@ const [headingBar, setHeadingBar] = useState(() => {
             onViewLogo={() => setViewLogoChannel(contextMenu.channel!)}
             logoScale={logoScale}
             onLogoScaleChange={setLogoScale}
+            favorites={favorites}
+            toggleFavorite={toggleFavorite}
+            pinnedChannels={pinnedChannels}
+            togglePinChannel={togglePinChannel}
           />
         )}
       </AnimatePresence>
@@ -12746,6 +12870,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             >
               {displayTab === "Trang chủ" && (
                 <HomeContent 
+                  channels={channels}
                   setActiveTab={setActiveTab} 
                   setActiveChannel={handleChannelSelect} 
                   isDark={isDark} 
@@ -12761,10 +12886,13 @@ const [headingBar, setHeadingBar] = useState(() => {
                   bypassed={bypassed}
                   onChannelContextMenu={handleChannelContextMenu}
                   logoScale={logoScale}
+                  onSaveCustomization={handleSaveCustomization}
+                  onResetCustomization={handleResetCustomization}
                 />
               )}
               {displayTab === "Khám phá" && (
                 <ExploreContent 
+                  channels={channels}
                   isDark={isDark}
                   searchQuery={searchQuery}
                   setSearchQuery={setSearchQuery}
@@ -12797,10 +12925,13 @@ const [headingBar, setHeadingBar] = useState(() => {
                   searchFilter={searchFilter}
                   onChannelContextMenu={handleChannelContextMenu}
                   logoScale={logoScale}
+                  onSaveCustomization={handleSaveCustomization}
+                  onResetCustomization={handleResetCustomization}
                 />
               )}
               {displayTab === "Live" && (
                 <TVContent 
+                  channels={channels}
                   active={activeChannel} 
                   setActive={handleChannelSelect} 
                   isDark={isDark} 
@@ -12821,6 +12952,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                   currentTime={currentTime}
                   onChannelContextMenu={handleChannelContextMenu}
                   logoScale={logoScale}
+                  onSaveCustomization={handleSaveCustomization}
+                  onResetCustomization={handleResetCustomization}
                 />
               )}
               {displayTab === "Experiments" && (
@@ -13034,7 +13167,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                             className="w-10 h-10 flex items-center justify-center transition-all group overflow-hidden relative"
                           >
                             <img 
-                              src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi" 
+                              src={currentAppLogo} 
                               alt="Vplay" 
                               className="w-8 h-8 object-contain drop-shadow-lg group-hover:scale-110 transition-transform" 
                               referrerPolicy="no-referrer"
@@ -13059,7 +13192,7 @@ const [headingBar, setHeadingBar] = useState(() => {
                           </Tooltip>
                           <div className="flex items-center">
                             <img 
-                              src="https://static.wikia.nocookie.net/ftv/images/a/a6/Imagedskvjndkv.png/revision/latest?cb=20260430103502&path-prefix=vi" 
+                              src={currentAppLogo} 
                               alt="Vplay" 
                               className="h-8 w-8 object-contain drop-shadow-md"
                               referrerPolicy="no-referrer"
@@ -13161,14 +13294,14 @@ const [headingBar, setHeadingBar] = useState(() => {
                 })}
 
                 {/* Channel Pinning Section */}
-                {isPinningEnabled && sidebarQuickAccess && favorites.length > 0 && (
+                {sidebarQuickAccess && pinnedChannels.length > 0 && (
                   <div className="pt-4 pb-2">
                     <div className={`h-px mx-3 mb-4 ${isDark ? "bg-white/5" : "bg-slate-100"}`} />
                     {isSidebarExpanded && !isCompactMode && (
                       <span className="px-5 text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Pinned Channels</span>
                     )}
                     <div className={`space-y-1 ${isCompactMode && isSidebarExpanded ? "flex flex-col items-center" : ""}`}>
-                      {Array.from(new Set(favorites)).map(favId => {
+                      {Array.from(new Set(pinnedChannels)).map(favId => {
                         const channel = channels.find(c => c.name === favId);
                         if (!channel) return null;
                         const isCompact = isCompactMode && isSidebarExpanded;
@@ -13406,7 +13539,7 @@ const [headingBar, setHeadingBar] = useState(() => {
             
             {/* Prev Arrow */}
             <button 
-              onClick={() => setNavPage((prev) => (prev - 1 + 3) % 3)}
+              onClick={() => setNavPage((prev) => (prev - 1 + totalPages) % totalPages)}
               className={`p-2 rounded-full hover:bg-black/5 transition-colors z-20 ${isDark ? "text-white/40" : "text-black/40"}`}
             >
               <ChevronLeft size={24} />
@@ -13553,13 +13686,67 @@ const [headingBar, setHeadingBar] = useState(() => {
                       </div>
                     </motion.div>
                   )}
+                  {navPage >= 3 && (
+                    <div className="flex w-full items-center justify-around h-full">
+                      {(() => {
+                        const pageIdx = navPage - 3;
+                        const startIndex = pageIdx * 4;
+                        const pageItems = pinnedChannels.slice(startIndex, startIndex + 4);
+                        return pageItems.map((chName) => {
+                          const channel = channels.find(c => c.name === chName);
+                          if (!channel) return null;
+                          const isActive = activeTab === "Live" && activeChannel?.name === channel.name;
+                          const isGlassy = liquidGlass === "glassy";
+                          return (
+                            <div key={`mob-nav-pin-${channel.name}`} className="flex-1 flex justify-center">
+                              <button
+                                onClick={() => {
+                                  setActiveChannel(channel);
+                                  setActiveTab("Live");
+                                }}
+                                className={`relative flex flex-col items-center justify-center p-1 transition-all duration-300 group z-10 w-12 h-12 rounded-full ${
+                                  isActive
+                                    ? "text-[#4AC4FE]"
+                                    : isGlassy ? "text-white/70 hover:text-white" : liquidGlass === "tinted" ? "text-black hover:opacity-100 opacity-60" : isDark ? "text-slate-400 hover:text-white" : "text-black hover:opacity-100"
+                                }`}
+                                title={channel.name}
+                              >
+                                {isActive && liquidGlass && (
+                                  <motion.div
+                                    layoutId="activeTabPill"
+                                    className={`absolute inset-0 rounded-full z-[-1] shadow-[0_4px_12px_rgba(0,0,0,0.1)] ${
+                                      isGlassy ? "bg-white/20" : "bg-white"
+                                    }`}
+                                    transition={{ type: "spring", bounce: 0.5, duration: 0.6 }}
+                                  />
+                                )}
+                                <motion.div
+                                  initial={{ scale: 1 }}
+                                  animate={{ scale: isActive ? 1.1 : 1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  className="z-10 w-7 h-7 flex items-center justify-center"
+                                >
+                                  <img
+                                    src={channel.logo}
+                                    alt={channel.name}
+                                    className="w-7 h-7 object-contain rounded-md"
+                                    referrerPolicy="no-referrer"
+                                  />
+                                </motion.div>
+                              </button>
+                            </div>
+                          );
+                        });
+                      })()}
+                    </div>
+                  )}
                 </motion.div>
               </AnimatePresence>
             </div>
 
             {/* Next Arrow */}
             <button 
-              onClick={() => setNavPage((prev) => (prev + 1) % 3)}
+              onClick={() => setNavPage((prev) => (prev + 1) % totalPages)}
               className={`p-2 rounded-full hover:bg-black/5 transition-colors z-20 ${isDark ? "text-white/40" : "text-black/40"}`}
             >
               <ChevronRight size={24} />
