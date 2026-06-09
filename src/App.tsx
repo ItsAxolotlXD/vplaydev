@@ -704,10 +704,10 @@ function ChannelContextMenu({
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
         style={{ top: y, left: x }}
-        className={`fixed z-[1001] w-64 rounded-2xl shadow-2xl border p-2.5 overflow-hidden backdrop-blur-xl ${
+        className={`fixed z-[1001] w-64 rounded-2xl border p-2.5 overflow-hidden backdrop-blur-3xl ${
           isDark 
-            ? "bg-[#11131c]/90 border-white/10 text-white shadow-[0_12px_40px_rgba(0,0,0,0.5)]" 
-            : "bg-white/90 border-slate-200 text-[#11131c] shadow-[0_12px_30px_rgba(15,23,42,0.15)]"
+            ? "bg-[#0c0e18]/93 border-white/10 text-white shadow-[0_16px_50px_rgba(0,0,0,0.65)]" 
+            : "bg-white/94 border-slate-200/80 text-[#11131c] shadow-[0_16px_35px_rgba(15,23,42,0.2)]"
         }`}
       >
         <div className={`px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase opacity-60`}>
@@ -914,21 +914,29 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
           onClick={onClick}
           transition={{ duration: 0 }}
           style={{
-            backgroundColor: "#ffffff",
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='%23e2e8f0' stroke-width='5' stroke-linecap='round' opacity='0.6'/%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' opacity='0.9'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='%23cbd5e1' stroke-width='3' stroke-linecap='round' opacity='0.4'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='%23f1f5f9' stroke-width='1' stroke-linecap='round' opacity='0.8'/%3E%3C/svg%3E")`,
+            backgroundColor: isDark ? "rgba(15, 23, 42, 0.45)" : "rgba(255, 255, 255, 0.45)",
+            backgroundImage: isDark 
+              ? `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='rgba(255,255,255,0.08)' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='rgba(255,255,255,0.15)' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='rgba(255,255,255,0.1)' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E")`
+              : `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='%23e2e8f0' stroke-width='5' stroke-linecap='round' opacity='0.6'/%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' opacity='0.9'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='%23cbd5e1' stroke-width='3' stroke-linecap='round' opacity='0.4'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='%23f1f5f9' stroke-width='1' stroke-linecap='round' opacity='0.8'/%3E%3C/svg%3E")`,
             backgroundSize: "100% 100%",
             backgroundRepeat: "no-repeat",
           }}
-          className={`w-full p-2.5 xs:p-3 flex items-center justify-between relative overflow-hidden z-10 rounded-2xl border transition-all ${
+          className={`w-full p-2.5 xs:p-3 flex items-center justify-between relative overflow-hidden z-10 rounded-2xl border transition-all backdrop-blur-lg ${
             isActive
               ? "border-[#4AC4FE] ring-2 ring-[#4AC4FE]/45 shadow-md"
-              : "border-slate-200 shadow-sm"
+              : isDark
+                ? "border-white/10 shadow-sm hover:border-white/20"
+                : "border-slate-200/50 shadow-sm hover:border-slate-300"
           }`}
         >
           <div className="flex items-center gap-3 sm:gap-4 z-20">
             {/* Sequential padded channel number */}
-            <span className={`text-[10px] sm:text-[11px] font-black tracking-tight leading-none px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 ${
-              isActive ? "bg-[#4AC4FE] text-white border-transparent shadow-sm" : ""
+            <span className={`text-[10px] sm:text-[11px] font-black tracking-tight leading-none px-2 py-1 rounded ${
+              isActive 
+                ? "bg-[#4AC4FE] text-white border-transparent shadow-sm"
+                : isDark 
+                  ? "bg-white/10 border border-white/5 text-slate-300"
+                  : "bg-slate-100 border border-slate-200 text-slate-700"
             }`}>
               {ch.paddedNumber || "000"}
             </span>
@@ -948,11 +956,11 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
 
             {/* Title / Province details */}
             <div className="flex flex-col items-start leading-none gap-1 text-left">
-              <span className="text-xs sm:text-sm font-black tracking-tight text-slate-800">
+              <span className={`text-xs sm:text-sm font-black tracking-tight ${isDark ? "text-white/95" : "text-slate-800"}`}>
                 {ch.name}
               </span>
               {ch.originalProvince && (
-                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">
+                <span className={`text-[9px] font-bold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                   PT-TH {ch.originalProvince}
                 </span>
               )}
@@ -1004,22 +1012,28 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
           onClick={onClick}
           transition={{ duration: 0 }}
           style={{
-            backgroundColor: "#ffffff",
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='%23e2e8f0' stroke-width='5' stroke-linecap='round' opacity='0.6'/%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' opacity='0.9'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='%23cbd5e1' stroke-width='3' stroke-linecap='round' opacity='0.4'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='%23f1f5f9' stroke-width='1' stroke-linecap='round' opacity='0.8'/%3E%3C/svg%3E")`,
+            backgroundColor: isDark ? "rgba(15, 23, 42, 0.45)" : "rgba(255, 255, 255, 0.45)",
+            backgroundImage: isDark 
+              ? `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='rgba(255,255,255,0.08)' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='rgba(255,255,255,0.15)' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='rgba(255,255,255,0.1)' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E")`
+              : `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='%23e2e8f0' stroke-width='5' stroke-linecap='round' opacity='0.6'/%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' opacity='0.9'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='%23cbd5e1' stroke-width='3' stroke-linecap='round' opacity='0.4'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='%23f1f5f9' stroke-width='1' stroke-linecap='round' opacity='0.8'/%3E%3C/svg%3E")`,
             backgroundSize: "100% 100%",
             backgroundRepeat: "no-repeat",
           }}
-          className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden z-10 rounded-2xl border transition-all ${
+          className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden z-10 rounded-2xl border transition-all backdrop-blur-lg ${
             isActive
               ? "border-[#4AC4FE] ring-2 ring-[#4AC4FE]/40 shadow-lg"
-              : "border-slate-200 shadow-sm"
+              : isDark
+                ? "border-white/10 shadow-sm hover:border-white/20"
+                : "border-slate-200/50 shadow-sm hover:border-slate-300"
           }`}
         >
           {/* Padded sequential channel number displayed top-left of the WHITE patterned channel card */}
           <span className={`absolute top-2 left-2 z-30 text-[9px] sm:text-[10px] font-black tracking-tight leading-none px-1.5 py-0.5 rounded ${
             isActive 
               ? "bg-[#4AC4FE] text-white shadow-sm font-bold" 
-              : "bg-slate-100 text-slate-700 border border-slate-200/80 font-bold"
+              : isDark
+                ? "bg-white/10 text-slate-300 border border-white/5 font-bold"
+                : "bg-slate-100 text-slate-700 border border-slate-200/80 font-bold"
           } select-none pointer-events-none transition-all`}>
             {ch.paddedNumber || "000"}
           </span>
@@ -1668,7 +1682,11 @@ function HomeContent({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className={`relative p-5 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 border-b ${isDark ? "border-white/5" : "border-slate-100"} pb-10 select-none max-w-6xl mx-auto w-full`}
+        className={`relative p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 border rounded-[32px] overflow-hidden select-none max-w-6xl mx-auto w-full mb-12 backdrop-blur-xl transition-all ${
+          isDark 
+            ? "bg-slate-950/45 border-white/10 text-white shadow-2xl" 
+            : "bg-white/45 border-slate-200/50 text-slate-800 shadow-xl"
+        }`}
       >
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 md:gap-6 flex-1 text-center sm:text-left">
           {/* Magnified VTV6 Logo */}
@@ -1842,7 +1860,11 @@ function HomeContent({
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className={`p-6 xs:p-8 md:p-16 rounded-[32px] md:rounded-[64px] relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 md:gap-10 shadow-2xl transition-all border ${isDark ? "bg-[#4AC4FE]/10 border-white/5" : "bg-[#4AC4FE]/10 border-[#4AC4FE]/10"}`}
+          className={`p-6 xs:p-8 md:p-16 rounded-[32px] md:rounded-[64px] relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 md:gap-10 shadow-2xl transition-all border backdrop-blur-xl ${
+            isDark 
+              ? "bg-[#4ac4fe]/10 border-white/10" 
+              : "bg-white/45 border-slate-200/50"
+          }`}
         >
           <div className="absolute top-0 right-0 w-96 h-96 bg-[#4AC4FE]/10 blur-[100px] -mr-48 -mt-48" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 blur-[80px] -ml-32 -mb-32" />
@@ -1873,7 +1895,7 @@ function HomeContent({
 
       {/* Featured Ad Banner - System Highlight */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-        <div className={`p-6 md:p-12 rounded-[32px] md:rounded-[48px] border relative overflow-hidden flex flex-col justify-between group cursor-pointer ${isDark ? "bg-slate-900 border-white/5" : "bg-white border-slate-200 shadow-xl"}`}>
+        <div className={`p-6 md:p-12 rounded-[32px] md:rounded-[48px] border relative overflow-hidden flex flex-col justify-between group cursor-pointer backdrop-blur-xl ${isDark ? "bg-slate-950/45 border-white/10" : "bg-white/45 border-slate-200/50 shadow-xl"}`}>
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-3xl -mr-32 -mt-32 transition-all group-hover:scale-110" />
           <div className="space-y-4 relative z-10">
             <div className="p-3 w-fit rounded-2xl bg-blue-500/10 text-blue-500">
@@ -1895,7 +1917,7 @@ function HomeContent({
           </div>
         </div>
 
-        <div className={`p-6 md:p-12 rounded-[32px] md:rounded-[48px] border relative overflow-hidden flex flex-col justify-between group cursor-pointer ${isDark ? "bg-slate-900 border-white/5" : "bg-white border-slate-200 shadow-xl"}`}>
+        <div className={`p-6 md:p-12 rounded-[32px] md:rounded-[48px] border relative overflow-hidden flex flex-col justify-between group cursor-pointer backdrop-blur-xl ${isDark ? "bg-slate-950/45 border-white/10" : "bg-white/45 border-slate-200/50 shadow-xl"}`}>
           <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-3xl -mr-32 -mt-32 transition-all group-hover:scale-110" />
           <div className="space-y-4 relative z-10">
             <div className="p-3 w-fit rounded-2xl bg-amber-500/10 text-amber-500">
@@ -8599,10 +8621,10 @@ function TopBar({
   return (
     <div 
       onContextMenu={onContextMenu}
-      className={`h-14 flex items-center justify-between px-4 sticky top-0 z-[130] transition-all duration-300 border-b ${
+      className={`h-14 flex items-center justify-between px-4 sticky top-0 z-[130] transition-all duration-300 border-b backdrop-blur-2xl ${
         isDark 
-          ? "bg-slate-950/40 border-white/10 text-white backdrop-blur-xl" 
-          : "bg-white/40 border-slate-200/50 text-slate-800 backdrop-blur-xl"
+          ? "bg-[rgba(16,14,12,0.65)] [background-image:linear-gradient(to_bottom,rgba(249,115,22,0.06),rgba(0,0,0,0))] border-orange-500/20 text-white" 
+          : "bg-[rgba(255,248,245,0.68)] border-orange-200/50 text-slate-800"
       }`}
     >
       <div className="flex items-center gap-2">
@@ -8844,8 +8866,10 @@ function SearchContextMenu({
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
         style={{ top: y, left: x }}
-        className={`fixed z-[1001] w-56 rounded-2xl shadow-2xl border p-1.5 overflow-hidden backdrop-blur-xl ${
-          isDark ? "bg-[#11131c]/85 border-white/10 text-white" : "bg-white/85 border-slate-200 text-slate-900 shadow-xl"
+        className={`fixed z-[1001] w-56 rounded-2xl border p-1.5 overflow-hidden backdrop-blur-3xl ${
+          isDark 
+            ? "bg-[#0c0e18]/93 border-white/10 text-white shadow-[0_16px_50px_rgba(0,0,0,0.65)]" 
+            : "bg-white/94 border-slate-200/80 text-slate-900 shadow-[0_16px_35px_rgba(15,23,42,0.2)]"
         }`}
       >
         {menuItems.map((item) => {
@@ -8912,10 +8936,10 @@ function UnifiedContextMenu({
       <div className="fixed inset-0 z-[1000]" onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
         style={{ top: y, left: x }}
-        className={`fixed z-[1001] w-60 rounded-2xl shadow-2xl border p-1.5 overflow-hidden backdrop-blur-xl ${
+        className={`fixed z-[1001] w-60 rounded-2xl border p-1.5 overflow-hidden backdrop-blur-3xl ${
           isDark 
-            ? "bg-[#11131c]/85 border-white/10 text-white shadow-[0_12px_40px_rgba(0,0,0,0.5)]" 
-            : "bg-white/85 border-slate-200 text-[#11131c] shadow-[0_12px_30px_rgba(15,23,42,0.15)]"
+            ? "bg-[#0c0e18]/93 border-white/10 text-white shadow-[0_16px_50px_rgba(0,0,0,0.65)]" 
+            : "bg-white/94 border-slate-200/80 text-[#11131c] shadow-[0_16px_35px_rgba(15,23,42,0.2)]"
         }`}
       >
         {/* Section 1: UI Layout */}
@@ -12702,7 +12726,7 @@ const [headingBar, setHeadingBar] = useState(() => {
         isDark 
           ? "dark text-white bg-slate-950/30" 
           : "text-black bg-white/30"
-      } ${featureFlags.material_design ? "m3-theme" : ""} h-screen flex font-sans transition-all duration-500 overflow-hidden ${useSidebar ? "flex-row" : "flex-col"} ${featureFlags.disable_animation ? "reduce-animations" : ""}`}
+      } ${featureFlags.material_design ? "m3-theme" : ""} h-screen flex font-sans transition-all duration-500 overflow-hidden relative ${useSidebar ? "flex-row" : "flex-col"} ${featureFlags.disable_animation ? "reduce-animations" : ""}`}
       onContextMenu={handleGlobalContextMenu}
       style={{
         paddingLeft: useSidebar && !isMobile && !isSidebarRight 
@@ -12712,12 +12736,20 @@ const [headingBar, setHeadingBar] = useState(() => {
           ? (isSidebarExpanded ? (isCompactMode ? 100 : sidebarWidth) + (sidebarDisplay === "float" ? 24 : 0) : (sidebarDisplay === "float" ? 104 : 80)) 
           : 0,
         paddingTop: headingBar ? 56 : 0,
-        backgroundImage: `url("https://9to5mac.com/wp-content/uploads/sites/6/2026/06/Gold-Gate-wallpaper.png?resize=1451,1000")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
       }}
       >
+        {/* Blurred Background Wallpaper */}
+        <div 
+          className="fixed inset-0 select-none pointer-events-none z-[-1] transition-all duration-500"
+          style={{
+            backgroundImage: `url("https://9to5mac.com/wp-content/uploads/sites/6/2026/06/Gold-Gate-wallpaper.png?resize=1451,1000")`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            filter: isDark ? 'blur(24px) brightness(0.55)' : 'blur(24px) brightness(0.92)',
+            transform: 'scale(1.12)'
+          }}
+        />
       {!showSplash && headingBar && (
         <div 
           className="fixed top-0 left-0 right-0 z-[200] transition-all duration-300"
@@ -13552,10 +13584,12 @@ const [headingBar, setHeadingBar] = useState(() => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.5 }}
                 onClick={() => setIsSidebarExpanded(true)}
-                className={`fixed top-6 z-[51] p-3.5 rounded-2xl shadow-2xl transition-all active:scale-95 ${
+                className={`fixed top-6 z-[51] p-3.5 rounded-2xl shadow-2xl transition-all backdrop-blur-xl active:scale-95 ${
                   isSidebarRight ? "right-6" : "left-6"
                 } ${
-                  isDark ? "bg-vplay-sidebar text-white border border-white/10" : "bg-white text-slate-800 border border-slate-200"
+                  isDark 
+                    ? "bg-[rgba(16,14,12,0.85)] text-white border border-orange-500/20" 
+                    : "bg-[rgba(255,248,245,0.85)] text-slate-800 border border-orange-200"
                 }`}
               >
                 <Menu size={24} />
@@ -13596,8 +13630,8 @@ const [headingBar, setHeadingBar] = useState(() => {
                     : `top-0 h-full ${headingBar ? "pt-14" : ""} border-y-0 shadow-2xl`
               } ${
                 isDark 
-                  ? "bg-slate-950/40 border-white/10 text-white backdrop-blur-xl" 
-                  : "bg-white/40 border-slate-200/50 text-slate-800 shadow-xl backdrop-blur-xl"
+                  ? "bg-[rgba(16,14,12,0.65)] [background-image:linear-gradient(to_bottom,rgba(249,115,22,0.06),rgba(0,0,0,0))] border-orange-500/20 text-white backdrop-blur-2xl shadow-[0_20px_50px_rgba(249,115,22,0.05)]" 
+                  : "bg-[rgba(255,248,245,0.68)] border-orange-200/50 text-slate-800 backdrop-blur-2xl shadow-2xl shadow-orange-500/5"
               }`}
             >
               {/* Resize Handle */}
@@ -13997,10 +14031,10 @@ const [headingBar, setHeadingBar] = useState(() => {
           className="flex items-center gap-1 md:gap-3 pointer-events-auto w-full max-w-lg px-4"
         >
           <motion.nav 
-            className={`flex-1 flex items-center justify-between p-2 transition-all duration-500 overflow-hidden relative rounded-full border shadow-2xl backdrop-blur-xl ${
+            className={`flex-1 flex items-center justify-between p-2 transition-all duration-500 overflow-hidden relative rounded-full border shadow-2xl backdrop-blur-3xl ${
               isDark
-                ? "bg-slate-950/40 border-white/10 text-white"
-                : "bg-white/40 border-slate-200/50 text-slate-800"
+                ? "bg-[rgba(16,14,12,0.85)] border-orange-500/30 text-white shadow-[0_20px_50px_rgba(249,115,22,0.15)]"
+                : "bg-[rgba(255,248,245,0.85)] border-orange-200/80 text-slate-800 shadow-[0_20px_50px_rgba(249,115,22,0.08)]"
             }`}>
             
             {/* Prev Arrow */}
