@@ -544,7 +544,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, logoSca
           alt={alt} 
           referrerPolicy="no-referrer"
           onError={() => setError(true)}
-          className={`${className} object-contain p-0 transition-all duration-300 ${
+          className={`${className} object-contain p-0 transition-all duration-300 group-hover:ring-2 group-hover:ring-[#4AC4FE] group-hover:p-1 group-hover:rounded-lg ${
             liquidGlass === "tinted" 
               ? "opacity-100" 
               : !isDark ? "drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]" : ""
@@ -571,7 +571,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, logoSca
           alt={alt} 
           referrerPolicy="no-referrer"
           onError={() => setError(true)}
-          className={`${className} object-contain p-0 transition-all duration-300 ${
+          className={`${className} object-contain p-0 transition-all duration-300 group-hover:ring-2 group-hover:ring-[#4AC4FE] group-hover:p-1 group-hover:rounded-lg ${
             liquidGlass === "tinted" 
               ? "opacity-100" 
               : !isDark ? "drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]" : ""
@@ -605,7 +605,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, logoSca
           alt={alt} 
           referrerPolicy="no-referrer"
           onError={() => setError(true)}
-          className={`${className} object-contain p-0 transition-all duration-300 ${
+          className={`${className} object-contain p-0 transition-all duration-300 group-hover:ring-2 group-hover:ring-[#4AC4FE] group-hover:p-1 group-hover:rounded-lg ${
             liquidGlass === "tinted" 
               ? "opacity-100" 
               : !isDark ? "drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]" : ""
@@ -628,7 +628,7 @@ function ChannelLogo({ src, alt, className, isDark, liquidGlass, status, logoSca
       alt={alt} 
       referrerPolicy="no-referrer"
       onError={() => setError(true)}
-      className={`${className} object-contain p-0 transition-all duration-300 ${
+      className={`${className} object-contain p-0 transition-all duration-300 group-hover:ring-2 group-hover:ring-[#4AC4FE] group-hover:p-1 group-hover:rounded-lg ${
         liquidGlass === "tinted" 
           ? "opacity-100" 
           : !isDark ? "drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)]" : ""
@@ -916,12 +916,13 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
           style={{
             backgroundColor: "#ffffff",
             backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='%23e2e8f0' stroke-width='5' stroke-linecap='round' opacity='0.6'/%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' opacity='0.9'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='%23cbd5e1' stroke-width='3' stroke-linecap='round' opacity='0.4'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='%23f1f5f9' stroke-width='1' stroke-linecap='round' opacity='0.8'/%3E%3C/svg%3E")`,
-            backgroundSize: "80px 40px",
+            backgroundSize: "100% 100%",
+            backgroundRepeat: "no-repeat",
           }}
           className={`w-full p-2.5 xs:p-3 flex items-center justify-between relative overflow-hidden z-10 rounded-2xl border transition-all ${
             isActive
               ? "border-[#4AC4FE] ring-2 ring-[#4AC4FE]/45 shadow-md"
-              : "border-slate-200 hover:border-slate-400 shadow-sm"
+              : "border-slate-200 shadow-sm"
           }`}
         >
           <div className="flex items-center gap-3 sm:gap-4 z-20">
@@ -932,8 +933,8 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
               {ch.paddedNumber || "000"}
             </span>
 
-            {/* Logo container with hover border */}
-            <div className="relative w-12 h-9 sm:w-14 sm:h-10 flex items-center justify-center p-1 bg-white border border-slate-100 rounded-lg group-hover:border-black group-hover:ring-1 group-hover:ring-black/45 transition-all">
+            {/* Logo container without block hover border */}
+            <div className="relative w-12 h-9 sm:w-14 sm:h-10 flex items-center justify-center p-1 bg-white border border-slate-100 rounded-lg transition-all">
               <ChannelLogo 
                 src={ch.logo} 
                 alt={ch.name} 
@@ -959,6 +960,20 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
           </div>
 
           <div className="flex items-center gap-2 z-20 pr-12">
+            {isActive && (
+              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-600 border border-white/20 shadow-md">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-300 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+                </span>
+                <span className="text-[8px] text-white font-black tracking-widest leading-none">LIVE</span>
+                <div className="flex gap-[1px] items-end h-[7.5px]" style={{ transform: "translateY(0.5px)" }}>
+                  <div className="w-[1px] bg-white rounded-full animate-bounce h-1.5" style={{ animationDuration: '0.8s', animationDelay: '0.1s' }}></div>
+                  <div className="w-[1px] bg-white rounded-full animate-bounce h-2" style={{ animationDuration: '0.8s', animationDelay: '0.3s' }}></div>
+                  <div className="w-[1px] bg-white rounded-full animate-bounce h-1" style={{ animationDuration: '0.8s', animationDelay: '0.5s' }}></div>
+                </div>
+              </div>
+            )}
             {isMaintenance && (
               <span className="bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow-sm">
                 BẢO TRÌ
@@ -991,12 +1006,13 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
           style={{
             backgroundColor: "#ffffff",
             backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='%23e2e8f0' stroke-width='5' stroke-linecap='round' opacity='0.6'/%3E%3Cpath d='M-10 20 Q 20 10 50 20 T 110 20' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' opacity='0.9'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='%23cbd5e1' stroke-width='3' stroke-linecap='round' opacity='0.4'/%3E%3Cpath d='M-10 30 Q 20 20 50 30 T 110 30' fill='none' stroke='%23f1f5f9' stroke-width='1' stroke-linecap='round' opacity='0.8'/%3E%3C/svg%3E")`,
-            backgroundSize: "80px 40px",
+            backgroundSize: "100% 100%",
+            backgroundRepeat: "no-repeat",
           }}
           className={`w-full ${isLiveTab ? "aspect-[1.5/1]" : "aspect-square"} p-2.5 xs:p-3 sm:p-5 flex items-center justify-center relative overflow-hidden z-10 rounded-2xl border transition-all ${
             isActive
               ? "border-[#4AC4FE] ring-2 ring-[#4AC4FE]/40 shadow-lg"
-              : "border-slate-200 hover:border-slate-400 shadow-sm"
+              : "border-slate-200 shadow-sm"
           }`}
         >
           {/* Padded sequential channel number displayed top-left of the WHITE patterned channel card */}
@@ -1023,12 +1039,27 @@ function ChannelCard({ ch, onClick, isDark, isActive, favorites, toggleFavorite,
               SẮP RA MẮT
             </div>
           )}
+
+          {isActive && (
+            <div className="absolute bottom-2 right-2 z-30 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-rose-600 border border-white/20 shadow-md">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-300 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+              </span>
+              <span className="text-[8px] text-white font-black tracking-widest leading-none">LIVE</span>
+              <div className="flex gap-[1px] items-end h-[7.5px]" style={{ transform: "translateY(0.5px)" }}>
+                <div className="w-[1px] bg-white rounded-full animate-bounce h-1.5" style={{ animationDuration: '0.8s', animationDelay: '0.1s' }}></div>
+                <div className="w-[1px] bg-white rounded-full animate-bounce h-2" style={{ animationDuration: '0.8s', animationDelay: '0.3s' }}></div>
+                <div className="w-[1px] bg-white rounded-full animate-bounce h-1" style={{ animationDuration: '0.8s', animationDelay: '0.5s' }}></div>
+              </div>
+            </div>
+          )}
           
           {/* Logo parent perfectly centered vertically and horizontally inside the tile with white background */}
           <div className="absolute inset-0 flex items-center justify-center z-10 p-3 sm:p-4">
             <div className="relative w-full h-[62%] flex items-center justify-center">
-              {/* Main Centered Logo with black hover border */}
-              <div className="flex items-center justify-center p-1.5 rounded-xl border border-transparent transition-all group-hover:border-black group-hover:ring-2 group-hover:ring-black/45">
+              {/* Main Centered Logo without container border */}
+              <div className="flex items-center justify-center p-1.5 rounded-xl border border-transparent transition-all">
                 <ChannelLogo 
                   src={ch.logo} 
                   alt={ch.name} 
@@ -5841,10 +5872,10 @@ function RejuvenatedSettingsItem({ icon: Icon, title, description, onClick, isDa
   return (
     <button 
       onClick={onClick}
-      className={`w-full flex items-center gap-6 p-6 rounded-[24px] transition-all border group ${
+      className={`w-full flex items-center gap-6 p-6 rounded-[24px] transition-all border group backdrop-blur-md ${
         isDark 
-          ? "bg-white/[0.03] border-white/5 hover:bg-white/[0.08] hover:border-white/10 shadow-inner" 
-          : "bg-white border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300"
+          ? "bg-slate-950/40 border-white/10 hover:bg-slate-950/60 hover:border-white/20 text-white shadow-inner" 
+          : "bg-white/45 border-slate-200/50 shadow-sm hover:bg-white/60 hover:border-slate-300 text-slate-800"
       }`}
     >
       <div className={`p-4 rounded-2xl ${isDark ? "bg-white/5 text-[#4AC4FE]" : "bg-[#4AC4FE]/10 text-[#4AC4FE]"}`}>
@@ -8568,8 +8599,10 @@ function TopBar({
   return (
     <div 
       onContextMenu={onContextMenu}
-      className={`h-14 flex items-center justify-between px-4 sticky top-0 z-[130] transition-all duration-300 ${
-        isDark ? "bg-vplay-topbar" : "bg-slate-50"
+      className={`h-14 flex items-center justify-between px-4 sticky top-0 z-[130] transition-all duration-300 border-b ${
+        isDark 
+          ? "bg-slate-950/40 border-white/10 text-white backdrop-blur-xl" 
+          : "bg-white/40 border-slate-200/50 text-slate-800 backdrop-blur-xl"
       }`}
     >
       <div className="flex items-center gap-2">
@@ -11581,6 +11614,7 @@ function App() {
   const [showWelcomeCanary, setShowWelcomeCanary] = useState(() => {
     return localStorage.getItem("vplay_canary_welcome_seen") !== "true";
   });
+  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
   const [isWidgetsOpen, setIsWidgetsOpen] = useState(false);
   const [activeDashboardTab, setActiveDashboardTab] = useState<"widgets" | "changelogs" | "labs" | "settings">("widgets");
   const [activeTab, setActiveTab] = useState("Trang chủ");
@@ -12666,8 +12700,8 @@ const [headingBar, setHeadingBar] = useState(() => {
       </AnimatePresence>
       <div className={`${
         isDark 
-          ? "dark bg-[#11131c] text-white" 
-          : "bg-[#f8fafc] text-black"
+          ? "dark text-white bg-slate-950/30" 
+          : "text-black bg-white/30"
       } ${featureFlags.material_design ? "m3-theme" : ""} h-screen flex font-sans transition-all duration-500 overflow-hidden ${useSidebar ? "flex-row" : "flex-col"} ${featureFlags.disable_animation ? "reduce-animations" : ""}`}
       onContextMenu={handleGlobalContextMenu}
       style={{
@@ -12678,6 +12712,10 @@ const [headingBar, setHeadingBar] = useState(() => {
           ? (isSidebarExpanded ? (isCompactMode ? 100 : sidebarWidth) + (sidebarDisplay === "float" ? 24 : 0) : (sidebarDisplay === "float" ? 104 : 80)) 
           : 0,
         paddingTop: headingBar ? 56 : 0,
+        backgroundImage: `url("https://9to5mac.com/wp-content/uploads/sites/6/2026/06/Gold-Gate-wallpaper.png?resize=1451,1000")`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
       }}
       >
       {!showSplash && headingBar && (
@@ -12746,7 +12784,62 @@ const [headingBar, setHeadingBar] = useState(() => {
             <OnboardingWizard isDark={isDark} onComplete={handleOnboardingComplete} onLogin={handleLogin} />
           </div>
         )}
-        {showWelcomeCanary && (
+        {showWelcomeModal && (
+          <div key="welcome-custom-modal" className="fixed inset-0 z-[250] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              onClick={() => {
+                setShowWelcomeModal(false);
+              }} 
+              className="absolute inset-0 bg-black/60 backdrop-blur-md" 
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 30 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.9, y: 30 }} 
+              transition={{ type: "spring", damping: 25, stiffness: 180 }}
+              className={`relative w-full max-w-xl rounded-[32px] overflow-hidden p-8 shadow-2xl border backdrop-blur-3xl ${
+                isDark 
+                  ? "bg-slate-950/45 text-slate-100 border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)]" 
+                  : "bg-white/45 text-slate-900 border-white/40 shadow-[0_20px_50px_rgba(0,0,0,0.15)]"
+              }`}
+            >
+              <div className="flex flex-col items-center text-center space-y-6">
+                <div className={`p-4 rounded-full ${
+                  isDark ? "bg-orange-500/20 text-orange-400 border border-orange-500/30 animate-pulse" : "bg-orange-100 text-orange-600 border border-orange-200 animate-pulse"
+                }`}>
+                  <Sparkles size={36} />
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-3xl font-black tracking-tight">
+                    Chào mừng tới <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-rose-500 bg-clip-text text-transparent font-extrabold">Vplay 26.7</span>
+                  </h3>
+                  <div className="h-1.5 w-20 mx-auto rounded-full bg-gradient-to-r from-orange-500 to-amber-500" />
+                </div>
+                <p className={`text-sm leading-relaxed text-justify sm:text-center font-medium ${
+                  isDark ? "text-slate-300" : "text-slate-700"
+                }`}>
+                  Phiên bản Vplay 26.6 cũng đã hoàn thành và đi đến kết thúc, một hành trình mới lại bắt đầu. Vplay 26.7 là bản cập nhật hoàn toàn mới của Vplay, dự kiến ra mắt vào tháng 7 năm 2026, đem đến một trải nghiệm đẹp hơn, hấp dẫn hơn với hình nền tự do và sự trở lại hiệu ứng Liquid Glass trên Vplay, nay trải dài khắp các thành phần của ứng dụng. Và đó chỉ là những bước đi đầu tiên, chúng tôi đã lên kế hoạch cho nhiều điều mới sắp tới dành cho Vplay 26.7. Vplay 26.7 sẽ khởi đầu với phiên bản Vplay Canary và sớm tiến tới Vplay Dev ổn định và hoàn thiện hơn.
+                </p>
+                <div className="pt-2 w-full flex justify-center">
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      setShowWelcomeModal(false);
+                    }} 
+                    className="cursor-pointer w-full sm:w-auto px-10 py-3.5 rounded-full font-black text-sm tracking-widest uppercase transition-all shadow-lg bg-orange-500 hover:bg-orange-600 text-white shadow-orange-500/20 active:scale-[0.98]"
+                  >
+                    Trải nghiệm ngay
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+        {showWelcomeCanary && !showWelcomeModal && (
           <div key="canary-welcome-container" className="fixed inset-0 z-[200] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }} 
@@ -13502,9 +13595,10 @@ const [headingBar, setHeadingBar] = useState(() => {
                     ? `top-0 h-full ${headingBar ? "pt-14" : "pt-6"} pb-6 !rounded-b-[32px] ${headingBar ? "!rounded-t-none" : "!rounded-t-[32px]"} shadow-2xl`
                     : `top-0 h-full ${headingBar ? "pt-14" : ""} border-y-0 shadow-2xl`
               } ${
-                isDark ? "bg-vplay-sidebar border-white/5 text-white" : "bg-slate-50 border-slate-200 text-slate-800 shadow-xl"
+                isDark 
+                  ? "bg-slate-950/40 border-white/10 text-white backdrop-blur-xl" 
+                  : "bg-white/40 border-slate-200/50 text-slate-800 shadow-xl backdrop-blur-xl"
               }`}
-              style={{ background: isDark ? "var(--vplay-sidebar)" : undefined }}
             >
               {/* Resize Handle */}
               {!isSidebarLocked && !isMobile && isSidebarExpanded && (
@@ -13903,12 +13997,10 @@ const [headingBar, setHeadingBar] = useState(() => {
           className="flex items-center gap-1 md:gap-3 pointer-events-auto w-full max-w-lg px-4"
         >
           <motion.nav 
-            className={`flex-1 flex items-center justify-between p-2 transition-all duration-500 overflow-hidden relative ${
-              liquidGlass === "tinted"
-                ? `rounded-full border shadow-[0_20px_40px_rgba(0,0,0,0.15)] backdrop-blur-[100px] bg-white/80 border-white/80`
-                : liquidGlass === "glassy"
-                  ? "rounded-full border shadow-[0_30px_60px_rgba(0,0,0,0.2)] backdrop-blur-[120px] bg-white/10 border-white/20"
-                  : `rounded-none border-t w-full justify-around backdrop-blur-none shadow-2xl ${isDark ? "bg-slate-900/95 border-white/5" : "bg-white/60 border-white/40"}`
+            className={`flex-1 flex items-center justify-between p-2 transition-all duration-500 overflow-hidden relative rounded-full border shadow-2xl backdrop-blur-xl ${
+              isDark
+                ? "bg-slate-950/40 border-white/10 text-white"
+                : "bg-white/40 border-slate-200/50 text-slate-800"
             }`}>
             
             {/* Prev Arrow */}
